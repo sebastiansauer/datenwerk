@@ -1,0 +1,99 @@
+---
+extype: string
+exsolution: NA
+exname: nichtlineareregr1
+expoints: 1
+tags:
+- lm
+- vis
+categories:
+- qm2
+- qm2-thema01
+- ws22
+date: '2022-07-10'
+slug: nichtlineare-regr1
+title: nichtlineare-regr1
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Wir suchen ein Modell, das einen <em>nichtlinearen</em> Zusammenhang von PS-Zahl und Spritverbrauch darstellt (Datensatz <code>mtcars</code>).</p>
+<p>Geben Sie dafür ein mögliches Modell an! Nutzen Sie den R-Befehl <code>lm</code>.</p>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<pre class="r"><code>mtcars &lt;-
+  mtcars %&gt;% 
+  mutate(mpg_log = log(mpg)) 
+
+lm1 &lt;- lm(mpg_log ~ hp, data = mtcars)
+summary(lm1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg_log ~ hp, data = mtcars)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.41577 -0.06583 -0.01737  0.09827  0.39621 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.4604669  0.0785838  44.035  &lt; 2e-16 ***
+## hp          -0.0034287  0.0004867  -7.045 7.85e-08 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1858 on 30 degrees of freedom
+## Multiple R-squared:  0.6233, Adjusted R-squared:  0.6107 
+## F-statistic: 49.63 on 1 and 30 DF,  p-value: 7.853e-08</code></pre>
+<p>Visualisieren wir die Vorhersagen des Modells:</p>
+<pre class="r"><code>mtcars &lt;-
+  mtcars %&gt;% 
+  mutate(pred = predict(lm1))</code></pre>
+<pre class="r"><code>mtcars %&gt;% 
+  ggplot() +
+  aes(x = hp) +
+  geom_line(aes( y = pred), color = &quot;blue&quot;) +
+  geom_point(aes(y = mpg_log)) +
+  labs(y = &quot;log(mpg)&quot;,
+       title = &quot;Vorhersage von log-mpg in einem Log-Y-Modell&quot;)</code></pre>
+<p><img src="/post/nichtlineareregr1/nichtlineareregr1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Möchte man auf der Y-Achse <em>mpg</em> und nicht log(mpg) anzeigen, muss man den Logarithmus wieder “auflösen”, das erreicht man mit der Umkehrfunktion des Logarithmus, das Exponentieren (man “delogarithmiert”):</p>
+<p><span class="math display">\[\begin{aligned}
+log(y) &amp;= x \qquad | \text{Y in Log-Form}\\
+    exp(log(y)) &amp;= exp(x)  \qquad | \text{Jetzt exponenzieren wir beide Seiten}\\
+    y = exp(x)
+\end{aligned}\]</span></p>
+<p>Dabei gilt <span class="math inline">\(exp(x) = e^x\)</span>, mit <span class="math inline">\(e\)</span> als Eulersche Zahl (2.71…).</p>
+<pre class="r"><code>mtcars &lt;-
+  mtcars %&gt;% 
+  mutate(pred_delog = exp(pred))  # delogarithmieren</code></pre>
+<pre class="r"><code>mtcars %&gt;% 
+  ggplot() +
+  aes(x = hp) +
+  geom_line(aes( y = pred_delog), color = &quot;blue&quot;) +
+  geom_point(aes(y = mpg_log)) +
+  labs(y = &quot;mpg&quot;,
+       title = &quot;Vorhersage von mpg in einem Log-Y-Modell&quot;)</code></pre>
+<p><img src="/post/nichtlineareregr1/nichtlineareregr1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>qm2</li>
+<li>qm2-thema01</li>
+<li>ws22</li>
+</ul>
+</div>

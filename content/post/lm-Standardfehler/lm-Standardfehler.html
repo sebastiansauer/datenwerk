@@ -1,0 +1,221 @@
+---
+exname: lm-Standardfehler
+extype: schoice
+exsolution: 1
+exshuffle: no
+tags:
+- inference
+- lm
+categories:
+- qm2
+- qm2-thema01
+- ws22
+date: '2022-07-10'
+slug: lm-Standardfehler
+title: lm-Standardfehler
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Man kann angeben, wie genau eine Schätzung von Regressionskoeffizienten die Grundgesamtheit widerspiegelt.
+Zumeist wird dazu der <em>Standardfehler</em> (engl. standard error, SE) verwendet.</p>
+<p>In dieser Übung untersuchen wir,
+wie sich der SE als Funktion der Stichprobengröße, <span class="math inline">\(n\)</span>, verhält.</p>
+<p>Erstellen Sie dazu folgenden Datensatz:</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
+## ✔ readr   2.1.2     ✔ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>n &lt;- 2^4
+
+d &lt;-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))</code></pre>
+<p>Hier ist das Ergebnis. Uns interessiert v.a. <code>Std. Error</code> für den Prädiktor <code>x</code>:</p>
+<pre class="r"><code>lm(y ~ x, data = d) %&gt;% 
+summary()</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x, data = d)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4691 -0.1671  0.1412  0.3928  1.0587 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.1400     0.1726   0.811    0.431    
+## x             0.9091     0.1454   6.254 2.11e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.6801 on 14 degrees of freedom
+## Multiple R-squared:  0.7364, Adjusted R-squared:  0.7176 
+## F-statistic: 39.11 on 1 and 14 DF,  p-value: 2.114e-05</code></pre>
+<p>Hier haben wir eine Tabelle mit zwei Variablen, x und y, definiert mit n=16.</p>
+<p>Verdoppeln Sie die Stichprobengröße 5 Mal und betrachten Sie,
+wie sich die Schätzgenauigkeit, gemessen über den SE, verändert.
+Berechnen Sie dazu für jedes n eine Regression mit x als Prädiktor und y als AV!</p>
+<p>Bei welcher Stichprobengröße ist SE am kleinsten?</p>
+<div id="answerlist" class="section level2">
+<h2>Answerlist</h2>
+<ul>
+<li><span class="math inline">\(2^5\)</span></li>
+<li><span class="math inline">\(2^6\)</span></li>
+<li><span class="math inline">\(2^7\)</span></li>
+<li><span class="math inline">\(2^8\)</span></li>
+<li><span class="math inline">\(2^9\)</span></li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<p>Probieren wir es aus!</p>
+<p>Erste Verdopplung, <span class="math inline">\(n=2^5\)</span>:</p>
+<pre class="r"><code>n &lt;- 2^5
+
+d5 &lt;-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+lm5 &lt;- lm(y ~ x, data = d5)
+
+lm5 %&gt;% summary()</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x, data = d5)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.68715 -0.28669 -0.00344  0.19131  0.94701 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -0.01049    0.07392  -0.142    0.888    
+## x            1.08799    0.07182  15.150 1.35e-15 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.4181 on 30 degrees of freedom
+## Multiple R-squared:  0.8844, Adjusted R-squared:  0.8805 
+## F-statistic: 229.5 on 1 and 30 DF,  p-value: 1.346e-15</code></pre>
+<p>Man kann sich den Standardfehler komfortabler ausgeben lassen,
+wenn man das Paket <code>broom</code> verwendet:</p>
+<pre class="r"><code>library(broom)
+lm5 %&gt;% 
+  tidy()</code></pre>
+<pre><code>## # A tibble: 2 × 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)  -0.0105    0.0739    -0.142 8.88e- 1
+## 2 x             1.09      0.0718    15.1   1.35e-15</code></pre>
+<p>Dann könnte man z.B. die Spalte <code>std.error</code> selektieren und nach <code>term==x</code> filtern:</p>
+<pre class="r"><code>lm5 %&gt;% 
+  tidy() %&gt;% 
+  filter(term == &quot;x&quot;)  %&gt;% 
+  select(std.error) </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   std.error
+##       &lt;dbl&gt;
+## 1    0.0718</code></pre>
+<p>Jetzt mit den anderen Stichprobengrößen:</p>
+<pre class="r"><code>n &lt;- 2^6
+
+d &lt;-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm &lt;- lm(y ~ x, data = d)
+
+mein_lm %&gt;% 
+  tidy() %&gt;% 
+  filter(term == &quot;x&quot;)  %&gt;% 
+  select(std.error) </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   std.error
+##       &lt;dbl&gt;
+## 1    0.0829</code></pre>
+<pre class="r"><code>n &lt;- 2^7
+
+d &lt;-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm &lt;- lm(y ~ x, data = d)
+
+mein_lm %&gt;% 
+  tidy() %&gt;% 
+  filter(term == &quot;x&quot;)  %&gt;% 
+  select(std.error) </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   std.error
+##       &lt;dbl&gt;
+## 1    0.0425</code></pre>
+<pre class="r"><code>n &lt;- 2^8
+
+d &lt;-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm &lt;- lm(y ~ x, data = d)
+
+mein_lm %&gt;% 
+  tidy() %&gt;% 
+  filter(term == &quot;x&quot;)  %&gt;% 
+  select(std.error) </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   std.error
+##       &lt;dbl&gt;
+## 1    0.0308</code></pre>
+<pre class="r"><code>n &lt;- 2^9
+
+d &lt;-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm &lt;- lm(y ~ x, data = d)
+
+mein_lm %&gt;% 
+  tidy() %&gt;% 
+  filter(term == &quot;x&quot;)  %&gt;% 
+  select(std.error) </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   std.error
+##       &lt;dbl&gt;
+## 1    0.0228</code></pre>
+<div id="answerlist-1" class="section level2">
+<h2>Answerlist</h2>
+<ul>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Wahr. Die größte Stichprobe impliziert den kleinsten SE, ceteris paribus.</li>
+</ul>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>qm2</li>
+<li>qm2-thema01</li>
+<li>ws22</li>
+</ul>
+</div>
+</div>

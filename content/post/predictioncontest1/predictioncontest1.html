@@ -1,0 +1,204 @@
+---
+extype: string
+exsolution: NA
+exname: predictioncontest1
+expoints: 1
+tags:
+- prediction
+- tidymodels
+categories:
+- R
+- ds1
+- sose22
+date: '2022-07-10'
+slug: predictioncontest1
+title: predictioncontest1
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Erstellen Sie eine Analyse, die einem typischen Vorhersageprojekt entspricht!</p>
+<p>Nutzen Sie den Datensatz <code>palmerpenguins</code>!</p>
+<p>Sagen Sie die Variable <code>body_mass_g</code> vorher.</p>
+<p>Hinweise:</p>
+<ul>
+<li>Halten Sie die Analyse einfach.</li>
+<li>Teilen Sie Test- vs. Train-Set hälftig auf.</li>
+<li>Teilen Sie Analysis vs. Assessment-Set 3:1 auf.</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<p>Pakete laden:</p>
+<pre class="r"><code>library(tidymodels)</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────── tidymodels 0.2.0 ──</code></pre>
+<pre><code>## ✔ broom        0.8.0     ✔ recipes      0.2.0
+## ✔ dials        0.1.1     ✔ rsample      0.1.1
+## ✔ dplyr        1.0.9     ✔ tibble       3.1.7
+## ✔ ggplot2      3.3.6     ✔ tidyr        1.2.0
+## ✔ infer        1.0.2     ✔ tune         0.2.0
+## ✔ modeldata    0.1.1     ✔ workflows    0.2.6
+## ✔ parsnip      0.2.1     ✔ workflowsets 0.2.1
+## ✔ purrr        0.3.4     ✔ yardstick    1.0.0</code></pre>
+<pre><code>## ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+## ✖ purrr::discard() masks scales::discard()
+## ✖ dplyr::filter()  masks stats::filter()
+## ✖ dplyr::lag()     masks stats::lag()
+## ✖ recipes::step()  masks stats::step()
+## • Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✔ readr   2.1.2     ✔ forcats 0.5.1
+## ✔ stringr 1.4.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ readr::col_factor() masks scales::col_factor()
+## ✖ purrr::discard()    masks scales::discard()
+## ✖ dplyr::filter()     masks stats::filter()
+## ✖ stringr::fixed()    masks recipes::fixed()
+## ✖ dplyr::lag()        masks stats::lag()
+## ✖ readr::spec()       masks yardstick::spec()</code></pre>
+<pre class="r"><code>library(easystats)</code></pre>
+<pre><code>## # Attaching packages: easystats 0.5.0 (red = needs update)
+## ✖ insight     0.17.1.8   ✔ datawizard  0.4.1.3 
+## ✔ bayestestR  0.12.1.1   ✖ performance 0.9.0.6 
+## ✔ parameters  0.18.1.2   ✔ effectsize  0.7.0   
+## ✔ modelbased  0.8.1.1    ✔ correlation 0.8.1.1 
+## ✖ see         0.7.0.2    ✔ report      0.5.1.2 
+## 
+## Restart the R-Session and update packages in red with &#39;easystats::easystats_update()&#39;.</code></pre>
+<pre class="r"><code>data(&quot;penguins&quot;, package = &quot;palmerpenguins&quot;)</code></pre>
+<p>Zeilen mischen und Train- vs. Testset aufteilen:</p>
+<pre class="r"><code>penguins2 &lt;-
+  penguins %&gt;% 
+  sample_n(size = nrow(.))
+
+d_train &lt;- penguins2 %&gt;% slice(1:(344/2))
+d_test &lt;- penguins2 %&gt;% slice(173:nrow(penguins))</code></pre>
+<p>Das Trainset weiter aufteilen:</p>
+<pre class="r"><code>d_split &lt;- initial_split(d_train)
+
+d_analysis &lt;- training(d_split)
+d_assessment &lt;- testing(d_split)</code></pre>
+<p>Rezept definieren:</p>
+<pre class="r"><code>rec1 &lt;-
+  recipe(body_mass_g ~ ., data = d_analysis) %&gt;% 
+  step_impute_knn(all_predictors()) %&gt;% 
+  step_normalize(all_numeric(), -all_outcomes())</code></pre>
+<p>Rezept prüfen:</p>
+<pre class="r"><code>d_analysis_baked &lt;- 
+rec1 %&gt;% 
+  prep() %&gt;% 
+  bake(new_data = NULL)
+
+describe_distribution(d_analysis_baked)</code></pre>
+<pre><code>## Variable          |      Mean |     SD |     IQR |              Range | Skewness | Kurtosis |   n | n_Missing
+## -------------------------------------------------------------------------------------------------------------
+## bill_length_mm    | -5.23e-16 |   1.00 |    1.79 |      [-2.09, 1.65] |    -0.13 |    -1.22 | 129 |         0
+## bill_depth_mm     |  5.14e-16 |   1.00 |    1.61 |      [-1.97, 2.09] |    -0.14 |    -0.95 | 129 |         0
+## flipper_length_mm |  4.38e-16 |   1.00 |    1.66 |      [-1.77, 2.13] |     0.41 |    -0.94 | 129 |         0
+## year              | -1.11e-14 |   1.00 |    2.52 |      [-1.21, 1.31] |     0.07 |    -1.41 | 129 |         0
+## body_mass_g       |   4164.73 | 749.70 | 1137.50 | [2700.00, 5800.00] |     0.37 |    -0.68 | 129 |         0</code></pre>
+<p>Workflow und CV definieren:</p>
+<pre class="r"><code>m1 &lt;- 
+  linear_reg()
+
+wf1 &lt;-
+  workflow() %&gt;% 
+  add_recipe(rec1) %&gt;% 
+  add_model(m1)
+
+cv_scheme &lt;- vfold_cv(d_analysis, v = 2)</code></pre>
+<p>Fitten (hier kein Tuning):</p>
+<pre class="r"><code>fit1 &lt;-
+  wf1 %&gt;% 
+  tune_grid(resamples = cv_scheme)</code></pre>
+<pre><code>## Warning: No tuning parameters have been detected, performance will be evaluated
+## using the resamples with no tuning. Did you want to [tune()] parameters?</code></pre>
+<p>Finalisieren:</p>
+<pre class="r"><code>show_best(fit1)</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre><code>## # A tibble: 1 × 6
+##   .metric .estimator  mean     n std_err .config             
+##   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+## 1 rmse    standard    293.     2    9.97 Preprocessor1_Model1</code></pre>
+<pre class="r"><code>wf1_final &lt;-
+  wf1 %&gt;% 
+  finalize_workflow(show_best(fit1))</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre class="r"><code>wf1_final</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 2 Recipe Steps
+## 
+## • step_impute_knn()
+## • step_normalize()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Linear Regression Model Specification (regression)
+## 
+## Computational engine: lm</code></pre>
+<p>Modellgüte:</p>
+<pre class="r"><code>fit1_final &lt;-
+  wf1_final %&gt;% 
+  last_fit(d_split)
+
+
+collect_metrics(fit1_final)</code></pre>
+<pre><code>## # A tibble: 2 × 4
+##   .metric .estimator .estimate .config             
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
+## 1 rmse    standard     287.    Preprocessor1_Model1
+## 2 rsq     standard       0.863 Preprocessor1_Model1</code></pre>
+<pre class="r"><code>fit1_train &lt;-
+  wf1_final %&gt;% 
+  fit(d_train)
+
+
+fit1_test &lt;-
+  fit1_train %&gt;% 
+  predict(d_test)
+
+head(fit1_test)</code></pre>
+<pre><code>## # A tibble: 6 × 1
+##   .pred
+##   &lt;dbl&gt;
+## 1 4714.
+## 2 4060.
+## 3 3407.
+## 4 3311.
+## 5 4238.
+## 6 4919.</code></pre>
+<p>Vgl <a href="https://workflows.tidymodels.org/reference/predict-workflow.html" class="uri">https://workflows.tidymodels.org/reference/predict-workflow.html</a></p>
+<p>Submitten:</p>
+<pre class="r"><code>subm_df &lt;-
+  d_test %&gt;% 
+  mutate(id = 173:344) %&gt;% 
+  bind_cols(fit1_test) %&gt;% 
+  select(id, .pred) %&gt;% 
+  rename(pred = .pred)</code></pre>
+<p>Und als CSV-Datei speichern:</p>
+<pre class="r"><code>#write_csv(subm_df, file = &quot;submission_blabla.csv&quot;)</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>R</li>
+<li>ds1</li>
+<li>sose22</li>
+</ul>
+</div>

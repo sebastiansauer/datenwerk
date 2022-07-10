@@ -1,0 +1,119 @@
+---
+extype: string
+exsolution: NA
+exname: nichtlineareregr1
+expoints: 1
+tags:
+- lm
+- vis
+categories:
+- qm2
+- qm2-thema01
+- ws22
+date: '2022-07-10'
+slug: nichtlineare-regr1
+title: nichtlineare-regr1
+
+---
+
+
+# Exercise
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+Wir suchen ein Modell, das einen *nichtlinearen* Zusammenhang von PS-Zahl und Spritverbrauch darstellt (Datensatz `mtcars`).
+
+
+Geben Sie dafür ein mögliches Modell an! Nutzen Sie den R-Befehl `lm`. 
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(mpg_log = log(mpg)) 
+
+lm1 <- lm(mpg_log ~ hp, data = mtcars)
+summary(lm1)
+```
+
+
+Visualisieren wir die Vorhersagen des Modells:
+
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(pred = predict(lm1))
+```
+
+
+```{r}
+mtcars %>% 
+  ggplot() +
+  aes(x = hp) +
+  geom_line(aes( y = pred), color = "blue") +
+  geom_point(aes(y = mpg_log)) +
+  labs(y = "log(mpg)",
+       title = "Vorhersage von log-mpg in einem Log-Y-Modell")
+```
+
+
+Möchte man auf der Y-Achse *mpg* und nicht log(mpg) anzeigen, muss man den Logarithmus wieder "auflösen", das erreicht man mit der Umkehrfunktion des Logarithmus, das Exponentieren (man "delogarithmiert"):
+
+$$\begin{aligned}
+log(y) &= x \qquad | \text{Y in Log-Form}\\
+    exp(log(y)) &= exp(x)  \qquad | \text{Jetzt exponenzieren wir beide Seiten}\\
+    y = exp(x)
+\end{aligned}$$
+
+
+Dabei gilt $exp(x) = e^x$, mit $e$ als Eulersche Zahl (2.71...).
+
+
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(pred_delog = exp(pred))  # delogarithmieren
+```
+
+
+```{r}
+mtcars %>% 
+  ggplot() +
+  aes(x = hp) +
+  geom_line(aes( y = pred_delog), color = "blue") +
+  geom_point(aes(y = mpg_log)) +
+  labs(y = "mpg",
+       title = "Vorhersage von mpg in einem Log-Y-Modell")
+```
+
+
+
+
+---
+
+Categories: 
+
+- qm2
+- qm2-thema01
+- ws22
+
