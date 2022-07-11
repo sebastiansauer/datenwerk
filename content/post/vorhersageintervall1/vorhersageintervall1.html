@@ -1,0 +1,88 @@
+---
+exname: vorhersageintervall1
+extype: schoice
+exsolution: 1
+exshuffle: no
+tags:
+- lm
+- inference
+categories:
+- qm2
+- qm2-thema01
+- ws22
+date: '2022-07-11'
+slug: vorhersageintervall1
+title: vorhersageintervall1
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Vorhersagen, etwa in einem Regressionsmodell,
+sind mit mehreren Arten von Unsicherheit konfrontiert.</p>
+<p>Berechnen Sie dazu ein Regressionsmodell, Datensatz <code>mtcars</code>,
+mit <code>hp</code> als Prädiktor (UV) und <code>mpg</code> als AV (Kriterium)!</p>
+<p>Dann sagen Sie bitte den Wert der AV für eine Beobachtungseinheit mit mittlerer Ausprägung im Präktor vorher:</p>
+<p>Einmal nur unter Berücksichtigung der Unsicherheit innerhalb des Modells (“Konfidenzintervall”); einmal unter Berüksichtigung der Unsicherheit innerhalb des Modells sowie die Unsicherheit durch die Koffizienten (“Vohersageintervall”).</p>
+<p>Hinweise:</p>
+<ul>
+<li><code>predict()</code> ist eine Funktion, die Sie zur Vorhersage von Regressionsmodellen verwenden können.</li>
+<li>Verwenden Sie <code>lm()</code> zur Berechnung eines Regressionsmodells.</li>
+<li>Das Argument <code>type</code> von <code>predict()</code> erlaubt Ihnen die Wahl der Art der Vorhersage, betrachten Sie Hilfe der Funktion z.B. <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/predict.lm">hier</a>.</li>
+</ul>
+<p>Bei welchem Intervall ist die Ungewissheit in der Vorhersage größer?</p>
+<div id="answerlist" class="section level2">
+<h2>Answerlist</h2>
+<ul>
+<li>Konfidenzintervall</li>
+<li>Vohersageintervall</li>
+<li>Gleich groß</li>
+<li>Kommt auf weitere Faktoren an, keine pauschale Antwort möglich</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<p>Der mittlere Wert von <code>hp</code> beträgt:</p>
+<pre class="r"><code>mtcars %&gt;% 
+  summarise(mean(hp))</code></pre>
+<pre><code>##   mean(hp)
+## 1 146.6875</code></pre>
+<pre class="r"><code>lm1 &lt;- lm(mpg ~ hp, data = mtcars)</code></pre>
+<p>Konfidenzintervall:</p>
+<pre class="r"><code>predict(lm1, newdata = tibble(hp = mean(147)), interval = &quot;confidence&quot;)</code></pre>
+<pre><code>##       fit      lwr      upr
+## 1 20.0693 18.67466 21.46395</code></pre>
+<p>Vorhersageintervall:</p>
+<pre class="r"><code>predict(lm1, newdata = tibble(hp = mean(147)), interval = &quot;prediction&quot;)</code></pre>
+<pre><code>##       fit      lwr      upr
+## 1 20.0693 12.05776 28.08085</code></pre>
+<div id="answerlist-1" class="section level2">
+<h2>Answerlist</h2>
+<ul>
+<li>Falsch</li>
+<li>Wahr</li>
+<li>Falsch</li>
+<li>Falsch</li>
+</ul>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>qm2</li>
+<li>qm2-thema01</li>
+<li>ws22</li>
+</ul>
+</div>
+</div>
