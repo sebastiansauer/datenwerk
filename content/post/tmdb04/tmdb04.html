@@ -1,0 +1,476 @@
+---
+exname: tmdb04
+extype: num
+exsolution: r sol
+extol: 0.2
+expoints: 1
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb04
+title: tmdb04
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Wir bearbeiten hier die Fallstudie <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>,
+ein <a href="https://www.kaggle.com/">Kaggle</a>-Prognosewettbewerb.</p>
+<p>Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.</p>
+<p>Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:</p>
+<pre class="r"><code>d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot;
+d_test_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv&quot;</code></pre>
+</div>
+<div id="aufgabe" class="section level1">
+<h1>Aufgabe</h1>
+<p>Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!</p>
+<p>Hinweise:</p>
+<ul>
+<li>Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.</li>
+<li>Halten Sie das Modell so <em>einfach</em> wie möglich. Verwenden Sie als Algorithmus die <em>lineare Regression</em> ohne weitere Schnörkel.</li>
+<li>Logarithmieren Sie <code>budget</code> und <code>revenue</code>.</li>
+<li>Minimieren Sie die Vorverarbeitung (<code>steps</code>) so weit als möglich.</li>
+<li>Verwenden Sie <code>tidymodels</code>.</li>
+<li>Die Zielgröße ist <code>revenue</code> in Dollars; nicht in “Log-Dollars”. Sie müssen also rücktransformieren,
+wenn Sie <code>revenue</code> logarithmiert haben, bevor Sie Ihre Prognose einreichen.</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+</div>
+<div id="vorbereitung" class="section level1">
+<h1>Vorbereitung</h1>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)</code></pre>
+<pre class="r"><code>d_train_raw &lt;- read_csv(d_train_path)
+d_test_raw &lt;- read_csv(d_test_path)</code></pre>
+<p>Sicher ist sicher:</p>
+<pre class="r"><code>d_train_backup &lt;- d_train_raw</code></pre>
+<p>Mal einen Blick werfen:</p>
+<pre class="r"><code>glimpse(d_train_raw)</code></pre>
+<pre><code>## Rows: 3,000
+## Columns: 23
+## $ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 313576, &#39;name&#39;: &#39;Hot Tub Time Machine C…
+## $ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 35, &#39;name&#39;: &#39;Comedy&#39;}]&quot;, &quot;[{&#39;id&#39;: 35, &#39;…
+## $ homepage              &lt;chr&gt; NA, NA, &quot;http://sonyclassics.com/whiplash/&quot;, &quot;ht…
+## $ imdb_id               &lt;chr&gt; &quot;tt2637294&quot;, &quot;tt0368933&quot;, &quot;tt2582802&quot;, &quot;tt182148…
+## $ original_language     &lt;chr&gt; &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, &quot;hi&quot;, &quot;ko&quot;, &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ overview              &lt;chr&gt; &quot;When Lou, who has become the \&quot;father of the In…
+## $ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+## $ poster_path           &lt;chr&gt; &quot;/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg&quot;, &quot;/w9Z7A0GHEh…
+## $ production_companies  &lt;chr&gt; &quot;[{&#39;name&#39;: &#39;Paramount Pictures&#39;, &#39;id&#39;: 4}, {&#39;nam…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;US&#39;, &#39;name&#39;: &#39;United States of…
+## $ release_date          &lt;chr&gt; &quot;2/20/15&quot;, &quot;8/6/04&quot;, &quot;10/10/14&quot;, &quot;3/9/12&quot;, &quot;2/5/…
+## $ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}]&quot;, &quot;[{&#39;…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;The Laws of Space and Time are About to be Viol…
+## $ title                 &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 4379, &#39;name&#39;: &#39;time travel&#39;}, {&#39;id&#39;: 96…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 4, &#39;character&#39;: &#39;Lou&#39;, &#39;credit_id&#39;…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;59ac067c92514107af02c8c8&#39;, &#39;dep…
+## $ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+<div id="train-set-verschlanken" class="section level2">
+<h2>Train-Set verschlanken</h2>
+<pre class="r"><code>d_train_raw_reduced &lt;-
+  d_train_raw %&gt;% 
+  select(id, popularity, runtime, revenue, budget) </code></pre>
+</div>
+<div id="test-set-verschlanken" class="section level2">
+<h2>Test-Set verschlanken</h2>
+<pre class="r"><code>d_test &lt;-
+  d_test_raw %&gt;% 
+  select(id,popularity, runtime, budget) </code></pre>
+</div>
+<div id="outcome-logarithmieren" class="section level2">
+<h2>Outcome logarithmieren</h2>
+<p>Der Outcome <a href="https://github.com/topepo/nyr-2020">sollte <em>nicht</em> im Rezept transformiert werden (vgl. Part 3, S. 30, in dieser Unterlage)</a>.</p>
+<pre class="r"><code>d_train &lt;-
+  d_train_raw_reduced %&gt;% 
+  mutate(revenue = if_else(revenue &lt; 10, 10, revenue)) %&gt;% 
+  mutate(revenue = log(revenue)) </code></pre>
+<p>Prüfen, ob das funktioniert hat:</p>
+<pre class="r"><code>d_train$revenue %&gt;% is.infinite() %&gt;% any()</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<p>Keine unendlichen Werte mehr, auf dieser Basis können wir weitermachen.</p>
+</div>
+</div>
+<div id="fehlende-werte-prüfen" class="section level1">
+<h1>Fehlende Werte prüfen</h1>
+<p>Welche Spalten haben viele fehlende Werte?</p>
+<pre class="r"><code>library(easystats)
+describe_distribution(d_train)</code></pre>
+<pre><code>## Variable   |     Mean |       SD |      IQR |              Range | Skewness | Kurtosis |    n | n_Missing
+## ---------------------------------------------------------------------------------------------------------
+## id         |  1500.50 |   866.17 |  1500.50 |    [1.00, 3000.00] |     0.00 |    -1.20 | 3000 |         0
+## popularity |     8.46 |    12.10 |     6.88 | [1.00e-06, 294.34] |    14.38 |   280.10 | 3000 |         0
+## runtime    |   107.86 |    22.09 |    24.00 |     [0.00, 338.00] |     1.02 |     8.19 | 2998 |         2
+## revenue    |    15.97 |     3.04 |     3.37 |      [2.30, 21.14] |    -1.60 |     3.82 | 3000 |         0
+## budget     | 2.25e+07 | 3.70e+07 | 2.90e+07 |   [0.00, 3.80e+08] |     3.10 |    13.23 | 3000 |         0</code></pre>
+<pre class="r"><code>sum_isna &lt;- function(x) {sum(is.na(x))}</code></pre>
+<pre class="r"><code>d_train %&gt;% 
+  summarise(across(everything(), sum_isna))</code></pre>
+<pre><code>## # A tibble: 1 × 5
+##      id popularity runtime revenue budget
+##   &lt;int&gt;      &lt;int&gt;   &lt;int&gt;   &lt;int&gt;  &lt;int&gt;
+## 1     0          0       2       0      0</code></pre>
+</div>
+<div id="rezept" class="section level1">
+<h1>Rezept</h1>
+<div id="rezept-definieren" class="section level2">
+<h2>Rezept definieren</h2>
+<pre class="r"><code>rec2 &lt;-
+  recipe(revenue ~ ., data = d_train) %&gt;% 
+  step_mutate(budget = ifelse(budget == 0, NA, budget)) %&gt;%  # log mag keine 0
+  step_log(budget) %&gt;% 
+  step_impute_knn(all_predictors()) %&gt;% 
+  step_dummy(all_nominal_predictors())  %&gt;% 
+  update_role(id, new_role = &quot;id&quot;)
+
+rec2</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##         id          1
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Variable mutation for ifelse(budget == 0, NA, budget)
+## Log transformation on budget
+## K-nearest neighbor imputation for all_predictors()
+## Dummy variables from all_nominal_predictors()</code></pre>
+<p>Schauen Sie mal, der Log mag keine Nullen:</p>
+<pre class="r"><code>x &lt;- c(1,2, NA, 0)
+
+log(x)</code></pre>
+<pre><code>## [1] 0.0000000 0.6931472        NA      -Inf</code></pre>
+<p>Da <span class="math inline">\(log(0) = -\infty\)</span>. Aus dem Grund wandeln wir 0 lieber in <code>NA</code> um.</p>
+<pre class="r"><code>tidy(rec2)</code></pre>
+<pre><code>## # A tibble: 4 × 6
+##   number operation type       trained skip  id              
+##    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;      &lt;lgl&gt;   &lt;lgl&gt; &lt;chr&gt;           
+## 1      1 step      mutate     FALSE   FALSE mutate_6KDmy    
+## 2      2 step      log        FALSE   FALSE log_WYoMT       
+## 3      3 step      impute_knn FALSE   FALSE impute_knn_hL3ll
+## 4      4 step      dummy      FALSE   FALSE dummy_EIv53</code></pre>
+</div>
+<div id="check-das-rezept" class="section level2">
+<h2>Check das Rezept</h2>
+<p>Wir berechnen das Rezept:</p>
+<pre class="r"><code>rec2_prepped &lt;-
+  prep(rec2, verbose = TRUE)</code></pre>
+<pre><code>## oper 1 step mutate [training] 
+## oper 2 step log [training] 
+## oper 3 step impute knn [training] 
+## oper 4 step dummy [training] 
+## The retained training set is ~ 0.12 Mb  in memory.</code></pre>
+<pre class="r"><code>rec2_prepped</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##         id          1
+##    outcome          1
+##  predictor          3
+## 
+## Training data contained 3000 data points and 2 incomplete rows. 
+## 
+## Operations:
+## 
+## Variable mutation for ~ifelse(budget == 0, NA, budget) [trained]
+## Log transformation on budget [trained]
+## K-nearest neighbor imputation for runtime, budget, popularity [trained]
+## Dummy variables from &lt;none&gt; [trained]</code></pre>
+<p>Das ist noch <em>nicht</em> auf einen Datensatz angewendet! Lediglich die <code>steps</code> wurden <em>vorbereitet</em>, “präpariert”: z.B.
+“Diese Dummy-Variablen impliziert das Rezept”.</p>
+<p>So sieht das dann aus, wenn man das <em>präparierte</em> Rezept auf das Train-Sample anwendet:</p>
+<pre class="r"><code>d_train_baked2 &lt;-
+  rec2_prepped %&gt;% 
+  bake(new_data = NULL) 
+
+head(d_train_baked2)</code></pre>
+<pre><code>## # A tibble: 6 × 5
+##      id popularity runtime budget revenue
+##   &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+## 1     1      6.58       93   16.5    16.3
+## 2     2      8.25      113   17.5    18.4
+## 3     3     64.3       105   15.0    16.4
+## 4     4      3.17      122   14.0    16.6
+## 5     5      1.15      118   15.8    15.2
+## 6     6      0.743      83   15.9    15.0</code></pre>
+<pre class="r"><code>d_train_baked2 %&gt;% 
+  map_df(sum_isna)</code></pre>
+<pre><code>## # A tibble: 1 × 5
+##      id popularity runtime budget revenue
+##   &lt;int&gt;      &lt;int&gt;   &lt;int&gt;  &lt;int&gt;   &lt;int&gt;
+## 1     0          0       0      0       0</code></pre>
+<p>Keine fehlenden Werte mehr <em>in den Prädiktoren</em>.</p>
+<p>Nach fehlenden Werten könnte man z.B. auch so suchen:</p>
+<pre class="r"><code>datawizard::describe_distribution(d_train_baked2)</code></pre>
+<pre><code>## Variable   |    Mean |     SD |     IQR |              Range | Skewness | Kurtosis |    n | n_Missing
+## -----------------------------------------------------------------------------------------------------
+## id         | 1500.50 | 866.17 | 1500.50 |    [1.00, 3000.00] |     0.00 |    -1.20 | 3000 |         0
+## popularity |    8.46 |  12.10 |    6.88 | [1.00e-06, 294.34] |    14.38 |   280.10 | 3000 |         0
+## runtime    |  107.85 |  22.08 |   24.00 |     [0.00, 338.00] |     1.02 |     8.20 | 3000 |         0
+## budget     |   16.09 |   1.89 |    1.90 |      [0.00, 19.76] |    -2.93 |    18.71 | 3000 |         0
+## revenue    |   15.97 |   3.04 |    3.37 |      [2.30, 21.14] |    -1.60 |     3.82 | 3000 |         0</code></pre>
+<p>So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.</p>
+</div>
+<div id="check-test-sample" class="section level2">
+<h2>Check Test-Sample</h2>
+<p>Das Test-Sample backen wir auch mal, um zu prüfen, das alles läuft:</p>
+<pre class="r"><code>d_test_baked2 &lt;-
+  bake(rec2_prepped, new_data = d_test)
+
+d_test_baked2 %&gt;% 
+  head()</code></pre>
+<pre><code>## # A tibble: 6 × 4
+##      id popularity runtime budget
+##   &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+## 1  3001       3.85      90   15.8
+## 2  3002       3.56      65   11.4
+## 3  3003       8.09     100   16.4
+## 4  3004       8.60     130   15.7
+## 5  3005       3.22      92   14.5
+## 6  3006       8.68     121   16.1</code></pre>
+<p>Sieht soweit gut aus.</p>
+</div>
+</div>
+<div id="kreuzvalidierung-resampling" class="section level1">
+<h1>Kreuzvalidierung / Resampling</h1>
+<p>Hier ist <em>nur</em> aus Gründen der Rechenzeit auf kleine Werte von <span class="math inline">\(v\)</span> und <span class="math inline">\(r\)</span> ausgewichen worden.
+Besser wäre z.B. <span class="math inline">\(v=10\)</span> und <span class="math inline">\(r=3\)</span>.</p>
+<pre class="r"><code>cv_scheme &lt;- vfold_cv(d_train,
+                      v = 3, 
+                      repeats = 1)</code></pre>
+</div>
+<div id="modelle" class="section level1">
+<h1>Modelle</h1>
+<div id="lm" class="section level2">
+<h2>LM</h2>
+<pre class="r"><code>mod_lm &lt;-
+  linear_reg()</code></pre>
+</div>
+</div>
+<div id="workflow-set" class="section level1">
+<h1>Workflow-Set</h1>
+<p>Hier nur ein sehr kleiner Workflow-Set.</p>
+<p>Das ist übrigens eine gute Strategie: Erstmal mit einem kleinen Prozess anfangen,
+und dann sukzessive erweitern.</p>
+<pre class="r"><code>preproc2 &lt;- list(rec1 = rec2)
+models2 &lt;- list(lm1 = mod_lm)
+ 
+ 
+all_workflows2 &lt;- workflow_set(preproc2, models2)</code></pre>
+</div>
+<div id="fitten-und-tunen" class="section level1">
+<h1>Fitten und tunen</h1>
+<pre class="r"><code>tmdb_model_set2 &lt;-
+    all_workflows2 %&gt;% 
+    workflow_map(resamples = cv_scheme)</code></pre>
+</div>
+<div id="finalisieren" class="section level1">
+<h1>Finalisieren</h1>
+<pre class="r"><code>tmdb_model_set2 %&gt;% 
+  collect_metrics() %&gt;% 
+  arrange(-mean) %&gt;% 
+  head(10)</code></pre>
+<pre><code>## # A tibble: 2 × 9
+##   wflow_id .config          preproc model .metric .estimator  mean     n std_err
+##   &lt;chr&gt;    &lt;chr&gt;            &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1 rec1_lm1 Preprocessor1_M… recipe  line… rmse    standard   2.51      3  0.0547
+## 2 rec1_lm1 Preprocessor1_M… recipe  line… rsq     standard   0.333     3  0.0205</code></pre>
+<pre class="r"><code>best_model_params2 &lt;-
+extract_workflow_set_result(tmdb_model_set2, &quot;rec1_lm1&quot;) %&gt;% 
+  select_best()</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre class="r"><code>best_model_params2</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   .config             
+##   &lt;chr&gt;               
+## 1 Preprocessor1_Model1</code></pre>
+<div id="finalisieren-1" class="section level2">
+<h2>Finalisieren</h2>
+<p>Finalisieren bedeutet:</p>
+<ul>
+<li>Besten Workflow identifizieren (zur Erinnerung: Workflow = Rezept + Modell)</li>
+<li>Den besten Workflow mit den optimalen Modell-Parametern ausstatten</li>
+<li>Damit dann den ganzen Train-Datensatz fitten</li>
+<li>Auf dieser Basis das Test-Sample vorhersagen</li>
+</ul>
+<pre class="r"><code>best_wf2 &lt;- 
+all_workflows2 %&gt;% 
+  extract_workflow(&quot;rec1_lm1&quot;)
+
+best_wf2</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Linear Regression Model Specification (regression)
+## 
+## Computational engine: lm</code></pre>
+<pre class="r"><code>best_wf_finalized2 &lt;- 
+  best_wf2 %&gt;% 
+  finalize_workflow(best_model_params2)
+
+best_wf_finalized2</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Linear Regression Model Specification (regression)
+## 
+## Computational engine: lm</code></pre>
+</div>
+<div id="final-fit" class="section level2">
+<h2>Final Fit</h2>
+<pre class="r"><code>fit_final2 &lt;-
+  best_wf_finalized2 %&gt;% 
+  fit(d_train)
+
+fit_final2</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## 
+## Call:
+## stats::lm(formula = ..y ~ ., data = data)
+## 
+## Coefficients:
+## (Intercept)   popularity      runtime       budget  
+##     1.26186      0.03755      0.01289      0.80752</code></pre>
+<pre class="r"><code>preds &lt;- 
+fit_final2 %&gt;% 
+  predict(new_data = d_test)
+
+head(preds)</code></pre>
+<pre><code>## # A tibble: 6 × 1
+##   .pred
+##   &lt;dbl&gt;
+## 1  15.3
+## 2  11.4
+## 3  16.1
+## 4  16.0
+## 5  14.3
+## 6  16.1</code></pre>
+<p>Achtung, wenn die Outcome-Variable im Rezept verändert wurde,
+dann würde obiger Code <em>nicht</em> durchlaufen.</p>
+<p>Grund ist <a href="https://github.com/tidymodels/workflows/issues/63">hier</a> beschrieben:</p>
+<blockquote>
+<p>When predict() is used, it only has access to the predictors (mirroring how this would work with new samples). Even if the outcome column is present, it is not exposed to the recipe. This is generally a good idea so that we can avoid information leakage.</p>
+</blockquote>
+<blockquote>
+<p>One approach is the use the skip = TRUE option in step_log() so that it will avoid that step during predict() and/or bake(). However, if you are using this recipe with the tune package, there will still be an issue because the metric function(s) would get the predictions in log units and the observed outcome in the original units.</p>
+</blockquote>
+<blockquote>
+<p>The better approach is, for simple transformations like yours, to log the outcome outside of the recipe (before data analysis and the initial split).</p>
+</blockquote>
+</div>
+<div id="submission-df" class="section level2">
+<h2>Submission df</h2>
+<pre class="r"><code>submission_df &lt;-
+  d_test %&gt;% 
+  select(id) %&gt;% 
+  bind_cols(preds) %&gt;% 
+  rename(revenue = .pred)
+
+head(submission_df)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##      id revenue
+##   &lt;dbl&gt;   &lt;dbl&gt;
+## 1  3001    15.3
+## 2  3002    11.4
+## 3  3003    16.1
+## 4  3004    16.0
+## 5  3005    14.3
+## 6  3006    16.1</code></pre>
+</div>
+<div id="zurücktransformieren" class="section level2">
+<h2>Zurücktransformieren</h2>
+<pre class="r"><code>submission_df &lt;-
+  submission_df %&gt;% 
+  mutate(revenue = exp(revenue)-1)
+
+head(submission_df)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##      id   revenue
+##   &lt;dbl&gt;     &lt;dbl&gt;
+## 1  3001  4435143.
+## 2  3002    91755.
+## 3  3003  9782986.
+## 4  3004  8573795.
+## 5  3005  1598106.
+## 6  3006 10061439.</code></pre>
+<p><a href="https://numpy.org/doc/stable/reference/generated/numpy.expm1.html">Hier</a> ein Beispiel,
+warum <span class="math inline">\(e^x-1\)</span> genauer ist für kleine Zahlen als <span class="math inline">\(e^x\)</span>.</p>
+<p>Abspeichern und einreichen:</p>
+<pre class="r"><code>write_csv(submission_df, file = &quot;submission.csv&quot;)</code></pre>
+</div>
+</div>
+<div id="kaggle-score" class="section level1">
+<h1>Kaggle Score</h1>
+<p>Diese Submission erzielte einen Score von <strong>Score: 2.46249</strong> (RMSLE).</p>
+<pre class="r"><code>sol &lt;- 2.5</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>

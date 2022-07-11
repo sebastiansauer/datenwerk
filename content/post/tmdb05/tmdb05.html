@@ -1,0 +1,257 @@
+---
+exname: tmdb05
+extype: num
+exsolution: r y
+exshuffle: no
+extol: 1
+expoints: 1
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb05
+title: tmdb05
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Melden Sie sich an für die Kaggle Competition <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>.</p>
+<p>Sie benötigen dazu ein Konto; es ist auch möglich, sich mit seinem Google-Konto anzumelden.</p>
+<p>Bei diesem Prognosewettbewerb geht es darum, vorherzusagen,
+wieviel Umsatz wohl einige Filme machen werden.
+Als Prädiktoren stehen einige Infos wie Budget, Genre, Titel etc. zur Verfügung.
+Eine klassische “predictive Competition” also :-)
+Allerdings können immer ein paar Schwierigkeiten auftreten ;-)</p>
+<p><em>Aufgabe</em></p>
+<p>Erstellen Sie ein <em>Boosting-Modell</em> mit Tidymodels!</p>
+<p><em>Hinweise</em></p>
+<!-- - Nehmen Sie folgende Prädiktoren auf: `budget` und `popularity` -->
+<ul>
+<li>Für den Start empfehle ich, etwaige Vorverarbeitung erstmal klein zu halten. Nach dem Motto: Erstmal das Modell zum Laufen kriegen, dann erst verbessern.</li>
+<li>Tunen Sie die typischen Parameter.</li>
+<li>Reichen Sie das Modell bei Kaggle ein und berichten Sie Ihren Score.</li>
+<li>Im Übrigen sind Sie frei in Ihrem Vorgehen.</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+</div>
+<div id="pakete-starten" class="section level1">
+<h1>Pakete starten</h1>
+</div>
+<div id="daten-importieren" class="section level1">
+<h1>Daten importieren</h1>
+<p>Werfen wir einen Blick in die Daten:</p>
+<pre><code>## Rows: 3,000
+## Columns: 23
+## $ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 313576, &#39;name&#39;: &#39;Hot Tub Time Machine C…
+## $ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 35, &#39;name&#39;: &#39;Comedy&#39;}]&quot;, &quot;[{&#39;id&#39;: 35, &#39;…
+## $ homepage              &lt;chr&gt; NA, NA, &quot;http://sonyclassics.com/whiplash/&quot;, &quot;ht…
+## $ imdb_id               &lt;chr&gt; &quot;tt2637294&quot;, &quot;tt0368933&quot;, &quot;tt2582802&quot;, &quot;tt182148…
+## $ original_language     &lt;chr&gt; &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, &quot;hi&quot;, &quot;ko&quot;, &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ overview              &lt;chr&gt; &quot;When Lou, who has become the \&quot;father of the In…
+## $ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+## $ poster_path           &lt;chr&gt; &quot;/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg&quot;, &quot;/w9Z7A0GHEh…
+## $ production_companies  &lt;chr&gt; &quot;[{&#39;name&#39;: &#39;Paramount Pictures&#39;, &#39;id&#39;: 4}, {&#39;nam…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;US&#39;, &#39;name&#39;: &#39;United States of…
+## $ release_date          &lt;chr&gt; &quot;2/20/15&quot;, &quot;8/6/04&quot;, &quot;10/10/14&quot;, &quot;3/9/12&quot;, &quot;2/5/…
+## $ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}]&quot;, &quot;[{&#39;…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;The Laws of Space and Time are About to be Viol…
+## $ title                 &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 4379, &#39;name&#39;: &#39;time travel&#39;}, {&#39;id&#39;: 96…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 4, &#39;character&#39;: &#39;Lou&#39;, &#39;credit_id&#39;…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;59ac067c92514107af02c8c8&#39;, &#39;dep…
+## $ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+<pre><code>## Rows: 4,398
+## Columns: 22
+## $ id                    &lt;dbl&gt; 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, …
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 34055, &#39;name&#39;: &#39;Pokémon Collection&#39;, &#39;p…
+## $ budget                &lt;dbl&gt; 0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 12, &#39;name&#39;: &#39;Adventure&#39;}, {&#39;id&#39;: 16, &#39;n…
+## $ homepage              &lt;chr&gt; &quot;http://www.pokemon.com/us/movies/movie-pokemon-…
+## $ imdb_id               &lt;chr&gt; &quot;tt1226251&quot;, &quot;tt0051380&quot;, &quot;tt0118556&quot;, &quot;tt125595…
+## $ original_language     &lt;chr&gt; &quot;ja&quot;, &quot;en&quot;, &quot;en&quot;, &quot;fr&quot;, &quot;en&quot;, &quot;en&quot;, &quot;de&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;ディアルガVSパルキアVSダークライ&quot;, &quot;Attack of t…
+## $ overview              &lt;chr&gt; &quot;Ash and friends (this time accompanied by newco…
+## $ popularity            &lt;dbl&gt; 3.851534, 3.559789, 8.085194, 8.596012, 3.217680…
+## $ poster_path           &lt;chr&gt; &quot;/tnftmLMemPLduW6MRyZE0ZUD19z.jpg&quot;, &quot;/9MgBNBqlH1…
+## $ production_companies  &lt;chr&gt; NA, &quot;[{&#39;name&#39;: &#39;Woolner Brothers Pictures Inc.&#39;,…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;JP&#39;, &#39;name&#39;: &#39;Japan&#39;}, {&#39;iso_3…
+## $ release_date          &lt;chr&gt; &quot;7/14/07&quot;, &quot;5/19/58&quot;, &quot;5/23/97&quot;, &quot;9/4/10&quot;, &quot;2/11…
+## $ runtime               &lt;dbl&gt; 90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}, {&#39;iso_…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;Somewhere Between Time &amp; Space... A Legend Is B…
+## $ title                 &lt;chr&gt; &quot;Pokémon: The Rise of Darkrai&quot;, &quot;Attack of the 5…
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 11451, &#39;name&#39;: &#39;pok√©mon&#39;}, {&#39;id&#39;: 1155…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 3, &#39;character&#39;: &#39;Tonio&#39;, &#39;credit_i…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;52fe44e7c3a368484e03d683&#39;, &#39;dep…</code></pre>
+</div>
+<div id="cv" class="section level1">
+<h1>CV</h1>
+</div>
+<div id="rezept-1" class="section level1">
+<h1>Rezept 1</h1>
+<p>Begrenzen wir uns der Einfachheit halber auf folgende Prädiktoren, zumindest fürs Erste:</p>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## K-nearest neighbor imputation for &lt;none&gt;
+## Centering for all_numeric_predictors()
+## Scaling for all_numeric_predictors()</code></pre>
+<p>Boosting braucht nicht unbedingt skalierte Prädiktoren (sd=1),
+aber es kann helfen, zu z-transformieren.</p>
+<div id="rezept-checken" class="section level2">
+<h2>Rezept checken</h2>
+<pre><code>## # A tibble: 3,000 × 4
+##    budget popularity runtime  revenue
+##     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+##  1 -0.230    -0.156   -0.673 12314651
+##  2  0.472    -0.0177   0.233 95149435
+##  3 -0.519     4.61    -0.129 13092000
+##  4 -0.576    -0.437    0.640 16000000
+##  5 -0.609    -0.604    0.459  3923970
+##  6 -0.392    -0.638   -1.13   3261638
+##  7 -0.230    -0.0972  -0.718 85446075
+##  8 -0.609    -0.538   -1.08   2586511
+##  9 -0.609    -0.129   -0.356 34327391
+## 10 -0.446    -0.313   -0.763 18750246
+## # … with 2,990 more rows</code></pre>
+<p>Viele Modelle können nicht arbeiten mit nominalen Prädiktoren oder mit fehlenden Werten.
+Daher sollte man im Rezept diese Fehler vorab abfangen.</p>
+<p>Ein letzter Blick:</p>
+<pre><code>## Variable   |      Mean |       SD |      IQR |            Range | Skewness | Kurtosis |    n | n_Missing
+## --------------------------------------------------------------------------------------------------------
+## budget     | -1.33e-18 |     1.00 |     0.78 |    [-0.61, 9.65] |     3.10 |    13.23 | 3000 |         0
+## popularity | -6.08e-17 |     1.00 |     0.57 |   [-0.70, 23.62] |    14.38 |   280.10 | 3000 |         0
+## runtime    |  3.63e-17 |     1.00 |     1.09 |   [-4.88, 10.42] |     1.02 |     8.19 | 2998 |         2
+## revenue    |  6.67e+07 | 1.38e+08 | 6.66e+07 | [1.00, 1.52e+09] |     4.54 |    27.78 | 3000 |         0</code></pre>
+<p>Sieht ok aus.</p>
+</div>
+</div>
+<div id="modell-1" class="section level1">
+<h1>Modell 1</h1>
+<p>Tipp: Mit <code>{usemodels}</code> kann man sich den Code für einen Workflow (inkl. dem typischen Kladderadatsch) schon mal ausgeben lassen. Praktisch.</p>
+</div>
+<div id="workflow-1" class="section level1">
+<h1>Workflow 1</h1>
+<p>Tipp: Gewöhnen Sie sich ein konsistentes Schema zu Benennung Ihrer Objekte an.
+Z.B. Workflow-Objekte mit <code>wf1</code>, <code>wf2</code> etc.
+Fit-Objekte mit <code>fit_boost1</code>, <code>fit_rf1</code>, etc.
+Da gibt’s viele Wege, keine einzelne richtige Lösung.</p>
+</div>
+<div id="modell-fitten-und-tunen" class="section level1">
+<h1>Modell fitten (und tunen)</h1>
+<p>Tipp: Wenn Sie Ihr Rezept ändern, nicht vergessen, das
+Workflow-Objekt, <code>wf1</code> in diesem Fall, neu zu berechnen.
+Vergisst man gerne mal…</p>
+<p>Eine professioneller Lösung wäre ein Tool,
+das für Sie prüft, welche Objekte Sie aktualisieren müssen,
+z.B. das <a href="https://books.ropensci.org/targets/">R-Paket <code>{targets}</code></a>.</p>
+<p>Schalten wir, um Zeit zu sparen, noch mehrere Rechenkerne frei.</p>
+<pre><code>## [1] 8</code></pre>
+<p>Wenn man auf mehreren Kernen gleichzeitig rechnet,
+braucht man natürlich auch mehr (Arbeits-)Speicher (RAM).
+Wenn Ihre Maschine wenig (freien) Arbeitsspeicher hat,
+dann kann man nicht (oder nicht sinnvoll) auf mehreren Kernen
+gleichzeitig arbeiten.</p>
+<pre><code>## 5.56 sec elapsed</code></pre>
+<p>Rechenzeit auf diesem Rechner:</p>
+<p>Es könnte sich lohnen, das Modellobjekt abzuspeichern,
+da die Rechenzeit doch ganz schön lang sein kann.
+ABER Achtung: Sie dürfen dann nicht vergessen, das Objekt auf der Festplatte zu aktualisieren. Diese Strategie ist nicht ungefährlich: Leicht vergisst man das Aktualisieren.</p>
+<p>Mit dem Parameter <code>grid</code> kann man die Anzahl der Tuningparameter-Kandidaten festlegen, vgl. <a href="https://tune.tidymodels.org/reference/tune_grid.html">hier</a>:</p>
+<p><em>grid</em></p>
+<blockquote>
+<p>A data frame of tuning combinations or a positive integer. The data frame should have columns for each parameter being tuned and rows for tuning parameter candidates. An integer denotes the number of candidate parameter sets to be created automatically.</p>
+</blockquote>
+<p>Der Standardwert (Default) beträgt 10.</p>
+<p>Ein Blick in die Hinweise zum Fitten, ob beim Fitten etwas Ungewöhnliches passiert ist:</p>
+<pre><code>## # A tibble: 0 × 3
+## # … with 3 variables: location &lt;chr&gt;, type &lt;chr&gt;, note &lt;chr&gt;</code></pre>
+<p>Und weiter reingezoomt, falls es Hinweise geben sollte (ist hier nicht der Fall, nur der Info halber):</p>
+<pre><code>## # A tibble: 0 × 1
+## # … with 1 variable: note &lt;chr&gt;</code></pre>
+<p>Dran denken: Wenn Sie das Modell aus irgendwelchen Gründen neu fitten, müssen Sie “flussabwärts”, also danach kommenden Objekte, auch neu berechnen.</p>
+</div>
+<div id="bester-modellkandidat" class="section level1">
+<h1>Bester Modellkandidat</h1>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: boost_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 3 Recipe Steps
+## 
+## • step_impute_knn()
+## • step_center()
+## • step_scale()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Boosted Tree Model Specification (regression)
+## 
+## Main Arguments:
+##   mtry = 2
+##   min_n = 16
+##   tree_depth = 13
+##   learn_rate = 0.128257288834097
+## 
+## Engine-Specific Arguments:
+##   num.threads = cores
+## 
+## Computational engine: xgboost</code></pre>
+</div>
+<div id="final-fit" class="section level1">
+<h1>Final fit</h1>
+<pre><code>## [10:25:11] WARNING: amalgamation/../src/learner.cc:627: 
+## Parameters: { &quot;num_threads&quot; } might not be used.
+## 
+##   This could be a false alarm, with some parameters getting used by language bindings but
+##   then being mistakenly passed down to XGBoost core, or some parameter actually being used
+##   but getting flagged wrongly here. Please open an issue if you find any such cases.</code></pre>
+</div>
+<div id="final-predict" class="section level1">
+<h1>Final Predict</h1>
+<pre><code>## Rows: 4,398
+## Columns: 3
+## $ budget     &lt;dbl&gt; -0.60852594, -0.60614924, -0.60852594, -0.42487164, -0.5545…
+## $ popularity &lt;dbl&gt; -0.38100960, -0.40511279, -0.03123597, 0.01096644, -0.43337…
+## $ runtime    &lt;dbl&gt; -0.80848591, -1.94040243, -0.35571930, 1.00258052, -0.71793…</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>

@@ -1,0 +1,345 @@
+---
+exname: tmdb08
+extype: num
+exsolution: r sol
+extol: 0.2
+expoints: 1
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb08
+title: tmdb08
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Wir bearbeiten hier die Fallstudie <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>,
+ein <a href="https://www.kaggle.com/">Kaggle</a>-Prognosewettbewerb.</p>
+<p>Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.</p>
+<p>Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:</p>
+<pre class="r"><code>d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot;
+d_test_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv&quot;</code></pre>
+</div>
+<div id="aufgabe" class="section level1">
+<h1>Aufgabe</h1>
+<p>Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!</p>
+<p>Hinweise:</p>
+<ul>
+<li>Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.</li>
+<li>Halten Sie das Modell so <em>einfach</em> wie möglich. Verwenden Sie als Algorithmus die <em>regularisierte lineare Regression</em> .</li>
+<li>Minimieren Sie die Vorverarbeitung (<code>steps</code>) so weit als möglich.</li>
+<li>Verwenden Sie <code>tidymodels</code>.</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+</div>
+<div id="vorbereitung" class="section level1">
+<h1>Vorbereitung</h1>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)</code></pre>
+<pre class="r"><code>d_train_raw &lt;- read_csv(d_train_path)
+d_test_raw &lt;- read_csv(d_test_path)</code></pre>
+<div id="train-set-verschlanken" class="section level2">
+<h2>Train-Set verschlanken</h2>
+<pre class="r"><code>d_train &lt;-
+  d_train_raw %&gt;% 
+  select(id, popularity, runtime, revenue, budget) </code></pre>
+</div>
+<div id="test-set-verschlanken" class="section level2">
+<h2>Test-Set verschlanken</h2>
+<pre class="r"><code>d_test &lt;-
+  d_test_raw %&gt;% 
+  select(id,popularity, runtime, budget) </code></pre>
+</div>
+</div>
+<div id="rezept" class="section level1">
+<h1>Rezept</h1>
+<div id="rezept-definieren" class="section level2">
+<h2>Rezept definieren</h2>
+<pre class="r"><code>rec2 &lt;-
+  recipe(revenue ~ ., data = d_train) %&gt;% 
+  step_mutate(budget = ifelse(budget == 0, 1, budget)) %&gt;%  # log mag keine 0
+  step_log(budget) %&gt;% 
+  step_impute_knn(all_predictors()) %&gt;% 
+  step_dummy(all_nominal_predictors())  %&gt;% 
+  update_role(id, new_role = &quot;id&quot;)
+
+rec2</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##         id          1
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Variable mutation for ifelse(budget == 0, 1, budget)
+## Log transformation on budget
+## K-nearest neighbor imputation for all_predictors()
+## Dummy variables from all_nominal_predictors()</code></pre>
+</div>
+</div>
+<div id="kreuzvalidierung-resampling" class="section level1">
+<h1>Kreuzvalidierung / Resampling</h1>
+<pre class="r"><code>cv_scheme &lt;- vfold_cv(d_train,
+                      v = 5, 
+                      repeats = 3)</code></pre>
+</div>
+<div id="modelle" class="section level1">
+<h1>Modelle</h1>
+<div id="lm-regularisiert" class="section level2">
+<h2>LM regularisiert</h2>
+<pre class="r"><code>mod_lm &lt;-
+  linear_reg(penalty = tune(), mixture = 1) %&gt;% 
+  set_engine(&quot;glmnet&quot;)</code></pre>
+</div>
+</div>
+<div id="workflow-set" class="section level1">
+<h1>Workflow-Set</h1>
+<p>Hier nur ein sehr kleiner Workflow-Set.</p>
+<p>Das ist übrigens eine gute Strategie: Erstmal mit einem kleinen Prozess anfangen,
+und dann sukzessive erweitern.</p>
+<pre class="r"><code>preproc2 &lt;- list(rec1 = rec2)
+models2 &lt;- list(lm1 = mod_lm)
+ 
+ 
+all_workflows2 &lt;- workflow_set(preproc2, models2)</code></pre>
+</div>
+<div id="fitten-und-tunen" class="section level1">
+<h1>Fitten und tunen</h1>
+<pre class="r"><code>tmdb_model_set2 &lt;-
+    all_workflows2 %&gt;% 
+    workflow_map(resamples = cv_scheme)</code></pre>
+</div>
+<div id="finalisieren" class="section level1">
+<h1>Finalisieren</h1>
+<p>Wir müssen uns leider händisch das beste Modell raussuchen:</p>
+<pre class="r"><code>tmdb_model_set2 %&gt;% 
+  collect_metrics() %&gt;% 
+  arrange(mean) %&gt;% 
+  filter(.metric == &quot;rmse&quot;) %&gt;% 
+  select(1,2, mean, std_err)</code></pre>
+<pre><code>## # A tibble: 10 × 4
+##    wflow_id .config                     mean  std_err
+##    &lt;chr&gt;    &lt;chr&gt;                      &lt;dbl&gt;    &lt;dbl&gt;
+##  1 rec1_lm1 Preprocessor1_Model01 116748717. 2625141.
+##  2 rec1_lm1 Preprocessor1_Model02 116748717. 2625141.
+##  3 rec1_lm1 Preprocessor1_Model03 116748717. 2625141.
+##  4 rec1_lm1 Preprocessor1_Model04 116748717. 2625141.
+##  5 rec1_lm1 Preprocessor1_Model05 116748717. 2625141.
+##  6 rec1_lm1 Preprocessor1_Model06 116748717. 2625141.
+##  7 rec1_lm1 Preprocessor1_Model07 116748717. 2625141.
+##  8 rec1_lm1 Preprocessor1_Model08 116748717. 2625141.
+##  9 rec1_lm1 Preprocessor1_Model09 116748717. 2625141.
+## 10 rec1_lm1 Preprocessor1_Model10 116748717. 2625141.</code></pre>
+<pre class="r"><code>best_model_params2 &lt;-
+extract_workflow_set_result(tmdb_model_set2, &quot;rec1_lm1&quot;) %&gt;% 
+  select_best()</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre class="r"><code>best_model_params2</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##    penalty .config              
+##      &lt;dbl&gt; &lt;chr&gt;                
+## 1 5.14e-10 Preprocessor1_Model01</code></pre>
+<div id="finalisieren-1" class="section level2">
+<h2>Finalisieren</h2>
+<p>Finalisieren bedeutet:</p>
+<ul>
+<li>Besten Workflow identifizieren (zur Erinnerung: Workflow = Rezept + Modell)</li>
+<li>Den besten Workflow mit den optimalen Modell-Parametern ausstatten</li>
+<li>Damit dann den ganzen Train-Datensatz fitten</li>
+<li>Auf dieser Basis das Test-Sample vorhersagen</li>
+</ul>
+<pre class="r"><code>best_wf2 &lt;- 
+all_workflows2 %&gt;% 
+  extract_workflow(&quot;rec1_lm1&quot;)
+
+best_wf2</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Linear Regression Model Specification (regression)
+## 
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet</code></pre>
+<pre class="r"><code>best_wf_finalized2 &lt;- 
+  best_wf2 %&gt;% 
+  finalize_workflow(best_model_params2)
+
+best_wf_finalized2</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Linear Regression Model Specification (regression)
+## 
+## Main Arguments:
+##   penalty = 5.14103509558056e-10
+##   mixture = 1
+## 
+## Computational engine: glmnet</code></pre>
+</div>
+<div id="final-fit" class="section level2">
+<h2>Final Fit</h2>
+<pre class="r"><code>fit_final2 &lt;-
+  best_wf_finalized2 %&gt;% 
+  fit(d_train)
+
+fit_final2</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## 
+## Call:  glmnet::glmnet(x = maybe_matrix(x), y = y, family = &quot;gaussian&quot;,      alpha = ~1) 
+## 
+##    Df  %Dev   Lambda
+## 1   0  0.00 63460000
+## 2   1  3.62 57820000
+## 3   1  6.62 52680000
+## 4   1  9.11 48000000
+## 5   1 11.18 43740000
+## 6   1 12.90 39850000
+## 7   2 15.24 36310000
+## 8   2 17.19 33090000
+## 9   2 18.81 30150000
+## 10  2 20.16 27470000
+## 11  2 21.28 25030000
+## 12  2 22.21 22800000
+## 13  3 23.10 20780000
+## 14  3 23.95 18930000
+## 15  3 24.66 17250000
+## 16  3 25.25 15720000
+## 17  3 25.74 14320000
+## 18  3 26.15 13050000
+## 19  3 26.49 11890000
+## 20  3 26.77 10830000
+## 21  3 27.00  9872000
+## 22  3 27.20  8995000
+## 23  3 27.36  8196000
+## 24  3 27.49  7467000
+## 25  3 27.60  6804000
+## 26  3 27.69  6200000
+## 27  3 27.77  5649000
+## 28  3 27.83  5147000
+## 29  3 27.88  4690000
+## 30  3 27.93  4273000
+## 31  3 27.96  3894000
+## 32  3 27.99  3548000
+## 33  3 28.02  3232000
+## 34  3 28.04  2945000
+## 35  3 28.06  2684000
+## 36  3 28.07  2445000
+## 37  3 28.08  2228000
+## 38  3 28.09  2030000
+## 39  3 28.10  1850000
+## 40  3 28.11  1685000
+## 41  3 28.11  1536000
+## 42  3 28.12  1399000
+## 43  3 28.12  1275000
+## 44  3 28.13  1162000
+## 45  3 28.13  1058000
+## 46  3 28.13   964500
+## 
+## ...
+## and 12 more lines.</code></pre>
+<pre class="r"><code>preds &lt;- 
+fit_final2 %&gt;% 
+  predict(new_data = d_test)
+
+head(preds)</code></pre>
+<pre><code>## # A tibble: 6 × 1
+##        .pred
+##        &lt;dbl&gt;
+## 1 -14840891.
+## 2  10804710.
+## 3  11698900.
+## 4  99190531.
+## 5  41798496.
+## 6  29974421.</code></pre>
+</div>
+<div id="submission-df" class="section level2">
+<h2>Submission df</h2>
+<p>Wir brauchen die ID-Spalte und die Vorhersagen für die Einreichung:</p>
+<pre class="r"><code>submission_df &lt;-
+  d_test %&gt;% 
+  select(id) %&gt;% 
+  bind_cols(preds) %&gt;% 
+  rename(revenue = .pred)
+
+head(submission_df)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##      id    revenue
+##   &lt;dbl&gt;      &lt;dbl&gt;
+## 1  3001 -14840891.
+## 2  3002  10804710.
+## 3  3003  11698900.
+## 4  3004  99190531.
+## 5  3005  41798496.
+## 6  3006  29974421.</code></pre>
+<p>Abspeichern und einreichen:</p>
+<pre class="r"><code>write_csv(submission_df, file = &quot;submission_regul_lm.csv&quot;)</code></pre>
+<p>Leider ein schlechter Score: <code>5.77945</code>.</p>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>
+</div>

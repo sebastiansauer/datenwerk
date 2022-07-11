@@ -1,0 +1,307 @@
+---
+exname: tmdb01
+extype: num
+exsolution: r sol
+extol: 0.6
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb01
+title: tmdb01
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Melden Sie sich an für die Kaggle Competition <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>.</p>
+<p>Sie benötigen dazu ein Konto; es ist auch möglich, sich mit seinem Google-Konto anzumelden.</p>
+<p>Bei diesem Prognosewettbewerb geht es darum, vorherzusagen,
+wieviel Umsatz wohl einige Filme machen werden.
+Als Prädiktoren stehen einige Infos wie Budget, Genre, Titel etc. zur Verfügung.
+Eine klassische “predictive Competition” also :-)
+Allerdings können immer ein paar Schwierigkeiten auftreten ;-)</p>
+<p><em>Aufgabe</em></p>
+<p>Erstellen Sie ein <em>Random-Forest-Modell</em> mit Tidymodels! Reichen Sie es bei Kaggle ein un berichten Sie den Score!</p>
+<p><em>Hinweise</em></p>
+<!-- - Nehmen Sie folgende Prädiktoren auf: `budget` und `popularity` -->
+<ul>
+<li><p>Verzichten Sie auf Vorverarbeitung.</p></li>
+<li><p>Tunen Sie die typischen Parameter.</p></li>
+<li><p>Begrenzen Sie sich auf folgende Prädiktoren.</p></li>
+</ul>
+<pre class="r"><code>preds_chosen &lt;- 
+  c(&quot;id&quot;, &quot;budget&quot;, &quot;popularity&quot;, &quot;runtime&quot;)</code></pre>
+<ul>
+<li>Ausnahme: Log-transformieren Sie <code>budget</code>.</li>
+<li>Tunen Sie die typischen Parameter.</li>
+<li>Reichen Sie das Modell ein und berichten Sie Ihren Score.</li>
+</ul>
+<pre class="r"><code>preds_chosen &lt;- 
+  c(&quot;id&quot;, &quot;budget&quot;, &quot;popularity&quot;, &quot;runtime&quot;, &quot;status&quot;, &quot;revenue&quot;)</code></pre>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<div id="pakete-starten" class="section level3">
+<h3>Pakete starten</h3>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)
+library(tictoc)</code></pre>
+</div>
+<div id="daten-importieren" class="section level3">
+<h3>Daten importieren</h3>
+<pre class="r"><code>d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot;
+d_test_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv&quot;
+
+d_train &lt;- read_csv(d_train_path)
+d_test &lt;- read_csv(d_test_path)</code></pre>
+<p>Werfen wir einen Blick in die Daten:</p>
+<pre class="r"><code>glimpse(d_train)</code></pre>
+<pre><code>## Rows: 3,000
+## Columns: 23
+## $ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 313576, &#39;name&#39;: &#39;Hot Tub Time Machine C…
+## $ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 35, &#39;name&#39;: &#39;Comedy&#39;}]&quot;, &quot;[{&#39;id&#39;: 35, &#39;…
+## $ homepage              &lt;chr&gt; NA, NA, &quot;http://sonyclassics.com/whiplash/&quot;, &quot;ht…
+## $ imdb_id               &lt;chr&gt; &quot;tt2637294&quot;, &quot;tt0368933&quot;, &quot;tt2582802&quot;, &quot;tt182148…
+## $ original_language     &lt;chr&gt; &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, &quot;hi&quot;, &quot;ko&quot;, &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ overview              &lt;chr&gt; &quot;When Lou, who has become the \&quot;father of the In…
+## $ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+## $ poster_path           &lt;chr&gt; &quot;/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg&quot;, &quot;/w9Z7A0GHEh…
+## $ production_companies  &lt;chr&gt; &quot;[{&#39;name&#39;: &#39;Paramount Pictures&#39;, &#39;id&#39;: 4}, {&#39;nam…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;US&#39;, &#39;name&#39;: &#39;United States of…
+## $ release_date          &lt;chr&gt; &quot;2/20/15&quot;, &quot;8/6/04&quot;, &quot;10/10/14&quot;, &quot;3/9/12&quot;, &quot;2/5/…
+## $ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}]&quot;, &quot;[{&#39;…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;The Laws of Space and Time are About to be Viol…
+## $ title                 &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 4379, &#39;name&#39;: &#39;time travel&#39;}, {&#39;id&#39;: 96…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 4, &#39;character&#39;: &#39;Lou&#39;, &#39;credit_id&#39;…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;59ac067c92514107af02c8c8&#39;, &#39;dep…
+## $ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+<pre class="r"><code>glimpse(d_test)</code></pre>
+<pre><code>## Rows: 4,398
+## Columns: 22
+## $ id                    &lt;dbl&gt; 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, …
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 34055, &#39;name&#39;: &#39;Pokémon Collection&#39;, &#39;p…
+## $ budget                &lt;dbl&gt; 0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 12, &#39;name&#39;: &#39;Adventure&#39;}, {&#39;id&#39;: 16, &#39;n…
+## $ homepage              &lt;chr&gt; &quot;http://www.pokemon.com/us/movies/movie-pokemon-…
+## $ imdb_id               &lt;chr&gt; &quot;tt1226251&quot;, &quot;tt0051380&quot;, &quot;tt0118556&quot;, &quot;tt125595…
+## $ original_language     &lt;chr&gt; &quot;ja&quot;, &quot;en&quot;, &quot;en&quot;, &quot;fr&quot;, &quot;en&quot;, &quot;en&quot;, &quot;de&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;ディアルガVSパルキアVSダークライ&quot;, &quot;Attack of t…
+## $ overview              &lt;chr&gt; &quot;Ash and friends (this time accompanied by newco…
+## $ popularity            &lt;dbl&gt; 3.851534, 3.559789, 8.085194, 8.596012, 3.217680…
+## $ poster_path           &lt;chr&gt; &quot;/tnftmLMemPLduW6MRyZE0ZUD19z.jpg&quot;, &quot;/9MgBNBqlH1…
+## $ production_companies  &lt;chr&gt; NA, &quot;[{&#39;name&#39;: &#39;Woolner Brothers Pictures Inc.&#39;,…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;JP&#39;, &#39;name&#39;: &#39;Japan&#39;}, {&#39;iso_3…
+## $ release_date          &lt;chr&gt; &quot;7/14/07&quot;, &quot;5/19/58&quot;, &quot;5/23/97&quot;, &quot;9/4/10&quot;, &quot;2/11…
+## $ runtime               &lt;dbl&gt; 90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}, {&#39;iso_…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;Somewhere Between Time &amp; Space... A Legend Is B…
+## $ title                 &lt;chr&gt; &quot;Pokémon: The Rise of Darkrai&quot;, &quot;Attack of the 5…
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 11451, &#39;name&#39;: &#39;pok√©mon&#39;}, {&#39;id&#39;: 1155…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 3, &#39;character&#39;: &#39;Tonio&#39;, &#39;credit_i…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;52fe44e7c3a368484e03d683&#39;, &#39;dep…</code></pre>
+<p><code>preds_chosen</code> sind alle Prädiktoren im Datensatz, oder nicht?
+Das prüfen wir mal kurz:</p>
+<pre class="r"><code>preds_chosen %in% names(d_train) %&gt;% 
+  all()</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Ja, alle Elemente von <code>preds_chosen</code> sind Prädiktoren im (Train-)Datensatz.</p>
+<div id="cv" class="section level4">
+<h4>CV</h4>
+<p>Nur um Zeit zu sparen, setzen wir die Anzahl der Folds auf <span class="math inline">\(v=2\)</span>.
+Besser wäre z.B. <span class="math inline">\(v=10\)</span>.</p>
+<pre class="r"><code>cv_scheme &lt;- vfold_cv(d_train, v = 2)</code></pre>
+</div>
+</div>
+<div id="rezept-1" class="section level3">
+<h3>Rezept 1</h3>
+<pre class="r"><code>rec1 &lt;- 
+  recipe(revenue ~ budget + popularity + runtime, data = d_train) %&gt;% 
+  step_impute_bag(all_predictors()) %&gt;% 
+  step_naomit(all_predictors()) </code></pre>
+<p>Man beachte, dass noch 21 Prädiktoren angezeigt werden,
+da das Rezept noch nicht auf den Datensatz angewandt (“gebacken”) wurde.</p>
+<pre class="r"><code>tidy(rec1)</code></pre>
+<pre><code>## # A tibble: 2 × 6
+##   number operation type       trained skip  id              
+##    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;      &lt;lgl&gt;   &lt;lgl&gt; &lt;chr&gt;           
+## 1      1 step      impute_bag FALSE   FALSE impute_bag_bhigA
+## 2      2 step      naomit     FALSE   FALSE naomit_rc6Nt</code></pre>
+<p>Rezept checken:</p>
+<pre class="r"><code>prep(rec1)</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          3
+## 
+## Training data contained 3000 data points and 2 incomplete rows. 
+## 
+## Operations:
+## 
+## Bagged tree imputation for budget, popularity, runtime [trained]
+## Removing rows with NA values in budget, popularity, runtime [trained]</code></pre>
+<pre class="r"><code>d_train_baked &lt;-
+  rec1 %&gt;% 
+  prep() %&gt;% 
+  bake(new_data = NULL)
+
+glimpse(d_train_baked)</code></pre>
+<pre><code>## Rows: 3,000
+## Columns: 4
+## $ budget     &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00, 8.00e+06,…
+## $ popularity &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.148070, 0.743274…
+## $ runtime    &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119, 98, 122, …
+## $ revenue    &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970, 3261638, 8…</code></pre>
+<p>Fehlende Werte noch übrig?</p>
+<pre class="r"><code>library(easystats)
+describe_distribution(d_train_baked) %&gt;% 
+  select(Variable, n_Missing)</code></pre>
+<pre><code>## Variable   | n_Missing
+## ----------------------
+## budget     |         0
+## popularity |         0
+## runtime    |         0
+## revenue    |         0</code></pre>
+</div>
+<div id="modell-1-rf" class="section level3">
+<h3>Modell 1: RF</h3>
+<pre class="r"><code>model1 &lt;- rand_forest(mtry = tune(),
+                        trees = tune(),
+                        min_n = tune()) %&gt;% 
+            set_engine(&#39;ranger&#39;) %&gt;% 
+            set_mode(&#39;regression&#39;)</code></pre>
+</div>
+<div id="workflow-1" class="section level3">
+<h3>Workflow 1</h3>
+<pre class="r"><code>wf1 &lt;-
+  workflow() %&gt;% 
+  add_model(model1) %&gt;% 
+  add_recipe(rec1)</code></pre>
+</div>
+<div id="modell-fitten-und-tunen" class="section level3">
+<h3>Modell fitten (und tunen)</h3>
+<pre class="r"><code>doParallel::registerDoParallel(4)
+tic()
+rf_fit1 &lt;-
+  wf1 %&gt;% 
+  tune_grid(resamples = cv_scheme)
+toc()</code></pre>
+<pre><code>## 13.57 sec elapsed</code></pre>
+<pre class="r"><code>rf_fit1[[&quot;.notes&quot;]][1]</code></pre>
+<pre><code>## [[1]]
+## # A tibble: 0 × 3
+## # … with 3 variables: location &lt;chr&gt;, type &lt;chr&gt;, note &lt;chr&gt;</code></pre>
+</div>
+<div id="bester-kandidat" class="section level3">
+<h3>Bester Kandidat</h3>
+<pre class="r"><code>select_best(rf_fit1)</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre><code>## # A tibble: 1 × 4
+##    mtry trees min_n .config              
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;                
+## 1     1   771     2 Preprocessor1_Model10</code></pre>
+</div>
+<div id="workflow-finalisieren" class="section level3">
+<h3>Workflow finalisieren</h3>
+<pre class="r"><code>wf_best &lt;-
+  wf1 %&gt;% 
+  finalize_workflow(parameters = select_best(rf_fit1))</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+</div>
+<div id="final-fit" class="section level3">
+<h3>Final Fit</h3>
+<pre class="r"><code>fit1_final &lt;-
+  wf_best %&gt;% 
+  fit(d_train)
+
+fit1_final</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: rand_forest()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 2 Recipe Steps
+## 
+## • step_impute_bag()
+## • step_naomit()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Ranger result
+## 
+## Call:
+##  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~1L,      x), num.trees = ~771L, min.node.size = min_rows(~2L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1)) 
+## 
+## Type:                             Regression 
+## Number of trees:                  771 
+## Sample size:                      3000 
+## Number of independent variables:  3 
+## Mtry:                             1 
+## Target node size:                 2 
+## Variable importance mode:         none 
+## Splitrule:                        variance 
+## OOB prediction error (MSE):       6.639131e+15 
+## R squared (OOB):                  0.6490044</code></pre>
+<pre class="r"><code>preds &lt;-
+  fit1_final %&gt;% 
+  predict(d_test)</code></pre>
+</div>
+<div id="submission-df" class="section level3">
+<h3>Submission df</h3>
+<pre class="r"><code>submission_df &lt;-
+  d_test %&gt;% 
+  select(id) %&gt;% 
+  bind_cols(preds) %&gt;% 
+  rename(revenue = .pred)
+
+head(submission_df)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##      id   revenue
+##   &lt;dbl&gt;     &lt;dbl&gt;
+## 1  3001  5157473.
+## 2  3002  4996976.
+## 3  3003 12409959.
+## 4  3004 33843887.
+## 5  3005  4126338.
+## 6  3006 21314865.</code></pre>
+<p>Abspeichern und einreichen:</p>
+<pre class="r"><code>#write_csv(submission_df, file = &quot;submission.csv&quot;)</code></pre>
+</div>
+<div id="kaggle-score" class="section level3">
+<h3>Kaggle Score</h3>
+<p>Diese Submission erzielte einen Score von <strong>Score: 2.76961</strong> (RMSLE).</p>
+<pre class="r"><code>sol &lt;-  2.76961</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>
+</div>

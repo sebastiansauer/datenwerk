@@ -1,0 +1,526 @@
+---
+exname: tmdb02
+extype: num
+exsolution: r sol
+extol: 0.2
+expoints: 1
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb02
+title: tmdb02
+
+---
+
+
+
+<!-- ```{r read-supplement} -->
+<!-- result_obj_path <- "tmbd_rf_fit1.rds" -->
+<!-- #file.exists(here::here("objects", result_obj_path)) -->
+<!-- exams::include_supplement(file = result_obj_path, -->
+<!--                    recursive = TRUE) -->
+<!-- #rf_fit <- readr::read_rds("/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmbd_rf_fit1.rds") -->
+<!-- ``` -->
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Wir bearbeiten hier die Fallstudie <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>,
+ein <a href="https://www.kaggle.com/">Kaggle</a>-Prognosewettbewerb.</p>
+<p>Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.</p>
+<p>Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:</p>
+<pre class="r"><code>d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot;
+d_test_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv&quot;</code></pre>
+<div id="aufgabe" class="section level5">
+<h5>Aufgabe</h5>
+<p>Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Kaggle-Score</p>
+<p>Hinweise:</p>
+<ul>
+<li>Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.</li>
+<li>Berechnen Sie einen <em>Entscheidungsbaum</em> und einen <em>Random-Forest</em>.</li>
+<li>Tunen Sie nach Bedarf; verwenden Sie aber Default-Werte.</li>
+<li>Verwenden Sie Tidymodels.</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<div id="vorbereitung" class="section level2">
+<h2>Vorbereitung</h2>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)
+library(tictoc)</code></pre>
+<pre class="r"><code>d_train &lt;- read_csv(d_train_path)
+d_test &lt;- read_csv(d_test_path)
+
+glimpse(d_train)</code></pre>
+<pre><code>## Rows: 3,000
+## Columns: 23
+## $ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 313576, &#39;name&#39;: &#39;Hot Tub Time Machine C…
+## $ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 35, &#39;name&#39;: &#39;Comedy&#39;}]&quot;, &quot;[{&#39;id&#39;: 35, &#39;…
+## $ homepage              &lt;chr&gt; NA, NA, &quot;http://sonyclassics.com/whiplash/&quot;, &quot;ht…
+## $ imdb_id               &lt;chr&gt; &quot;tt2637294&quot;, &quot;tt0368933&quot;, &quot;tt2582802&quot;, &quot;tt182148…
+## $ original_language     &lt;chr&gt; &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, &quot;hi&quot;, &quot;ko&quot;, &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ overview              &lt;chr&gt; &quot;When Lou, who has become the \&quot;father of the In…
+## $ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+## $ poster_path           &lt;chr&gt; &quot;/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg&quot;, &quot;/w9Z7A0GHEh…
+## $ production_companies  &lt;chr&gt; &quot;[{&#39;name&#39;: &#39;Paramount Pictures&#39;, &#39;id&#39;: 4}, {&#39;nam…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;US&#39;, &#39;name&#39;: &#39;United States of…
+## $ release_date          &lt;chr&gt; &quot;2/20/15&quot;, &quot;8/6/04&quot;, &quot;10/10/14&quot;, &quot;3/9/12&quot;, &quot;2/5/…
+## $ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}]&quot;, &quot;[{&#39;…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;The Laws of Space and Time are About to be Viol…
+## $ title                 &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 4379, &#39;name&#39;: &#39;time travel&#39;}, {&#39;id&#39;: 96…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 4, &#39;character&#39;: &#39;Lou&#39;, &#39;credit_id&#39;…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;59ac067c92514107af02c8c8&#39;, &#39;dep…
+## $ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+<pre class="r"><code>glimpse(d_test)</code></pre>
+<pre><code>## Rows: 4,398
+## Columns: 22
+## $ id                    &lt;dbl&gt; 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, …
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 34055, &#39;name&#39;: &#39;Pokémon Collection&#39;, &#39;p…
+## $ budget                &lt;dbl&gt; 0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 12, &#39;name&#39;: &#39;Adventure&#39;}, {&#39;id&#39;: 16, &#39;n…
+## $ homepage              &lt;chr&gt; &quot;http://www.pokemon.com/us/movies/movie-pokemon-…
+## $ imdb_id               &lt;chr&gt; &quot;tt1226251&quot;, &quot;tt0051380&quot;, &quot;tt0118556&quot;, &quot;tt125595…
+## $ original_language     &lt;chr&gt; &quot;ja&quot;, &quot;en&quot;, &quot;en&quot;, &quot;fr&quot;, &quot;en&quot;, &quot;en&quot;, &quot;de&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;ディアルガVSパルキアVSダークライ&quot;, &quot;Attack of t…
+## $ overview              &lt;chr&gt; &quot;Ash and friends (this time accompanied by newco…
+## $ popularity            &lt;dbl&gt; 3.851534, 3.559789, 8.085194, 8.596012, 3.217680…
+## $ poster_path           &lt;chr&gt; &quot;/tnftmLMemPLduW6MRyZE0ZUD19z.jpg&quot;, &quot;/9MgBNBqlH1…
+## $ production_companies  &lt;chr&gt; NA, &quot;[{&#39;name&#39;: &#39;Woolner Brothers Pictures Inc.&#39;,…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;JP&#39;, &#39;name&#39;: &#39;Japan&#39;}, {&#39;iso_3…
+## $ release_date          &lt;chr&gt; &quot;7/14/07&quot;, &quot;5/19/58&quot;, &quot;5/23/97&quot;, &quot;9/4/10&quot;, &quot;2/11…
+## $ runtime               &lt;dbl&gt; 90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}, {&#39;iso_…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;Somewhere Between Time &amp; Space... A Legend Is B…
+## $ title                 &lt;chr&gt; &quot;Pokémon: The Rise of Darkrai&quot;, &quot;Attack of the 5…
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 11451, &#39;name&#39;: &#39;pok√©mon&#39;}, {&#39;id&#39;: 1155…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 3, &#39;character&#39;: &#39;Tonio&#39;, &#39;credit_i…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;52fe44e7c3a368484e03d683&#39;, &#39;dep…</code></pre>
+</div>
+<div id="rezept" class="section level2">
+<h2>Rezept</h2>
+<div id="rezept-definieren" class="section level3">
+<h3>Rezept definieren</h3>
+<pre class="r"><code>rec1 &lt;-
+  recipe(revenue ~ ., data = d_train) %&gt;% 
+  update_role(all_predictors(), new_role = &quot;id&quot;) %&gt;% 
+  update_role(popularity, runtime, revenue, budget) %&gt;% 
+  update_role(revenue, new_role = &quot;outcome&quot;) %&gt;% 
+  step_mutate(budget = ifelse(budget &lt; 10, 10, budget)) %&gt;% 
+  step_log(budget) %&gt;% 
+  step_impute_knn(all_predictors())
+
+rec1</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##         id         19
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Variable mutation for ifelse(budget &lt; 10, 10, budget)
+## Log transformation on budget
+## K-nearest neighbor imputation for all_predictors()</code></pre>
+</div>
+<div id="check-das-rezept" class="section level3">
+<h3>Check das Rezept</h3>
+<pre class="r"><code>rec1_prepped &lt;-
+  prep(rec1, verbose = TRUE)</code></pre>
+<pre><code>## oper 1 step mutate [training] 
+## oper 2 step log [training] 
+## oper 3 step impute knn [training] 
+## The retained training set is ~ 28.71 Mb  in memory.</code></pre>
+<pre class="r"><code>rec1_prepped</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##         id         19
+##    outcome          1
+##  predictor          3
+## 
+## Training data contained 3000 data points and 2793 incomplete rows. 
+## 
+## Operations:
+## 
+## Variable mutation for ~ifelse(budget &lt; 10, 10, budget) [trained]
+## Log transformation on budget [trained]
+## K-nearest neighbor imputation for popularity, runtime, budget [trained]</code></pre>
+<pre class="r"><code>d_train_baked &lt;-
+  rec1_prepped %&gt;% 
+  bake(new_data = NULL) 
+
+head(d_train_baked)</code></pre>
+<pre><code>## # A tibble: 6 × 23
+##      id belongs_to_collection    budget genres homepage imdb_id original_langua…
+##   &lt;dbl&gt; &lt;fct&gt;                     &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;           
+## 1     1 [{&#39;id&#39;: 313576, &#39;name&#39;:…  16.5  [{&#39;id… &lt;NA&gt;     tt2637… en              
+## 2     2 [{&#39;id&#39;: 107674, &#39;name&#39;:…  17.5  [{&#39;id… &lt;NA&gt;     tt0368… en              
+## 3     3 &lt;NA&gt;                      15.0  [{&#39;id… http://… tt2582… en              
+## 4     4 &lt;NA&gt;                      14.0  [{&#39;id… http://… tt1821… hi              
+## 5     5 &lt;NA&gt;                       2.30 [{&#39;id… &lt;NA&gt;     tt1380… ko              
+## 6     6 &lt;NA&gt;                      15.9  [{&#39;id… &lt;NA&gt;     tt0093… en              
+## # … with 16 more variables: original_title &lt;fct&gt;, overview &lt;fct&gt;,
+## #   popularity &lt;dbl&gt;, poster_path &lt;fct&gt;, production_companies &lt;fct&gt;,
+## #   production_countries &lt;fct&gt;, release_date &lt;fct&gt;, runtime &lt;dbl&gt;,
+## #   spoken_languages &lt;fct&gt;, status &lt;fct&gt;, tagline &lt;fct&gt;, title &lt;fct&gt;,
+## #   Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;, revenue &lt;dbl&gt;</code></pre>
+<p>Die AV-Spalte sollte leer sein:</p>
+<pre class="r"><code>bake(rec1_prepped, new_data = head(d_test), all_outcomes())</code></pre>
+<pre><code>## # A tibble: 6 × 0</code></pre>
+<pre class="r"><code>d_train_baked %&gt;% 
+  map_df(~ sum(is.na(.)))</code></pre>
+<pre><code>## # A tibble: 1 × 23
+##      id belongs_to_collection budget genres homepage imdb_id original_language
+##   &lt;int&gt;                 &lt;int&gt;  &lt;int&gt;  &lt;int&gt;    &lt;int&gt;   &lt;int&gt;             &lt;int&gt;
+## 1     0                  2396      0      7     2054       0                 0
+## # … with 16 more variables: original_title &lt;int&gt;, overview &lt;int&gt;,
+## #   popularity &lt;int&gt;, poster_path &lt;int&gt;, production_companies &lt;int&gt;,
+## #   production_countries &lt;int&gt;, release_date &lt;int&gt;, runtime &lt;int&gt;,
+## #   spoken_languages &lt;int&gt;, status &lt;int&gt;, tagline &lt;int&gt;, title &lt;int&gt;,
+## #   Keywords &lt;int&gt;, cast &lt;int&gt;, crew &lt;int&gt;, revenue &lt;int&gt;</code></pre>
+<p>Keine fehlenden Werte mehr <em>in den Prädiktoren</em>.</p>
+<p>Nach fehlenden Werten könnte man z.B. auch so suchen:</p>
+<pre class="r"><code>datawizard::describe_distribution(d_train_baked)</code></pre>
+<pre><code>## Variable   |     Mean |       SD |      IQR |              Range | Skewness | Kurtosis |    n | n_Missing
+## ---------------------------------------------------------------------------------------------------------
+## id         |  1500.50 |   866.17 |  1500.50 |    [1.00, 3000.00] |     0.00 |    -1.20 | 3000 |         0
+## budget     |    12.51 |     6.44 |    14.88 |      [2.30, 19.76] |    -0.87 |    -1.09 | 3000 |         0
+## popularity |     8.46 |    12.10 |     6.88 | [1.00e-06, 294.34] |    14.38 |   280.10 | 3000 |         0
+## runtime    |   107.85 |    22.08 |    24.00 |     [0.00, 338.00] |     1.02 |     8.20 | 3000 |         0
+## revenue    | 6.67e+07 | 1.38e+08 | 6.66e+07 |   [1.00, 1.52e+09] |     4.54 |    27.78 | 3000 |         0</code></pre>
+<p>So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.</p>
+<p>Das Test-Sample backen wir auch mal:</p>
+<pre class="r"><code>d_test_baked &lt;-
+  bake(rec1_prepped, new_data = d_test)
+
+d_test_baked %&gt;% 
+  head()</code></pre>
+<pre><code>## # A tibble: 6 × 22
+##      id belongs_to_collection    budget genres homepage imdb_id original_langua…
+##   &lt;dbl&gt; &lt;fct&gt;                     &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;           
+## 1  3001 [{&#39;id&#39;: 34055, &#39;name&#39;: …   2.30 [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    ja              
+## 2  3002 &lt;NA&gt;                      11.4  [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
+## 3  3003 &lt;NA&gt;                       2.30 [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
+## 4  3004 &lt;NA&gt;                      15.7  &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;    fr              
+## 5  3005 &lt;NA&gt;                      14.5  [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
+## 6  3006 &lt;NA&gt;                       2.30 [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
+## # … with 15 more variables: original_title &lt;fct&gt;, overview &lt;fct&gt;,
+## #   popularity &lt;dbl&gt;, poster_path &lt;fct&gt;, production_companies &lt;fct&gt;,
+## #   production_countries &lt;fct&gt;, release_date &lt;fct&gt;, runtime &lt;dbl&gt;,
+## #   spoken_languages &lt;fct&gt;, status &lt;fct&gt;, tagline &lt;fct&gt;, title &lt;fct&gt;,
+## #   Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;</code></pre>
+</div>
+</div>
+<div id="kreuzvalidierung" class="section level2">
+<h2>Kreuzvalidierung</h2>
+<pre class="r"><code>cv_scheme &lt;- vfold_cv(d_train,
+                      v = 5, 
+                      repeats = 1)</code></pre>
+</div>
+<div id="modelle" class="section level2">
+<h2>Modelle</h2>
+<div id="baum" class="section level3">
+<h3>Baum</h3>
+<pre class="r"><code>mod_tree &lt;-
+  decision_tree(cost_complexity = tune(),
+                tree_depth = tune(),
+                mode = &quot;regression&quot;)</code></pre>
+</div>
+<div id="random-forest" class="section level3">
+<h3>Random Forest</h3>
+<pre class="r"><code>doParallel::registerDoParallel()</code></pre>
+<pre class="r"><code>mod_rf &lt;-
+  rand_forest(mtry = tune(),
+              min_n = tune(),
+              trees = 1000,
+              mode = &quot;regression&quot;) %&gt;% 
+  set_engine(&quot;ranger&quot;, num.threads = 4)</code></pre>
+</div>
+</div>
+<div id="workflows" class="section level2">
+<h2>Workflows</h2>
+<pre class="r"><code>wf_tree &lt;-
+  workflow() %&gt;% 
+  add_model(mod_tree) %&gt;% 
+  add_recipe(rec1)
+
+wf_rf &lt;-
+  workflow() %&gt;% 
+  add_model(mod_rf) %&gt;% 
+  add_recipe(rec1)</code></pre>
+</div>
+<div id="fitten-und-tunen" class="section level2">
+<h2>Fitten und tunen</h2>
+<p>Um Rechenzeit zu sparen,
+kann man den Parameter <code>grid</code> bei <code>tune_grid()</code> auf einen kleinen Wert setzen.
+Der Default ist 10.
+Um gute Vorhersagen zu erzielen,
+sollte man den Wert tendenziell noch über 10 erhöhen.</p>
+<div id="tree" class="section level3">
+<h3>Tree</h3>
+<pre class="r"><code>tic()
+tree_fit &lt;-
+  wf_tree %&gt;% 
+  tune_grid(
+    resamples = cv_scheme,
+    grid = 2
+  )
+toc()</code></pre>
+<pre><code>## 3.101 sec elapsed</code></pre>
+<p>Hilfe zu <code>tune_grid()</code> bekommt man <a href="https://www.rdocumentation.org/packages/tune/versions/0.2.0/topics/tune_grid">hier</a>.</p>
+<pre class="r"><code>tree_fit</code></pre>
+<pre><code>## # Tuning results
+## # 5-fold cross-validation 
+## # A tibble: 5 × 4
+##   splits             id    .metrics         .notes          
+##   &lt;list&gt;             &lt;chr&gt; &lt;list&gt;           &lt;list&gt;          
+## 1 &lt;split [2400/600]&gt; Fold1 &lt;tibble [4 × 6]&gt; &lt;tibble [0 × 3]&gt;
+## 2 &lt;split [2400/600]&gt; Fold2 &lt;tibble [4 × 6]&gt; &lt;tibble [0 × 3]&gt;
+## 3 &lt;split [2400/600]&gt; Fold3 &lt;tibble [4 × 6]&gt; &lt;tibble [0 × 3]&gt;
+## 4 &lt;split [2400/600]&gt; Fold4 &lt;tibble [4 × 6]&gt; &lt;tibble [0 × 3]&gt;
+## 5 &lt;split [2400/600]&gt; Fold5 &lt;tibble [4 × 6]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
+<p>Steht was in den <code>.notes</code>?</p>
+<pre class="r"><code>tree_fit[[&quot;.notes&quot;]][[2]]</code></pre>
+<pre><code>## # A tibble: 0 × 3
+## # … with 3 variables: location &lt;chr&gt;, type &lt;chr&gt;, note &lt;chr&gt;</code></pre>
+<p>Nein.</p>
+<pre class="r"><code>collect_metrics(tree_fit)</code></pre>
+<pre><code>## # A tibble: 4 × 8
+##   cost_complexity tree_depth .metric .estimator       mean     n std_err .config
+##             &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;           &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
+## 1        2.90e-10         13 rmse    standard      9.33e+7     5 2.76e+6 Prepro…
+## 2        2.90e-10         13 rsq     standard      5.58e-1     5 1.20e-2 Prepro…
+## 3        4.99e- 4          3 rmse    standard      9.55e+7     5 3.17e+6 Prepro…
+## 4        4.99e- 4          3 rsq     standard      5.26e-1     5 1.80e-2 Prepro…</code></pre>
+<pre class="r"><code>show_best(tree_fit)</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre><code>## # A tibble: 2 × 8
+##   cost_complexity tree_depth .metric .estimator      mean     n  std_err .config
+##             &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;chr&gt;  
+## 1        2.90e-10         13 rmse    standard   93303602.     5 2758108. Prepro…
+## 2        4.99e- 4          3 rmse    standard   95463734.     5 3166639. Prepro…</code></pre>
+</div>
+</div>
+<div id="finalisieren" class="section level2">
+<h2>Finalisieren</h2>
+<pre class="r"><code>best_tree_wf &lt;-
+  wf_tree %&gt;% 
+  finalize_workflow(select_best(tree_fit))</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre class="r"><code>best_tree_wf</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: decision_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 3 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Decision Tree Model Specification (regression)
+## 
+## Main Arguments:
+##   cost_complexity = 2.90367945993095e-10
+##   tree_depth = 13
+## 
+## Computational engine: rpart</code></pre>
+<pre class="r"><code>tree_last_fit &lt;-
+  fit(best_tree_wf, data = d_train)
+
+tree_last_fit</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: decision_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 3 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_impute_knn()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## n= 3000 
+## 
+## node), split, n, deviance, yval
+##       * denotes terminal node
+## 
+##     1) root 3000 5.672651e+19   66725850.0  
+##       2) budget&lt; 18.32631 2845 1.958584e+19   46935270.0  
+##         4) budget&lt; 17.19976 2252 5.443953e+18   25901120.0  
+##           8) popularity&lt; 9.734966 1745 1.665118e+18   17076460.0  
+##            16) popularity&lt; 5.761331 1019 3.184962e+17    8793730.0  
+##              32) budget&lt; 15.44456 782 1.408243e+17    6074563.0  
+##                64) popularity&lt; 1.517383 293 1.907705e+16    3025921.0  
+##                 128) runtime&gt;=46.5 284 6.431604e+15    2487837.0  
+##                   256) budget&lt; 14.54573 248 5.220631e+15    2103707.0  
+##                     512) runtime&lt; 96.5 118 6.571642e+14    1203847.0  
+##                      1024) popularity&lt; 1.140496 99 3.624224e+14     960819.7  
+##                        2048) popularity&lt; 0.18234 26 2.613956e+12     283857.7  
+##                          4096) budget&lt; 10.99014 19 1.656689e+12     212028.9 *
+##                          4097) budget&gt;=10.99014 7 5.931626e+11     478821.6 *
+##                        2049) popularity&gt;=0.18234 73 3.436495e+14    1201929.0  
+##                          4098) runtime&lt; 92 48 1.563662e+14     942088.9  
+##                            8196) popularity&lt; 0.698595 23 1.197191e+13     472543.1 *
+##                            8197) popularity&gt;=0.698595 25 1.346582e+14    1374071.0 *
+##                          4099) runtime&gt;=92 25 1.778200e+14    1700823.0  
+##                            8198) popularity&gt;=0.319976 17 3.705079e+13    1197195.0 *
+##                            8199) popularity&lt; 0.319976 8 1.272946e+14    2771033.0 *
+##                      1025) popularity&gt;=1.140496 19 2.584278e+14    2470148.0 *
+##                     513) runtime&gt;=96.5 130 4.381186e+15    2920503.0  
+##                      1026) popularity&lt; 0.4028185 33 1.196999e+14    1118933.0  
+##                        2052) runtime&lt; 104.5 13 2.411497e+11     102104.2 *
+##                        2053) runtime&gt;=104.5 20 9.728066e+13    1779872.0  
+##                          4106) runtime&gt;=121.5 10 9.005154e+12     960192.6 *
+##                          4107) runtime&lt; 121.5 10 7.483801e+13    2599552.0 *
+##                      1027) popularity&gt;=0.4028185 97 4.117942e+15    3533408.0  
+##                        2054) popularity&gt;=0.4693685 90 3.010532e+15    3196752.0  
+##                          4108) popularity&lt; 0.886855 40 4.025034e+14    1971924.0  
+##                            8216) popularity&lt; 0.565074 9 3.732993e+11     254432.2 *
+##                            8217) popularity&gt;=0.565074 31 3.678747e+14    2470550.0 *
+##                          4109) popularity&gt;=0.886855 50 2.500013e+15    4176615.0  
+##                            8218) popularity&gt;=1.016719 40 1.691925e+15    3486101.0 *
+##                            8219) popularity&lt; 1.016719 10 7.127265e+14    6938669.0 *
+##                        2055) popularity&lt; 0.4693685 7 9.660623e+14    7861843.0 *
+##                   257) budget&gt;=14.54573 36 9.222880e+14    5134069.0  
+##                     514) budget&gt;=14.95414 19 1.808518e+14    2918740.0 *
+##                     515) budget&lt; 14.95414 17 5.439742e+14    7610024.0 *
+##                 129) runtime&lt; 46.5 9 9.968486e+15   20005440.0 *
+##                65) popularity&gt;=1.517383 489 1.173924e+17    7901255.0  
+##                 130) runtime&lt; 102.5 275 2.547281e+16    5299779.0  
+##                   260) popularity&lt; 4.655744 202 1.162337e+16    3865514.0  
+##                     520) runtime&gt;=71.5 195 8.658935e+15    3508301.0  
+## 
+## ...
+## and 420 more lines.</code></pre>
+</div>
+<div id="vorhersage-test-sample" class="section level2">
+<h2>Vorhersage Test-Sample</h2>
+<pre class="r"><code>predict(tree_last_fit, new_data = d_test)</code></pre>
+<pre><code>## # A tibble: 4,398 × 1
+##         .pred
+##         &lt;dbl&gt;
+##  1   2031852 
+##  2  13816447.
+##  3   2447879.
+##  4  48403371.
+##  5  10710904.
+##  6   8044510.
+##  7  10296873.
+##  8  63399160.
+##  9  33470076.
+## 10 372118475.
+## # … with 4,388 more rows</code></pre>
+<div id="rf" class="section level3">
+<h3>RF</h3>
+</div>
+</div>
+<div id="fitten-und-tunen-1" class="section level2">
+<h2>Fitten und Tunen</h2>
+<p>Um Rechenzeit zu sparen,
+kann man das Objekt, wenn einmal berechnet,
+abspeichern unter <code>result_obj_path</code> auf der Festplatte und beim nächsten Mal importieren,
+das geht schneller als neu berechnen.</p>
+<p>Das könnte dann z.B. so aussehen:</p>
+<pre><code>if (file.exists(result_obj_path)) {
+  rf_fit &lt;- read_rds(result_obj_path)
+} else {
+  tic()
+  rf_fit &lt;-
+    wf_rf %&gt;% 
+    tune_grid(
+      resamples = cv_scheme)
+  toc()
+}</code></pre>
+<p><em>Achtung</em> Ein Ergebnisobjekt von der Festplatte zu laden ist <em>gefährlich</em>.
+Wenn Sie Ihr Modell verändern, aber vergessen, das Objekt auf der Festplatte zu aktualisieren,
+werden Ihre Ergebnisse falsch sein (da auf dem veralteten Objekt beruhend),
+ohne dass Sie durch eine Fehlermeldung von R gewarnt würden!</p>
+<p>So kann man das Ergebnisobjekt auf die Festplatte schreiben:</p>
+<pre class="r"><code>#write_rds(rf_fit, file = &quot;objects/tmbd_rf_fit1.rds&quot;)</code></pre>
+<p>Aber wir berechnen lieber neu:</p>
+<pre class="r"><code>tic()
+rf_fit &lt;-
+  wf_rf %&gt;% 
+  tune_grid(
+    resamples = cv_scheme,
+    grid = 2)
+toc()</code></pre>
+<pre><code>## 9.212 sec elapsed</code></pre>
+<pre class="r"><code>collect_metrics(rf_fit)</code></pre>
+<pre><code>## # A tibble: 4 × 8
+##    mtry min_n .metric .estimator         mean     n       std_err .config       
+##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;int&gt;         &lt;dbl&gt; &lt;chr&gt;         
+## 1     3     8 rmse    standard   84809872.        5 3215525.      Preprocessor1…
+## 2     3     8 rsq     standard          0.627     5       0.00915 Preprocessor1…
+## 3     2    25 rmse    standard   83394417.        5 3066848.      Preprocessor1…
+## 4     2    25 rsq     standard          0.636     5       0.0117  Preprocessor1…</code></pre>
+<pre class="r"><code>select_best(rf_fit)</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre><code>## # A tibble: 1 × 3
+##    mtry min_n .config             
+##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;               
+## 1     2    25 Preprocessor1_Model2</code></pre>
+</div>
+<div id="finalisieren-1" class="section level2">
+<h2>Finalisieren</h2>
+<pre class="r"><code>final_wf &lt;-
+  wf_rf %&gt;% 
+  finalize_workflow(select_best(rf_fit))</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre class="r"><code>final_fit &lt;-
+  fit(final_wf, data = d_train)</code></pre>
+<pre class="r"><code>final_preds &lt;- 
+  final_fit %&gt;% 
+  predict(new_data = d_test) %&gt;% 
+  bind_cols(d_test)</code></pre>
+<pre class="r"><code>submission &lt;-
+  final_preds %&gt;% 
+  select(id, revenue = .pred)</code></pre>
+<p>Abspeichern und einreichen:</p>
+<pre class="r"><code>write_csv(submission, file = &quot;submission.csv&quot;)</code></pre>
+</div>
+<div id="kaggle-score" class="section level2">
+<h2>Kaggle Score</h2>
+<p>Diese Submission erzielte einen Score von <strong>2.7664</strong> (RMSLE).</p>
+<pre class="r"><code>sol &lt;- 2.7664</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>
+</div>

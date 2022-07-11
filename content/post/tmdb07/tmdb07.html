@@ -1,0 +1,243 @@
+---
+exname: tmdb07
+extype: num
+exsolution: r sol
+extol: 0.5
+expoints: 1
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb07
+title: tmdb07
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Melden Sie sich an für die Kaggle Competition <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>.</p>
+<p>Sie benötigen dazu ein Konto; es ist auch möglich, sich mit seinem Google-Konto anzumelden.</p>
+<p>Bei diesem Prognosewettbewerb geht es darum, vorherzusagen,
+wieviel Umsatz wohl einige Filme machen werden.
+Als Prädiktoren stehen einige Infos wie Budget, Genre, Titel etc. zur Verfügung.
+Eine klassische “predictive Competition” also :-)
+Allerdings können immer ein paar Schwierigkeiten auftreten ;-)</p>
+<p><em>Aufgabe</em></p>
+<p>Erstellen Sie ein <em>Lineares-Modell</em> mit Tidymodels!</p>
+<p><em>Hinweise</em></p>
+<!-- - Nehmen Sie folgende Prädiktoren auf: `budget` und `popularity` -->
+<ul>
+<li>Verzichten Sie auf Vorverarbeitung.</li>
+<li>Tunen Sie die typischen Parameter.</li>
+<li>Reichen Sie das Modell ein und berichten Sie Ihren Score.</li>
+<li>Begrenzen Sie sich auf folgende Prädiktoren.</li>
+</ul>
+<pre class="r"><code>preds_chosen &lt;- 
+  c(&quot;id&quot;, &quot;budget&quot;, &quot;popularity&quot;, &quot;runtime&quot;)</code></pre>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+</div>
+<div id="pakete-starten" class="section level1">
+<h1>Pakete starten</h1>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)</code></pre>
+</div>
+<div id="daten-importieren" class="section level1">
+<h1>Daten importieren</h1>
+<pre class="r"><code>d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot;
+d_test_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv&quot;
+
+d_train &lt;- read_csv(d_train_path)
+d_test &lt;- read_csv(d_test_path)</code></pre>
+<p>Werfen wir einen Blick in die Daten:</p>
+<pre class="r"><code>glimpse(d_train)</code></pre>
+<pre><code>## Rows: 3,000
+## Columns: 23
+## $ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 313576, &#39;name&#39;: &#39;Hot Tub Time Machine C…
+## $ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 35, &#39;name&#39;: &#39;Comedy&#39;}]&quot;, &quot;[{&#39;id&#39;: 35, &#39;…
+## $ homepage              &lt;chr&gt; NA, NA, &quot;http://sonyclassics.com/whiplash/&quot;, &quot;ht…
+## $ imdb_id               &lt;chr&gt; &quot;tt2637294&quot;, &quot;tt0368933&quot;, &quot;tt2582802&quot;, &quot;tt182148…
+## $ original_language     &lt;chr&gt; &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, &quot;hi&quot;, &quot;ko&quot;, &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ overview              &lt;chr&gt; &quot;When Lou, who has become the \&quot;father of the In…
+## $ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+## $ poster_path           &lt;chr&gt; &quot;/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg&quot;, &quot;/w9Z7A0GHEh…
+## $ production_companies  &lt;chr&gt; &quot;[{&#39;name&#39;: &#39;Paramount Pictures&#39;, &#39;id&#39;: 4}, {&#39;nam…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;US&#39;, &#39;name&#39;: &#39;United States of…
+## $ release_date          &lt;chr&gt; &quot;2/20/15&quot;, &quot;8/6/04&quot;, &quot;10/10/14&quot;, &quot;3/9/12&quot;, &quot;2/5/…
+## $ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}]&quot;, &quot;[{&#39;…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;The Laws of Space and Time are About to be Viol…
+## $ title                 &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 4379, &#39;name&#39;: &#39;time travel&#39;}, {&#39;id&#39;: 96…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 4, &#39;character&#39;: &#39;Lou&#39;, &#39;credit_id&#39;…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;59ac067c92514107af02c8c8&#39;, &#39;dep…
+## $ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+<pre class="r"><code>glimpse(d_test)</code></pre>
+<pre><code>## Rows: 4,398
+## Columns: 22
+## $ id                    &lt;dbl&gt; 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, …
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 34055, &#39;name&#39;: &#39;Pokémon Collection&#39;, &#39;p…
+## $ budget                &lt;dbl&gt; 0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 12, &#39;name&#39;: &#39;Adventure&#39;}, {&#39;id&#39;: 16, &#39;n…
+## $ homepage              &lt;chr&gt; &quot;http://www.pokemon.com/us/movies/movie-pokemon-…
+## $ imdb_id               &lt;chr&gt; &quot;tt1226251&quot;, &quot;tt0051380&quot;, &quot;tt0118556&quot;, &quot;tt125595…
+## $ original_language     &lt;chr&gt; &quot;ja&quot;, &quot;en&quot;, &quot;en&quot;, &quot;fr&quot;, &quot;en&quot;, &quot;en&quot;, &quot;de&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;ディアルガVSパルキアVSダークライ&quot;, &quot;Attack of t…
+## $ overview              &lt;chr&gt; &quot;Ash and friends (this time accompanied by newco…
+## $ popularity            &lt;dbl&gt; 3.851534, 3.559789, 8.085194, 8.596012, 3.217680…
+## $ poster_path           &lt;chr&gt; &quot;/tnftmLMemPLduW6MRyZE0ZUD19z.jpg&quot;, &quot;/9MgBNBqlH1…
+## $ production_companies  &lt;chr&gt; NA, &quot;[{&#39;name&#39;: &#39;Woolner Brothers Pictures Inc.&#39;,…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;JP&#39;, &#39;name&#39;: &#39;Japan&#39;}, {&#39;iso_3…
+## $ release_date          &lt;chr&gt; &quot;7/14/07&quot;, &quot;5/19/58&quot;, &quot;5/23/97&quot;, &quot;9/4/10&quot;, &quot;2/11…
+## $ runtime               &lt;dbl&gt; 90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}, {&#39;iso_…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;Somewhere Between Time &amp; Space... A Legend Is B…
+## $ title                 &lt;chr&gt; &quot;Pokémon: The Rise of Darkrai&quot;, &quot;Attack of the 5…
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 11451, &#39;name&#39;: &#39;pok√©mon&#39;}, {&#39;id&#39;: 1155…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 3, &#39;character&#39;: &#39;Tonio&#39;, &#39;credit_i…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;52fe44e7c3a368484e03d683&#39;, &#39;dep…</code></pre>
+</div>
+<div id="resampling-cross-validation-scheme" class="section level1">
+<h1>Resampling / Cross-Validation-Scheme</h1>
+<pre class="r"><code>cv_scheme &lt;- vfold_cv(d_train, v = 3)</code></pre>
+<p><span class="math inline">\(v=3\)</span> ist hier NUR gewählt, um Rechenzeit zu sparen.
+Für die “Wirklichkeit” wäre ein höherer Wert besser,
+z.B. <span class="math inline">\(v=10\)</span>.</p>
+</div>
+<div id="rezept" class="section level1">
+<h1>Rezept</h1>
+<pre class="r"><code>rec1 &lt;- 
+  recipe(revenue ~ budget + popularity + runtime, data = d_train) %&gt;% 
+  step_impute_bag(all_predictors()) %&gt;% 
+  step_naomit(all_predictors()) 
+rec1</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Bagged tree imputation for all_predictors()
+## Removing rows with NA values in all_predictors()</code></pre>
+</div>
+<div id="modell" class="section level1">
+<h1>Modell</h1>
+<pre class="r"><code>model_lm &lt;- linear_reg()</code></pre>
+</div>
+<div id="workflow" class="section level1">
+<h1>Workflow</h1>
+<pre class="r"><code>wf1 &lt;-
+  workflow() %&gt;% 
+  add_model(model_lm) %&gt;% 
+  add_recipe(rec1)</code></pre>
+</div>
+<div id="modell-fitten-und-tunen" class="section level1">
+<h1>Modell fitten (und tunen)</h1>
+<p>Allerdings haben wir keine Tuning-Parameter beim LM.</p>
+<pre class="r"><code>lm_fit1 &lt;-
+  wf1 %&gt;% 
+  fit_resamples(resamples = cv_scheme)</code></pre>
+<pre class="r"><code>lm_fit1</code></pre>
+<pre><code>## # Resampling results
+## # 3-fold cross-validation 
+## # A tibble: 3 × 4
+##   splits              id    .metrics         .notes          
+##   &lt;list&gt;              &lt;chr&gt; &lt;list&gt;           &lt;list&gt;          
+## 1 &lt;split [2000/1000]&gt; Fold1 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+## 2 &lt;split [2000/1000]&gt; Fold2 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+## 3 &lt;split [2000/1000]&gt; Fold3 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
+<pre class="r"><code>collect_metrics(lm_fit1)</code></pre>
+<pre><code>## # A tibble: 2 × 6
+##   .metric .estimator         mean     n      std_err .config             
+##   &lt;chr&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt; &lt;chr&gt;               
+## 1 rmse    standard   85685520.        3 2953145.     Preprocessor1_Model1
+## 2 rsq     standard          0.614     3       0.0171 Preprocessor1_Model1</code></pre>
+</div>
+<div id="final-fit" class="section level1">
+<h1>Final Fit</h1>
+<pre class="r"><code>fit1_final &lt;-
+  wf1 %&gt;% 
+  fit(d_train)
+
+fit1_final</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: linear_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 2 Recipe Steps
+## 
+## • step_impute_bag()
+## • step_naomit()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## 
+## Call:
+## stats::lm(formula = ..y ~ ., data = data)
+## 
+## Coefficients:
+## (Intercept)       budget   popularity      runtime  
+##  -2.901e+07    2.482e+00    2.604e+06    1.648e+05</code></pre>
+<pre class="r"><code>preds &lt;-
+  fit1_final %&gt;% 
+  predict(d_test)</code></pre>
+</div>
+<div id="submission-df" class="section level1">
+<h1>Submission df</h1>
+<pre class="r"><code>submission_df &lt;-
+  d_test %&gt;% 
+  select(id) %&gt;% 
+  bind_cols(preds) %&gt;% 
+  rename(revenue = .pred)
+
+head(submission_df)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##      id   revenue
+##   &lt;dbl&gt;     &lt;dbl&gt;
+## 1  3001 -4147576.
+## 2  3002 -8808347.
+## 3  3003  8523960.
+## 4  3004 31675238.
+## 5  3005  -504415.
+## 6  3006 13531450.</code></pre>
+<p>Abspeichern und einreichen:</p>
+<pre class="r"><code>#write_csv(submission_df, file = &quot;submission.csv&quot;)</code></pre>
+</div>
+<div id="kaggle-score" class="section level1">
+<h1>Kaggle Score</h1>
+<p>Diese Submission erzielte einen Score von <strong>Score: 6.14787</strong> (RMSLE).</p>
+<pre class="r"><code>sol &lt;- 6.14787</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>
