@@ -14,6 +14,11 @@ categories:
 date: '2022-07-11'
 slug: tmdb02
 title: tmdb02
+cover:
+    image: "img/cups1.jpg"
+    alt: "Many aspects, kind of one whole"
+    caption: "Many aspects, kind of one whole"
+    relative: false # To use relative path for cover image, used in hugo Page-bundles
 
 ---
 
@@ -173,40 +178,44 @@ rec1</code></pre>
 ## 
 ## Variable mutation for ~ifelse(budget &lt; 10, 10, budget) [trained]
 ## Log transformation on budget [trained]
-## K-nearest neighbor imputation for popularity, runtime, budget [trained]</code></pre>
+## K-nearest neighbor imputation for budget, popularity, runtime [trained]</code></pre>
 <pre class="r"><code>d_train_baked &lt;-
   rec1_prepped %&gt;% 
   bake(new_data = NULL) 
 
 head(d_train_baked)</code></pre>
 <pre><code>## # A tibble: 6 × 23
-##      id belongs_to_collection    budget genres homepage imdb_id original_langua…
-##   &lt;dbl&gt; &lt;fct&gt;                     &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;           
-## 1     1 [{&#39;id&#39;: 313576, &#39;name&#39;:…  16.5  [{&#39;id… &lt;NA&gt;     tt2637… en              
-## 2     2 [{&#39;id&#39;: 107674, &#39;name&#39;:…  17.5  [{&#39;id… &lt;NA&gt;     tt0368… en              
-## 3     3 &lt;NA&gt;                      15.0  [{&#39;id… http://… tt2582… en              
-## 4     4 &lt;NA&gt;                      14.0  [{&#39;id… http://… tt1821… hi              
-## 5     5 &lt;NA&gt;                       2.30 [{&#39;id… &lt;NA&gt;     tt1380… ko              
-## 6     6 &lt;NA&gt;                      15.9  [{&#39;id… &lt;NA&gt;     tt0093… en              
-## # … with 16 more variables: original_title &lt;fct&gt;, overview &lt;fct&gt;,
-## #   popularity &lt;dbl&gt;, poster_path &lt;fct&gt;, production_companies &lt;fct&gt;,
+##      id belongs_…¹ budget genres homep…² imdb_id origi…³ origi…⁴ overv…⁵ popul…⁶
+##   &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;     &lt;dbl&gt;
+## 1     1 [{&#39;id&#39;: 3…  16.5  [{&#39;id… &lt;NA&gt;    tt2637… en      Hot Tu… &quot;When …   6.58 
+## 2     2 [{&#39;id&#39;: 1…  17.5  [{&#39;id… &lt;NA&gt;    tt0368… en      The Pr… &quot;Mia T…   8.25 
+## 3     3 &lt;NA&gt;        15.0  [{&#39;id… http:/… tt2582… en      Whipla… &quot;Under…  64.3  
+## 4     4 &lt;NA&gt;        14.0  [{&#39;id… http:/… tt1821… hi      Kahaani &quot;Vidya…   3.17 
+## 5     5 &lt;NA&gt;         2.30 [{&#39;id… &lt;NA&gt;    tt1380… ko      마린보… &quot;Marin…   1.15 
+## 6     6 &lt;NA&gt;        15.9  [{&#39;id… &lt;NA&gt;    tt0093… en      Pinocc… &quot;Pinoc…   0.743
+## # … with 13 more variables: poster_path &lt;fct&gt;, production_companies &lt;fct&gt;,
 ## #   production_countries &lt;fct&gt;, release_date &lt;fct&gt;, runtime &lt;dbl&gt;,
 ## #   spoken_languages &lt;fct&gt;, status &lt;fct&gt;, tagline &lt;fct&gt;, title &lt;fct&gt;,
-## #   Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;, revenue &lt;dbl&gt;</code></pre>
+## #   Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;, revenue &lt;dbl&gt;, and abbreviated
+## #   variable names ¹​belongs_to_collection, ²​homepage, ³​original_language,
+## #   ⁴​original_title, ⁵​overview, ⁶​popularity
+## # ℹ Use `colnames()` to see all variable names</code></pre>
 <p>Die AV-Spalte sollte leer sein:</p>
 <pre class="r"><code>bake(rec1_prepped, new_data = head(d_test), all_outcomes())</code></pre>
 <pre><code>## # A tibble: 6 × 0</code></pre>
 <pre class="r"><code>d_train_baked %&gt;% 
   map_df(~ sum(is.na(.)))</code></pre>
 <pre><code>## # A tibble: 1 × 23
-##      id belongs_to_collection budget genres homepage imdb_id original_language
-##   &lt;int&gt;                 &lt;int&gt;  &lt;int&gt;  &lt;int&gt;    &lt;int&gt;   &lt;int&gt;             &lt;int&gt;
-## 1     0                  2396      0      7     2054       0                 0
-## # … with 16 more variables: original_title &lt;int&gt;, overview &lt;int&gt;,
-## #   popularity &lt;int&gt;, poster_path &lt;int&gt;, production_companies &lt;int&gt;,
+##      id belongs_…¹ budget genres homep…² imdb_id origi…³ origi…⁴ overv…⁵ popul…⁶
+##   &lt;int&gt;      &lt;int&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;
+## 1     0       2396      0      7    2054       0       0       0       8       0
+## # … with 13 more variables: poster_path &lt;int&gt;, production_companies &lt;int&gt;,
 ## #   production_countries &lt;int&gt;, release_date &lt;int&gt;, runtime &lt;int&gt;,
 ## #   spoken_languages &lt;int&gt;, status &lt;int&gt;, tagline &lt;int&gt;, title &lt;int&gt;,
-## #   Keywords &lt;int&gt;, cast &lt;int&gt;, crew &lt;int&gt;, revenue &lt;int&gt;</code></pre>
+## #   Keywords &lt;int&gt;, cast &lt;int&gt;, crew &lt;int&gt;, revenue &lt;int&gt;, and abbreviated
+## #   variable names ¹​belongs_to_collection, ²​homepage, ³​original_language,
+## #   ⁴​original_title, ⁵​overview, ⁶​popularity
+## # ℹ Use `colnames()` to see all variable names</code></pre>
 <p>Keine fehlenden Werte mehr <em>in den Prädiktoren</em>.</p>
 <p>Nach fehlenden Werten könnte man z.B. auch so suchen:</p>
 <pre class="r"><code>datawizard::describe_distribution(d_train_baked)</code></pre>
@@ -225,19 +234,21 @@ head(d_train_baked)</code></pre>
 d_test_baked %&gt;% 
   head()</code></pre>
 <pre><code>## # A tibble: 6 × 22
-##      id belongs_to_collection    budget genres homepage imdb_id original_langua…
-##   &lt;dbl&gt; &lt;fct&gt;                     &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;           
-## 1  3001 [{&#39;id&#39;: 34055, &#39;name&#39;: …   2.30 [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    ja              
-## 2  3002 &lt;NA&gt;                      11.4  [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
-## 3  3003 &lt;NA&gt;                       2.30 [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
-## 4  3004 &lt;NA&gt;                      15.7  &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;    fr              
-## 5  3005 &lt;NA&gt;                      14.5  [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
-## 6  3006 &lt;NA&gt;                       2.30 [{&#39;id… &lt;NA&gt;     &lt;NA&gt;    en              
-## # … with 15 more variables: original_title &lt;fct&gt;, overview &lt;fct&gt;,
-## #   popularity &lt;dbl&gt;, poster_path &lt;fct&gt;, production_companies &lt;fct&gt;,
+##      id belongs_…¹ budget genres homep…² imdb_id origi…³ origi…⁴ overv…⁵ popul…⁶
+##   &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;     &lt;dbl&gt;
+## 1  3001 [{&#39;id&#39;: 3…   2.30 [{&#39;id… &lt;NA&gt;    &lt;NA&gt;    ja      &lt;NA&gt;    &lt;NA&gt;       3.85
+## 2  3002 &lt;NA&gt;        11.4  [{&#39;id… &lt;NA&gt;    &lt;NA&gt;    en      &lt;NA&gt;    &lt;NA&gt;       3.56
+## 3  3003 &lt;NA&gt;         2.30 [{&#39;id… &lt;NA&gt;    &lt;NA&gt;    en      &lt;NA&gt;    &lt;NA&gt;       8.09
+## 4  3004 &lt;NA&gt;        15.7  &lt;NA&gt;   &lt;NA&gt;    &lt;NA&gt;    fr      &lt;NA&gt;    &lt;NA&gt;       8.60
+## 5  3005 &lt;NA&gt;        14.5  [{&#39;id… &lt;NA&gt;    &lt;NA&gt;    en      &lt;NA&gt;    &lt;NA&gt;       3.22
+## 6  3006 &lt;NA&gt;         2.30 [{&#39;id… &lt;NA&gt;    &lt;NA&gt;    en      &lt;NA&gt;    &lt;NA&gt;       8.68
+## # … with 12 more variables: poster_path &lt;fct&gt;, production_companies &lt;fct&gt;,
 ## #   production_countries &lt;fct&gt;, release_date &lt;fct&gt;, runtime &lt;dbl&gt;,
 ## #   spoken_languages &lt;fct&gt;, status &lt;fct&gt;, tagline &lt;fct&gt;, title &lt;fct&gt;,
-## #   Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;</code></pre>
+## #   Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;, and abbreviated variable names
+## #   ¹​belongs_to_collection, ²​homepage, ³​original_language, ⁴​original_title,
+## #   ⁵​overview, ⁶​popularity
+## # ℹ Use `colnames()` to see all variable names</code></pre>
 </div>
 </div>
 <div id="kreuzvalidierung" class="section level2">
@@ -295,7 +306,7 @@ tree_fit &lt;-
     grid = 2
   )
 toc()</code></pre>
-<pre><code>## 3.101 sec elapsed</code></pre>
+<pre><code>## 3.374 sec elapsed</code></pre>
 <p>Hilfe zu <code>tune_grid()</code> bekommt man <a href="https://www.rdocumentation.org/packages/tune/versions/0.2.0/topics/tune_grid">hier</a>.</p>
 <pre class="r"><code>tree_fit</code></pre>
 <pre><code>## # Tuning results
@@ -311,23 +322,24 @@ toc()</code></pre>
 <p>Steht was in den <code>.notes</code>?</p>
 <pre class="r"><code>tree_fit[[&quot;.notes&quot;]][[2]]</code></pre>
 <pre><code>## # A tibble: 0 × 3
-## # … with 3 variables: location &lt;chr&gt;, type &lt;chr&gt;, note &lt;chr&gt;</code></pre>
+## # … with 3 variables: location &lt;chr&gt;, type &lt;chr&gt;, note &lt;chr&gt;
+## # ℹ Use `colnames()` to see all variable names</code></pre>
 <p>Nein.</p>
 <pre class="r"><code>collect_metrics(tree_fit)</code></pre>
 <pre><code>## # A tibble: 4 × 8
 ##   cost_complexity tree_depth .metric .estimator       mean     n std_err .config
 ##             &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;           &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
-## 1        2.90e-10         13 rmse    standard      9.33e+7     5 2.76e+6 Prepro…
-## 2        2.90e-10         13 rsq     standard      5.58e-1     5 1.20e-2 Prepro…
-## 3        4.99e- 4          3 rmse    standard      9.55e+7     5 3.17e+6 Prepro…
-## 4        4.99e- 4          3 rsq     standard      5.26e-1     5 1.80e-2 Prepro…</code></pre>
+## 1   0.00000000100          5 rmse    standard      8.59e+7     5 4.68e+6 Prepro…
+## 2   0.00000000100          5 rsq     standard      6.12e-1     5 2.76e-2 Prepro…
+## 3   0.00000781             9 rmse    standard      8.76e+7     5 3.86e+6 Prepro…
+## 4   0.00000781             9 rsq     standard      5.99e-1     5 2.49e-2 Prepro…</code></pre>
 <pre class="r"><code>show_best(tree_fit)</code></pre>
 <pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
 <pre><code>## # A tibble: 2 × 8
 ##   cost_complexity tree_depth .metric .estimator      mean     n  std_err .config
 ##             &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;chr&gt;  
-## 1        2.90e-10         13 rmse    standard   93303602.     5 2758108. Prepro…
-## 2        4.99e- 4          3 rmse    standard   95463734.     5 3166639. Prepro…</code></pre>
+## 1   0.00000000100          5 rmse    standard   85864841.     5 4676421. Prepro…
+## 2   0.00000781             9 rmse    standard   87647236.     5 3862933. Prepro…</code></pre>
 </div>
 </div>
 <div id="finalisieren" class="section level2">
@@ -352,8 +364,8 @@ toc()</code></pre>
 ## Decision Tree Model Specification (regression)
 ## 
 ## Main Arguments:
-##   cost_complexity = 2.90367945993095e-10
-##   tree_depth = 13
+##   cost_complexity = 1.00205814434566e-09
+##   tree_depth = 5
 ## 
 ## Computational engine: rpart</code></pre>
 <pre class="r"><code>tree_last_fit &lt;-
@@ -377,54 +389,54 @@ tree_last_fit</code></pre>
 ## node), split, n, deviance, yval
 ##       * denotes terminal node
 ## 
-##     1) root 3000 5.672651e+19   66725850.0  
-##       2) budget&lt; 18.32631 2845 1.958584e+19   46935270.0  
-##         4) budget&lt; 17.19976 2252 5.443953e+18   25901120.0  
-##           8) popularity&lt; 9.734966 1745 1.665118e+18   17076460.0  
-##            16) popularity&lt; 5.761331 1019 3.184962e+17    8793730.0  
-##              32) budget&lt; 15.44456 782 1.408243e+17    6074563.0  
-##                64) popularity&lt; 1.517383 293 1.907705e+16    3025921.0  
-##                 128) runtime&gt;=46.5 284 6.431604e+15    2487837.0  
-##                   256) budget&lt; 14.54573 248 5.220631e+15    2103707.0  
-##                     512) runtime&lt; 96.5 118 6.571642e+14    1203847.0  
-##                      1024) popularity&lt; 1.140496 99 3.624224e+14     960819.7  
-##                        2048) popularity&lt; 0.18234 26 2.613956e+12     283857.7  
-##                          4096) budget&lt; 10.99014 19 1.656689e+12     212028.9 *
-##                          4097) budget&gt;=10.99014 7 5.931626e+11     478821.6 *
-##                        2049) popularity&gt;=0.18234 73 3.436495e+14    1201929.0  
-##                          4098) runtime&lt; 92 48 1.563662e+14     942088.9  
-##                            8196) popularity&lt; 0.698595 23 1.197191e+13     472543.1 *
-##                            8197) popularity&gt;=0.698595 25 1.346582e+14    1374071.0 *
-##                          4099) runtime&gt;=92 25 1.778200e+14    1700823.0  
-##                            8198) popularity&gt;=0.319976 17 3.705079e+13    1197195.0 *
-##                            8199) popularity&lt; 0.319976 8 1.272946e+14    2771033.0 *
-##                      1025) popularity&gt;=1.140496 19 2.584278e+14    2470148.0 *
-##                     513) runtime&gt;=96.5 130 4.381186e+15    2920503.0  
-##                      1026) popularity&lt; 0.4028185 33 1.196999e+14    1118933.0  
-##                        2052) runtime&lt; 104.5 13 2.411497e+11     102104.2 *
-##                        2053) runtime&gt;=104.5 20 9.728066e+13    1779872.0  
-##                          4106) runtime&gt;=121.5 10 9.005154e+12     960192.6 *
-##                          4107) runtime&lt; 121.5 10 7.483801e+13    2599552.0 *
-##                      1027) popularity&gt;=0.4028185 97 4.117942e+15    3533408.0  
-##                        2054) popularity&gt;=0.4693685 90 3.010532e+15    3196752.0  
-##                          4108) popularity&lt; 0.886855 40 4.025034e+14    1971924.0  
-##                            8216) popularity&lt; 0.565074 9 3.732993e+11     254432.2 *
-##                            8217) popularity&gt;=0.565074 31 3.678747e+14    2470550.0 *
-##                          4109) popularity&gt;=0.886855 50 2.500013e+15    4176615.0  
-##                            8218) popularity&gt;=1.016719 40 1.691925e+15    3486101.0 *
-##                            8219) popularity&lt; 1.016719 10 7.127265e+14    6938669.0 *
-##                        2055) popularity&lt; 0.4693685 7 9.660623e+14    7861843.0 *
-##                   257) budget&gt;=14.54573 36 9.222880e+14    5134069.0  
-##                     514) budget&gt;=14.95414 19 1.808518e+14    2918740.0 *
-##                     515) budget&lt; 14.95414 17 5.439742e+14    7610024.0 *
-##                 129) runtime&lt; 46.5 9 9.968486e+15   20005440.0 *
-##                65) popularity&gt;=1.517383 489 1.173924e+17    7901255.0  
-##                 130) runtime&lt; 102.5 275 2.547281e+16    5299779.0  
-##                   260) popularity&lt; 4.655744 202 1.162337e+16    3865514.0  
-##                     520) runtime&gt;=71.5 195 8.658935e+15    3508301.0  
+##  1) root 3000 5.672651e+19   66725850  
+##    2) budget&lt; 18.32631 2845 1.958584e+19   46935270  
+##      4) budget&lt; 17.19976 2252 5.443953e+18   25901120  
+##        8) popularity&lt; 9.734966 1745 1.665118e+18   17076460  
+##         16) popularity&lt; 5.761331 1019 3.184962e+17    8793730  
+##           32) budget&lt; 15.44456 782 1.408243e+17    6074563 *
+##           33) budget&gt;=15.44456 237 1.528117e+17   17765830 *
+##         17) popularity&gt;=5.761331 726 1.178595e+18   28701940  
+##           34) budget&lt; 16.15249 484 6.504138e+17   21093220 *
+##           35) budget&gt;=16.15249 242 4.441208e+17   43919380 *
+##        9) popularity&gt;=9.734966 507 3.175231e+18   56273980  
+##         18) budget&lt; 15.36217 186 3.092335e+17   24880850  
+##           36) popularity&lt; 14.04031 151 1.743659e+17   20728170 *
+##           37) popularity&gt;=14.04031 35 1.210294e+17   42796710 *
+##         19) budget&gt;=15.36217 321 2.576473e+18   74464390  
+##           38) popularity&lt; 19.64394 300 2.025184e+18   68010500 *
+##           39) popularity&gt;=19.64394 21 3.602808e+17  166662900 *
+##      5) budget&gt;=17.19976 593 9.361685e+18  126815400  
+##       10) popularity&lt; 19.63372 570 6.590372e+18  117422100  
+##         20) budget&lt; 17.86726 374 2.692151e+18   94469490  
+##           40) popularity&lt; 8.444193 149 6.363495e+17   68256660 *
+##           41) popularity&gt;=8.444193 225 1.885623e+18  111828200 *
+##         21) budget&gt;=17.86726 196 3.325222e+18  161219400  
+##           42) popularity&lt; 11.60513 126 1.693483e+18  136587100 *
+##           43) popularity&gt;=11.60513 70 1.417677e+18  205557600 *
+##       11) popularity&gt;=19.63372 23 1.474624e+18  359605200  
+##         22) runtime&gt;=109.5 16 9.882757e+17  299077200 *
+##         23) runtime&lt; 109.5 7 2.937458e+17  497955000 *
+##    3) budget&gt;=18.32631 155 1.557371e+19  429978800  
+##      6) popularity&lt; 17.26579 101 4.711450e+18  299997300  
+##       12) budget&lt; 18.73897 67 1.671489e+18  230290900  
+##         24) popularity&lt; 12.66146 40 5.426991e+17  174328700  
+##           48) budget&lt; 18.44536 18 1.099070e+17  134734600 *
+##           49) budget&gt;=18.44536 22 3.814856e+17  206724000 *
+##         25) popularity&gt;=12.66146 27 8.179336e+17  313197700  
+##           50) budget&lt; 18.52944 13 1.273606e+17  234797100 *
+##           51) budget&gt;=18.52944 14 5.364675e+17  385998300 *
+##       13) budget&gt;=18.73897 34 2.072879e+18  437360100  
+##         26) runtime&lt; 132.5 26 1.123840e+18  391271100  
+##           52) popularity&lt; 11.34182 9 9.729505e+16  248614500 *
+##           53) popularity&gt;=11.34182 17 7.464210e+17  466795200 *
+##         27) runtime&gt;=132.5 8 7.143147e+17  587149400 *
+##      7) popularity&gt;=17.26579 54 5.964228e+18  673092200  
+##       14) budget&lt; 18.99438 33 2.082469e+18  534404700  
+##         28) popularity&lt; 25.35778 19 5.425201e+17  416871200 *
 ## 
 ## ...
-## and 420 more lines.</code></pre>
+## and 4 more lines.</code></pre>
 </div>
 <div id="vorhersage-test-sample" class="section level2">
 <h2>Vorhersage Test-Sample</h2>
@@ -432,17 +444,18 @@ tree_last_fit</code></pre>
 <pre><code>## # A tibble: 4,398 × 1
 ##         .pred
 ##         &lt;dbl&gt;
-##  1   2031852 
-##  2  13816447.
-##  3   2447879.
-##  4  48403371.
-##  5  10710904.
-##  6   8044510.
-##  7  10296873.
-##  8  63399160.
-##  9  33470076.
-## 10 372118475.
-## # … with 4,388 more rows</code></pre>
+##  1   6074563.
+##  2   6074563.
+##  3  21093221.
+##  4  21093221.
+##  5   6074563.
+##  6  21093221.
+##  7   6074563.
+##  8  68256659.
+##  9  43919378.
+## 10 205557624.
+## # … with 4,388 more rows
+## # ℹ Use `print(n = ...)` to see more rows</code></pre>
 <div id="rf" class="section level3">
 <h3>RF</h3>
 </div>
@@ -478,21 +491,21 @@ rf_fit &lt;-
     resamples = cv_scheme,
     grid = 2)
 toc()</code></pre>
-<pre><code>## 9.212 sec elapsed</code></pre>
+<pre><code>## 8.623 sec elapsed</code></pre>
 <pre class="r"><code>collect_metrics(rf_fit)</code></pre>
 <pre><code>## # A tibble: 4 × 8
-##    mtry min_n .metric .estimator         mean     n       std_err .config       
-##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;int&gt;         &lt;dbl&gt; &lt;chr&gt;         
-## 1     3     8 rmse    standard   84809872.        5 3215525.      Preprocessor1…
-## 2     3     8 rsq     standard          0.627     5       0.00915 Preprocessor1…
-## 3     2    25 rmse    standard   83394417.        5 3066848.      Preprocessor1…
-## 4     2    25 rsq     standard          0.636     5       0.0117  Preprocessor1…</code></pre>
+##    mtry min_n .metric .estimator         mean     n      std_err .config        
+##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt; &lt;chr&gt;          
+## 1     2    11 rmse    standard   82295157.        5 5357246.     Preprocessor1_…
+## 2     2    11 rsq     standard          0.640     5       0.0232 Preprocessor1_…
+## 3     3    30 rmse    standard   82406352.        5 5356881.     Preprocessor1_…
+## 4     3    30 rsq     standard          0.640     5       0.0249 Preprocessor1_…</code></pre>
 <pre class="r"><code>select_best(rf_fit)</code></pre>
 <pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
 <pre><code>## # A tibble: 1 × 3
 ##    mtry min_n .config             
 ##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;               
-## 1     2    25 Preprocessor1_Model2</code></pre>
+## 1     2    11 Preprocessor1_Model1</code></pre>
 </div>
 <div id="finalisieren-1" class="section level2">
 <h2>Finalisieren</h2>
