@@ -1,0 +1,125 @@
+---
+extype: cloze
+exclozetype: num|string
+exsolution: 3932.5|r regr_formel
+exname: adjustieren2
+expoints: 0.5
+tags:
+- regression
+- lm
+categories:
+- qm2
+- '2022'
+date: '2022-09-01'
+slug: adjustieren2
+title: adjustieren2
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Betrachten Sie folgendes Modell, das den Zusammenhang des Preises (<code>price</code>)
+und dem Gewicht (<code>carat</code>) von Diamanten untersucht (Datensatz <code>diamonds</code>).</p>
+<pre class="r"><code>library(tidyverse)
+data(diamonds)</code></pre>
+<p>Aber zuerst zentrieren wir den metrischen Prädiktor <code>carat</code>,
+um den Achsenabschnitt besser interpretieren zu können.</p>
+<pre class="r"><code>diamonds &lt;-
+  diamonds %&gt;% 
+  mutate(carat_z = carat - mean(carat, na.rm = TRUE))</code></pre>
+<p>Dann berechnen wir ein (bayesianisches) Regressionsmodell,
+wobei wir auf die Standardwerte der Prior zurückgreifen.</p>
+<pre class="r"><code>library(rstanarm)</code></pre>
+<pre><code>## Loading required package: Rcpp</code></pre>
+<pre><code>## This is rstanarm version 2.21.3</code></pre>
+<pre><code>## - See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!</code></pre>
+<pre><code>## - Default priors may change, so it&#39;s safest to specify priors, even if equivalent to the defaults.</code></pre>
+<pre><code>## - For execution on a local, multicore CPU with excess RAM we recommend calling</code></pre>
+<pre><code>##   options(mc.cores = parallel::detectCores())</code></pre>
+<pre class="r"><code>lm1 &lt;- stan_glm(price ~ carat_z, data = diamonds,
+                refresh = 0)
+summary(lm1)</code></pre>
+<pre><code>Estimates:
+              mean   sd     10%    50%    90% 
+(Intercept) 3932.5    6.8 3923.7 3932.5 3941.1
+carat_z     7756.3   14.2 7737.8 7756.2 7774.7
+sigma       1548.6    4.8 1542.5 1548.6 1554.7
+</code></pre>
+<p>Zur Verdeutlichung ein Diagramm zum Modell:</p>
+<pre class="r"><code>diamonds %&gt;% 
+  ggplot() +
+  aes(x = carat_z, y = price) +
+  geom_point() + 
+  geom_smooth(method = &quot;lm&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="unnamed-chunk-4-1.png" width="384" /></p>
+<div id="answerlist" class="section level2">
+<h2>Answerlist</h2>
+<ol style="list-style-type: lower-alpha">
+<li>Was kostet in Diamant mittlerer Größe laut Modell <code>lm1</code>? Runden Sie auf eine Dezimale. Geben Sie nur eine Zahl ein.</li>
+<li>Geben Sie eine Regressionsformel an, die <code>lm1</code> ergänzt, so dass die Schliffart (<code>cut</code>) des Diamanten kontrolliert (adjustiert) wird. Anders gesagt: Das Modell soll die mittleren Preise für jede der fünf Schliffarten angeben. Geben Sie nur die Regressionsformel an. Lassen Sie zwischen Termen jeweils ein Leerzeichen Abstand.</li>
+</ol>
+<p><em>Hinweis</em>: Es gibt (laut Datensatz) folgende Schliffarten (und zwar in der folgenden Reihenfolge):</p>
+<pre class="r"><code>diamonds %&gt;% 
+  distinct(cut)</code></pre>
+<pre><code>## # A tibble: 5 × 1
+##   cut      
+##   &lt;ord&gt;    
+## 1 Ideal    
+## 2 Premium  
+## 3 Good     
+## 4 Very Good
+## 5 Fair</code></pre>
+<pre class="r"><code>levels(diamonds$cut)</code></pre>
+<pre><code>## [1] &quot;Fair&quot;      &quot;Good&quot;      &quot;Very Good&quot; &quot;Premium&quot;   &quot;Ideal&quot;</code></pre>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<ol style="list-style-type: lower-alpha">
+<li><p>Unser Modell <code>lm1</code> schätzt den Preis eines Diamanten mittlerer Größe auf etwa <code>3932.5</code> (was immer auch die Einheiten sind, Dollar vermutlich).</p></li>
+<li><p><code>price ~ carat_z + cut</code></p></li>
+</ol>
+<p>Das Modell könnten wir so berechnen:</p>
+<pre class="r"><code>library(rstanarm)
+lm2 &lt;- stan_glm(price ~ carat_z + cut, data = diamonds,
+                refresh = 0)
+summary(lm2)</code></pre>
+<pre><code>Estimates:
+              mean   sd     10%    50%    90% 
+(Intercept) 3579.4    9.7 3566.9 3579.5 3591.9
+carat_z     7871.5   14.2 7853.1 7871.4 7890.3
+cut.L       1239.4   26.3 1205.7 1239.6 1272.6
+cut.Q       -527.9   23.4 -557.9 -528.3 -497.7
+cut.C        367.7   20.4  341.8  367.7  393.5
+cut^4         74.9   16.5   53.6   75.0   95.5
+sigma       1511.5    4.6 1505.6 1511.5 1517.4
+</code></pre>
+<pre class="r"><code>lm(price ~ carat_z + cut, data = diamonds)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = price ~ carat_z + cut, data = diamonds)
+## 
+## Coefficients:
+## (Intercept)      carat_z        cut.L        cut.Q        cut.C        cut^4  
+##     3579.27      7871.08      1239.80      -528.60       367.91        74.59</code></pre>
+<p>Man könnte hier noch einen Interaktionseffekt ergänzen.</p>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>qm2</li>
+<li>‘2022’</li>
+</ul>
+</div>
