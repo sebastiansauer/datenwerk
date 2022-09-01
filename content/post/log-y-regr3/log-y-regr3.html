@@ -1,0 +1,295 @@
+---
+exname: log-y-regression3
+extype: num
+exsolution: 1.07
+exshuffle: no
+extol: 0.05
+expoints: 1
+tags:
+- regression
+- log
+categories:
+- stats-nutshell
+- qm2
+date: '2022-09-01'
+slug: log-y-regr3
+title: log-y-regr3
+
+---
+
+
+
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<pre class="r"><code>library(tidyverse)
+library(easystats)</code></pre>
+<p>In dieser Aufgabe modellieren wir den (kausalen) Effekt von Schulbildung auf das Einkommen.</p>
+<p>Importieren Sie zunächst den Datensatz und verschaffen Sie sich einen Überblick.</p>
+<pre class="r"><code>d_path &lt;- &quot;https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/Treatment.csv&quot;
+
+d &lt;- data_read(d_path)</code></pre>
+<p>Dokumentation und Quellenangaben zum Datensatz finden sich <a href="https://vincentarelbundock.github.io/Rdatasets/doc/Ecdat/Treatment.html">hier</a>.</p>
+<pre class="r"><code>glimpse(d)</code></pre>
+<pre><code>## Rows: 2,675
+## Columns: 11
+## $ V1      &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,…
+## $ treat   &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TR…
+## $ age     &lt;int&gt; 37, 30, 27, 33, 22, 23, 32, 22, 19, 21, 18, 27, 17, 19, 27, 23…
+## $ educ    &lt;int&gt; 11, 12, 11, 8, 9, 12, 11, 16, 9, 13, 8, 10, 7, 10, 13, 10, 12,…
+## $ ethn    &lt;chr&gt; &quot;black&quot;, &quot;black&quot;, &quot;black&quot;, &quot;black&quot;, &quot;black&quot;, &quot;black&quot;, &quot;black&quot;,…
+## $ married &lt;lgl&gt; TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
+## $ re74    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ re75    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ re78    &lt;dbl&gt; 9930.05, 24909.50, 7506.15, 289.79, 4056.49, 0.00, 8472.16, 21…
+## $ u74     &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TR…
+## $ u75     &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TR…</code></pre>
+<p><em>Welcher der Prädiktoren hat den stärkesten Einfluss auf das Einkommen?</em></p>
+<p>Hinweise:</p>
+<ul>
+<li>Verwenden Sie <code>lm</code> zur Modellierung.</li>
+<li>Operationalisieren Sie das Einkommen mit der Variable <code>re74</code>.</li>
+<li>Gehen Sie von einem kausalen Effekt der Prädiktoren aus.</li>
+<li>Gehen Sie von einem multiplikativen Modell aus (log-y).</li>
+<li>Lassen Sie die Variablen zur Arbeitslosigkeit außen vor.</li>
+</ul>
+<div id="answerlist" class="section level2">
+<h2>Answerlist</h2>
+<ul>
+<li>treat</li>
+<li>age</li>
+<li>educ</li>
+<li>ethn</li>
+<li>married</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<pre class="r"><code>d2 &lt;-
+  d %&gt;% 
+  filter(re74 &gt; 0) %&gt;% 
+  mutate(re74_log = log(re74)) %&gt;% 
+  standardize(select = c(&quot;age&quot;, &quot;educ&quot;))</code></pre>
+<p>Prüfen, ob das standardisieren funktioniert hat:</p>
+<pre class="r"><code>d2 %&gt;% 
+  describe_distribution() %&gt;% 
+  display()</code></pre>
+<pre><code>## Warning: Can&#39;t describe variables of class &#39;logical&#39;.
+
+## Warning: Can&#39;t describe variables of class &#39;logical&#39;.
+
+## Warning: Can&#39;t describe variables of class &#39;logical&#39;.
+
+## Warning: Can&#39;t describe variables of class &#39;logical&#39;.</code></pre>
+<table>
+<colgroup>
+<col width="9%" />
+<col width="11%" />
+<col width="10%" />
+<col width="10%" />
+<col width="19%" />
+<col width="10%" />
+<col width="10%" />
+<col width="6%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="center">Mean</th>
+<th align="center">SD</th>
+<th align="center">IQR</th>
+<th align="center">Range</th>
+<th align="center">Skewness</th>
+<th align="center">Kurtosis</th>
+<th align="center">n</th>
+<th align="center">n_Missing</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">V1</td>
+<td align="center">1429.07</td>
+<td align="center">736.61</td>
+<td align="center">1294.00</td>
+<td align="center">(95.00, 2675.00)</td>
+<td align="center">-0.08</td>
+<td align="center">-1.15</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="left">age</td>
+<td align="center">-2.69e-16</td>
+<td align="center">1.00</td>
+<td align="center">1.74</td>
+<td align="center">(-1.65, 2.03)</td>
+<td align="center">0.42</td>
+<td align="center">-1.09</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="left">educ</td>
+<td align="center">1.33e-16</td>
+<td align="center">1.00</td>
+<td align="center">0.99</td>
+<td align="center">(-3.99, 1.61)</td>
+<td align="center">-0.47</td>
+<td align="center">0.43</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="left">re74</td>
+<td align="center">20938.28</td>
+<td align="center">12631.52</td>
+<td align="center">15086.30</td>
+<td align="center">(17.63, 1.37e+05)</td>
+<td align="center">1.62</td>
+<td align="center">6.81</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="left">re75</td>
+<td align="center">20080.38</td>
+<td align="center">13123.48</td>
+<td align="center">15217.70</td>
+<td align="center">(0.00, 1.57e+05)</td>
+<td align="center">1.58</td>
+<td align="center">7.85</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="left">re78</td>
+<td align="center">22508.65</td>
+<td align="center">14917.30</td>
+<td align="center">16846.10</td>
+<td align="center">(0.00, 1.21e+05)</td>
+<td align="center">1.28</td>
+<td align="center">4.12</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="left">re74_log</td>
+<td align="center">9.73</td>
+<td align="center">0.76</td>
+<td align="center">0.80</td>
+<td align="center">(2.87, 11.83)</td>
+<td align="center">-1.67</td>
+<td align="center">6.01</td>
+<td align="center">2329</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>m &lt;- lm(re74_log ~ educ + treat + age + ethn + married, data = d2)</code></pre>
+<p>Parameter des Modells:</p>
+<table>
+<colgroup>
+<col width="23%" />
+<col width="19%" />
+<col width="8%" />
+<col width="23%" />
+<col width="13%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Parameter</th>
+<th align="center">Coefficient</th>
+<th align="center">SE</th>
+<th align="center">95% CI</th>
+<th align="center">t(2322)</th>
+<th align="center">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="center">9.29</td>
+<td align="center">0.04</td>
+<td align="center">(9.20, 9.37)</td>
+<td align="center">223.32</td>
+<td align="center">&lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">educ</td>
+<td align="center">0.23</td>
+<td align="center">0.01</td>
+<td align="center">(0.20, 0.26)</td>
+<td align="center">16.03</td>
+<td align="center">&lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">treatTRUE</td>
+<td align="center">-0.66</td>
+<td align="center">0.09</td>
+<td align="center">(-0.84, -0.47)</td>
+<td align="center">-7.06</td>
+<td align="center">&lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">age</td>
+<td align="center">0.22</td>
+<td align="center">0.01</td>
+<td align="center">(0.19, 0.25)</td>
+<td align="center">15.79</td>
+<td align="center">&lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">ethn (hispanic)</td>
+<td align="center">0.22</td>
+<td align="center">0.08</td>
+<td align="center">(0.07, 0.38)</td>
+<td align="center">2.90</td>
+<td align="center">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">ethn (other)</td>
+<td align="center">0.22</td>
+<td align="center">0.03</td>
+<td align="center">(0.16, 0.29)</td>
+<td align="center">6.78</td>
+<td align="center">&lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">marriedTRUE</td>
+<td align="center">0.35</td>
+<td align="center">0.04</td>
+<td align="center">(0.28, 0.43)</td>
+<td align="center">8.93</td>
+<td align="center">&lt; .001</td>
+</tr>
+</tbody>
+</table>
+<div id="answerlist-1" class="section level2">
+<h2>Answerlist</h2>
+<ul>
+<li>TRUE</li>
+<li>FALSE</li>
+<li>FALSE</li>
+<li>FALSE</li>
+<li>FALSE</li>
+</ul>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>stats-nutshell</li>
+<li>qm2</li>
+</ul>
+</div>
+</div>
