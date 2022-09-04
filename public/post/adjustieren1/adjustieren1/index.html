@@ -76,8 +76,8 @@ Aber zuerst zentrieren wir den metrischen Prädiktor hp, um den Achsenabschnitt 
 mtcars &lt;- mtcars %&gt;% mutate(hp_z = hp - mean(hp)) library(rstanarm) lm1 &lt;- stan_glm(mpg ~ hp_z, data = mtcars, refresh = 0) summary(lm1) Estimates: mean sd 10% 50% 90% (Intercept) 20.1 0.7 19.2 20.1 21.0 hp_z -0.1 0.0 -0.1 -0.1 -0." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://datenwerk.netlify.app/post/adjustieren1/adjustieren1/" /><meta property="og:image" content="https://datenwerk.netlify.app/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-07-10T00:00:00&#43;00:00" />
-<meta property="article:modified_time" content="2022-07-10T00:00:00&#43;00:00" />
+<meta property="article:published_time" content="2022-09-04T00:00:00&#43;00:00" />
+<meta property="article:modified_time" content="2022-09-04T00:00:00&#43;00:00" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://datenwerk.netlify.app/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/>
@@ -121,8 +121,8 @@ mtcars &lt;- mtcars %&gt;% mutate(hp_z = hp - mean(hp)) library(rstanarm) lm1 &l
   "articleBody": " Exercise Betrachten Sie folgendes Modell, das den Zusammenhang von PS-Zahl und Spritverbrauch untersucht (Datensatz mtcars).\nAber zuerst zentrieren wir den metrischen Prädiktor hp, um den Achsenabschnitt besser interpretieren zu können.\nmtcars % mutate(hp_z = hp - mean(hp)) library(rstanarm) lm1  Estimates: mean sd 10% 50% 90% (Intercept) 20.1 0.7 19.2 20.1 21.0 hp_z -0.1 0.0 -0.1 -0.1 -0.1 sigma 4.0 0.5 3.4 3.9 4.7  Jetzt können wir aus dem Achsenabschnitt (Intercept) herauslesen, dass ein Auto mit hp_z = 0 - also mit mittlerer PS-Zahl - vielleicht gut 20 Meilen weit mit einer Gallone Sprit kommt.\nZur Verdeutlichung ein Diagramm zum Modell:\nmtcars %% ggplot() + aes(x = hp_z, y = mpg) + geom_point() + geom_smooth(method = \"lm\") ## `geom_smooth()` using formula 'y ~ x' Adjustieren Sie im Modell die PS-Zahl um die Art des Schaltgetriebes (am), so dass das neue Modell den statistischen Effekt (nicht notwendig auch kausal) der PS-Zahl bereinigt bzw. unabhängig von der Art des Schaltgetriebes widerspiegelt!\nHinweise:\n am=0 ist ein Auto mit Automatikgetriebe. Wir gehen davon aus, dass der Regressionseffekt gleich stark ist auf allen (beiden) Stufen von am. M.a.W.: Es liegt kein Interaktionseffekt vor.           \n Solution library(rstanarm) lm2  Estimates: mean sd 10% 50% 90% (Intercept) 26.6 1.5 24.7 26.6 28.5 hp -0.1 0.0 -0.1 -0.1 0.0 am 5.3 1.1 3.8 5.3 6.6 sigma 3.0 0.4 2.5 3.0 3.5  Die Spalte mean gibt den mittleren geschätzten Wert für den jeweiligen Koeffizienten an, also den Schätzwert zum Koeffizienten.\nDie Koeffizienten zeigen, dass der Achsenabschnitt für Autos mit Automatikgetriebe um etwa 5 Meilen geringer ist als für Autos mit manueller Schaltung: Ein durchschnittliches Auto mit manueller Schaltung kommt also etwa 5 Meilen weiter als ein Auto mit Automatikschaltung, glaubt unser Modell.\nmtcars %% mutate(am = factor(am)) %% ggplot() + aes(x = hp_z, y = mpg, color = am) + geom_point() + geom_smooth(method = \"lm\") ## `geom_smooth()` using formula 'y ~ x' Man könnte hier noch einen Interaktionseffekt ergänzen.\nCategories:\n qm2 qm2-thema01 ws22   ",
   "wordCount" : "347",
   "inLanguage": "en",
-  "datePublished": "2022-07-10T00:00:00Z",
-  "dateModified": "2022-07-10T00:00:00Z",
+  "datePublished": "2022-09-04T00:00:00Z",
+  "dateModified": "2022-09-04T00:00:00Z",
   "author":{
     "@type": "Person",
     "name": "Sebastian Sauer"
@@ -214,7 +214,7 @@ mtcars &lt;- mtcars %&gt;% mutate(hp_z = hp - mean(hp)) library(rstanarm) lm1 &l
     <h1 class="post-title">
       adjustieren1
     </h1>
-    <div class="post-meta"><span title='2022-07-10 00:00:00 +0000 UTC'>July 10, 2022</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;347 words&nbsp;·&nbsp;Sebastian Sauer
+    <div class="post-meta"><span title='2022-09-04 00:00:00 +0000 UTC'>September 4, 2022</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;347 words&nbsp;·&nbsp;Sebastian Sauer
 
 </div>
   </header> 
@@ -245,7 +245,7 @@ sigma        4.0    0.5  3.4   3.9   4.7 </code></pre>
   geom_point() + 
   geom_smooth(method = &quot;lm&quot;)</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="/post/adjustieren1/adjustieren1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="unnamed-chunk-3-1.png" width="384" /></p>
 <p>Adjustieren Sie im Modell die PS-Zahl um die Art des Schaltgetriebes (<code>am</code>), so dass das neue Modell den statistischen Effekt (nicht notwendig auch kausal) der PS-Zahl bereinigt bzw. unabhängig von der Art des Schaltgetriebes widerspiegelt!</p>
 <p>Hinweise:</p>
 <ul>
@@ -285,7 +285,7 @@ also den Schätzwert zum Koeffizienten.</p>
   geom_point() + 
   geom_smooth(method = &quot;lm&quot;)</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="/post/adjustieren1/adjustieren1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="unnamed-chunk-5-1.png" width="384" /></p>
 <p>Man könnte hier noch einen Interaktionseffekt ergänzen.</p>
 <hr />
 <p>Categories:</p>
@@ -305,12 +305,7 @@ also den Schätzwert zum Koeffizienten.</p>
       <li><a href="https://datenwerk.netlify.app/tags/bayes/">bayes</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="https://datenwerk.netlify.app/post/vorhersageintervall1/vorhersageintervall1/">
-    <span class="title">« Prev</span>
-    <br>
-    <span>vorhersageintervall1</span>
-  </a>
-  <a class="next" href="https://datenwerk.netlify.app/post/griech-buchstaben/griech-buchstaben-inferenz/">
+  <a class="next" href="https://datenwerk.netlify.app/post/griech-buchstaben-inferenz/griech-buchstaben-inferenz/">
     <span class="title">Next »</span>
     <br>
     <span>Griech-Buchstaben-Inferenz</span>

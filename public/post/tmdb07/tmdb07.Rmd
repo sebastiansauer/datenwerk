@@ -1,0 +1,256 @@
+---
+exname: tmdb07
+extype: num
+exsolution: r sol
+extol: 0.5
+expoints: 1
+tags:
+- tidymodels
+- prediction
+- tmdb
+categories:
+- ds1
+- 21ss
+date: '2022-07-11'
+slug: tmdb07
+title: tmdb07
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Melden Sie sich an für die Kaggle Competition [TMDB Box Office Prediction -
+Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview).
+
+Sie benötigen dazu ein Konto; es ist auch möglich, sich mit seinem Google-Konto anzumelden.
+
+Bei diesem Prognosewettbewerb geht es darum, vorherzusagen,
+wieviel Umsatz wohl einige Filme machen werden. 
+Als Prädiktoren stehen einige Infos wie Budget, Genre, Titel etc. zur Verfügung.
+Eine klassische "predictive Competition" also :-)
+Allerdings können immer ein paar Schwierigkeiten auftreten ;-)
+
+
+*Aufgabe*
+
+Erstellen Sie ein *Lineares-Modell* mit Tidymodels!
+
+
+*Hinweise*
+
+<!-- - Nehmen Sie folgende Prädiktoren auf: `budget` und `popularity` -->
+- Verzichten Sie auf Vorverarbeitung. 
+- Tunen Sie die typischen Parameter. 
+- Reichen Sie das Modell ein und berichten Sie Ihren Score.
+- Begrenzen Sie sich auf folgende Prädiktoren.
+
+
+```{r}
+preds_chosen <- 
+  c("id", "budget", "popularity", "runtime")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+# Pakete starten
+
+```{r message=FALSE}
+library(tidyverse)
+library(tidymodels)
+```
+
+
+
+# Daten importieren
+
+```{r}
+d_train_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"
+d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"
+
+d_train <- read_csv(d_train_path)
+d_test <- read_csv(d_test_path)
+```
+
+Werfen wir einen Blick in die Daten:
+
+```{r}
+glimpse(d_train)
+glimpse(d_test)
+```
+
+
+
+# Resampling / Cross-Validation-Scheme
+
+```{r}
+cv_scheme <- vfold_cv(d_train, v = 3)
+```
+
+
+$v=3$ ist hier NUR gewählt, um Rechenzeit zu sparen.
+Für die "Wirklichkeit" wäre ein höherer Wert besser,
+z.B. $v=10$.
+
+
+
+# Rezept
+
+
+
+```{r rec1}
+rec1 <- 
+  recipe(revenue ~ budget + popularity + runtime, data = d_train) %>% 
+  step_impute_bag(all_predictors()) %>% 
+  step_naomit(all_predictors()) 
+rec1
+```
+
+
+# Modell
+
+
+
+```{r}
+model_lm <- linear_reg()
+```
+
+
+# Workflow
+
+```{r wf1}
+wf1 <-
+  workflow() %>% 
+  add_model(model_lm) %>% 
+  add_recipe(rec1)
+```
+
+
+
+
+#  Modell fitten (und tunen)
+
+
+Allerdings haben wir keine Tuning-Parameter beim LM.
+
+```{r fit-resamples-no-tune}
+lm_fit1 <-
+  wf1 %>% 
+  fit_resamples(resamples = cv_scheme)
+```
+
+
+
+```{r}
+lm_fit1
+```
+
+
+```{r}
+collect_metrics(lm_fit1)
+```
+
+
+
+# Final Fit
+
+
+```{r}
+fit1_final <-
+  wf1 %>% 
+  fit(d_train)
+
+fit1_final
+```
+
+
+
+```{r}
+preds <-
+  fit1_final %>% 
+  predict(d_test)
+```
+
+
+
+
+# Submission df
+
+
+```{r}
+submission_df <-
+  d_test %>% 
+  select(id) %>% 
+  bind_cols(preds) %>% 
+  rename(revenue = .pred)
+
+head(submission_df)
+```
+
+
+
+Abspeichern und einreichen:
+
+```{r eval = FALSE}
+#write_csv(submission_df, file = "submission.csv")
+```
+
+
+# Kaggle Score
+
+Diese Submission erzielte einen Score von **Score: 6.14787** (RMSLE).
+
+```{r}
+sol <- 6.14787
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- 21ss
+

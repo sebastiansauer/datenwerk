@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>tmdb03 | Datenwerk</title>
+<meta name="keywords" content="tidymodels, prediction, tmdb">
+<meta name="description" content="result_obj_file &lt;- &quot;tmdb_model_set.rds&quot; result_obj_path &lt;- &quot;/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmdb_model_set.rds&quot; #exams::include_supplement(file = result_obj_file, # recursive = TRUE) # tmdb_model_set &lt;- readr::read_rds(&quot;tmdb_model_set.rds&quot;) #tmdb_model_set &lt;- readr::read_rds(result_obj_path) Exercise Wir bearbeiten hier die Fallstudie TMDB Box Office Prediction - Can you predict a movie’s worldwide box office revenue?, ein Kaggle-Prognosewettbewerb.
+Ziel ist es, genaue Vorhersagen zu machen, in diesem Fall für Filme.
+Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:
+d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot; d_test_path &lt;- &quot;https://raw.">
+<meta name="author" content="Sebastian Sauer">
+<link rel="canonical" href="https://datenwerk.netlify.app/post/tmdb03/tmdb03/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.11456fe0da96a3038931cd29485a8226ce668dbd3dae9895bd769fd7b6b7959f.css" integrity="sha256-EUVv4NqWowOJMc0pSFqCJs5mjb09rpiVvXaf17a3lZ8=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://datenwerk.netlify.app/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://datenwerk.netlify.app/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://datenwerk.netlify.app/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://datenwerk.netlify.app/apple-touch-icon.png">
+<link rel="mask-icon" href="https://datenwerk.netlify.app/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<script async type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<meta property="og:title" content="tmdb03" />
+<meta property="og:description" content="result_obj_file &lt;- &quot;tmdb_model_set.rds&quot; result_obj_path &lt;- &quot;/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmdb_model_set.rds&quot; #exams::include_supplement(file = result_obj_file, # recursive = TRUE) # tmdb_model_set &lt;- readr::read_rds(&quot;tmdb_model_set.rds&quot;) #tmdb_model_set &lt;- readr::read_rds(result_obj_path) Exercise Wir bearbeiten hier die Fallstudie TMDB Box Office Prediction - Can you predict a movie’s worldwide box office revenue?, ein Kaggle-Prognosewettbewerb.
+Ziel ist es, genaue Vorhersagen zu machen, in diesem Fall für Filme.
+Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:
+d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot; d_test_path &lt;- &quot;https://raw." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://datenwerk.netlify.app/post/tmdb03/tmdb03/" /><meta property="og:image" content="https://datenwerk.netlify.app/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-07-11T00:00:00&#43;00:00" />
+<meta property="article:modified_time" content="2022-07-11T00:00:00&#43;00:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://datenwerk.netlify.app/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/>
+
+<meta name="twitter:title" content="tmdb03"/>
+<meta name="twitter:description" content="result_obj_file &lt;- &quot;tmdb_model_set.rds&quot; result_obj_path &lt;- &quot;/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmdb_model_set.rds&quot; #exams::include_supplement(file = result_obj_file, # recursive = TRUE) # tmdb_model_set &lt;- readr::read_rds(&quot;tmdb_model_set.rds&quot;) #tmdb_model_set &lt;- readr::read_rds(result_obj_path) Exercise Wir bearbeiten hier die Fallstudie TMDB Box Office Prediction - Can you predict a movie’s worldwide box office revenue?, ein Kaggle-Prognosewettbewerb.
+Ziel ist es, genaue Vorhersagen zu machen, in diesem Fall für Filme.
+Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:
+d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot; d_test_path &lt;- &quot;https://raw."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://datenwerk.netlify.app/post/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "tmdb03",
+      "item": "https://datenwerk.netlify.app/post/tmdb03/tmdb03/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "tmdb03",
+  "name": "tmdb03",
+  "description": "result_obj_file \u0026lt;- \u0026quot;tmdb_model_set.rds\u0026quot; result_obj_path \u0026lt;- \u0026quot;/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmdb_model_set.rds\u0026quot; #exams::include_supplement(file = result_obj_file, # recursive = TRUE) # tmdb_model_set \u0026lt;- readr::read_rds(\u0026quot;tmdb_model_set.rds\u0026quot;) #tmdb_model_set \u0026lt;- readr::read_rds(result_obj_path) Exercise Wir bearbeiten hier die Fallstudie TMDB Box Office Prediction - Can you predict a movie’s worldwide box office revenue?, ein Kaggle-Prognosewettbewerb.\nZiel ist es, genaue Vorhersagen zu machen, in diesem Fall für Filme.\nDie Daten können Sie von der Kaggle-Projektseite beziehen oder so:\nd_train_path \u0026lt;- \u0026quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv\u0026quot; d_test_path \u0026lt;- \u0026quot;https://raw.",
+  "keywords": [
+    "tidymodels", "prediction", "tmdb"
+  ],
+  "articleBody": " result_obj_file  Exercise Wir bearbeiten hier die Fallstudie TMDB Box Office Prediction - Can you predict a movie’s worldwide box office revenue?, ein Kaggle-Prognosewettbewerb.\nZiel ist es, genaue Vorhersagen zu machen, in diesem Fall für Filme.\nDie Daten können Sie von der Kaggle-Projektseite beziehen oder so:\nd_train_path   Aufgabe Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!\nHinweise:\n Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden. Verwenden Sie mehrere, und zwar folgende Algorithmen: Random Forest, Boosting, lineare Regression. Tipp: Ein Workflow-Set ist hilfreich. Logarithmieren Sie budget. Betreiben Sie Feature Engineering, zumindest etwas. Insbesondere sollten Sie den Monat und das Jahr aus dem Datum extrahieren und als Features (Prädiktoren) nutzen. Verwenden Sie tidymodels. Die Zielgröße ist revenue in Dollars; nicht in “Log-Dollars”. Sie müssen also rücktransformieren, falls Sie revenue logarithmiert haben.           \n Solution Vorbereitung\nlibrary(tidyverse) library(tidymodels) library(tictoc) # Rechenzeit messen #library(Metrics) library(lubridate) # Datumsangaben library(VIM) # fehlende Werte library(visdat) # Datensatz visualisieren d_train_raw  Mal einen Blick werfen:\nglimpse(d_train_raw) ## Rows: 3,000 ## Columns: 23 ## $ id  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1… ## $ belongs_to_collection  \"[{'id': 313576, 'name': 'Hot Tub Time Machine C… ## $ budget  1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00… ## $ genres  \"[{'id': 35, 'name': 'Comedy'}]\", \"[{'id': 35, '… ## $ homepage  NA, NA, \"http://sonyclassics.com/whiplash/\", \"ht… ## $ imdb_id  \"tt2637294\", \"tt0368933\", \"tt2582802\", \"tt182148… ## $ original_language  \"en\", \"en\", \"en\", \"hi\", \"ko\", \"en\", \"en\", \"en\", … ## $ original_title  \"Hot Tub Time Machine 2\", \"The Princess Diaries … ## $ overview  \"When Lou, who has become the \\\"father of the In… ## $ popularity  6.575393, 8.248895, 64.299990, 3.174936, 1.14807… ## $ poster_path  \"/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg\", \"/w9Z7A0GHEh… ## $ production_companies  \"[{'name': 'Paramount Pictures', 'id': 4}, {'nam… ## $ production_countries  \"[{'iso_3166_1': 'US', 'name': 'United States of… ## $ release_date  \"2/20/15\", \"8/6/04\", \"10/10/14\", \"3/9/12\", \"2/5/… ## $ runtime  93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119… ## $ spoken_languages  \"[{'iso_639_1': 'en', 'name': 'English'}]\", \"[{'… ## $ status  \"Released\", \"Released\", \"Released\", \"Released\", … ## $ tagline  \"The Laws of Space and Time are About to be Viol… ## $ title  \"Hot Tub Time Machine 2\", \"The Princess Diaries … ## $ Keywords  \"[{'id': 4379, 'name': 'time travel'}, {'id': 96… ## $ cast  \"[{'cast_id': 4, 'character': 'Lou', 'credit_id'… ## $ crew  \"[{'credit_id': '59ac067c92514107af02c8c8', 'dep… ## $ revenue  12314651, 95149435, 13092000, 16000000, 3923970,… glimpse(d_test) ## Rows: 4,398 ## Columns: 22 ## $ id  3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, … ## $ belongs_to_collection  \"[{'id': 34055, 'name': 'Pokémon Collection', 'p… ## $ budget  0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06… ## $ genres  \"[{'id': 12, 'name': 'Adventure'}, {'id': 16, 'n… ## $ homepage  \"http://www.pokemon.com/us/movies/movie-pokemon-… ## $ imdb_id  \"tt1226251\", \"tt0051380\", \"tt0118556\", \"tt125595… ## $ original_language  \"ja\", \"en\", \"en\", \"fr\", \"en\", \"en\", \"de\", \"en\", … ## $ original_title  \"ディアルガVSパルキアVSダークライ\", \"Attack of t… ## $ overview  \"Ash and friends (this time accompanied by newco… ## $ popularity  3.851534, 3.559789, 8.085194, 8.596012, 3.217680… ## $ poster_path  \"/tnftmLMemPLduW6MRyZE0ZUD19z.jpg\", \"/9MgBNBqlH1… ## $ production_companies  NA, \"[{'name': 'Woolner Brothers Pictures Inc.',… ## $ production_countries  \"[{'iso_3166_1': 'JP', 'name': 'Japan'}, {'iso_3… ## $ release_date  \"7/14/07\", \"5/19/58\", \"5/23/97\", \"9/4/10\", \"2/11… ## $ runtime  90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,… ## $ spoken_languages  \"[{'iso_639_1': 'en', 'name': 'English'}, {'iso_… ## $ status  \"Released\", \"Released\", \"Released\", \"Released\", … ## $ tagline  \"Somewhere Between Time \u0026 Space... A Legend Is B… ## $ title  \"Pokémon: The Rise of Darkrai\", \"Attack of the 5… ## $ Keywords  \"[{'id': 11451, 'name': 'pok√©mon'}, {'id': 1155… ## $ cast  \"[{'cast_id': 3, 'character': 'Tonio', 'credit_i… ## $ crew  \"[{'credit_id': '52fe44e7c3a368484e03d683', 'dep… Train-Set verschlanken\nd_train % select(popularity, runtime, revenue, budget, release_date)  Datensatz kennenlernen\nlibrary(visdat) vis_dat(d_train) ## Warning: `gather_()` was deprecated in tidyr 1.2.0. ## Please use `gather()` instead. ## This warning is displayed once every 8 hours. ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated. Fehlende Werte prüfen\nWelche Spalten haben viele fehlende Werte?\nvis_miss(d_train) Mit {VIM} kann man einen Datensatz gut auf fehlende Werte hin untersuchen:\naggr(d_train) Rezept definieren\nrec1 % #update_role(all_predictors(), new_role = \"id\") %% #update_role(popularity, runtime, revenue, budget, original_language) %% #update_role(revenue, new_role = \"outcome\") %% step_mutate(budget = if_else(budget % step_log(budget) %% step_mutate(release_date = mdy(release_date)) %% step_date(release_date, features = c(\"year\", \"month\"), keep_original_cols = FALSE) %% step_impute_knn(all_predictors()) %% step_dummy(all_nominal()) rec1 ## Recipe ## ## Inputs: ## ## role #variables ## outcome 1 ## predictor 4 ## ## Operations: ## ## Variable mutation for if_else(budget  tidy(rec1) ## # A tibble: 6 × 6 ## number operation type trained skip id ##       ## 1 1 step mutate FALSE FALSE mutate_AXiBI ## 2 2 step log FALSE FALSE log_mpbrN ## 3 3 step mutate FALSE FALSE mutate_uLpTz ## 4 4 step date FALSE FALSE date_rthRQ ## 5 5 step impute_knn FALSE FALSE impute_knn_e9pAc ## 6 6 step dummy FALSE FALSE dummy_qnnVe Check das Rezept \nprep(rec1, verbose = TRUE) ## oper 1 step mutate [training] ## oper 2 step log [training] ## oper 3 step mutate [training] ## oper 4 step date [training] ## oper 5 step impute knn [training] ## oper 6 step dummy [training] ## The retained training set is ~ 0.38 Mb in memory. ## Recipe ## ## Inputs: ## ## role #variables ## outcome 1 ## predictor 4 ## ## Training data contained 3000 data points and 2 incomplete rows. ## ## Operations: ## ## Variable mutation for ~if_else(budget  d_train_baked % bake(new_data = NULL) d_train_baked ## # A tibble: 3,000 × 16 ## popularity runtime budget revenue release_date_year release_date_month_Feb ##       ## 1 6.58 93 16.5 12314651 2015 1 ## 2 8.25 113 17.5 95149435 2004 0 ## 3 64.3 105 15.0 13092000 2014 0 ## 4 3.17 122 14.0 16000000 2012 0 ## 5 1.15 118 2.30 3923970 2009 1 ## 6 0.743 83 15.9 3261638 1987 0 ## 7 7.29 92 16.5 85446075 2012 0 ## 8 1.95 84 2.30 2586511 2004 0 ## 9 6.90 100 2.30 34327391 1996 1 ## 10 4.67 91 15.6 18750246 2003 0 ## # … with 2,990 more rows, and 10 more variables: release_date_month_Mar , ## # release_date_month_Apr , release_date_month_May , ## # release_date_month_Jun , release_date_month_Jul , ## # release_date_month_Aug , release_date_month_Sep , ## # release_date_month_Oct , release_date_month_Nov , ## # release_date_month_Dec  d_train_baked %% map_df(~ sum(is.na(.))) ## # A tibble: 1 × 16 ## popularity runtime budget revenue release_date_year release_date_month_Feb ##       ## 1 0 0 0 0 0 0 ## # … with 10 more variables: release_date_month_Mar , ## # release_date_month_Apr , release_date_month_May , ## # release_date_month_Jun , release_date_month_Jul , ## # release_date_month_Aug , release_date_month_Sep , ## # release_date_month_Oct , release_date_month_Nov , ## # release_date_month_Dec  Keine fehlenden Werte mehr in den Prädiktoren.\nNach fehlenden Werten könnte man z.B. auch so suchen:\ndatawizard::describe_distribution(d_train_baked) ## Variable | Mean | SD | IQR | Range | Skewness | Kurtosis | n | n_Missing ## --------------------------------------------------------------------------------------------------------------------- ## popularity | 8.46 | 12.10 | 6.88 | [1.00e-06, 294.34] | 14.38 | 280.10 | 3000 | 0 ## runtime | 107.84 | 22.09 | 24.00 | [0.00, 338.00] | 1.02 | 8.19 | 3000 | 0 ## budget | 12.51 | 6.44 | 14.88 | [2.30, 19.76] | -0.87 | -1.09 | 3000 | 0 ## revenue | 6.67e+07 | 1.38e+08 | 6.66e+07 | [1.00, 1.52e+09] | 4.54 | 27.78 | 3000 | 0 ## release_date_year | 2004.58 | 15.48 | 17.00 | [1969.00, 2068.00] | 1.22 | 3.94 | 3000 | 0 ## release_date_month_Feb | 0.08 | 0.26 | 0.00 | [0.00, 1.00] | 3.22 | 8.37 | 3000 | 0 ## release_date_month_Mar | 0.08 | 0.27 | 0.00 | [0.00, 1.00] | 3.11 | 7.71 | 3000 | 0 ## release_date_month_Apr | 0.08 | 0.27 | 0.00 | [0.00, 1.00] | 3.06 | 7.35 | 3000 | 0 ## release_date_month_May | 0.07 | 0.26 | 0.00 | [0.00, 1.00] | 3.24 | 8.49 | 3000 | 0 ## release_date_month_Jun | 0.08 | 0.27 | 0.00 | [0.00, 1.00] | 3.12 | 7.76 | 3000 | 0 ## release_date_month_Jul | 0.07 | 0.25 | 0.00 | [0.00, 1.00] | 3.38 | 9.45 | 3000 | 0 ## release_date_month_Aug | 0.09 | 0.28 | 0.00 | [0.00, 1.00] | 2.97 | 6.83 | 3000 | 0 ## release_date_month_Sep | 0.12 | 0.33 | 0.00 | [0.00, 1.00] | 2.33 | 3.43 | 3000 | 0 ## release_date_month_Oct | 0.10 | 0.30 | 0.00 | [0.00, 1.00] | 2.63 | 4.90 | 3000 | 0 ## release_date_month_Nov | 0.07 | 0.26 | 0.00 | [0.00, 1.00] | 3.27 | 8.67 | 3000 | 0 ## release_date_month_Dec | 0.09 | 0.28 | 0.00 | [0.00, 1.00] | 2.92 | 6.52 | 3000 | 0 So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.\nCheck Test-Sample\nDas Test-Sample backen wir auch mal. Das hat nur den Zwecke, zu prüfen, ob unser Rezept auch richtig funktioniert. Das Preppen und Backen des Test-Samples wir automatisch von predict() bzw. last_fit() erledigt.\nWichtig: Wir preppen den Datensatz mit dem Train-Sample, auch wenn wir das Test-Sample backen wollen.\nrec1_prepped % head() ## # A tibble: 6 × 15 ## popularity runtime budget release_date_year release_date_mon… release_date_mo… ##       ## 1 3.85 90 2.30 2007 0 0 ## 2 3.56 65 11.4 2058 0 0 ## 3 8.09 100 2.30 1997 0 0 ## 4 8.60 130 15.7 2010 0 0 ## 5 3.22 92 14.5 2005 1 0 ## 6 8.68 121 2.30 1996 1 0 ## # … with 9 more variables: release_date_month_Apr , ## # release_date_month_May , release_date_month_Jun , ## # release_date_month_Jul , release_date_month_Aug , ## # release_date_month_Sep , release_date_month_Oct , ## # release_date_month_Nov , release_date_month_Dec   Kreuzvalidierung Nur aus Zeitgründen ist hier \\(v=2\\) eingestellt; besser wäre z.B. \\(v=10\\) und \\(r=3\\).\ncv_scheme   Modelle Baum\nmod_tree  Random Forest\ndoParallel::registerDoParallel() mod_rf % set_engine(\"ranger\", num.threads = 4) XGBoost\nmod_boost % set_engine(\"xgboost\", nthreads = parallel::detectCores()) %% set_mode(\"regression\") LM\nmod_lm  Workflow-Set\npreproc  Fitten und tunen\nWenn man das Ergebnis-Objekt abgespeichert hat, dann kann man es einfach laden, spart Rechenzeit (der Tag ist kurz):\nresult_obj_file  (Davon ausgehend, dass die Datei im Arbeitsverzeichnis liegt.)\nDann könnte man Folgendes machen:\nif (file.exists(result_obj_file)) { tmdb_model_set % workflow_map( resamples = cv_scheme, grid = 10, # metrics = metric_set(rmse), seed = 42, # reproducibility verbose = TRUE) toc() } Achtung Gefährlich! Zwischenspeichern auf der Festplatte birgt die Gefahr, dass man vergisst, das Objekt auf der Festplatte zu aktualisieren und Sie noch in einem Jahr und nach 100 Updates Ihres Rezepts immer noch das uralte Objekt von der Festplatte laden …\nUm Rechenzeit zu sparen, kann man das Ergebnisobjekt abspeichern, dann muss man beim nächsten Mal nicht wieder von Neuem berechnen:\n#write_rds(tmdb_model_set, \"objects/tmdb_model_set.rds\") Hier berechnen wir aber lieber das Modell neu:\ntic() tmdb_model_set % workflow_map( resamples = cv_scheme, grid = 10, # metrics = metric_set(rmse), seed = 42, # reproducibility verbose = TRUE) toc() ## 30.054 sec elapsed Finalisieren\nWelcher Algorithmus schneidet am besten ab?\nGenauer geagt, welches Modell, denn es ist ja nicht nur ein Algorithmus, sondern ein Algorithmus plus ein Rezept plus die Parameterinstatiierung plus ein spezifischer Datensatz.\ntune::autoplot(tmdb_model_set) + theme(legend.position = \"bottom\") R-Quadrat ist nicht entscheidend; rmse ist wichtiger.\nDie Ergebnislage ist nicht ganz klar, aber einiges spricht für das Boosting-Modell, rec1_boost1.\ntmdb_model_set %% collect_metrics() %% arrange(-mean) %% head(10) ## # A tibble: 10 × 9 ## wflow_id .config preproc model .metric .estimator mean n std_err ##          ## 1 rec1_lm1 Preprocess… recipe line… rmse standard 1.16e8 2 2.42e6 ## 2 rec1_rf1 Preprocess… recipe rand… rmse standard 1.11e8 2 2.85e6 ## 3 rec1_tree1 Preprocess… recipe deci… rmse standard 1.10e8 2 1.61e6 ## 4 rec1_tree1 Preprocess… recipe deci… rmse standard 9.75e7 2 3.43e6 ## 5 rec1_boost1 Preprocess… recipe boos… rmse standard 9.73e7 2 2.51e6 ## 6 rec1_tree1 Preprocess… recipe deci… rmse standard 9.66e7 2 3.36e6 ## 7 rec1_boost1 Preprocess… recipe boos… rmse standard 9.50e7 2 1.05e5 ## 8 rec1_boost1 Preprocess… recipe boos… rmse standard 9.45e7 2 2.71e6 ## 9 rec1_tree1 Preprocess… recipe deci… rmse standard 9.40e7 2 1.32e6 ## 10 rec1_tree1 Preprocess… recipe deci… rmse standard 9.40e7 2 1.32e6 best_model_params % select_best() ## Warning: No value of `metric` was given; metric 'rmse' will be used. best_model_params ## # A tibble: 1 × 4 ## mtry trees min_n .config ##     ## 1 1 928 17 Preprocessor1_Model01 Finalisieren\nbest_wf % extract_workflow(\"rec1_boost1\") best_wf ## ══ Workflow ════════════════════════════════════════════════════════════════════ ## Preprocessor: Recipe ## Model: boost_tree() ## ## ── Preprocessor ──────────────────────────────────────────────────────────────── ## 6 Recipe Steps ## ## • step_mutate() ## • step_log() ## • step_mutate() ## • step_date() ## • step_impute_knn() ## • step_dummy() ## ## ── Model ─────────────────────────────────────────────────────────────────────── ## Boosted Tree Model Specification (regression) ## ## Main Arguments: ## mtry = tune() ## trees = tune() ## min_n = tune() ## ## Engine-Specific Arguments: ## nthreads = parallel::detectCores() ## ## Computational engine: xgboost best_wf_finalized % finalize_workflow(best_model_params) best_wf_finalized ## ══ Workflow ════════════════════════════════════════════════════════════════════ ## Preprocessor: Recipe ## Model: boost_tree() ## ## ── Preprocessor ──────────────────────────────────────────────────────────────── ## 6 Recipe Steps ## ## • step_mutate() ## • step_log() ## • step_mutate() ## • step_date() ## • step_impute_knn() ## • step_dummy() ## ## ── Model ─────────────────────────────────────────────────────────────────────── ## Boosted Tree Model Specification (regression) ## ## Main Arguments: ## mtry = 1 ## trees = 928 ## min_n = 17 ## ## Engine-Specific Arguments: ## nthreads = parallel::detectCores() ## ## Computational engine: xgboost Final Fit\nfit_final % fit(d_train) ## [10:24:41] WARNING: amalgamation/../src/learner.cc:627: ## Parameters: { \"nthreads\" } might not be used. ## ## This could be a false alarm, with some parameters getting used by language bindings but ## then being mistakenly passed down to XGBoost core, or some parameter actually being used ## but getting flagged wrongly here. Please open an issue if you find any such cases. fit_final ## ══ Workflow [trained] ══════════════════════════════════════════════════════════ ## Preprocessor: Recipe ## Model: boost_tree() ## ## ── Preprocessor ──────────────────────────────────────────────────────────────── ## 6 Recipe Steps ## ## • step_mutate() ## • step_log() ## • step_mutate() ## • step_date() ## • step_impute_knn() ## • step_dummy() ## ## ── Model ─────────────────────────────────────────────────────────────────────── ## ##### xgb.Booster ## raw: 1 Mb ## call: ## xgboost::xgb.train(params = list(eta = 0.3, max_depth = 6, gamma = 0, ## colsample_bytree = 1, colsample_bynode = 0.0666666666666667, ## min_child_weight = 17L, subsample = 1, objective = \"reg:squarederror\"), ## data = x$data, nrounds = 928L, watchlist = x$watchlist, verbose = 0, ## nthreads = 8L, nthread = 1) ## params (as set within xgb.train): ## eta = \"0.3\", max_depth = \"6\", gamma = \"0\", colsample_bytree = \"1\", colsample_bynode = \"0.0666666666666667\", min_child_weight = \"17\", subsample = \"1\", objective = \"reg:squarederror\", nthreads = \"8\", nthread = \"1\", validate_parameters = \"TRUE\" ## xgb.attributes: ## niter ## callbacks: ## cb.evaluation.log() ## # of features: 15 ## niter: 928 ## nfeatures : 15 ## evaluation_log: ## iter training_rmse ## 1 130631526 ## 2 125426215 ## --- ## 927 44181662 ## 928 44158939 d_test$revenue % predict(new_data = d_test) %% bind_cols(d_test) Submission\nsubmission_df % select(id, revenue = .pred) Abspeichern und einreichen:\n#write_csv(submission_df, file = \"submission.csv\") Kaggle Score\nDiese Submission erzielte einen Score von 4.79227 (RMSLE).\nsol  Categories:\n ds1 21ss   ",
+  "wordCount" : "2780",
+  "inLanguage": "en",
+  "datePublished": "2022-07-11T00:00:00Z",
+  "dateModified": "2022-07-11T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Sebastian Sauer"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://datenwerk.netlify.app/post/tmdb03/tmdb03/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Datenwerk",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://datenwerk.netlify.app/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://datenwerk.netlify.app/" accesskey="h" title="Datenwerk (Alt + H)">Datenwerk</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://datenwerk.netlify.app/categories/" title="categories">
+                    <span>categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://datenwerk.netlify.app/tags/" title="tags">
+                    <span>tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://datenwerk.netlify.app/archive/" title="search (Alt &#43; /)" accesskey=/>
+                    <span>search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://datenwerk.netlify.app/about/" title="about">
+                    <span>about</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://datenwerk.netlify.app/">Home</a>&nbsp;»&nbsp;<a href="https://datenwerk.netlify.app/post/">Posts</a></div>
+    <h1 class="post-title">
+      tmdb03
+    </h1>
+    <div class="post-meta"><span title='2022-07-11 00:00:00 +0000 UTC'>July 11, 2022</span>&nbsp;·&nbsp;14 min&nbsp;·&nbsp;2780 words&nbsp;·&nbsp;Sebastian Sauer
+
+</div>
+  </header> 
+  <div class="post-content">
+
+
+<pre class="r"><code>result_obj_file &lt;- &quot;tmdb_model_set.rds&quot;
+result_obj_path &lt;- &quot;/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmdb_model_set.rds&quot;
+#exams::include_supplement(file = result_obj_file,
+#                         recursive = TRUE)
+# tmdb_model_set &lt;- readr::read_rds(&quot;tmdb_model_set.rds&quot;)
+#tmdb_model_set &lt;- readr::read_rds(result_obj_path)</code></pre>
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Wir bearbeiten hier die Fallstudie <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction -
+Can you predict a movie’s worldwide box office revenue?</a>,
+ein <a href="https://www.kaggle.com/">Kaggle</a>-Prognosewettbewerb.</p>
+<p>Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.</p>
+<p>Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:</p>
+<pre class="r"><code>d_train_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv&quot;
+d_test_path &lt;- &quot;https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv&quot;</code></pre>
+</div>
+<div id="aufgabe" class="section level1">
+<h1>Aufgabe</h1>
+<p>Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!</p>
+<p>Hinweise:</p>
+<ul>
+<li>Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.</li>
+<li>Verwenden Sie <em>mehrere, und zwar folgende Algorithmen</em>: Random Forest, Boosting, lineare Regression. Tipp: Ein Workflow-Set ist hilfreich.</li>
+<li>Logarithmieren Sie <code>budget</code>.</li>
+<li>Betreiben Sie Feature Engineering, zumindest etwas. Insbesondere sollten Sie den Monat und das Jahr aus dem Datum extrahieren und als Features (Prädiktoren) nutzen.</li>
+<li>Verwenden Sie <code>tidymodels</code>.</li>
+<li>Die Zielgröße ist <code>revenue</code> in Dollars; nicht in “Log-Dollars”. Sie müssen also rücktransformieren,
+falls Sie <code>revenue</code> logarithmiert haben.</li>
+</ul>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<p><em>Vorbereitung</em></p>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)
+library(tictoc)  # Rechenzeit messen
+#library(Metrics)
+library(lubridate)  # Datumsangaben
+library(VIM)  # fehlende Werte
+library(visdat)  # Datensatz visualisieren</code></pre>
+<pre class="r"><code>d_train_raw &lt;- read_csv(d_train_path)
+d_test &lt;- read_csv(d_test_path)</code></pre>
+<p>Mal einen Blick werfen:</p>
+<pre class="r"><code>glimpse(d_train_raw)</code></pre>
+<pre><code>## Rows: 3,000
+## Columns: 23
+## $ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 313576, &#39;name&#39;: &#39;Hot Tub Time Machine C…
+## $ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 35, &#39;name&#39;: &#39;Comedy&#39;}]&quot;, &quot;[{&#39;id&#39;: 35, &#39;…
+## $ homepage              &lt;chr&gt; NA, NA, &quot;http://sonyclassics.com/whiplash/&quot;, &quot;ht…
+## $ imdb_id               &lt;chr&gt; &quot;tt2637294&quot;, &quot;tt0368933&quot;, &quot;tt2582802&quot;, &quot;tt182148…
+## $ original_language     &lt;chr&gt; &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, &quot;hi&quot;, &quot;ko&quot;, &quot;en&quot;, &quot;en&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ overview              &lt;chr&gt; &quot;When Lou, who has become the \&quot;father of the In…
+## $ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+## $ poster_path           &lt;chr&gt; &quot;/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg&quot;, &quot;/w9Z7A0GHEh…
+## $ production_companies  &lt;chr&gt; &quot;[{&#39;name&#39;: &#39;Paramount Pictures&#39;, &#39;id&#39;: 4}, {&#39;nam…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;US&#39;, &#39;name&#39;: &#39;United States of…
+## $ release_date          &lt;chr&gt; &quot;2/20/15&quot;, &quot;8/6/04&quot;, &quot;10/10/14&quot;, &quot;3/9/12&quot;, &quot;2/5/…
+## $ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}]&quot;, &quot;[{&#39;…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;The Laws of Space and Time are About to be Viol…
+## $ title                 &lt;chr&gt; &quot;Hot Tub Time Machine 2&quot;, &quot;The Princess Diaries …
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 4379, &#39;name&#39;: &#39;time travel&#39;}, {&#39;id&#39;: 96…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 4, &#39;character&#39;: &#39;Lou&#39;, &#39;credit_id&#39;…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;59ac067c92514107af02c8c8&#39;, &#39;dep…
+## $ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+<pre class="r"><code>glimpse(d_test)</code></pre>
+<pre><code>## Rows: 4,398
+## Columns: 22
+## $ id                    &lt;dbl&gt; 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, …
+## $ belongs_to_collection &lt;chr&gt; &quot;[{&#39;id&#39;: 34055, &#39;name&#39;: &#39;Pokémon Collection&#39;, &#39;p…
+## $ budget                &lt;dbl&gt; 0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06…
+## $ genres                &lt;chr&gt; &quot;[{&#39;id&#39;: 12, &#39;name&#39;: &#39;Adventure&#39;}, {&#39;id&#39;: 16, &#39;n…
+## $ homepage              &lt;chr&gt; &quot;http://www.pokemon.com/us/movies/movie-pokemon-…
+## $ imdb_id               &lt;chr&gt; &quot;tt1226251&quot;, &quot;tt0051380&quot;, &quot;tt0118556&quot;, &quot;tt125595…
+## $ original_language     &lt;chr&gt; &quot;ja&quot;, &quot;en&quot;, &quot;en&quot;, &quot;fr&quot;, &quot;en&quot;, &quot;en&quot;, &quot;de&quot;, &quot;en&quot;, …
+## $ original_title        &lt;chr&gt; &quot;ディアルガVSパルキアVSダークライ&quot;, &quot;Attack of t…
+## $ overview              &lt;chr&gt; &quot;Ash and friends (this time accompanied by newco…
+## $ popularity            &lt;dbl&gt; 3.851534, 3.559789, 8.085194, 8.596012, 3.217680…
+## $ poster_path           &lt;chr&gt; &quot;/tnftmLMemPLduW6MRyZE0ZUD19z.jpg&quot;, &quot;/9MgBNBqlH1…
+## $ production_companies  &lt;chr&gt; NA, &quot;[{&#39;name&#39;: &#39;Woolner Brothers Pictures Inc.&#39;,…
+## $ production_countries  &lt;chr&gt; &quot;[{&#39;iso_3166_1&#39;: &#39;JP&#39;, &#39;name&#39;: &#39;Japan&#39;}, {&#39;iso_3…
+## $ release_date          &lt;chr&gt; &quot;7/14/07&quot;, &quot;5/19/58&quot;, &quot;5/23/97&quot;, &quot;9/4/10&quot;, &quot;2/11…
+## $ runtime               &lt;dbl&gt; 90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,…
+## $ spoken_languages      &lt;chr&gt; &quot;[{&#39;iso_639_1&#39;: &#39;en&#39;, &#39;name&#39;: &#39;English&#39;}, {&#39;iso_…
+## $ status                &lt;chr&gt; &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, &quot;Released&quot;, …
+## $ tagline               &lt;chr&gt; &quot;Somewhere Between Time &amp; Space... A Legend Is B…
+## $ title                 &lt;chr&gt; &quot;Pokémon: The Rise of Darkrai&quot;, &quot;Attack of the 5…
+## $ Keywords              &lt;chr&gt; &quot;[{&#39;id&#39;: 11451, &#39;name&#39;: &#39;pok√©mon&#39;}, {&#39;id&#39;: 1155…
+## $ cast                  &lt;chr&gt; &quot;[{&#39;cast_id&#39;: 3, &#39;character&#39;: &#39;Tonio&#39;, &#39;credit_i…
+## $ crew                  &lt;chr&gt; &quot;[{&#39;credit_id&#39;: &#39;52fe44e7c3a368484e03d683&#39;, &#39;dep…</code></pre>
+<p><em>Train-Set verschlanken</em></p>
+<pre class="r"><code>d_train &lt;-
+  d_train_raw %&gt;% 
+  select(popularity, runtime, revenue, budget, release_date) </code></pre>
+<p><em>Datensatz kennenlernen</em></p>
+<pre class="r"><code>library(visdat)
+vis_dat(d_train)</code></pre>
+<pre><code>## Warning: `gather_()` was deprecated in tidyr 1.2.0.
+## Please use `gather()` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
+<p><img src="unnamed-chunk-5-1.png" width="384" /></p>
+<p><em>Fehlende Werte prüfen</em></p>
+<p>Welche Spalten haben viele fehlende Werte?</p>
+<pre class="r"><code>vis_miss(d_train)</code></pre>
+<p><img src="unnamed-chunk-6-1.png" width="384" /></p>
+<p>Mit <code>{VIM}</code> kann man einen Datensatz gut auf fehlende Werte hin untersuchen:</p>
+<pre class="r"><code>aggr(d_train)</code></pre>
+<p><img src="unnamed-chunk-7-1.png" width="384" /></p>
+<p><em>Rezept definieren</em></p>
+<pre class="r"><code>rec1 &lt;-
+  recipe(revenue ~ ., data = d_train) %&gt;% 
+  #update_role(all_predictors(), new_role = &quot;id&quot;) %&gt;% 
+  #update_role(popularity, runtime, revenue, budget, original_language) %&gt;% 
+  #update_role(revenue, new_role = &quot;outcome&quot;) %&gt;% 
+  step_mutate(budget = if_else(budget &lt; 10, 10, budget)) %&gt;% 
+  step_log(budget) %&gt;% 
+  step_mutate(release_date = mdy(release_date)) %&gt;% 
+  step_date(release_date, features = c(&quot;year&quot;, &quot;month&quot;), keep_original_cols = FALSE) %&gt;% 
+  step_impute_knn(all_predictors()) %&gt;% 
+  step_dummy(all_nominal())
+
+rec1</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          4
+## 
+## Operations:
+## 
+## Variable mutation for if_else(budget &lt; 10, 10, budget)
+## Log transformation on budget
+## Variable mutation for mdy(release_date)
+## Date features from release_date
+## K-nearest neighbor imputation for all_predictors()
+## Dummy variables from all_nominal()</code></pre>
+<pre class="r"><code>tidy(rec1)</code></pre>
+<pre><code>## # A tibble: 6 × 6
+##   number operation type       trained skip  id              
+##    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;      &lt;lgl&gt;   &lt;lgl&gt; &lt;chr&gt;           
+## 1      1 step      mutate     FALSE   FALSE mutate_AXiBI    
+## 2      2 step      log        FALSE   FALSE log_mpbrN       
+## 3      3 step      mutate     FALSE   FALSE mutate_uLpTz    
+## 4      4 step      date       FALSE   FALSE date_rthRQ      
+## 5      5 step      impute_knn FALSE   FALSE impute_knn_e9pAc
+## 6      6 step      dummy      FALSE   FALSE dummy_qnnVe</code></pre>
+<p><em>Check das Rezept </em></p>
+<pre class="r"><code>prep(rec1, verbose = TRUE)</code></pre>
+<pre><code>## oper 1 step mutate [training] 
+## oper 2 step log [training] 
+## oper 3 step mutate [training] 
+## oper 4 step date [training] 
+## oper 5 step impute knn [training] 
+## oper 6 step dummy [training] 
+## The retained training set is ~ 0.38 Mb  in memory.</code></pre>
+<pre><code>## Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          4
+## 
+## Training data contained 3000 data points and 2 incomplete rows. 
+## 
+## Operations:
+## 
+## Variable mutation for ~if_else(budget &lt; 10, 10, budget) [trained]
+## Log transformation on budget [trained]
+## Variable mutation for ~mdy(release_date) [trained]
+## Date features from release_date [trained]
+## K-nearest neighbor imputation for runtime, budget, release_date_year, release_da... [trained]
+## Dummy variables from release_date_month [trained]</code></pre>
+<pre class="r"><code>d_train_baked &lt;- 
+prep(rec1) %&gt;% 
+  bake(new_data = NULL) 
+
+d_train_baked</code></pre>
+<pre><code>## # A tibble: 3,000 × 16
+##    popularity runtime budget  revenue release_date_year release_date_month_Feb
+##         &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;             &lt;dbl&gt;                  &lt;dbl&gt;
+##  1      6.58       93  16.5  12314651              2015                      1
+##  2      8.25      113  17.5  95149435              2004                      0
+##  3     64.3       105  15.0  13092000              2014                      0
+##  4      3.17      122  14.0  16000000              2012                      0
+##  5      1.15      118   2.30  3923970              2009                      1
+##  6      0.743      83  15.9   3261638              1987                      0
+##  7      7.29       92  16.5  85446075              2012                      0
+##  8      1.95       84   2.30  2586511              2004                      0
+##  9      6.90      100   2.30 34327391              1996                      1
+## 10      4.67       91  15.6  18750246              2003                      0
+## # … with 2,990 more rows, and 10 more variables: release_date_month_Mar &lt;dbl&gt;,
+## #   release_date_month_Apr &lt;dbl&gt;, release_date_month_May &lt;dbl&gt;,
+## #   release_date_month_Jun &lt;dbl&gt;, release_date_month_Jul &lt;dbl&gt;,
+## #   release_date_month_Aug &lt;dbl&gt;, release_date_month_Sep &lt;dbl&gt;,
+## #   release_date_month_Oct &lt;dbl&gt;, release_date_month_Nov &lt;dbl&gt;,
+## #   release_date_month_Dec &lt;dbl&gt;</code></pre>
+<pre class="r"><code>d_train_baked %&gt;% 
+  map_df(~ sum(is.na(.)))</code></pre>
+<pre><code>## # A tibble: 1 × 16
+##   popularity runtime budget revenue release_date_year release_date_month_Feb
+##        &lt;int&gt;   &lt;int&gt;  &lt;int&gt;   &lt;int&gt;             &lt;int&gt;                  &lt;int&gt;
+## 1          0       0      0       0                 0                      0
+## # … with 10 more variables: release_date_month_Mar &lt;int&gt;,
+## #   release_date_month_Apr &lt;int&gt;, release_date_month_May &lt;int&gt;,
+## #   release_date_month_Jun &lt;int&gt;, release_date_month_Jul &lt;int&gt;,
+## #   release_date_month_Aug &lt;int&gt;, release_date_month_Sep &lt;int&gt;,
+## #   release_date_month_Oct &lt;int&gt;, release_date_month_Nov &lt;int&gt;,
+## #   release_date_month_Dec &lt;int&gt;</code></pre>
+<p>Keine fehlenden Werte mehr <em>in den Prädiktoren</em>.</p>
+<p>Nach fehlenden Werten könnte man z.B. auch so suchen:</p>
+<pre class="r"><code>datawizard::describe_distribution(d_train_baked)</code></pre>
+<pre><code>## Variable               |     Mean |       SD |      IQR |              Range | Skewness | Kurtosis |    n | n_Missing
+## ---------------------------------------------------------------------------------------------------------------------
+## popularity             |     8.46 |    12.10 |     6.88 | [1.00e-06, 294.34] |    14.38 |   280.10 | 3000 |         0
+## runtime                |   107.84 |    22.09 |    24.00 |     [0.00, 338.00] |     1.02 |     8.19 | 3000 |         0
+## budget                 |    12.51 |     6.44 |    14.88 |      [2.30, 19.76] |    -0.87 |    -1.09 | 3000 |         0
+## revenue                | 6.67e+07 | 1.38e+08 | 6.66e+07 |   [1.00, 1.52e+09] |     4.54 |    27.78 | 3000 |         0
+## release_date_year      |  2004.58 |    15.48 |    17.00 | [1969.00, 2068.00] |     1.22 |     3.94 | 3000 |         0
+## release_date_month_Feb |     0.08 |     0.26 |     0.00 |       [0.00, 1.00] |     3.22 |     8.37 | 3000 |         0
+## release_date_month_Mar |     0.08 |     0.27 |     0.00 |       [0.00, 1.00] |     3.11 |     7.71 | 3000 |         0
+## release_date_month_Apr |     0.08 |     0.27 |     0.00 |       [0.00, 1.00] |     3.06 |     7.35 | 3000 |         0
+## release_date_month_May |     0.07 |     0.26 |     0.00 |       [0.00, 1.00] |     3.24 |     8.49 | 3000 |         0
+## release_date_month_Jun |     0.08 |     0.27 |     0.00 |       [0.00, 1.00] |     3.12 |     7.76 | 3000 |         0
+## release_date_month_Jul |     0.07 |     0.25 |     0.00 |       [0.00, 1.00] |     3.38 |     9.45 | 3000 |         0
+## release_date_month_Aug |     0.09 |     0.28 |     0.00 |       [0.00, 1.00] |     2.97 |     6.83 | 3000 |         0
+## release_date_month_Sep |     0.12 |     0.33 |     0.00 |       [0.00, 1.00] |     2.33 |     3.43 | 3000 |         0
+## release_date_month_Oct |     0.10 |     0.30 |     0.00 |       [0.00, 1.00] |     2.63 |     4.90 | 3000 |         0
+## release_date_month_Nov |     0.07 |     0.26 |     0.00 |       [0.00, 1.00] |     3.27 |     8.67 | 3000 |         0
+## release_date_month_Dec |     0.09 |     0.28 |     0.00 |       [0.00, 1.00] |     2.92 |     6.52 | 3000 |         0</code></pre>
+<p>So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.</p>
+<p><em>Check Test-Sample</em></p>
+<p>Das Test-Sample backen wir auch mal. Das hat <em>nur</em> den Zwecke,
+zu prüfen, ob unser Rezept auch richtig funktioniert.
+Das Preppen und Backen des Test-Samples wir <em>automatisch</em> von <code>predict()</code> bzw. <code>last_fit()</code> erledigt.</p>
+<p>Wichtig: Wir preppen den Datensatz mit dem <em>Train-Sample</em>, auch
+wenn wir das Test-Sample backen wollen.</p>
+<pre class="r"><code>rec1_prepped &lt;- prep(rec1)
+
+d_test_baked &lt;-
+  bake(rec1_prepped, new_data = d_test)
+
+d_test_baked %&gt;% 
+  head()</code></pre>
+<pre><code>## # A tibble: 6 × 15
+##   popularity runtime budget release_date_year release_date_mon… release_date_mo…
+##        &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;             &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;
+## 1       3.85      90   2.30              2007                 0                0
+## 2       3.56      65  11.4               2058                 0                0
+## 3       8.09     100   2.30              1997                 0                0
+## 4       8.60     130  15.7               2010                 0                0
+## 5       3.22      92  14.5               2005                 1                0
+## 6       8.68     121   2.30              1996                 1                0
+## # … with 9 more variables: release_date_month_Apr &lt;dbl&gt;,
+## #   release_date_month_May &lt;dbl&gt;, release_date_month_Jun &lt;dbl&gt;,
+## #   release_date_month_Jul &lt;dbl&gt;, release_date_month_Aug &lt;dbl&gt;,
+## #   release_date_month_Sep &lt;dbl&gt;, release_date_month_Oct &lt;dbl&gt;,
+## #   release_date_month_Nov &lt;dbl&gt;, release_date_month_Dec &lt;dbl&gt;</code></pre>
+</div>
+<div id="kreuzvalidierung" class="section level1">
+<h1>Kreuzvalidierung</h1>
+<p>Nur aus Zeitgründen ist hier <span class="math inline">\(v=2\)</span> eingestellt;
+besser wäre z.B. <span class="math inline">\(v=10\)</span> und <span class="math inline">\(r=3\)</span>.</p>
+<pre class="r"><code>cv_scheme &lt;- vfold_cv(d_train,
+                      v = 2, 
+                      repeats = 1)</code></pre>
+</div>
+<div id="modelle" class="section level1">
+<h1>Modelle</h1>
+<p><em>Baum</em></p>
+<pre class="r"><code>mod_tree &lt;-
+  decision_tree(cost_complexity = tune(),
+                tree_depth = tune(),
+                mode = &quot;regression&quot;)</code></pre>
+<p><em>Random Forest</em></p>
+<pre class="r"><code>doParallel::registerDoParallel()</code></pre>
+<pre class="r"><code>mod_rf &lt;-
+  rand_forest(mtry = tune(),
+              min_n = tune(),
+              trees = 1000,
+              mode = &quot;regression&quot;) %&gt;% 
+  set_engine(&quot;ranger&quot;, num.threads = 4)</code></pre>
+<p><em>XGBoost</em></p>
+<pre class="r"><code>mod_boost &lt;- boost_tree(mtry = tune(),
+                        min_n = tune(),
+                        trees = tune()) %&gt;% 
+  set_engine(&quot;xgboost&quot;, nthreads = parallel::detectCores()) %&gt;% 
+  set_mode(&quot;regression&quot;)</code></pre>
+<p><em>LM</em></p>
+<pre class="r"><code>mod_lm &lt;-
+  linear_reg()</code></pre>
+<p><em>Workflow-Set</em></p>
+<pre class="r"><code>preproc &lt;- list(rec1 = rec1)
+models &lt;- list(tree1 = mod_tree, rf1 = mod_rf, boost1 = mod_boost, lm1 = mod_lm)
+ 
+ 
+all_workflows &lt;- workflow_set(preproc, models)</code></pre>
+<p><em>Fitten und tunen</em></p>
+<p>Wenn man das Ergebnis-Objekt abgespeichert hat,
+dann kann man es einfach laden,
+spart Rechenzeit (der Tag ist kurz):</p>
+<pre class="r"><code>result_obj_file &lt;- &quot;tmdb_model_set.rds&quot;</code></pre>
+<p>(Davon ausgehend, dass die Datei im Arbeitsverzeichnis liegt.)</p>
+<p>Dann <em>könnte</em> man Folgendes machen:</p>
+<pre class="r"><code>if (file.exists(result_obj_file)) {
+  tmdb_model_set &lt;- read_rds(result_obj_file)
+} else {
+  tic()
+  tmdb_model_set &lt;-
+    all_workflows %&gt;% 
+    workflow_map(
+      resamples = cv_scheme,
+      grid = 10,
+    #  metrics = metric_set(rmse),
+      seed = 42,  # reproducibility
+      verbose = TRUE)
+  toc()
+}</code></pre>
+<p><em>Achtung</em> Gefährlich! Zwischenspeichern auf der Festplatte birgt die Gefahr,
+dass man vergisst, das Objekt auf der Festplatte zu aktualisieren und Sie noch in einem Jahr und nach 100 Updates
+Ihres Rezepts immer noch das uralte Objekt von der Festplatte laden …</p>
+<p>Um Rechenzeit zu sparen,
+kann man das Ergebnisobjekt abspeichern,
+dann muss man beim nächsten Mal nicht wieder von Neuem berechnen:</p>
+<pre class="r"><code>#write_rds(tmdb_model_set, &quot;objects/tmdb_model_set.rds&quot;)</code></pre>
+<p>Hier berechnen wir aber lieber das Modell neu:</p>
+<pre class="r"><code>tic()
+tmdb_model_set &lt;-
+  all_workflows %&gt;% 
+  workflow_map(
+    resamples = cv_scheme,
+    grid = 10,
+    #  metrics = metric_set(rmse),
+    seed = 42,  # reproducibility
+    verbose = TRUE)
+toc()</code></pre>
+<pre><code>## 30.054 sec elapsed</code></pre>
+<p><em>Finalisieren</em></p>
+<p><strong>Welcher Algorithmus schneidet am besten ab?</strong></p>
+<p>Genauer geagt, welches Modell, denn es ist ja nicht nur ein Algorithmus,
+sondern ein Algorithmus plus ein Rezept plus die Parameterinstatiierung plus
+ein spezifischer Datensatz.</p>
+<pre class="r"><code>tune::autoplot(tmdb_model_set) +
+  theme(legend.position = &quot;bottom&quot;)</code></pre>
+<p><img src="unnamed-chunk-23-1.png" width="50%" /></p>
+<p>R-Quadrat ist nicht entscheidend; <code>rmse</code> ist wichtiger.</p>
+<p>Die Ergebnislage ist nicht ganz klar, aber
+einiges spricht für das Boosting-Modell, <code>rec1_boost1</code>.</p>
+<pre class="r"><code>tmdb_model_set %&gt;% 
+  collect_metrics() %&gt;% 
+  arrange(-mean) %&gt;% 
+  head(10)</code></pre>
+<pre><code>## # A tibble: 10 × 9
+##    wflow_id    .config     preproc model .metric .estimator   mean     n std_err
+##    &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+##  1 rec1_lm1    Preprocess… recipe  line… rmse    standard   1.16e8     2  2.42e6
+##  2 rec1_rf1    Preprocess… recipe  rand… rmse    standard   1.11e8     2  2.85e6
+##  3 rec1_tree1  Preprocess… recipe  deci… rmse    standard   1.10e8     2  1.61e6
+##  4 rec1_tree1  Preprocess… recipe  deci… rmse    standard   9.75e7     2  3.43e6
+##  5 rec1_boost1 Preprocess… recipe  boos… rmse    standard   9.73e7     2  2.51e6
+##  6 rec1_tree1  Preprocess… recipe  deci… rmse    standard   9.66e7     2  3.36e6
+##  7 rec1_boost1 Preprocess… recipe  boos… rmse    standard   9.50e7     2  1.05e5
+##  8 rec1_boost1 Preprocess… recipe  boos… rmse    standard   9.45e7     2  2.71e6
+##  9 rec1_tree1  Preprocess… recipe  deci… rmse    standard   9.40e7     2  1.32e6
+## 10 rec1_tree1  Preprocess… recipe  deci… rmse    standard   9.40e7     2  1.32e6</code></pre>
+<pre class="r"><code>best_model_params &lt;-
+extract_workflow_set_result(tmdb_model_set, &quot;rec1_boost1&quot;) %&gt;% 
+  select_best()</code></pre>
+<pre><code>## Warning: No value of `metric` was given; metric &#39;rmse&#39; will be used.</code></pre>
+<pre class="r"><code>best_model_params</code></pre>
+<pre><code>## # A tibble: 1 × 4
+##    mtry trees min_n .config              
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;                
+## 1     1   928    17 Preprocessor1_Model01</code></pre>
+<p><em>Finalisieren</em></p>
+<pre class="r"><code>best_wf &lt;- 
+all_workflows %&gt;% 
+  extract_workflow(&quot;rec1_boost1&quot;)
+
+best_wf</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: boost_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 6 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_mutate()
+## • step_date()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Boosted Tree Model Specification (regression)
+## 
+## Main Arguments:
+##   mtry = tune()
+##   trees = tune()
+##   min_n = tune()
+## 
+## Engine-Specific Arguments:
+##   nthreads = parallel::detectCores()
+## 
+## Computational engine: xgboost</code></pre>
+<pre class="r"><code>best_wf_finalized &lt;- 
+  best_wf %&gt;% 
+  finalize_workflow(best_model_params)
+
+best_wf_finalized</code></pre>
+<pre><code>## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: boost_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 6 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_mutate()
+## • step_date()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Boosted Tree Model Specification (regression)
+## 
+## Main Arguments:
+##   mtry = 1
+##   trees = 928
+##   min_n = 17
+## 
+## Engine-Specific Arguments:
+##   nthreads = parallel::detectCores()
+## 
+## Computational engine: xgboost</code></pre>
+<p><em>Final Fit</em></p>
+<pre class="r"><code>fit_final &lt;-
+  best_wf_finalized %&gt;% 
+  fit(d_train)</code></pre>
+<pre><code>## [10:24:41] WARNING: amalgamation/../src/learner.cc:627: 
+## Parameters: { &quot;nthreads&quot; } might not be used.
+## 
+##   This could be a false alarm, with some parameters getting used by language bindings but
+##   then being mistakenly passed down to XGBoost core, or some parameter actually being used
+##   but getting flagged wrongly here. Please open an issue if you find any such cases.</code></pre>
+<pre class="r"><code>fit_final</code></pre>
+<pre><code>## ══ Workflow [trained] ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: boost_tree()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 6 Recipe Steps
+## 
+## • step_mutate()
+## • step_log()
+## • step_mutate()
+## • step_date()
+## • step_impute_knn()
+## • step_dummy()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## ##### xgb.Booster
+## raw: 1 Mb 
+## call:
+##   xgboost::xgb.train(params = list(eta = 0.3, max_depth = 6, gamma = 0, 
+##     colsample_bytree = 1, colsample_bynode = 0.0666666666666667, 
+##     min_child_weight = 17L, subsample = 1, objective = &quot;reg:squarederror&quot;), 
+##     data = x$data, nrounds = 928L, watchlist = x$watchlist, verbose = 0, 
+##     nthreads = 8L, nthread = 1)
+## params (as set within xgb.train):
+##   eta = &quot;0.3&quot;, max_depth = &quot;6&quot;, gamma = &quot;0&quot;, colsample_bytree = &quot;1&quot;, colsample_bynode = &quot;0.0666666666666667&quot;, min_child_weight = &quot;17&quot;, subsample = &quot;1&quot;, objective = &quot;reg:squarederror&quot;, nthreads = &quot;8&quot;, nthread = &quot;1&quot;, validate_parameters = &quot;TRUE&quot;
+## xgb.attributes:
+##   niter
+## callbacks:
+##   cb.evaluation.log()
+## # of features: 15 
+## niter: 928
+## nfeatures : 15 
+## evaluation_log:
+##     iter training_rmse
+##        1     130631526
+##        2     125426215
+## ---                   
+##      927      44181662
+##      928      44158939</code></pre>
+<pre class="r"><code>d_test$revenue &lt;- NA
+
+final_preds &lt;- 
+  fit_final %&gt;% 
+  predict(new_data = d_test) %&gt;% 
+  bind_cols(d_test)</code></pre>
+<p><em>Submission</em></p>
+<pre class="r"><code>submission_df &lt;-
+  final_preds %&gt;% 
+  select(id, revenue = .pred)</code></pre>
+<p>Abspeichern und einreichen:</p>
+<pre class="r"><code>#write_csv(submission_df, file = &quot;submission.csv&quot;)</code></pre>
+<p><em>Kaggle Score</em></p>
+<p>Diese Submission erzielte einen Score von <strong>4.79227</strong> (RMSLE).</p>
+<pre class="r"><code>sol &lt;- 4.79227</code></pre>
+<hr />
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>21ss</li>
+</ul>
+</div>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://datenwerk.netlify.app/tags/tidymodels/">tidymodels</a></li>
+      <li><a href="https://datenwerk.netlify.app/tags/prediction/">prediction</a></li>
+      <li><a href="https://datenwerk.netlify.app/tags/tmdb/">tmdb</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://datenwerk.netlify.app/post/tmdb02/tmdb02/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>tmdb02</span>
+  </a>
+  <a class="next" href="https://datenwerk.netlify.app/post/tmdb04/tmdb04/">
+    <span class="title">Next »</span>
+    <br>
+    <span>tmdb04</span>
+  </a>
+</nav>
+
+
+<div class="share-buttons">
+    <a target="_blank" rel="noopener noreferrer" aria-label="share tmdb03 on twitter"
+        href="https://twitter.com/intent/tweet/?text=tmdb03&amp;url=https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f&amp;hashtags=tidymodels%2cprediction%2ctmdb">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-253.927,424.544c135.939,0 210.268,-112.643 210.268,-210.268c0,-3.218 0,-6.437 -0.153,-9.502c14.406,-10.421 26.973,-23.448 36.935,-38.314c-13.18,5.824 -27.433,9.809 -42.452,11.648c15.326,-9.196 26.973,-23.602 32.49,-40.92c-14.252,8.429 -30.038,14.56 -46.896,17.931c-13.487,-14.406 -32.644,-23.295 -53.946,-23.295c-40.767,0 -73.87,33.104 -73.87,73.87c0,5.824 0.613,11.494 1.992,16.858c-61.456,-3.065 -115.862,-32.49 -152.337,-77.241c-6.284,10.881 -9.962,23.601 -9.962,37.088c0,25.594 13.027,48.276 32.95,61.456c-12.107,-0.307 -23.448,-3.678 -33.41,-9.196l0,0.92c0,35.862 25.441,65.594 59.311,72.49c-6.13,1.686 -12.72,2.606 -19.464,2.606c-4.751,0 -9.348,-0.46 -13.946,-1.38c9.349,29.426 36.628,50.728 68.965,51.341c-25.287,19.771 -57.164,31.571 -91.8,31.571c-5.977,0 -11.801,-0.306 -17.625,-1.073c32.337,21.15 71.264,33.41 112.95,33.41Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share tmdb03 on linkedin"
+        href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f&amp;title=tmdb03&amp;summary=tmdb03&amp;source=https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share tmdb03 on reddit"
+        href="https://reddit.com/submit?url=https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f&title=tmdb03">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share tmdb03 on facebook"
+        href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share tmdb03 on whatsapp"
+        href="https://api.whatsapp.com/send?text=tmdb03%20-%20https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share tmdb03 on telegram"
+        href="https://telegram.me/share/url?text=tmdb03&amp;url=https%3a%2f%2fdatenwerk.netlify.app%2fpost%2ftmdb03%2ftmdb03%2f">
+        <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+            <path
+                d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+        </svg>
+    </a>
+</div>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2022 <a href="https://datenwerk.netlify.app/">Datenwerk</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

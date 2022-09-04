@@ -1,0 +1,416 @@
+---
+exname: post2-glm
+extype: cloze
+exsolution: r paste(solutions, collapse = "|")
+exclozetype: r paste(type, collapse = "|")
+exshuffle: no
+expoints: 1
+date: '2022-09-01'
+slug: Post2-glm
+title: Post2-glm
+tags: 
+  - regression
+  - bayes
+  - lm
+  - glm
+
+---
+
+
+<!-- Achtung, es kann passieren, dass mehrere Antwortoptionen den Wert "0" anzeigen, -->
+<!-- was von Studis als "Fehler" gesehen werden kann. Muss noch korrigiert werden. -->
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(testthat)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+chains <- 4
+```
+
+
+
+
+
+
+# Exercise
+
+
+
+```{r init-data-vars}
+d_name <- "mtcars"
+data(list = d_name)
+av <- "am"
+vars <- names(eval(parse(text = d_name))) 
+preds <- setdiff(vars, av)
+```
+
+
+
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren.
+
+Der Datensatz ist Teil des des R-Pakets `datasets` und damit beim Start von R automatisch geladen.
+
+Alternativ ist der Datensatz als CSV-Datei [hier](https://vincentarelbundock.github.io/Rdatasets/csv/datasets) abrufbar.
+
+Hilfe zum Datensatz ist via `help("`r d_name`")` oder [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/doc/datasets) abrufbar.
+
+
+
+
+Berechnen Sie das folgende *generalisierte* lineare Modell:
+
+```{r}
+preds_chosen_nr <- sample(1:length(preds), 3)
+preds_chosen <- preds[preds_chosen_nr]
+```
+
+AV: `r av`.
+
+UV: `r preds_chosen`.
+
+Im Folgenden wird ein Prädiktor aus der Menge der UV näher betrachtet.
+Der gewählte Prädiktor ist: ``r preds_chosen[1]``.
+
+
+
+Hinweise:
+
+- Verwenden Sie Standardwerte der R-Funktionen, soweit nicht anders angegeben.
+- Runden Sie auf eine Dezimalstelle.
+- Verwenden Sie Methoden der Bayes-Statistik für inferenzstatistische Analysen.
+- Geben Sie keine Prozentzahlen an, sondern Anteile (also nicht "50%", sondern "0.5" etc.)
+- Findet sich in einer Auswahlliste möglicher Antworten nicht die exakte Lösung, wählen Sie die am besten passende.
+- Beziehen Sie sich im Zweifel auf den Stoff, so wie im Unterricht behandelt.
+
+
+
+```{r results = "hide", echo = FALSE}
+preds_formula <- paste(preds_chosen, collapse = " + ")
+mod_formula <- as.formula(paste0(av, " ~", preds_formula))
+mod <- stan_glm(mod_formula, data = mtcars, 
+                family = binomial("logit"),
+                chains = chains,
+                refresh = 0)  # CHAINS auf 4 SETZEN!
+```
+
+
+
+```{r init-vars}
+questions <- solutions <- explanations <- answer_options <- item_stems <- rep(list(""), 4)
+type <- rep(list("schoice"), 4)
+```
+
+```{r question-a}
+sol_a <- coef(mod)[preds_chosen[1]]  %>% round(1) %>% unname()
+```
+
+
+
+```{r}
+answer_options[[1]] <- c(sol_a, sol_a + 2, sol_a - 2, sol_a + 4, sol_a - 4) %>% exams::fmt()
+item_stems[[1]] <- "Der Medianwert des Regressionskoeffizienten aus der Posterior-Verteilung beträgt in Logits: "
+questions[[1]] <- paste0(item_stems[[1]],  answer_options[[1]])
+explanations[[1]] <- solutions[[1]] <- c(TRUE, F, F, F, F)
+
+
+stopifnot(length(questions[[1]]) == 5)
+stopifnot(length(solutions[[1]]) == 5)
+stopifnot(length(explanations[[1]]) == 5)
+
+expect_type(object = questions[[1]], type = "character")
+expect_type(object = explanations[[1]], type = "logical")
+expect_type(object = solutions[[1]], type = "logical")
+
+# randomize order of answers:
+sample_order <- sample(length(questions[[1]]))
+questions[[1]] <- questions[[1]][sample_order]
+explanations[[1]] <- solutions[[1]] <- solutions[[1]][sample_order]
+```
+
+
+```{r question-b}
+post_pred_chosen <- posterior_interval(mod, 
+                                       pars = preds_chosen[1],
+                                       prob = .90)
+
+breite <- abs(post_pred_chosen[2] - post_pred_chosen[1])
+breite <- round(breite, 1)
+
+
+sol_b <- breite %>% round(1) %>% unname()
+```
+
+
+
+```{r}
+#  b)
+answer_options[[2]] <- 
+  c(sol_b * 2, 
+    sol_b, 
+    sol_b * 1/2, 
+    sol_b * 3, 
+    sol_b * 1/3) %>% 
+  abs() %>% 
+  exams::fmt()
+
+
+item_stems[[2]] <- "Der Absolutwert der Breite eines 90%-PI für den Koeffizienten des Prädiktors beträgt in Logits: "
+questions[[2]] <- paste0(item_stems[[2]], answer_options[[2]])
+explanations[[2]] <- solutions[[2]] <- c(F, TRUE, F, F, F)
+
+stopifnot(length(questions[[2]]) == 5)
+stopifnot(length(solutions[[2]]) == 5)
+stopifnot(length(explanations[[2]]) == 5)
+
+
+
+expect_type(object = questions[[2]], type = "character")
+expect_type(object = explanations[[2]], type = "logical")
+expect_type(object = solutions[[2]], type = "logical")
+
+# randomize order of answers:
+sample_order <- sample(length(questions[[2]]))
+questions[[2]] <- questions[[2]][sample_order]
+explanations[[2]] <- solutions[[2]] <- solutions[[2]][sample_order]
+```
+
+```{r question-c}
+sol_c <- coef(mod)[1] %>% plogis() %>% unname()
+```
+
+
+
+```{r  eval = TRUE}
+#  c)
+
+answer_options[[3]] <- 
+  c(
+    (1-sol_c)/3,
+    .42,
+    sol_c,
+    1-sol_c,
+    (1-sol_c)/2
+  ) %>% 
+  abs() %>% 
+  exams::fmt()
+
+item_stems[[3]] <- "Der Wert des Achsenabschnitts (Intercept) in Wahrscheinlichkeit (p) beträgt: "
+questions[[3]] <- paste0(item_stems[[3]], answer_options[[3]])
+explanations[[3]] <- solutions[[3]] <- c(F, F, TRUE, F, F)
+
+stopifnot(length(questions[[3]]) == 5)
+stopifnot(length(solutions[[3]]) == 5)
+stopifnot(length(explanations[[3]]) == 5)
+
+
+expect_length(questions[[3]], 5)
+expect_length(solutions[[3]], 5)
+expect_length(explanations[[3]], 5)
+
+
+
+expect_type(object = questions[[3]], type = "character")
+expect_type(object = explanations[[3]], type = "logical")
+expect_type(object = solutions[[3]], type = "logical")
+
+# randomize order of answers:
+sample_order <- sample(length(questions[[3]]))
+questions[[3]] <- questions[[3]][sample_order]
+explanations[[3]] <- solutions[[3]] <- solutions[[3]][sample_order]
+```
+
+
+```{r question-d}
+sol_d <- sol_c
+```
+
+
+
+```{r message=FALSE}
+#  d)
+answer_options[[4]] <- answer_options[[3]]  # identical solution to c)!
+item_stems[[4]] <- "Der Punktschätzer für den vorhergesagten Wert, wenn alle Prädiktoren 0 sind, beträgt in Wahrscheinlichkeit: "
+questions[[4]] <- paste0(item_stems[[4]], answer_options[[4]])
+explanations[[4]] <- solutions[[4]] <- c(F, F, TRUE, F, F)
+
+stopifnot(length(questions[[4]]) == 5)
+stopifnot(length(solutions[[4]]) == 5)
+stopifnot(length(explanations[[4]]) == 5)
+
+
+expect_type(object = questions[[4]], type = "character")
+expect_type(object = explanations[[4]], type = "logical")
+expect_type(object = solutions[[4]], type = "logical")
+
+
+# randomize order of answers:
+# sample_order <- sample(length(questions[[4]]))
+# questions[[4]] <- questions[[4]][sample_order]
+# explanations[[4]] <- solutions[[4]] <- solutions[[4]][sample_order]
+```
+
+
+```{r}
+stopifnot(length(questions) == 4)
+stopifnot(length(explanations) == 4)
+stopifnot(length(solutions) == 4)
+```
+
+
+
+```{r}
+explanations[1:4] <- lapply(explanations[1:4], function(x) ifelse(x, "Richtig", "Falsch"))
+solutions <- lapply(solutions[1:4], mchoice2string)
+```
+
+
+```{r}
+# check if length is alsways equal to 5
+expect_true(all(map(solutions, nchar) == 5))
+```
+
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(format(unlist(questions)), markup = "markdown")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Die Prädiktoren (UV) des Modells lauten (hat der Dozent oben im Verborgenen bestimmt):
+
+```{r echo = TRUE}
+preds_chosen
+```
+
+
+
+Daraus erstellt der Dozent eine "Modellformel" (`mod_formula`), von der Art `y ~ x1 + x2 + x2`. 
+
+```{r}
+mod_formula
+```
+
+
+
+Damit kann man dann das Modell berechnen:
+
+
+
+```{r results = "hide", echo = TRUE, eval = FALSE}
+mod <- stan_glm(mod_formula, data = mtcars,
+                family = binomial("logit"))
+```
+
+Ausgabe der Ergebnisse:
+
+```{r echo = TRUE}
+print(mod)
+```
+
+Gefragt war nach diesem Prädiktor:
+
+```{r echo = TRUE}
+preds_chosen[1]  # Dieses Objekt hat der Dozent oben im Verborgenen erstellt.
+```
+
+
+
+
+a) `r item_stems[[1]]` ...
+
+```{r ref.label="question-a", echo = TRUE, eval = FALSE}
+```
+
+```{r}
+sol_a
+```
+
+
+b) `r item_stems[[2]]` ...
+
+```{r ref.label="question-b", echo = TRUE, eval = FALSE}
+```
+
+```{r}
+sol_b
+```
+
+
+c) `r item_stems[[3]]` ...
+
+```{r ref.label="question-c", echo = TRUE, eval = FALSE}
+```
+
+
+```{r}
+sol_c
+```
+
+
+d) `r item_stems[[4]]` ...
+
+```{r ref.label="question-d", echo = TRUE, eval = FALSE}
+```
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(paste(unlist(explanations), ".", sep = ""), markup = "markdown")
+```
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+~
+
