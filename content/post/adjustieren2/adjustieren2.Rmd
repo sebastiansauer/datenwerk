@@ -10,7 +10,7 @@ tags:
 categories:
 - qm2
 - '2022'
-date: '2022-09-01'
+date: '2022-09-04'
 slug: adjustieren2
 title: adjustieren2
 
@@ -30,6 +30,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
                       fig.width = 4,
                       fig.cap = "", 
                       fig.path = "",
+                      echo = TRUE,
                       cache = TRUE)
 ```
 
@@ -45,7 +46,7 @@ und dem Gewicht (`carat`) von Diamanten untersucht (Datensatz `diamonds`).
 
 ```{r}
 library(tidyverse)
-data(diamonds)
+diamonds <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv")
 ```
 
 
@@ -62,22 +63,16 @@ diamonds <-
 Dann berechnen wir ein (bayesianisches) Regressionsmodell, 
 wobei wir auf die Standardwerte der Prior zurückgreifen.
 
-```{r results = "hide"}
+```{r message=FALSE}
 library(rstanarm)
+library(easystats)
 lm1 <- stan_glm(price ~ carat_z, data = diamonds,
+                chains = 1,  # nur ein Mal Stichproben ziehen, spart Zeit (auf Kosten der Genauigkeit)
                 refresh = 0)
-summary(lm1)
+parameters(lm1)
 ```
 
 
-```
-Estimates:
-              mean   sd     10%    50%    90% 
-(Intercept) 3932.5    6.8 3923.7 3932.5 3941.1
-carat_z     7756.3   14.2 7737.8 7756.2 7774.7
-sigma       1548.6    4.8 1542.5 1548.6 1554.7
-
-```
 
 
 Zur Verdeutlichung ein Diagramm zum Modell:
@@ -135,30 +130,17 @@ a) Unser Modell `lm1` schätzt den Preis eines Diamanten mittlerer Größe auf e
 
 b) `price ~ carat_z + cut` 
 
-Das Modell könnten wir so berechnen:
+Dieses zweite Modell könnten wir so berechnen:
 
-```{r results = "hide"}
-library(rstanarm)
+```{r message=FALSE}
 lm2 <- stan_glm(price ~ carat_z + cut, data = diamonds,
+                chains = 1,
                 refresh = 0)
-summary(lm2)
+parameters(lm2)
 ```
 
 
-
-```
-Estimates:
-              mean   sd     10%    50%    90% 
-(Intercept) 3579.4    9.7 3566.9 3579.5 3591.9
-carat_z     7871.5   14.2 7853.1 7871.4 7890.3
-cut.L       1239.4   26.3 1205.7 1239.6 1272.6
-cut.Q       -527.9   23.4 -557.9 -528.3 -497.7
-cut.C        367.7   20.4  341.8  367.7  393.5
-cut^4         74.9   16.5   53.6   75.0   95.5
-sigma       1511.5    4.6 1505.6 1511.5 1517.4
-
-```
-
+Ein "normales" (frequentistisches) `lm` käme zu ähnlichen Ergebnissen:
 
 ```{r}
 lm(price ~ carat_z + cut, data = diamonds)
@@ -167,7 +149,10 @@ lm(price ~ carat_z + cut, data = diamonds)
 
 
 
-Man könnte hier noch einen Interaktionseffekt ergänzen.
+Man könnte hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat,
+dass es einen gibt.
+
+
 
 
 

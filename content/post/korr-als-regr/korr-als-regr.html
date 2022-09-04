@@ -1,0 +1,122 @@
+---
+extype: string
+exsolution: NA
+exname: korr-als-regr
+expoints: 1
+tags:
+- correlation
+- lm
+date: '2022-09-04'
+slug: korr-als-regr
+title: korr-als-regr
+
+---
+
+
+
+<pre class="r"><code>options(digits=2)
+options(width = 80)</code></pre>
+<div id="exercise" class="section level1">
+<h1>Exercise</h1>
+<p>Die Korrelation prüft, ob zwei Merkmale linear zusammenhängen.</p>
+<p>Wie viele andere Verfahren kann die Korrelation als ein Spezialfall
+der Regression bzw. des linearen Modells
+<span class="math inline">\(y = \beta_0 + \beta_1 + \ldots \beta_n + \epsilon\)</span> betrachtet werden.</p>
+<p>Als ein spezielles Beispiel betrachten wir die Frage,
+ob das Gewicht eines Diamanten (<code>carat</code>) mit dem Preis (<code>price</code>) zusammenhängt
+(Datensatz <code>diamonds</code>).</p>
+<p>Den Datensatz können Sie so laden:</p>
+<pre class="r"><code>library(tidyverse)
+data(diamonds)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li><p>Geben Sie das Skalenniveau beider Variablen an!</p></li>
+<li><p>Betrachten Sie die Ausgabe von R:</p></li>
+</ol>
+<pre class="r"><code>lm1 &lt;- lm(price ~ carat, data = diamonds)
+summary(lm1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = price ~ carat, data = diamonds)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -18585   -805    -19    537  12732 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  -2256.4       13.1    -173   &lt;2e-16 ***
+## carat         7756.4       14.1     551   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1550 on 53938 degrees of freedom
+## Multiple R-squared:  0.849,  Adjusted R-squared:  0.849 
+## F-statistic: 3.04e+05 on 1 and 53938 DF,  p-value: &lt;2e-16</code></pre>
+<p>Wie (bzw. wo) ist aus dieser Ausgabe die Korrelation herauszulesen?</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li><p>Macht es einen Unterschied, ob man Preis mit Karat bzw. Karat mit Preis korreliert?</p></li>
+<li><p>In der klassischen Inferenzstatistik ist der <span class="math inline">\(p\)</span>-Wert eine zentrale Größe;
+ist er klein (<span class="math inline">\(p&lt;.05\)</span>) so nennt man die zugehörige Statistik <em>signifikant</em> und
+verwirft die getestete Hypothese.</p></li>
+<li><p>Im Folgenden sehen Sie einen Korrelationstest auf statistische Signifikanz,
+mit R durchgeführt. Zeigt der Test ein (statistisch) signifikantes Ergebnis?
+Wie groß ist der “Unsicherheitskorridor”,
+um den Korrelationswert (zugleich Punktschätzer für den Populationswert)?</p></li>
+</ol>
+<pre class="r"><code>library(easystats)</code></pre>
+<pre><code>## # Attaching packages: easystats 0.5.2
+## ✔ insight     0.18.2     ✔ datawizard  0.5.1   
+## ✔ bayestestR  0.12.1.1   ✔ performance 0.9.2   
+## ✔ parameters  0.18.2     ✔ effectsize  0.7.0.5 
+## ✔ modelbased  0.8.5      ✔ correlation 0.8.2   
+## ✔ see         0.7.2      ✔ report      0.5.5</code></pre>
+<pre class="r"><code>diamonds %&gt;% 
+  sample_n(30) %&gt;% 
+  select(price, carat) %&gt;% 
+  correlation()</code></pre>
+<pre><code>## # Correlation Matrix (pearson-method)
+## 
+## Parameter1 | Parameter2 |    r |       95% CI | t(28) |         p
+## -----------------------------------------------------------------
+## price      |      carat | 0.94 | [0.87, 0.97] | 14.25 | &lt; .001***
+## 
+## p-value adjustment method: Holm (1979)
+## Observations: 30</code></pre>
+<p></br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br></p>
+</div>
+<div id="solution" class="section level1">
+<h1>Solution</h1>
+<ol style="list-style-type: lower-alpha">
+<li><p><code>carat</code> ist metrisch (verhältnisskaliert) und <code>price</code> ist metrisch (verhältnisskaliert)</p></li>
+<li><p><span class="math inline">\(R^2\)</span> kann bei einer einfachen (univariaten) Regression als das Quadrat von <span class="math inline">\(r\)</span> berechnet werden. Daher <span class="math inline">\(r = \sqrt{R^2}\)</span>.</p></li>
+</ol>
+<pre class="r"><code>sqrt(0.8493)</code></pre>
+<pre><code>## [1] 0.92</code></pre>
+<p>Zum Vergleich</p>
+<pre class="r"><code>diamonds %&gt;% 
+  summarise(r = cor(price, carat))</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##       r
+##   &lt;dbl&gt;
+## 1 0.922</code></pre>
+<p>Man kann den Wert der Korrelation auch noch anderweitig berechnen
+(<span class="math inline">\(\beta\)</span> umrechnen in <span class="math inline">\(\rho\)</span>).</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li><p>Nein. Die Korrelation ist eine symmetrische Relation.</p></li>
+<li><p>Ja; die Zahl “3.81e-14” bezeichnet eine positive Zahl kleiner eins mit
+13 Nullern vor der ersten Ziffer, die nicht Null ist (3.81 in diesem Fall).
+Der “Unsicherheitskorridor” reicht von etwa 0.87 bis 0.97.</p></li>
+</ol>
+<hr />
+<p>Categories:</p>
+<p>~</p>
+</div>
