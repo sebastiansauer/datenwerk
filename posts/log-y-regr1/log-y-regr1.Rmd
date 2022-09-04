@@ -1,0 +1,146 @@
+---
+exname: log-y-regression1
+extype: num
+exsolution: 1.07
+exshuffle: no
+extol: 0.05
+expoints: 1
+categories:
+- regression
+- lm
+- qm2
+- stats-nutshell
+date: '2022-09-04'
+slug: log-y-regr1
+title: log-y-regr1
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+```{r}
+library(tidyverse)
+library(easystats)
+```
+
+
+In dieser Aufgabe modellieren wir den (kausalen) Effekt von Schulbildung auf das Einkommen.
+
+
+Importieren Sie zunächst den Datensatz und verschaffen Sie sich einen Überblick.
+
+```{r}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/Treatment.csv"
+
+d <- data_read(d_path)
+```
+
+
+Dokumentation und Quellenangaben zum Datensatz finden sich [hier](https://vincentarelbundock.github.io/Rdatasets/doc/Ecdat/Treatment.html).
+
+```{r}
+glimpse(d)
+```
+
+*Modellieren Sie den Effekt der Bildungsdauer auf das Einkommen! Gehen Sie von einem exponenziellen Zusammenhang der beiden Variablen aus. Um welchen Faktor steigt das Einkommen pro Jahr Bildung (laut Modell)?*
+
+
+Hinweise:
+
+- Verwenden Sie `lm` zur Modellierung.
+- Operationalisieren Sie das Einkommen mit der Variable `re74`.
+- Fügen Sie keine weiteren Variablen dem Modell hinzu.
+- Gehen Sie von einem kausalen Effekt des Prädiktors aus.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+d2 <-
+  d %>% 
+  filter(re74 > 0) %>% 
+  mutate(re74_log = log(re74))
+```
+
+
+
+```{r}
+m <- lm(re74_log ~ educ, data = d2)
+```
+
+Hier sind die `parameters` des Modells.
+
+```{r results = "asis", echo = FALSE}
+print_md(parameters(m))
+```
+
+
+Für jedes Jahr Bildung steigt das Einkommen also ca. um den Faktor 1.07.
+
+Etwas genauer:
+
+$\hat{\beta_1} = 0.07$ bedeutet, dass ein Jahr Bildung zu einen erwarteten Unterschied im Einkommen in Höhe von 0.07 in Log-Einkommen führt. 
+Anders gesagt wird das Einkommen um `exp(0.07)` erhöht. 
+Dabei gilt $e^{0.07} \approx 1.07$:
+
+```{r}
+exp(0.07)
+```
+
+
+Die Lösung lautet also: "Pro Jahr Bildung steigt das Einkommen - laut Modell um den Faktor ca. 1.07".
+
+Man darf dabei nicht vergessen, dass wir wir uns hier auf die Schnelle ein Modell ausgedacht haben.
+Ob es in Wirklichkeit so ist, wie unser Modell meint, ist eine andere Sache!
+
+
+
+---
+
+Categories: 
+
+- regression
+- lm
+- qm2
+- stats-nutshell
+

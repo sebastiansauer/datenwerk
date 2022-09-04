@@ -1,0 +1,102 @@
+---
+exname: lm1
+extype: schoice
+exsolution: 1
+exshuffle: no
+categories:
+- regression
+- lm
+- qm2
+- stats-nutshell
+date: '2022-09-04'
+slug: lm1
+title: lm1
+
+---
+
+
+```{r data generation, echo = FALSE, results = "hide"}
+d <- data.frame(x = runif(100, -1, 1))
+a <- 0
+b <- sample(c(-1, 1), 1) * sample(c(0, 0.6, 0.9), 1)
+d$y <- a + b * d$x + rnorm(100, sd = 0.25)
+write.csv(d, "regression.csv", row.names = FALSE, quote = FALSE)
+
+m <- lm(y ~ x, data = d)
+bhat <- coef(m)[2]
+bpvl <- summary(m)$coefficients[2, 4]
+bsol <- c(bpvl >= 0.05, (bpvl < 0.05) & (bhat > 0), (bpvl < 0.05) & (bhat < 0))
+```    
+
+
+# Exercise
+
+Laden Sie den Datensatz `mtcars` aus [dieser Quelle](https://vincentarelbundock.github.io/Rdatasets/csv/datasets/mtcars.csv).
+
+Berechnen Sie eine Regression mit `mpg` als Ausgabevariable und `hp` als Eingabevariable!
+
+Welche Aussage ist für diese Analyse richtig?
+
+Answerlist
+----------
+
+* `mpg` und `hp` sind positiv korreliert laut dem Modell.
+* Der Achsenabschnitt ist nahe Null.
+* Die Analyse beinhaltet einen nominal skalierten Prädiktor.
+* Das geschätzte Betagewicht für `hp` liegt bei `30.099`.
+* Das geschätzte Betagewicht für `hp` liegt bei `-0.068`.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Das geschätzte Betagewicht für `hp` liegt bei `-0.068`.
+
+
+Die Analyse könnte so aussehen:
+
+```{r echo = TRUE, warning=FALSE}
+library(tidyverse)
+library(easystats)
+mtcars <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/datasets/mtcars.csv")
+
+lm1 <- lm (mpg ~ hp, data = mtcars)
+
+parameters(lm1) 
+```
+
+Answerlist
+----------
+
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+* Richtig
+
+
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- lm
+- qm2
+- stats-nutshell
+

@@ -1,0 +1,153 @@
+---
+exname: mtcars-simple3
+extype: num
+exsolution: 512
+exshuffle: yes
+extol: 0.1
+expoints: 1
+categories:
+- regresssion
+- en
+- bayes
+- frequentist
+- qm1
+- stats-nutshell
+date: '2022-09-04'
+slug: mtcars-simple3
+title: mtcars-simple3
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+We will use the dataset `mtcars` in this exercise.
+
+Assume your causal model of your research dictates that fuel economy is a linear function of horse power, cylinder count and displacement of the engine.
+
+*Which of the predictors in the above model has the weakest causal impact on the output variable?*
+
+
+Notes:
+
+- Use can either use frequentist or bayesian modeling.
+- Use R for all computations.
+- There are multiple ways to find a solution.
+
+
+Answerlist
+----------
+* `cyl`
+* `hp`
+* `disp`
+* All are equally strong
+* none of the above
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+```{r message=FALSE}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+```
+
+
+In order to gauge the relative importance of the predictors,
+we need to make sure they are on the same scale:
+
+
+```{r}
+mtcars2 <-
+  standardise(mtcars)
+```
+
+
+Compute Model:
+
+```{r}
+lm1_freq <- lm(mpg ~ hp + cyl + disp, data = mtcars2)
+lm1_bayes <- stan_glm(mpg ~ hp + cyl + disp, data = mtcars2, refresh = 0)
+```
+
+
+Get parameters:
+
+
+```{r}
+parameters(lm1_bayes)
+```
+
+Note that the absolute value of the coefficient's estimate is what we are after.
+
+The predictors with the strongest impact is `disp`, and `cyl`. 
+The weakest influence has `hp`.
+
+
+
+Answerlist
+----------
+
+
+* wrong
+* correct
+* wrong
+* wrong
+* wrong
+
+
+
+
+
+---
+
+Categories: 
+
+- regresssion
+- en
+- bayes
+- frequentist
+- qm1
+- stats-nutshell
+

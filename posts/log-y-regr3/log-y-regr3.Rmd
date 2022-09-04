@@ -1,0 +1,161 @@
+---
+exname: log-y-regression3
+extype: num
+exsolution: 1.07
+exshuffle: no
+extol: 0.05
+expoints: 1
+categories:
+- stats-nutshell
+- qm2
+- regression
+- log
+date: '2022-09-04'
+slug: log-y-regr3
+title: log-y-regr3
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+```{r}
+library(tidyverse)
+library(easystats)
+```
+
+
+In dieser Aufgabe modellieren wir den (kausalen) Effekt von Schulbildung auf das Einkommen.
+
+
+Importieren Sie zunächst den Datensatz und verschaffen Sie sich einen Überblick.
+
+```{r}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/Treatment.csv"
+
+d <- data_read(d_path)
+```
+
+
+Dokumentation und Quellenangaben zum Datensatz finden sich [hier](https://vincentarelbundock.github.io/Rdatasets/doc/Ecdat/Treatment.html).
+
+```{r}
+glimpse(d)
+```
+
+*Welcher der Prädiktoren hat den stärkesten Einfluss auf das Einkommen?*
+
+
+Hinweise:
+
+- Verwenden Sie `lm` zur Modellierung.
+- Operationalisieren Sie das Einkommen mit der Variable `re74`.
+- Gehen Sie von einem kausalen Effekt der Prädiktoren aus.
+- Gehen Sie von einem multiplikativen Modell aus (log-y).
+- Lassen Sie die Variablen zur Arbeitslosigkeit außen vor.
+
+
+
+Answerlist
+----------
+* treat
+* age
+* educ
+* ethn
+* married
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+d2 <-
+  d %>% 
+  filter(re74 > 0) %>% 
+  mutate(re74_log = log(re74)) %>% 
+  standardize(select = c("age", "educ"))
+```
+
+
+Prüfen, ob das standardisieren funktioniert hat:
+
+```{r}
+d2 %>% 
+  describe_distribution() %>% 
+  display()
+```
+
+
+
+```{r}
+m <- lm(re74_log ~ educ + treat + age + ethn + married, data = d2)
+```
+
+Parameter des Modells:
+
+```{r echo = FALSE}
+display(parameters(m))
+```
+
+Answerlist
+----------
+* TRUE
+* FALSE
+* FALSE
+* FALSE
+* FALSE
+
+
+
+
+
+---
+
+Categories: 
+
+- stats-nutshell
+- qm2
+- regression
+- log
+

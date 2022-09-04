@@ -1,0 +1,118 @@
+---
+exname: mtcars-simple1
+extype: num
+exsolution: r round(coef(lm1_freq)[2], 2)
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- regresssion
+- en
+- bayes
+- frequentist
+- qm1
+- stats-nutshell
+date: '2022-09-04'
+slug: mtcars-simple1
+title: mtcars-simple1
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+We will use the dataset `mtcars` in this exercise.
+
+Assume your causal model of your research dictates that fuel economy is a linear function of horse power, cylinder count and displacement of the engine.
+
+Compute the causal effect of `horse power` given the above model! Report the point estimate.
+
+
+Notes:
+
+- Use can either use frequentist or bayesian modeling.
+- Use R for all computations.
+- There are multiple ways to find a solution.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Compute Model:
+
+```{r}
+lm1_freq <- lm(mpg ~ hp + cyl + disp, data = mtcars)
+
+library(rstanarm)
+lm1_bayes <- stan_glm(mpg ~ hp + cyl + disp, data = mtcars, refresh = 0)
+```
+
+
+Get parameters:
+
+```{r message=FALSE}
+library(easystats)
+```
+
+
+```{r}
+parameters(lm1_freq)
+```
+
+```{r}
+parameters(lm1_bayes)
+```
+
+
+The coefficient is estimated as about `r round(coef(lm1_freq)[2], 2)`
+
+
+
+---
+
+Categories: 
+
+- regresssion
+- en
+- bayes
+- frequentist
+- qm1
+- stats-nutshell
+

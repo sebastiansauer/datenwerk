@@ -1,0 +1,149 @@
+---
+exname: log-y-regression2
+extype: num
+exsolution: 1.07
+exshuffle: no
+extol: 0.05
+expoints: 1
+categories:
+- regression
+- lm
+- qm2
+- stats-nutshell
+date: '2022-09-04'
+slug: log-y-regr2
+title: log-y-regr2
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+```{r}
+library(tidyverse)
+library(easystats)
+```
+
+
+In dieser Aufgabe modellieren wir den (kausalen) Effekt von Schulbildung auf das Einkommen.
+
+
+Importieren Sie zunächst den Datensatz und verschaffen Sie sich einen Überblick.
+
+```{r}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/Treatment.csv"
+
+d <- data_read(d_path)
+```
+
+
+Dokumentation und Quellenangaben zum Datensatz finden sich [hier](https://vincentarelbundock.github.io/Rdatasets/doc/Ecdat/Treatment.html).
+
+```{r}
+glimpse(d)
+```
+
+*Modellieren Sie den Effekt der Bildungsdauer auf das Einkommen! Gehen Sie von einem exponenziellen Zusammenhang der beiden Variablen aus. Wie verändert sich die Verteilung der abhängigen Variablen (Y) durch die Logarithmus-Transformation?*
+
+
+Hinweise:
+
+- Verwenden Sie `lm` zur Modellierung.
+- Operationalisieren Sie das Einkommen mit der Variable `re74`.
+- Fügen Sie keine weiteren Variablen dem Modell hinzu.
+- Gehen Sie von einem kausalen Effekt des Prädiktors aus.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+d2 <-
+  d %>% 
+  filter(re74 > 0) %>% 
+  mutate(re74_log = log(re74))
+```
+
+
+
+```{r}
+m <- lm(re74_log ~ educ, data = d2)
+```
+
+
+```{r}
+ggplot(d2) +
+  aes(x = re74) +
+  geom_density() +
+  labs(title = "Income raw")
+
+
+ggplot(d2) +
+  aes(x = re74_log) +
+  geom_density() +
+  labs(title = "Income log transformed")
+```
+
+
+Betrachten wir die deskriptiven Statistiken:
+
+```{r}
+d2 %>% 
+  select(re74, re74_log) %>% 
+  describe_distribution()
+```
+
+
+Die Log-Transformation hat in diesem Fall nicht wirklich zu einer Normalisierung der Variablen beigetragen. Aber das war auch nicht unser Ziel.
+
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- lm
+- qm2
+- stats-nutshell
+
