@@ -1,0 +1,121 @@
+---
+exname: vorhersageintervall1
+extype: schoice
+exsolution: 1
+exshuffle: no
+categories:
+- lm
+- inference
+- qm2
+date: '2022-09-04'
+slug: vorhersageintervall1
+title: vorhersageintervall1
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+# Exercise
+
+
+Vorhersagen, etwa in einem Regressionsmodell,
+sind mit mehreren Arten von Unsicherheit konfrontiert.
+
+Berechnen Sie dazu ein Regressionsmodell, Datensatz `mtcars`,
+mit `hp` als Prädiktor (UV) und `mpg` als AV (Kriterium)!
+
+Dann sagen Sie bitte den Wert der AV für eine Beobachtungseinheit mit mittlerer Ausprägung im Präktor vorher:
+
+Einmal nur unter Berücksichtigung der Unsicherheit innerhalb des Modells ("Konfidenzintervall"); 
+einmal unter Berücksichtigung der Unsicherheit innerhalb des Modells sowie die Unsicherheit durch die Koffizienten ("Vohersageintervall").
+
+
+Hinweise:
+
+- `predict()` ist eine Funktion, die Sie zur Vorhersage von Regressionsmodellen verwenden können.
+- Verwenden Sie `lm()` zur Berechnung eines Regressionsmodells.
+- Das Argument `type` von `predict()` erlaubt Ihnen die Wahl der Art der Vorhersage, betrachten Sie Hilfe der Funktion z.B. [hier](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/predict.lm).
+
+
+
+
+Bei welchem Intervall ist die Ungewissheit in der Vorhersage größer?
+
+
+
+Answerlist
+----------
+* Konfidenzintervall
+* Vohersageintervall
+* Gleich groß
+* Kommt auf weitere Faktoren an, keine pauschale Antwort möglich
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Der mittlere Wert von `hp` beträgt:
+
+```{r}
+mtcars %>% 
+  summarise(mean(hp))
+```
+
+
+```{r}
+lm1 <- lm(mpg ~ hp, data = mtcars)
+```
+
+Konfidenzintervall:
+
+```{r}
+predict(lm1, newdata = tibble(hp = mean(147)), interval = "confidence")
+```
+
+
+Vorhersageintervall:
+
+```{r}
+predict(lm1, newdata = tibble(hp = mean(147)), interval = "prediction")
+```
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Wahr
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- lm
+- inference
+- qm2
+

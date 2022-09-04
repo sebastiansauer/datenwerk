@@ -1,0 +1,154 @@
+---
+extype: string
+exsolution: NA
+exname: adjustieren1
+expoints: 1
+categories:
+- qm2
+- lm
+- bayes
+date: '2022-09-04'
+slug: adjustieren1
+title: adjustieren1
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      cache = TRUE)
+```
+
+
+
+
+
+# Exercise
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+Betrachten Sie folgendes Modell, das den Zusammenhang von PS-Zahl und Spritverbrauch untersucht (Datensatz `mtcars`).
+
+
+Aber zuerst zentrieren wir den metrischen Prädiktor `hp`, um den Achsenabschnitt besser interpretieren zu können. 
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(hp_z = hp - mean(hp))
+```
+
+
+```{r results = "hide", message=FALSE}
+library(rstanarm)
+lm1 <- stan_glm(mpg ~ hp_z, data = mtcars,
+                refresh = 0)
+summary(lm1)
+```
+
+
+```
+Estimates:
+              mean   sd   10%   50%   90%
+(Intercept) 20.1    0.7 19.2  20.1  21.0 
+hp_z        -0.1    0.0 -0.1  -0.1  -0.1 
+sigma        4.0    0.5  3.4   3.9   4.7 
+```
+
+
+Jetzt können wir aus dem Achsenabschnitt (Intercept) herauslesen, dass ein Auto mit `hp_z = 0` - also mit mittlerer PS-Zahl - vielleicht gut 20 Meilen weit mit einer Gallone Sprit kommt.
+
+Zur Verdeutlichung ein Diagramm zum Modell:
+
+```{r}
+mtcars %>% 
+  ggplot() +
+  aes(x = hp_z, y = mpg) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+
+
+
+Adjustieren Sie im Modell die PS-Zahl um die Art des Schaltgetriebes (`am`), so dass das neue Modell den statistischen Effekt (nicht notwendig auch kausal) der PS-Zahl bereinigt bzw. unabhängig von der Art des Schaltgetriebes widerspiegelt!
+
+Hinweise:
+
+- `am=0` ist ein Auto mit Automatikgetriebe.
+- Wir gehen davon aus, dass der Regressionseffekt gleich stark ist auf allen (beiden) Stufen von `am`. M.a.W.: Es liegt kein Interaktionseffekt vor.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+
+```{r results = "hide"}
+library(rstanarm)
+lm2 <- stan_glm(mpg ~ hp_z + am, data = mtcars,
+                refresh = 0)
+summary(lm2)
+```
+
+
+```
+Estimates:
+              mean   sd   10%   50%   90%
+(Intercept) 26.6    1.5 24.7  26.6  28.5 
+hp          -0.1    0.0 -0.1  -0.1   0.0 
+am           5.3    1.1  3.8   5.3   6.6 
+sigma        3.0    0.4  2.5   3.0   3.5 
+```
+
+
+Die Spalte `mean` gibt den mittleren geschätzten Wert für den jeweiligen Koeffizienten an,
+also den Schätzwert zum Koeffizienten.
+
+Die Koeffizienten zeigen, dass der Achsenabschnitt für Autos mit Automatikgetriebe um etwa 5 Meilen geringer ist als für Autos mit manueller Schaltung: Ein durchschnittliches Auto mit manueller Schaltung kommt also etwa 5 Meilen weiter als ein Auto mit Automatikschaltung, glaubt unser Modell.
+
+
+```{r}
+mtcars %>% 
+  mutate(am = factor(am)) %>% 
+  ggplot() +
+  aes(x = hp_z, y = mpg, color = am) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+
+Man könnte hier noch einen Interaktionseffekt ergänzen.
+
+
+
+---
+
+Categories: 
+
+- qm2
+- lm
+- bayes
+
