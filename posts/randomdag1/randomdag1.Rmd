@@ -1,0 +1,222 @@
+---
+exname: randomdag1
+expoints: 1
+extype: schoice
+exsolution: r exams::mchoice2string(sol_df$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- causal
+- dag
+date: '2022-09-07'
+slug: randomdag1
+title: randomdag1
+
+---
+
+
+```{r libs, include = FALSE}
+#library(tidyverse)
+# library(testthat)
+# library(glue)
+library(tidyverse)
+library(dagitty)
+#library(ggdag)
+#library(exams)
+#library(stringr)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = FALSE,
+                      #dpi = 72,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+
+```{r setup-dag}
+dag_size <- sample(c(6, 7), 1)
+p <- sample(seq(from = 0.6, to = 0.7, by = .1), 1)
+
+dag_vars_nr <- 1:dag_size
+
+exposure_var_nr <- sample(1:(dag_size-1), 1)
+outcome_var_set_nr1 <- setdiff(1:dag_size, exposure_var_nr)
+
+# exposure var nr should be smaller than the outcome var nr:
+outcome_var_set_nr2 <- outcome_var_set_nr1[which(outcome_var_set_nr1 > exposure_var_nr)]
+
+# the function "sample" only works as expected if a vector (length > 1) is given as input:
+if (length(outcome_var_set_nr2) > 1)
+outcome_var_nr <- 
+  sample(x = outcome_var_set_nr2, size = 1)
+
+if (length(outcome_var_set_nr2) == 1)
+  outcome_var_nr <- outcome_var_set_nr2
+
+exposure_var <- paste0("x", exposure_var_nr)
+outcome_var <- paste0("x", outcome_var_nr)
+
+
+# Devise random dag:
+g <- dagitty::randomDAG(N = dag_size, p)
+# In some cases, an error occurs ("closure not sutsettable")
+# it seems that some package must not be loaded to prevent this error.
+# Try restarting R to get a clean session
+
+stopifnot(exists("g"))
+
+```
+
+
+
+
+
+```{r build-solution, include=FALSE}
+
+sol_df <- teachertools::build_adj_set_answers(
+  dag_def = g,
+  #dag_size = dag_size,
+  exposure_var = exposure_var,
+  outcome_var = outcome_var)
+```
+
+
+
+
+Gegeben sei der DAG `g` (s. u.). Der DAG verfügt über $n = `r dag_size`$ Variablen, 
+die als Knoten im Graph dargestellt sind und mit $x_1, x_2, \ldots x_n$ bezeichnet sind.
+
+
+*Welche minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt von der UV zur AV zu identifizieren?*
+
+
+UV: `r exposure_var`.
+
+AV: `r outcome_var`.
+
+
+
+*Hinweise*: 
+
+- Mengen sind mittels geschweifter Klammern gekennzeichnet, z.B. `{x1, x2}` meint die Menge mit den zwei Elementen `x1` und `x2`.
+- Die leere Menge `{ }` bedeutet, dass keine Variable kontrolliert werden muss, um den kausalen Effekt zu identifizieren.
+- Alle Variablen werden als gemessen vorausgesetzt.
+- Es ist möglich, dass es keine Lösung gibt, dass es also keine Adjustierungsmenge gibt, um den kausalen Effekt zu identifizieren. Wenn dies der Fall sein sollte, wählen Sie "/".
+- Es ist möglich, dass einzelne Variablen keine Kanten besitzen, also keine Verbindung zu anderen Variablen (Knoten) haben. Diese Variablen sind dann kausal unabhängig von den übrigen Variablen.
+
+
+
+
+
+
+```{r plot-dag}
+#ggdag(g, stylized = TRUE) + theme_dag()
+plot(graphLayout(g))
+```
+
+
+
+
+```{r questionlist, results="asis"}
+exams::answerlist(sol_df$sol, 
+           markup = "markdown")
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Folgende minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt der UV auf die AV zu identifizieren: ``r sol_df$sol[sol_df$is_correct == TRUE]``.
+
+Es wird also nach dem *minimal adjustment set* gefragt.
+Zu beachten ist, dass es weitere, aber größere Mengen geben kann, die den kausalen Effekt identifizieren,
+aber gefragt ist nach der minimalen Menge.
+Außerdem ist es möglich, dass es weitere minimale Adjustierungsmengen gibt, 
+die aber nicht in der Auswahlliste vorkommen.
+
+
+*Erläuterung*:
+
+```{r}
+is_dseparated <- dseparated(g, X = exposure_var, Y = outcome_var)
+is_dconnected <- dconnected(g, X = exposure_var, Y = outcome_var)
+```
+
+
+UV und AV sind `r ifelse(is_dconnected==FALSE, "nicht", "")` (durch mindestens einen offenen Pfad) verbunden ("d-connected").
+
+
+Folgende Unabhängigkeitsbeziehungen (`_||_`) werden durch den DAG definiert:
+```{r}
+impliedConditionalIndependencies(g)
+```
+
+UV und AV werden durch folgende Pfade verbunden:
+
+```{r}
+g_paths <- paths(
+  g,
+  from = exposure_var,
+  to = outcome_var)
+
+g_paths
+```
+
+
+Offenen Pfade sind der/die Pfad/e, die in der obigen Ausgabe unter `$open` mit `TRUE` gekennzeichnet sind.
+
+
+Der DAG ist wie folgt definiert:
+
+```{r, comment = ""}
+g
+```
+
+
+
+
+```{r, echo = FALSE, results = "asis"}
+exams::answerlist(ifelse(sol_df$is_correct, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- causal
+- dag
+
