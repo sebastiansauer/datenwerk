@@ -1,0 +1,160 @@
+---
+extype: string
+exsolution: NA
+exname: nasa01
+expoints: 1
+categories:
+- data
+- eda
+date: '2022-09-12'
+slug: nasa01
+title: nasa01
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+
+# Exercise
+
+
+Viele Quellen berichten Klimadaten unserer Erde, z.B. auch [National Aeronautics and Space Administration - Goddard Institute for Space Studies](https://data.giss.nasa.gov/gistemp/).
+
+Von dieser Quelle beziehen wir [diesen Datensatz](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv).
+
+
+Die Datensatz sind auf der Webseite wie folgt beschrieben:
+
+
+*Tables of Global and Hemispheric Monthly Means and Zonal Annual Means*
+
+Combined Land-Surface Air and Sea-Surface Water Temperature Anomalies (Land-Ocean Temperature Index, L-OTI)
+
+The following are plain-text files in tabular format of temperature anomalies, i.e. *deviations from the corresponding 1951-1980 means*.
+
+
+>   Global-mean monthly, seasonal, and annual means, 1880-present, updated through most recent month: TXT, CSV
+
+Starten Sie zunächst das R-Paket `tidyverse` falls noch nicht geschehen.
+
+```{r message = FALSE}
+library(tidyverse)
+```
+
+
+Importieren Sie dann die Daten:
+
+```{r}
+data_path <- "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
+d <- read_csv(data_path, skip = 1)
+```
+
+Wir lassen die 1. Zeile des Datensatzes aus (Argument `skip`), da dort *Metadaten* stehen,
+also keine Daten, sondern Informationen (Daten) zu den eigentlichen Daten.
+
+
+**Aufgabe**
+
+Berechnen Sie die folgende Statistiken pro Dekade:
+
+- Mittelwert der Temperatur im Januar
+- SD der Temperatur im Januar
+
+Hinweise:
+
+- Sie müssen zuerst die Dekade als neue Spalte berechnen.
+
+
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Dekade berechnen:
+
+
+```{r}
+d <-
+  d %>% 
+  mutate(decade = round(Year/10))
+```
+
+
+Statistiken pro Dekade:
+
+
+```{r results ='hide'}
+d_summarized <- 
+  d %>% 
+  group_by(decade) %>% 
+  summarise(temp_mean = mean(Jan),
+            temp_sd = sd(Jan))
+
+d_summarized
+```
+
+```{r echo = FALSE}
+d_summarized %>% 
+  gt::gt() %>% 
+  gt::fmt_number(c(2,3))
+```
+
+
+Zur Veranschaulichung visualisieren wir die Ergebnisse:
+
+```{r echo = FALSE}
+d_summarized %>% 
+  pivot_longer(-decade) %>% 
+  ggplot(aes(x = decade, y = value)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ name)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- data
+- eda
+

@@ -1,0 +1,170 @@
+---
+extype: string
+exsolution: NA
+exname: nasa02
+expoints: 1
+categories:
+- data
+- eda
+date: '2022-09-12'
+slug: nasa02
+title: nasa02
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+
+# Exercise
+
+
+Viele Quellen berichten Klimadaten unserer Erde, z.B. auch [National Aeronautics and Space Administration - Goddard Institute for Space Studies](https://data.giss.nasa.gov/gistemp/).
+
+Von dieser Quelle beziehen wir [diesen Datensatz](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv).
+
+
+Die Datensatz sind auf der Webseite wie folgt beschrieben:
+
+
+*Tables of Global and Hemispheric Monthly Means and Zonal Annual Means*
+
+Combined Land-Surface Air and Sea-Surface Water Temperature Anomalies (Land-Ocean Temperature Index, L-OTI)
+
+The following are plain-text files in tabular format of temperature anomalies, i.e. *deviations from the corresponding 1951-1980 means*.
+
+
+>   Global-mean monthly, seasonal, and annual means, 1880-present, updated through most recent month: TXT, CSV
+
+Starten Sie zunächst das R-Paket `tidyverse` falls noch nicht geschehen.
+
+```{r message = FALSE}
+library(tidyverse)
+```
+
+
+Importieren Sie dann die Daten:
+
+```{r}
+data_path <- "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
+d <- read_csv(data_path, skip = 1)
+```
+
+Wir lassen die 1. Zeile des Datensatzes aus (Argument `skip`), da dort *Metadaten* stehen,
+also keine Daten, sondern Informationen (Daten) zu den eigentlichen Daten.
+
+
+**Aufgaben**
+
+
+- Berechnen Sie die die Korelation der Temperatur von Januar und Februar 
+- Berechnen Sie die die Korelation der Temperatur von Januar und Februar pro Dekade
+
+
+
+Hinweise:
+
+- Sie müssen zuerst die Dekade als neue Spalte berechnen.
+
+
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Dekade berechnen:
+
+
+```{r}
+d <-
+  d %>% 
+  mutate(decade = round(Year/10))
+```
+
+
+Korrelation:
+
+```{r}
+d %>% 
+  summarise(temp_cor = cor(Jan, Feb))
+```
+
+
+
+
+Korrelation pro Dekade:
+
+
+```{r}
+d_summarized <- 
+  d %>% 
+  group_by(decade) %>% 
+  summarise(temp_cor = cor(Jan, Feb))
+```
+
+```{r echo = FALSE}
+d_summarized %>% 
+  gt::gt() %>% 
+  gt::fmt_number(2)
+```
+
+```{r echo = FALSE}
+d_summarized %>% 
+  ggplot(aes(x = decade, y = temp_cor)) +
+  geom_point(color = "darkblue") +
+  geom_line(alpha = .7) +
+  scale_y_continuous(limits = c(0,1))
+```
+
+
+
+
+Die Korrelation der Temperaturen
+und damit die Ähnlichkeit der Muster 
+hat im Laufe der Dekaden immer mal wieder geschwankt.
+
+
+
+
+---
+
+Categories: 
+
+- data
+- eda
+
