@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-09-04">
+<meta name="dcterms.date" content="2022-10-07">
 
 <title>datenwerk - ungewiss-arten-regr</title>
 <style>
@@ -144,7 +144,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html">About</a>
+    <a class="nav-link" href="../../about.html">Hallo, Datenwerk</a>
   </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/sebastiansauer/"><i class="bi bi-github" role="img">
@@ -177,7 +177,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 4, 2022</p>
+        <p class="date">October 7, 2022</p>
       </div>
     </div>
       
@@ -197,7 +197,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="exercise" class="level1">
 <h1>Exercise</h1>
 <p>Eine statistische Analyse, wie eine Regression, ist mit mehreren Arten an Ungewissheit konfrontiert. Zum einen gibt es die <em>Ungewissheit in den Modellparametern</em>. Für die Regression bedeutet das: “Liegt die Regressionsgerade in”Wahrheit” (in der Population) genauso wie in der Stichprobe, sind Achsenabschnitt und Steigung in der Stichprobe also identisch zur Popuation?“. Zum anderen die <em>Ungewissheit innerhalb des Modells</em>. Auch wenn wir die”wahre” Regressionsgleichung kennen würden, wären (in aller Regel) die Vorhersagen trotzdem nicht perfekt. Auch wenn wir etwa wüssten, wieviel Klausurpunkte “in Wahrheit” pro Stunde Lernen herausspringen (und wenn wir den wahren Achsenabschnitt kennen würden), so würde das Modell trotzdem keine perfekten Vorhersagen zum Klausurerfolg liefern. Vermutlich fehlen dem Modell wichtige Informationen etwa zur Motivation der Studentis.</p>
-<p>Vor diesem Hintergrund, betrachten Sie folgendes statistisches Modell, das mit den Methoden der Bayes-Statistik berechnet wurde:</p>
+<p>Vor diesem Hintergrund, betrachten Sie folgendes statistisches Modell, das mit den Methoden der Bayes-Statistik berechnet wurde. Dazu wurde die Funktion <code>stan_glm()</code> verwendet, die ähnlich zu <code>lm()</code> ein lineare Modell berechnet. Ein wichtiger Unterschied zu <code>lm()</code> ist, dass Ungewissheiten zu den Parameterschätzungen ausgegeben werden.</p>
 <div class="cell" data-hash="ungewiss-arten-regr_cache/html/unnamed-chunk-1_c633cf08b3a63029c8d9ed5db6b33175">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars) </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm) </span>
@@ -213,21 +213,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 hp          |  -0.07 | [-0.09, -0.05] | 100% |      100% | 1.000 | 3733.00 |   Normal (0.00 +- 0.22)</code></pre>
 </div>
 </div>
-<p>Für den Prädiktor <code>hp</code> ist das Regressionsgewicht (Punktschätzer) angegeben unter der Spalte <code>Median</code>. Dieser Wert entspricht der Punktschätzung in der Population und ist identisch zum Regressiongewicht der Stichprobe.</p>
-<p>Die Spalte <code>95% CI</code> gibt das 95%-Konfidenzintervall zur Schätzung des Koeffizienten (der entsprechenden Zeile) wieder.</p>
+<p>Für den Prädiktor <code>hp</code> ist das Regressionsgewicht (Punktschätzer) angegeben unter der Spalte <code>Median</code>. Dieser Wert entspricht der Punktschätzung in der Population und ist identisch zum Regressionsgewicht (“b”) der Stichprobe.</p>
+<p>Die Spalte <code>95% CI</code> gibt das 95%-Konfidenzintervall (CI wie <em>confidence interval</em>) zur Schätzung der Ungewissheit der Koeffizienten (der entsprechenden Zeile) wieder.</p>
 <ol type="a">
-<li>Welche Zahl kennzeichnet die Ungewissheit des Modells zum Achsenabschnitt?</li>
-<li>Welche Zahl kennzeichnet die Ungewissheit des Modells zum Regressionsgewicht?</li>
-<li>Welche Spalte kennzeichnet/kennzeichnen die Ungewissheit des Modells gegeben der Modellparameter (die Ungewissheit innerhalb des Modells)? (Ignorieren Sie die Spalte zu ROPE, pd, Prior und Rhat)</li>
+<li>Wie breit ist das Intervall, in dem mit 95% Gewissheit der Achsenabschnitt liegt (laut diesem Model)?</li>
+<li>Wie breit ist das Intervall, in dem mit 95% Gewissheit das Regressionsgewicht liegt (laut diesem Model)?</li>
 </ol>
+<p>Hinweise:</p>
+<ul>
+<li>Runden Sie auf zwei Dezimalstellen.</li>
+<li>Ignorieren Sie die Spalte zu ROPE, pd, Prior und Rhat! Goldene Regel der Statistik: Wenn du eine Information nicht brauchst, dann ignoriere sie erstmal ;-)</li>
+</ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
+<div class="cell" data-hash="ungewiss-arten-regr_cache/html/unnamed-chunk-2_be76fde7465cdb84a74f906020f5633f">
+
+</div>
 <ol type="a">
-<li>1.7</li>
-<li>0.0</li>
-<li>Spalte C; auf die hintereen</li>
+<li>7.04</li>
+<li>0.04</li>
 </ol>
 <hr>
 <p>Categories:</p>
