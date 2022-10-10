@@ -1,0 +1,125 @@
+---
+extype: string
+exsolution: NA
+exname: purrr-map03
+expoints: 1
+categories:
+- r
+- map
+- tidyverse
+date: '2022-10-10'
+slug: purrr-map03
+title: purrr-map03
+
+---
+
+
+
+
+```{r}
+library(tidyverse)
+```
+
+
+# Exercise
+
+Importieren Sie das Grundatzprogramm der Partei AfD (in der aktuellsten Version). 
+Tokenisieren Sie nach Sätzen. 
+Dann entfernen Sie alle Zahlen.
+Dann zählen Sie die Anzahl der Wörter pro Satz und berichten gängige deskriptive Statistiken dazu.
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Text aus PDF-Dateien kann man mit dem Paket [`pdftools`](https://docs.ropensci.org/pdftools/) einlesen:
+
+```{r}
+library(pdftools)
+d_path <- "/Users/sebastiansaueruser/Google Drive/Literatur/_Div/Politik/afd-grundsatzprogramm-2022.pdf"
+
+d <- tibble(text = pdf_text(d_path))
+```
+
+
+Dann erstellen wir eine Tidy-Version und tokenisieren nach Sätzen:
+
+```{r}
+library(tidytext)
+d2 <-
+  d %>% 
+  unnest_sentences(output = word, input = text)
+
+head(d2)
+```
+
+Dann entfernen wir die Zahlen:
+
+```{r}
+d3 <- 
+  d2 %>% 
+  mutate(word = str_remove_all(word, pattern = "[:digit:]+"))
+```
+
+Prüfen wir, ob es geklappt hat:
+
+```{r}
+d2$word[10]
+d3$word[10]
+```
+
+Ok.
+
+Dann zählen wir die Wörter pro Satz:
+
+
+```{r}
+d4 <- 
+  d3 %>% 
+  summarise(word_count_per_sentence = str_count(word, "\\w+"))
+
+head(d4)
+```
+
+Visualisierung:
+
+```{r}
+d4 %>% 
+  ggplot(aes(x = word_count_per_sentence)) +
+  geom_histogram()
+```
+
+
+```{r}
+library(easystats)
+describe_distribution(d4)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- r
+- map
+- tidyverse
+

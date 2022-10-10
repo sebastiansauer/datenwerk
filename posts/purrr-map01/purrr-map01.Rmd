@@ -1,0 +1,110 @@
+---
+extype: string
+exsolution: NA
+exname: purrr-map01
+expoints: 1
+categories:
+- r
+- map
+- tidyverse
+date: '2022-10-10'
+slug: purrr-map01
+title: purrr-map01
+
+---
+
+
+
+
+```{r}
+library(tidyverse)
+```
+
+
+
+
+
+
+# Exercise
+
+
+Erstellen Sie einen Tibble mit folgenden Spalten:
+
+1. Buchstaben A-Z, so dass in der 1. Zeile "A" steht, in der 2. Zeile "B" etc.
+2. Buchstaben a-z,  so dass in der 1. Zeile "a" steht, in der 2. Zeile "b" etc.
+3. Buchstabenkombination der ersten beiden Spalten, so dass in der 1. Zeile "A-a" steht, in der 2. Zeile "B-b" etc.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Geht es vielleicht so?
+
+```{r}
+d <-
+  tibble(
+    letter1 = LETTERS,
+    letter2 = letters,
+    letters = paste(letter1, letter2, collapse = "-")
+  )
+
+head(d)
+```
+
+Nein, leider nicht.
+
+
+OK, neuer Versuch:
+
+
+```{r}
+d <-
+  tibble(
+    letter1 = LETTERS,
+    letter2 = letters) %>% 
+  unite("letters", c(letter1, letter2), remove = FALSE)
+
+
+head(d)
+```
+
+
+Probieren wir es mit `purrr::map()`:
+
+
+```{r}
+d <-
+  tibble(
+    letter1 = LETTERS,
+    letter2 = letters,
+    letters = map2_chr(letter1, letter2, ~ paste(c(.x, .y), collapse ="-"))
+  )
+
+head(d)
+```
+
+Infos zur Funktion `paste()` findet sich z.B. [hier](https://www.rdocumentation.org/packages/utile.tools/versions/0.2.7/topics/paste).
+
+
+
+
+
+---
+
+Categories: 
+
+- r
+- map
+- tidyverse
+

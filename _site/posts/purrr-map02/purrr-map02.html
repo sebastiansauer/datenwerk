@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-09-04">
+<meta name="dcterms.date" content="2022-10-10">
 
-<title>datenwerk - vorhersageintervall1</title>
+<title>datenwerk - purrr-map02</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -161,11 +161,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">vorhersageintervall1</h1>
+      <h1 class="title">purrr-map02</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">lm</div>
-                <div class="quarto-category">inference</div>
-                <div class="quarto-category">qm2</div>
+                <div class="quarto-category">r</div>
+                <div class="quarto-category">map</div>
+                <div class="quarto-category">tidyverse</div>
               </div>
                   </div>
   </div>
@@ -177,7 +177,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 4, 2022</p>
+        <p class="date">October 10, 2022</p>
       </div>
     </div>
       
@@ -194,78 +194,96 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.3.6.9000     ✔ purrr   0.3.4     
+✔ tibble  3.1.8          ✔ dplyr   1.0.10    
+✔ tidyr   1.2.1          ✔ stringr 1.4.1     
+✔ readr   2.1.2          ✔ forcats 0.5.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+</div>
 <section id="exercise" class="level1">
 <h1>Exercise</h1>
-<p>Vorhersagen, etwa in einem Regressionsmodell, sind mit mehreren Arten von Unsicherheit konfrontiert.</p>
-<p>Berechnen Sie dazu ein Regressionsmodell, Datensatz <code>mtcars</code>, mit <code>hp</code> als Prädiktor (UV) und <code>mpg</code> als AV (Kriterium)!</p>
-<p>Dann sagen Sie bitte den Wert der AV für eine Beobachtungseinheit mit mittlerer Ausprägung im Präktor vorher:</p>
-<p>Einmal nur unter Berücksichtigung der Unsicherheit innerhalb des Modells (“Konfidenzintervall”); einmal unter Berücksichtigung der Unsicherheit innerhalb des Modells sowie die Unsicherheit durch die Koffizienten (“Vohersageintervall”).</p>
-<p>Hinweise:</p>
-<ul>
-<li><code>predict()</code> ist eine Funktion, die Sie zur Vorhersage von Regressionsmodellen verwenden können.</li>
-<li>Verwenden Sie <code>lm()</code> zur Berechnung eines Regressionsmodells.</li>
-<li>Das Argument <code>type</code> von <code>predict()</code> erlaubt Ihnen die Wahl der Art der Vorhersage, betrachten Sie Hilfe der Funktion z.B. <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/predict.lm">hier</a>.</li>
-</ul>
-<p>Bei welchem Intervall ist die Ungewissheit in der Vorhersage größer?</p>
-<section id="answerlist" class="level2">
-<h2 class="anchored" data-anchor-id="answerlist">Answerlist</h2>
-<ul>
-<li>Konfidenzintervall</li>
-<li>Vohersageintervall</li>
-<li>Gleich groß</li>
-<li>Kommt auf weitere Faktoren an, keine pauschale Antwort möglich</li>
-</ul>
+<p>Bestimmen Sie die häufigsten Worte im Grundatzprogramm der Partei AfD (in der aktuellsten Version).</p>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
-</section>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
-<p>Der mittlere Wert von <code>hp</code> beträgt:</p>
+<p>Text aus PDF-Dateien kann man mit dem Paket <a href="https://docs.ropensci.org/pdftools/"><code>pdftools</code></a> einlesen:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(hp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pdftools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using poppler version 22.02.0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"/Users/sebastiansaueruser/Google Drive/Literatur/_Div/Politik/afd-grundsatzprogramm-2022.pdf"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">text =</span> <span class="fu">pdf_text</span>(d_path))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dann erstellen wir eine Tidy-Version und tokenisieren nach Wörtern:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(<span class="at">output =</span> word, <span class="at">input =</span> text)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  mean(hp)
-1 146.6875</code></pre>
+<pre><code># A tibble: 6 × 1
+  word             
+  &lt;chr&gt;            
+1 programm         
+2 für              
+3 deutschland      
+4 das              
+5 grundsatzprogramm
+6 der              </code></pre>
 </div>
 </div>
+<p>Dann zählen wir die Wörter:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp, <span class="at">data =</span> mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Konfidenzintervall:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm1, <span class="at">newdata =</span> <span class="fu">tibble</span>(<span class="at">hp =</span> <span class="fu">mean</span>(<span class="dv">147</span>)), <span class="at">interval =</span> <span class="st">"confidence"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>      fit      lwr      upr
-1 20.0693 18.67466 21.46395</code></pre>
+<pre><code># A tibble: 20 × 2
+   word            n
+   &lt;chr&gt;       &lt;int&gt;
+ 1 die          1151
+ 2 und          1147
+ 3 der           870
+ 4 zu            435
+ 5 für           392
+ 6 in            392
+ 7 den           271
+ 8 von           257
+ 9 ist           251
+10 das           225
+11 werden        214
+12 eine          211
+13 nicht         196
+14 ein           191
+15 deutschland   190
+16 sind          187
+17 wir           176
+18 afd           171
+19 des           169
+20 sich          158</code></pre>
 </div>
 </div>
-<p>Vorhersageintervall:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm1, <span class="at">newdata =</span> <span class="fu">tibble</span>(<span class="at">hp =</span> <span class="fu">mean</span>(<span class="dv">147</span>)), <span class="at">interval =</span> <span class="st">"prediction"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      fit      lwr      upr
-1 20.0693 12.05776 28.08085</code></pre>
-</div>
-</div>
-<section id="answerlist-1" class="level2">
-<h2 class="anchored" data-anchor-id="answerlist-1">Answerlist</h2>
-<ul>
-<li>Falsch</li>
-<li>Wahr</li>
-<li>Falsch</li>
-<li>Falsch</li>
-</ul>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>lm</li>
-<li>inference</li>
-<li>qm2</li>
+<li>r</li>
+<li>map</li>
+<li>tidyverse</li>
 </ul>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
