@@ -122,6 +122,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-submit-button-title": "Submit"
   }
 }</script>
+<script src="../../site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="../../site_libs/d3-3.3.8/d3.min.js"></script>
+<script src="../../site_libs/dagre-0.4.0/dagre-d3.min.js"></script>
+<link href="../../site_libs/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet">
+<script src="../../site_libs/mermaid-0.3.0/dist/mermaid.slim.min.js"></script>
+<link href="../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="../../site_libs/chromatography-0.1/chromatography.js"></script>
+<script src="../../site_libs/DiagrammeR-binding-1.0.9/DiagrammeR.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -204,13 +212,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1>Solution</h1>
 <p>Zur Erinnerung:</p>
 <p><span class="math display">\[\begin{aligned}
-Pr(A) &amp;= Pr(A \cap B) + Pr(A \cap A^C)  \qquad \text{| bei disjunkten Ereignissen}\\
+Pr(A) &amp;= Pr(A \cap B) + Pr(A \cap A^C)  \qquad \text{| totale Wskt, bei disjunkten Ereignissen}\\
 Pr(A \cap B) &amp;= Pr(A|B) \cdot Pr(B)\\
 Pr(A \cap B^C) &amp;= Pr(A|B^C) \cdot Pr(B^C)
 \end{aligned}\]</span></p>
 <p>Wobei <span class="math inline">\(A^C\)</span> das komlementäre Ereignis zu <span class="math inline">\(A\)</span> meint.</p>
 <p>The solution is taken from <a href="https://sr2-solutions.wjakethompson.com/bayesian-inference.html">this source</a>.</p>
-<div class="cell" data-hash="Rethink_2m3_cache/html/unnamed-chunk-1_a62f2162b2e1c37bcfbc7193482dcb1c">
+<div class="cell" data-hash="Rethink_2m3_cache/html/unnamed-chunk-1_43e28a46524c66ae31fd782c586911ec">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of land, given Earth:</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>p_le <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -224,18 +232,28 @@ Pr(A \cap B^C) &amp;= Pr(A|B^C) \cdot Pr(B^C)
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>p_m <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of land:</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># das ist die Summe zweier gemeinsamer Wahrscheinlichkeiten (Randwahrscheinlichkeit)</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># also die Summe zweier Zellen aus der Kontingenztabelle</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>p_l <span class="ot">&lt;-</span> (p_e <span class="sc">*</span> p_le) <span class="sc">+</span> (p_m <span class="sc">*</span> p_lm)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of Earth, given land (using Bayes' Theorem):</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>p_el <span class="ot">&lt;-</span> (p_le <span class="sc">*</span> p_e) <span class="sc">/</span> p_l</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>p_el</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># totale Wahrscheinlichkeit für Land</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>p_l <span class="ot">&lt;-</span> (p_e <span class="sc">*</span> p_le) <span class="sc">+</span> (p_m <span class="sc">*</span> p_lm)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>p_l</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.65</code></pre>
+</div>
+</div>
+<p>Dann gilt also:</p>
+<div class="cell" data-hash="Rethink_2m3_cache/html/unnamed-chunk-2_0a84504be243099bc96278d32abce70c">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of Earth, given land (using Bayes' Theorem):</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>p_el <span class="ot">&lt;-</span> (p_le <span class="sc">*</span> p_e) <span class="sc">/</span> p_l</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>p_el</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.2307692</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.231</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Einfacher als die Rechnung ist vielleicht ein Baumdiagramm:</p>
+<div class="cell" data-hash="Rethink_2m3_cache/html/unnamed-chunk-3_e804939a4a8a65d7458c7153a2b598f5">
+<div class="cell-output-display">
+<div id="htmlwidget-d495a8e6d3bf1f9032b1" style="width:100%;height:237.312px;" class="DiagrammeR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d495a8e6d3bf1f9032b1">{"x":{"diagram":"graph LR\n  A[Start] -->|1/2|B[Erde]\n  A -->|1/2|C[Mars]\n  B -->|7/10|D[Wasser geg. Erde]\n  B -->|3/10|E[Land geg. Erde]\n  D --- H[Fazit: 7/20]\n  E --- I[Fazit: 3/20]\n  C -->|1|F[Land geg. Mars]\n  C -->|0|G[Wasser geg. Mars]\n  F --- J[Fazit: 1/2]\n  G --- K[Fazit: 0]"},"evals":[],"jsHooks":[]}</script>
+</div>
 </div>
 <hr>
 <p>Categories:</p>
