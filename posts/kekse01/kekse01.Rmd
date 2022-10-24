@@ -1,0 +1,113 @@
+---
+exname: kekse01
+extype: num
+exsolution: r .6
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- bayes-grid
+date: '2022-10-24'
+slug: kekse01
+title: kekse01
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+In *Think Bayes* stellt Allen Downey folgende Aufgabe:
+
+
+"Suppose there are two bowls of cookies.
+
+Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies.
+
+Bowl 2 contains 20 vanilla cookies and 20 chocolate cookies.
+
+Now suppose you choose one of the bowls at random and, without looking, choose a cookie at random. If the cookie is vanilla, what is the probability that it came from Bowl 1?"
+
+
+Hinweise:
+
+- Untersuchen Sie die Hypothesen $\pi_0 = 0, \pi_1 = 0.1, \pi_2 = 0.2, ..., \pi_{10} = 1$ für die Trefferwahrscheinlichkeit
+- Erstellen Sie ein Bayes-Gitter zur Lösung dieser Aufgabe.
+- Gehen Sie davon aus, dass Sie (apriori) indifferent gegenüber der Hypothesen zu den Parameterwerten sind.
+- Geben Sie Prozentzahlen immer als Anteil an und lassen Sie die führende Null weg (z.B. .42).
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+#| message: false
+library(tidyverse)
+```
+
+
+```{r}
+d <-
+  tibble(
+    # definiere die Hypothesen (das "Gitter"): 
+    p_Gitter = c(1, 2),
+    # bestimme den Priori-Wert:       
+    Priori  = 1) %>%  
+    mutate(
+      # berechne Likelihood für jeden Gitterwert:
+      Likelihood = c(3/4, 2/4),
+      # berechen unstand. Posteriori-Werte:
+      unstd_Post = Likelihood * Priori,
+      # berechne stand. Posteriori-Werte (summiert zu 1):
+      Post = unstd_Post / sum(unstd_Post))  
+```
+
+```{r}
+#| echo: false
+d %>% 
+  knitr::kable(digits=2)
+```
+
+
+Die Antwort lautet: .6
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes-grid
+

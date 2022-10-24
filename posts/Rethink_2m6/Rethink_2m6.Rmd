@@ -1,0 +1,99 @@
+---
+extype: string
+exsolution: NA
+exname: rethink2m6
+expoints: 1
+categories:
+- probability
+- bayes
+date: '2022-10-24'
+slug: Rethink_2m6
+title: Rethink_2m6
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
+
+
+2M6. Imagine that black ink is heavy, and so cards with black sides are heavier than cards with white sides. As a result, it’s less likely that a card with black sides is pulled from the bag. So again assume there are three cards: B/B, B/W, and W/W. After experimenting a number of times, you conclude that for every way to pull the B/B card from the bag, there are 2 ways to pull the B/W card and 3 ways to pull the W/W card. Again suppose that a card is pulled and a black side appears face up. Show that the probability the other side is black is now 0.5. Use the counting method, as before.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
+
+Wanted is the probability that the *second* side of the card is black (*2b*), given one side is black (*1b*): $Pr(2b|1b)$.
+
+
+
+```{r}
+d <-
+  tibble::tribble(
+  ~Hyp, ~Prior,
+  "bb",     1L, 
+  "bw",     2L,   
+  "ww",     3L, 
+  ) %>% 
+  mutate(Likelihood = c(2,1,0),
+         unstand_post = Prior*Likelihood,
+         std_post = unstand_post / sum(unstand_post))
+
+d %>% 
+  gt() %>% 
+  fmt_number(columns = 5)
+
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+

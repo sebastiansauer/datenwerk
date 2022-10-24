@@ -1,0 +1,153 @@
+---
+extype: string
+exsolution: NA
+exname: rethink2m7
+expoints: 1
+categories:
+- probability
+- bayes
+date: '2022-10-24'
+slug: Rethink_2m7
+title: Rethink_2m7
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
+
+
+2M7. Assume again the original card problem, with a single card showing a black side face up. 
+Before looking at the other side, 
+we draw another card from the bag and lay it face up on the table. 
+The face that is shown on the new card is white. 
+Show that the probability that the first card, the one showing a black side, 
+has black on its other side is now 0.75. Use the counting method, if you can. 
+Hint: Treat this like the sequence of globe tosses, 
+counting all the ways to see each observation, for each possiible first card.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
+
+Wanted is the probability $Pr(c1=bb|1b)$, the probability of drawing (as card 1) a *bb*  card, given that we observerd b in the first draw, denoted as *1b*.
+
+
+
+Here, we have to consider two cards. Let's use this notation *ww-bb* for the sequence "first card is white on both sides, second card is black on both sides".
+
+The data observed is: first card has one black side, the second card has one white side, i.,e *b-w*.
+
+Consider the following simple "tree diagram" showing the paths according to the four hypothesis, first level denotes the first card, the second (more indented) denotes the second card:
+
+*Hyp. A: bb-ww*:
+
+- b
+    - w
+    - w
+- b
+    - w
+    - w
+
+There are 4 paths consistend with the data, *b-w*.
+
+
+*Hyp. B: bw-ww*:
+
+- b
+    - w
+    - w
+- w
+    - w
+    - w
+    
+There are 2 paths consistent with the data,* b-w*.
+
+
+
+*Hyp. A: bb-bw*:
+
+- b
+    - b
+    - w
+- b
+    - b
+    - w
+    
+There are 2 paths consistent with the data.+, *b-w*.
+
+
+Looking at the tree, we realize that out of all 8 allowed paths, 6 feature the *bb* card as first card:
+
+$Pr(c1=bb|b-w) = 6/8 = 3/4 = 0.75$
+
+where `c1` means "card 1", and `b-w` means "first draw showed a *b* side, and second card showed a *w* face".
+
+
+As for an other approach, consider 
+the solution taken from [this source](https://sr2-solutions.wjakethompson.com/bayesian-inference.html).
+
+
+```{r}
+# 2 choices for first card (either bw or bb), with 3 options for second card: 2 ww + 1 bw
+card_bb_likelihood <- 2 * 3 
+card_wb_likelihood <- 1 * 2 
+card_ww_likelihood <- 0
+
+likelihood <- c(card_bb_likelihood, card_wb_likelihood, card_ww_likelihood)
+prior <- c(1,1,1)
+posterior <- prior * likelihood
+posterior <- posterior / sum(posterior)
+
+posterior[1]
+```
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+

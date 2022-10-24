@@ -1,0 +1,176 @@
+---
+extype: string
+exsolution: NA
+exname: mtcars-abhaengig
+expoints: 1
+categories:
+- probability
+- dependent
+date: '2022-10-24'
+slug: mtcars-abhaengig
+title: mtcars-abhaengig
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      echo = TRUE,
+                      warning = FALSE,
+                      #out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+Ob wohl die *PS-Zahl* (Ereignis $A$) und der *Spritverbrauch* (Ereignis $B$) voneinander abhängig sind? 
+Was meinen Sie? Was ist Ihre Einschätzung dazu? 
+Vermutlich haben Sie ein (wenn vielleicht auch implizites) Vorab-Wissen zu dieser Frage. 
+Lassen wir dieses Vorab-Wissen aber einmal außen vor und schauen uns rein Daten dazu an. 
+Vereinfachen wir die Frage etwas, indem wir fragen, 
+ob die Ereignisse "hoher Spritverbrauch" (A) und "hohe PS-Zahl" voneinander abhängig sind.
+
+Um es konkret zu machen, nutzen wir den Datensatz `mtcars`:
+
+```{r}
+library(tidyverse)
+data(mtcars)
+glimpse(mtcars)
+```
+
+
+Weitere Infos zum Datensatz bekommen Sie mit `help(mtcars)` in R.
+
+Definieren wir uns das Ereignis "hohe PS-Zahl" (und nennen wir es `hp_high`, klingt cooler). 
+Sagen wir, wenn die PS-Zahl größer ist als der Median,
+dann trifft `hp_high` zu, ansonsten nicht:
+
+```{r}
+mtcars %>% 
+  summarise(median(hp))
+```
+
+Mit dieser "Wenn-Dann-Abfrage" können wir die Variable `hp_high` 
+mit den Stufen `TRUE` und `FALSE` definieren:
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(hp_high = case_when(
+    hp > 123 ~ TRUE,
+    hp <= 123 ~ FALSE
+  ))
+```
+
+
+Genauso gehen wir mit dem Spritverbrauch vor (`mpg_high`):
+
+
+```{r}
+mtcars <- 
+  mtcars %>% 
+  mutate(mpg_high = case_when(
+    mpg > median(mpg) ~ TRUE,
+    mpg <= median(mpg) ~ FALSE
+  ))
+```
+
+
+a) Schauen Sie im Datensatz nach, ob unser Vorgehen (Erstellung von `hp_high` und `mpg_high`) überhaupt funktioniert hat. Probieren geht über Studieren.
+
+b) Visualisieren Sie in geeigneter Form den Zusammenhang.
+
+c) Berechnen Sie $Pr(\text{mpg_high}|\text{hp_high})$ und $Pr(\text{mpg_high}|\neg \text{hp_high})$ !
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+a) Schauen wir mal in den Datensatz: 
+
+```{r}
+mtcars %>% 
+  select(hp, hp_high, mpg, mpg_high) %>% 
+  slice_head(n = 5)
+```
+
+b)
+
+```{r}
+mtcars %>% 
+  #select(hp_high, mpg_high) %>% 
+  ggplot() +
+  aes(x = hp_high, fill = mpg_high) +
+  geom_bar(position = "fill")
+```
+
+
+Hey, sowas von abhängig voneinander, die zwei Variablen, `mpg_high` und `hp_high`!
+
+Der *rechte* Balken zeigt $Pr(\text{mpg_high}|\text{ hp_high})$ und $Pr(\neg \text{mpg_high}|\text{hp_high})$.Der *linke* Balken zeigt $Pr(\text{mpg_high}|\neg \text{hp_high})$ und $Pr(\neg \text{mpg_high}|\neg \text{hp_high})$.
+
+
+
+c) Berechnen wir die relevanten Anteile:
+
+```{r}
+mtcars %>% 
+  #select(hp_high, mpg_high) %>% 
+  count(hp_high, mpg_high) %>%  # Anzahl pro Zelle der Kontingenztabelle
+  group_by(hp_high) %>%  # die Anteile pro "Balken" s. Diagramm
+  mutate(prop = n / sum(n))
+```
+
+
+
+Am besten, Sie führen den letzten Code Schritt für Schritt aus und schauen sich jeweils das Ergebnis an, das hilft beim Verstehen.
+
+Alternativ kann man sich die Häufigkeiten auch schön bequem ausgeben lassen:
+
+```{r}
+library(mosaic)
+tally(mpg_high ~ hp_high, 
+      data = mtcars, 
+      format = "proportion")
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- dependent
+

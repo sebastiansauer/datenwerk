@@ -1,0 +1,161 @@
+---
+extype: string
+exsolution: NA
+exname: rethink2m1
+expoints: 1
+categories:
+- probability
+- bayes-grid
+date: '2022-10-24'
+slug: Rethink_2m1
+title: Rethink_2m1
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                     # out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
+
+
+2M1. Recall the globe tossing model from the chapter. Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for *p*.
+
+
+1. WWW
+2. WWWL
+3. LWWLWWW
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+The solution is taken from [this source](https://sr2-solutions.wjakethompson.com/bayesian-inference.html).
+
+
+```{r}
+library(tidyverse)
+
+dist <- 
+  tibble(
+    # Gridwerte bestimmen:
+    p_grid = seq(from = 0, to = 1, length.out = 20),
+    # Priori-Wskt bestimmen:
+    prior = rep(1, times = 20)) %>%
+  mutate(
+    # Likelihood berechnen:
+    likelihood_1 = dbinom(3, size = 3, prob = p_grid),  # WWW
+    likelihood_2 = dbinom(3, size = 4, prob = p_grid),  # WWWL
+    likelihood_3 = dbinom(5, size = 7, prob = p_grid),  # LWWLWWW
+    # unstand. Posterior-Wskt:
+    unstand_post_1 = likelihood_1 * prior,
+    unstand_post_2 = likelihood_2 * prior,
+    unstand_post_3 = likelihood_3 * prior,
+    # stand. Post-Wskt:
+    std_post_1 = unstand_post_1 / sum(unstand_post_1),
+    std_post_2 = unstand_post_2 / sum(unstand_post_2),
+    std_post_3 = unstand_post_3 / sum(unstand_post_3)
+    ) 
+
+
+```
+
+Jetzt können wir das Diagramm zeichnen:
+
+```{r}
+ggplot(dist) +
+  aes(x = p_grid, y= std_post_1) +
+  geom_line()+
+  geom_point() +
+  labs(x = "p(W)",
+       y = "Posteriori-Wahrscheinlichkeit",
+       title = "Daten: WWW")
+
+ggplot(dist) +
+  aes(x = p_grid, y= std_post_2) +
+  geom_line()+
+  geom_point() +
+  labs(x = "p(W)",
+       y = "Posteriori-Wahrscheinlichkeit",
+       title = "Daten: WWWL")
+
+ggplot(dist) +
+  aes(x = p_grid, y= std_post_3) +
+  geom_line()+
+  geom_point() +
+  labs(x = "p(W)",
+       y = "Posteriori-Wahrscheinlichkeit",
+       title = "Daten: LWWLWWW")
+```
+
+
+Etwas eleganter (und komplizierter) kann man es auch so in R schreiben ([Quelle](https://sr2-solutions.wjakethompson.com/bayesian-inference.html)):
+
+```{r}
+library(tidyverse)
+
+dist <- tibble(p_grid = seq(from = 0, to = 1, length.out = 20),
+               prior = rep(1, times = 20)) %>%
+  mutate(likelihood_1 = dbinom(3, size = 3, prob = p_grid),
+         likelihood_2 = dbinom(3, size = 4, prob = p_grid),
+         likelihood_3 = dbinom(5, size = 7, prob = p_grid),
+         across(starts_with("likelihood"), ~ .x * prior),
+         across(starts_with("likelihood"), ~ .x / sum(.x))) %>%
+  pivot_longer(cols = starts_with("likelihood"), names_to = "pattern",
+               values_to = "posterior") %>%
+  separate(pattern, c(NA, "pattern"), sep = "_", convert = TRUE) %>%
+  mutate(obs = case_when(pattern == 1L ~ "W, W, W",
+                         pattern == 2L ~ "W, W, W, L",
+                         pattern == 3L ~ "L, W, W, L, W, W, W"))
+
+ggplot(dist, aes(x = p_grid, y = posterior)) +
+  facet_wrap(vars(fct_inorder(obs)), nrow = 1) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Proportion Water (p)", y = "Posterior Density")
+```
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes-grid
+
