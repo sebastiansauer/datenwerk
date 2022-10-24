@@ -1,0 +1,90 @@
+---
+extype: string
+exsolution: NA
+exname: purrr-map05
+expoints: 1
+date: '2022-10-24'
+slug: purrr-map05
+title: purrr-map05
+
+---
+
+
+
+
+```{r}
+library(tidyverse)
+```
+
+
+
+# Exercise
+
+Erstellen Sie eine Tabelle mit mit folgenden Spalten:
+
+- ID-Spalte: $1,2,..., 10$
+- Eine Spalte, in der jede Zelle eine Tabelle mit einem Vektor $x$, einer standardnormalverteilten Zufallszahlen (n=1000), enthält
+
+Berechnen Sie den Mittelwert von jedem $x$! Diese Ergebnisse sollen als weitere Spalte der Tabelle hinzugefügt werden.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+d <- tibble(
+  id = 1:10) %>% 
+  mutate(x = map(id, ~ rnorm(n = 1e3))
+) 
+
+str(d)
+```
+So kann man sich die Mittelwerte ausgeben lassen:
+
+```{r}
+d$x %>% 
+  map(mean)
+```
+
+Jetzt fügen wir den letzten Schritt als Spalte hinzu:
+
+```{r}
+d2 <-
+  d %>% 
+  mutate(x_mean = map_dbl(x, ~ mean(.x))) 
+
+head(d2)
+```
+
+
+Hier hätten wir auch schreiben können:
+
+```{r}
+d %>% 
+  mutate(x_mean = map(x, mean)) %>% 
+  unnest(x_mean) %>% 
+  head()
+```
+
+
+
+
+---
+
+Categories: 
+
+~
+
