@@ -1,0 +1,171 @@
+---
+extype: string
+exsolution: NA
+exname: twitter01
+expoints: 1
+categories:
+- textmining
+- '2022'
+date: '2022-10-24'
+slug: twitter01
+title: twitter01
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+
+
+
+
+# Exercise
+
+
+Laden Sie die neuesten Tweets an `karl_lauterbach` herunter!
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+```{r}
+library(tidyverse)
+library(rtweet)
+```
+
+
+Einloggen bei Twitter; zuerst die Credentials bereithalten:
+
+```{r}
+#| eval: false
+source("/Users/sebastiansaueruser/credentials/hate-speech-analysis-v01-twitter.R")
+```
+
+
+Dann anmelden, z.B. als Bot:
+
+```{r}
+#| eval: false
+auth <- rtweet_bot(api_key = API_Key,
+                   api_secret = API_Key_Secret,
+                   access_token = Access_Token,
+                   access_secret = Access_Token_Secret)
+```
+
+
+... Oder als App, das bringt bessere Raten mit sich:
+
+```{r}
+#| eval: false
+auth <- rtweet_app(bearer_token = Bearer_Token)
+```
+
+
+Test:
+
+```{r}
+#| eval: false
+sesa_test <- get_timeline(user = "sauer_sebastian", n = 3) %>% 
+  select(full_text)
+
+sesa_test
+```
+
+
+```
+1 RT @fuecks: By the way: Systematic destruction of life-sustaining infrastructures …
+2 RT @NoContextBrits: No shortbread for little Nazis. https://t.co/F6FUPvRz94        
+3 RT @ernst_gennat: 2 oder 3 Jahre #Tempolimit von 120 km/h. Abschließend Evaluation…
+```
+
+
+Tweets an Karl Lauterbach suchen:
+
+
+```{r}
+#| eval: false
+karl1 <- search_tweets("@karl_lauterbach")
+```
+
+
+In Auszügen:
+
+```
+"@Karl_Lauterbach Ein Minister der alle paar Stunden Zeit hat einen Mist zu verbreiten...."   
+"@Karl_Lauterbach @focusonline Long Covid ist nichts anderes als schwere Nebenwirkungen der Gentherapie!"  "@Karl_Lauterbach @focusonline Wer schützt uns vor Long Lauterbach?"
+"@Karl_Lauterbach Also Karl, primär fordere ich und viele andere eher erstmal dein sofortigen Rücktritt."  "@Karl_Lauterbach Behalt deinen Senf für dich!"                                                            "@Karl_Lauterbach Oh Gott 😱"     
+"@Karl_Lauterbach Ach nein, der Clown mit Lebensangst ….\n\nhttps://t.co/8cQZeHh6Ew"                       "@Karl_Lauterbach Ich kenne nur Leute mit Long Covid, die mehrfach geimpft sind! Das ist kein Witz! Scheinbar liegt’s wohl doch an den Spritzen???"                                                            "@Karl_Lauterbach @focusonline Interessiert keine Sau 😉"                      
+"RT @Karl_Lauterbach @focusonline „Lauterbachs Aussagen können fundamental nicht stimmen“\nhttps://t.co/rfxnWAWiZX"                                                                          "@Karl_Lauterbach @focusonline 🤡😂😂😂😂😂😂"                                         
+"@Karl_Lauterbach Jau und sie sind kein fähiger Gesundheitsminister, sondern lediglich ein gekaufter Coronaminister"        
+```
+
+Puh, viele toxische Tweets, wie es scheint.
+
+
+
+Und ohne Retweets (RT) und ohne Replies:
+
+```{r}
+#| eval: false
+karl2 <- search_tweets("@karl_lauterbach", 
+  include_rts = FALSE, `-filter` = "replies")
+```
+
+
+Tweets, die an Karl Lauterbach gerichtet sind, per API-Anweisung:
+
+
+```{r}
+#| eval: false
+karl3 <- search_tweets("to:karl_lauterbach", n = 100)
+```
+
+
+```
+"@Karl_Lauterbach Vielen Dank, dass LongCovid ein gefundenes fressen für die jenigen ist, die nicht mehr Arbeiten wollen."       
+ "@Karl_Lauterbach verpiss dich einfach! Immer dieser Schwachsinn"    
+"@Karl_Lauterbach @focusonline Das sind genau die Impfnebenwirkungen! Will man nun das wenden um die Impfnebenwirkungen zu vertuschen? \nWofür ist die Impfung gut wenn nicht mal Long-Covid verhindert wird, die Ansteckung konnte sie noch nie verhindern!\nWarum sind 89% Covid Patienten geimpfte in den Spitäler?"
+"@Karl_Lauterbach Was spielen Sie eigentlich für ein schmutziges Spiel?\n\nhttps://t.co/8LJIzxyF7G"   
+ "@Karl_Lauterbach @focusonline Bessen von Covid! Ständig wird das Netz durchsucht, nach Artikeln,die instrumentalisiert werden, um für Impfung zu werben. Was hätte nur ein vernünftiger Gesundheitsminister mit so viel Zeit Vernünftiges im Gesundheitswesen auf die Beine stellen können..."    
+"@Karl_Lauterbach Mit Dauerschaden wegen der Impfung 💉 bin ich Arbeitslos geworden in der Pflege 🤷‍♂️ Ist das normal Herr @Karl_Lauterbach ?"          
+```
+
+
+Ob man mit `@karl_lauterbach` sucht oder `to:karl_lauterbach", scheint keinen großen Unterschied zu machen (?).
+
+
+
+
+
+ 
+
+
+---
+
+Categories: 
+
+- textmining
+- '2022'
+

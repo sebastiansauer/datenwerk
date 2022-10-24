@@ -1,0 +1,144 @@
+---
+extype: string
+exsolution: NA
+exname: twitter02
+expoints: 1
+categories:
+- textmining
+- twitter
+date: '2022-10-24'
+slug: twitter02
+title: twitter02
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+
+
+
+
+# Exercise
+
+
+Laden Sie die neuesten Tweets an `karl_lauterbach` herunter - und zwar so viele wie auf einmal möglich.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+```{r}
+library(tidyverse)
+library(rtweet)
+```
+
+
+Einloggen bei Twitter; zuerst die Credentials bereithalten:
+
+```{r}
+#| eval: false
+source("/Users/sebastiansaueruser/credentials/hate-speech-analysis-v01-twitter.R")
+```
+
+
+
+```{r}
+#| eval: false
+auth <- rtweet_app(bearer_token = Bearer_Token)
+```
+
+
+Aus der Hilfe zu `search_tweets`:
+
+```
+Description
+Returns Twitter statuses matching a user provided search query. ONLY RETURNS DATA FROM THE PAST 6-9 DAYS.
+```
+
+Tweets an Karl Lauterbach suchen:
+
+
+```{r}
+#| eval: false
+karl_tweets <- search_tweets(q = "@karl_lauterbach", n = 150000, retryonratelimit = TRUE)
+```
+
+
+Wir könnten `n` auch auf `Inf` setzen, aber, da wir auf das Refreshen des Rate Limits warten müssen,
+könnte sehr lange dauern.
+Daher nehmen wir hier nur einen kürzeren Wert.
+
+
+```{r}
+#| eval: false
+dim(karl_tweets)
+```
+
+
+```
+[1] 18000    43
+```
+
+```{r}
+#| eval: false
+head(karl_tweets)
+```
+
+
+
+
+```
+# A tibble: 6 × 43
+  created_at               id id_str      full_…¹ trunc…² displ…³ entities     metad…⁴
+  <dttm>                <dbl> <chr>       <chr>   <lgl>     <dbl> <list>       <list> 
+1 2022-10-23 13:30:18 1.58e18 1584145185… "Bei ⁦@… FALSE       122 <named list> <df>   
+2 2022-10-22 18:34:37 1.58e18 1583859379… "Es is… FALSE       263 <named list> <df>   
+3 2022-10-22 17:56:39 1.58e18 1583849826… "Die S… FALSE       215 <named list> <df>   
+4 2022-10-24 08:10:35 1.58e18 1584427113… "Zu we… FALSE       219 <named list> <df>   
+5 2022-10-24 08:10:35 1.58e18 1584427113… "RT @K… FALSE       140 <named list> <df>   
+6 2022-10-24 08:10:25 1.58e18 1584427072… "RT @U… FALSE       139 <named list> <df>   
+# … with 35 more variables: source <chr>, in_reply_to_status_id <dbl>,
+#   in_reply_to_status_id_str <chr>, in_reply_to_user_id <dbl>,
+#   in_reply_to_user_id_str <chr>, in_reply_to_screen_name <chr>, geo <list>,
+#   coordinates <list>, place <list>, contributors <lgl>, is_quote_status <lgl>,
+#   retweet_count <int>, favorite_count <int>, favorited <lgl>, retweeted <lgl>,
+#   possibly_sensitive <lgl>, lang <chr>, quoted_status_id <dbl>,
+#   quoted_status_id_str <chr>, quoted_status <list>, retweeted_status <list>, …
+# ℹ Use `colnames()` to see all variable names
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- twitter
+
