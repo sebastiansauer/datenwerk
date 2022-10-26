@@ -6,7 +6,7 @@ expoints: 1
 categories:
 - probability
 - bayes
-date: '2022-10-24'
+date: '2022-10-26'
 slug: Rethink_2m7
 title: Rethink_2m7
 
@@ -69,78 +69,99 @@ counting all the ways to see each observation, for each possiible first card.
 
 Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
 
-Wanted is the probability $Pr(c1=bb|1b)$, the probability of drawing (as card 1) a *bb*  card, given that we observerd b in the first draw, denoted as *1b*.
+To keep things straigt, here's visualization of our data
 
+```{r echo=FALSE}
+d <-
+  tibble(id = c(1,3),
+         color = c("black", "white"),
+         label = c("card 1", "card 2"))
+
+d %>% 
+  ggplot(aes(x = id)) +
+  geom_rect(aes(xmin = id, ymin = 0, xmax = id + 1, ymax = 2, fill = color), color = "grey80") + 
+  ggpubr::theme_transparent() +
+  theme(panel.background = element_rect(fill = "grey40")) +
+  scale_fill_manual(values = d$color) +
+  geom_label(y = .5, aes(label = label, x = id+.5)) +
+  guides(fill = FALSE)
+  
+  
+```
+
+
+Wanted is the probability $Pr(c1=bb|1b,2w)$, the probability of drawing (as card 1) a *bb*  card, given that we observerd b in the first draw, denoted as *1b*, and a white card in the second draw, denoted as *2w*.
+
+
+Let's draw a tree diagram for easier comprehension.
+
+
+```{r, echo = FALSE}
+DiagrammeR::mermaid("graph LR
+  A[Start] -->B[_b_b]
+  E ---M[valid]
+  A -->C[b_b_]
+  A -->D[_b_w]
+  B -->E[_w_w]
+  B -->F[w_w_]
+  F --- N[valid]
+  B -->K[_b_w]
+  K ---O[invalid]
+  C -->G[_w_w]
+  G ---P[valid]
+  C -->H[w_w_]
+  H ---Q[valid]
+  C -->L[_b_w]
+  L ---R[invalid]
+  D -->I[_w_w]
+  I ---S[valid]
+  D -->J[w_w_]
+  J ---T[valid]
+  ")
+```
+
+In the diagram, the symbol "_b_w" means that *b*lack face of a the bw-card (one black, one white face) was drawn. 
+Similarly, "_b_b" means that one (of the two) *b*lack faces of the bb-card (two black faces) was drawn.
 
 
 Here, we have to consider two cards. Let's use this notation *ww-bb* for the sequence "first card is white on both sides, second card is black on both sides".
 
 The data observed is: first card has one black side, the second card has one white side, i.,e *b-w*.
 
-Consider the following simple "tree diagram" showing the paths according to the four hypothesis, first level denotes the first card, the second (more indented) denotes the second card:
-
-*Hyp. A: bb-ww*:
-
-- b
-    - w
-    - w
-- b
-    - w
-    - w
-
-There are 4 paths consistend with the data, *b-w*.
 
 
-*Hyp. B: bw-ww*:
+Looking at the tree, we realize that out of all 8  paths, 6 feature the *bb* card as first card:
 
-- b
-    - w
-    - w
-- w
-    - w
-    - w
-    
-There are 2 paths consistent with the data,* b-w*.
-
-
-
-*Hyp. A: bb-bw*:
-
-- b
-    - b
-    - w
-- b
-    - b
-    - w
-    
-There are 2 paths consistent with the data.+, *b-w*.
-
-
-Looking at the tree, we realize that out of all 8 allowed paths, 6 feature the *bb* card as first card:
-
-$Pr(c1=bb|b-w) = 6/8 = 3/4 = 0.75$
+$Pr(1bb|1b,2w) = 6/8 = 3/4 = 0.75$
 
 where `c1` means "card 1", and `b-w` means "first draw showed a *b* side, and second card showed a *w* face".
 
 
-As for an other approach, consider 
-the solution taken from [this source](https://sr2-solutions.wjakethompson.com/bayesian-inference.html).
+As a Bayes-Grid (or "Bayes-Box") we can depict the situation like this:
 
+```{r echo=FALSE}
 
-```{r}
-# 2 choices for first card (either bw or bb), with 3 options for second card: 2 ww + 1 bw
-card_bb_likelihood <- 2 * 3 
-card_wb_likelihood <- 1 * 2 
-card_ww_likelihood <- 0
+tibble::tribble(
+  ~Hyp, ~Prior, ~L, ~unstand_Post, ~Post,
+  "bb",     2L, 3L,            6L, "3/4",
+  "bw",     1L, 2L,            2L, "1/4"
+  ) %>% 
+  knitr::kable()
 
-likelihood <- c(card_bb_likelihood, card_wb_likelihood, card_ww_likelihood)
-prior <- c(1,1,1)
-posterior <- prior * likelihood
-posterior <- posterior / sum(posterior)
-
-posterior[1]
 ```
 
+Or, using probability, and not counts:
+
+```{r echo=FALSE}
+
+tibble::tribble(
+  ~Hyp, ~Prior, ~L, ~unstand_Post, ~Post,
+  "bb",     2L, "3/4",           "6/4", "3/4",
+  "bw",     1L, "2/4",            "2/4", "1/4"
+  ) %>% 
+  knitr::kable()
+
+```
 
 
 
