@@ -6,7 +6,7 @@ expoints: 1
 categories:
 - probability
 - bayes
-date: '2022-10-26'
+date: '2022-10-27'
 slug: Rethink_2m7
 title: Rethink_2m7
 
@@ -69,7 +69,7 @@ counting all the ways to see each observation, for each possiible first card.
 
 Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
 
-To keep things straigt, here's visualization of our data
+To keep things straigt, here's visualization of our data.
 
 ```{r echo=FALSE}
 d <-
@@ -96,14 +96,16 @@ Wanted is the probability $Pr(c1=bb|1b,2w)$, the probability of drawing (as card
 Let's draw a tree diagram for easier comprehension.
 
 
-```{r, echo = FALSE, out.width="100%"}
-DiagrammeR::mermaid("graph TD
+```{r, echo = FALSE}
+DiagrammeR::mermaid("graph LR
   A[Start] -->B[_b_b]
   E ---M[valid]
   A -->C[b_b_]
   A -->D[_b_w]
   B -->E[_w_w]
   B -->F[w_w_]
+  B --> F2[b_w_]
+  F2 --- F3[valid]
   F --- N[valid]
   B -->K[_b_w]
   K ---O[invalid]
@@ -112,13 +114,18 @@ DiagrammeR::mermaid("graph TD
   C -->H[w_w_]
   H ---Q[valid]
   C -->L[_b_w]
+  C -->L2[b_w_]
+  L2 ---L3[valid]
   L ---R[invalid]
   D -->I[_w_w]
   I ---S[valid]
   D -->J[w_w_]
   J ---T[valid]
+  A -->U[w_w_]
+  U-.-2[invalid]
+  A -->V[_w_w]
+  V -.-V2[invalid]
   ")
-
 ```
 
 In the diagram, the symbol "_b_w" means that *b*lack face of a the bw-card (one black, one white face) was drawn. 
@@ -133,12 +140,29 @@ The data observed is: first card has one black side, the second card has one whi
 
 Looking at the tree, we realize that out of all 8  paths, 6 feature the *bb* card as first card:
 
-$Pr(1bb|1b,2w) = 6/8 = 3/4 = 0.75$
+$Pr(1bb|b,w) = 6/8 = 3/4 = 0.75$
 
-where `c1` means "card 1", and `b-w` means "first draw showed a *b* side, and second card showed a *w* face".
+where `1bb` means "card 1 is black on both sides", and `b,w` means "first draw showed a *b*lack face, and second card showed a *w*hite face".
 
+
+In other words, there are 8 valid paths in the tree diagram, out of which 6 belong the the hypothesis that the first card is all black.    
 
 As a Bayes-Grid (or "Bayes-Box") we can depict the situation like this:
+
+
+```{r echo=FALSE}
+
+tibble::tribble(
+  ~Hyp, ~Prior, ~L, ~unstand_Post, ~Post,
+  "bb",     1L, 6L,            6L, "3/4",
+  "bw",     1L, 2L,            2L, "1/4"
+  ) %>% 
+  knitr::kable()
+
+```
+
+
+Or, equally valid, realizihg that there are the events of the card "bb":
 
 ```{r echo=FALSE}
 
@@ -148,18 +172,28 @@ tibble::tribble(
   "bw",     1L, 2L,            2L, "1/4"
   ) %>% 
   knitr::kable()
+
 ```
+
+
+
 
 Or, using probability, and not counts:
 
 ```{r echo=FALSE}
+
 tibble::tribble(
   ~Hyp, ~Prior, ~L, ~unstand_Post, ~Post,
   "bb",     2L, "3/4",           "6/4", "3/4",
   "bw",     1L, "2/4",            "2/4", "1/4"
   ) %>% 
   knitr::kable()
+
 ```
+
+
+Whenever the probability of all paths (in a tree diagram) is the same, as it is the case in the present example, we do not need to write down the probability of the path for the likelihood. It is enough to write the number of paths (of course we can if we want).
+
 
 
 
