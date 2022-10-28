@@ -1,0 +1,195 @@
+---
+exname: wuerfel04
+extype: num
+exsolution: 0.08
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- dice
+- simulation
+date: '2022-10-28'
+slug: wuerfel04
+title: wuerfel04
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Was ist die Wahrscheinlichkeit, mit zwei fairen Würfeln genau 10 Augen zu werfen?
+
+Hinweise:
+
+- Nutzen Sie Simulationsmnethoden der Wahrscheinlichkeitsrechnung, keine exakten Rechnung auf Basis der Wahrscheinlichkeitsrechnung.
+- Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
+- Setzen Sie bei Simulationsaufgaben immer die Zufallszahlen mit `set.seed()`. Sofern kein anderer Wert für `set.seed()` genannt, verwenden Sie die Zahl `42`. 
+- Da es bei dieser Aufgabe nötig ist, zwei Mal Zufallszahlen zu berechnen (für zwei Würfel nämlich), verwenden Sie beim ersten Würfel die Zahl `42` und beim zweiten Würfel die Zahl `43`.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+```{r}
+library(tidyverse)
+```
+
+
+Einen Würfelwurf in R kann man so simulieren:
+
+
+```{r}
+wuerfel <- sample(x = c(1,2,3,4,5,6), size = 1, prob = c(1/6, 1/6, 1/6, 1/6, 1/6, 1/6))
+wuerfel
+```
+
+
+Bei `sample` gibt `x` den Ereignisraum, $\Omega$, an, `size` die Stichprobengröße und 
+`prob` gibt für jedes Element von `x` die Wahrscheinlichkeit an.
+
+Das machen wir jetzt 1000 Mal. Viel Spaß beim Tippen...
+
+
+...
+...
+...
+
+Okay, das sollten wir einfacher hinkriegen.
+Man kann R sagen, dass sie eine Funktion (wie `sample`) oft ausführen soll.
+Damit können wir viele Würfelwürfe simulieren.
+Diese "Wiederholungsfunktion" heißt  `replicate(n, expr)`;
+dabei gibt `n` an, wie oft die Funktion wiederholt werden soll,
+und `expr` ist der Ausdruck (die Funktion), die wiederholt werden soll,
+das ist bei uns die Funktion `sample`, wie oben dargestellt.
+
+```{r}
+zehn_wuerfel <- replicate(n = 10, expr = sample(x = c(1,2,3,4,5,6), size = 1, prob = c(1/6, 1/6,1/6,1/6,1/6,1/6)))
+zehn_wuerfel
+```
+
+
+Können wir natürlich auch zich Mal wiederholen, nicht nur 10 Mal,
+sagen wir $10^4$ Mal:
+
+```{r}
+set.seed(42)
+wuerfel1_oft <- replicate(n = 10^4, expr = sample(x = c(1,2,3,4,5,6), size = 1, prob = c(1/6, 1/6,1/6,1/6,1/6,1/6)))
+
+mean(wuerfel1_oft)
+```
+
+
+Ah, interessant: Der Mittelwert ist etwa 3.5...
+
+
+Jetzt werfen wir noch einen zweiten Würfel genau so oft:
+
+```{r}
+set.seed(43)
+wuerfel2_oft <- replicate(n = 10^4, expr = sample(x = c(1,2,3,4,5,6), size = 1, prob = c(1/6, 1/6,1/6,1/6,1/6,1/6)))
+
+mean(wuerfel2_oft)
+```
+
+
+Das packen wir jetzt in eine Tabelle und ergänzen die Augensumme für jede Wiederholung des Doppelwurfes:
+
+```{r}
+d <-
+  tibble(w1 = wuerfel1_oft,
+         w2 = wuerfel2_oft,
+         w_sum = w1+w2)
+
+head(d)
+```
+
+
+Jetzt ist es einfach:
+
+Wir zählen einfach, wie oft das Ergebnis 10 vorkommt in der Tabelle.
+
+
+```{r}
+d %>% 
+  count(w_sum == 10)
+```
+
+Ergänzen wir die Anteile dieser Anzahl:
+
+
+```{r}
+d %>% 
+  count(w_sum == 10) %>% 
+  mutate(Anteil = n/sum(n))
+```
+
+
+Die Lösung lautet also: `0.08` (gerundet auf zwei Dezimalen)
+
+
+Auf einfache Weise können wir entsprechend die Wahrscheinlichkeit für *mindestens* $k$ Augen (bei zwei Würfelwürfen) ermitteln, mit $k$ ist die gesuchte Augensumme, hier 10.
+
+
+```{r}
+d %>% 
+  count(w_sum >= 10) %>% 
+  mutate(Anteil = n/sum(n))
+```
+
+
+Oder *höchstens* 10, ganz analog:
+
+
+```{r}
+d %>% 
+  count(w_sum <= 10) %>% 
+  mutate(Anteil = n/sum(n))
+```
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- dice
+- simulation
+

@@ -1,0 +1,181 @@
+---
+exname: wuerfel02
+extype: num
+exsolution: r loesung
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- dice
+date: '2022-10-28'
+slug: wuerfel02
+title: wuerfel02
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Was ist die Wahrscheinlichkeit, mit zwei fairen Würfeln mindestens 10 Augen zu werfen?
+
+Hinweise:
+
+- Nutzen Sie exakte Methoden der Wahrscheinlichkeitsrechnung, keine Simulation.
+- Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Erstellen wir uns eine Tabelle, die alle Permutationen der beiden Würfelergebnisse fasst,
+das sind 36 Paare: (1,1), (1,2), ..., (1,6), ..., (6,6).
+
+Das kann man von Hand erstellen, halbautomatisch in Excel oder z.B. so:
+
+```{r}
+library(tidyverse)
+d <- expand_grid(wuerfel1 = 1:6,
+         wuerfel2 = 1:6)
+
+d
+```
+
+
+Jetzt ergänzen wir eine Spalte für die Wahrscheinlichkeit jeder Kombination,
+das ist einfach, denn $p(A \cap B) = p(A) \cdot p(B) = 1/36$ gilt.
+
+
+
+```{r}
+d2 <-
+  d %>% 
+  mutate(prob = 1/36)
+
+head(d2)
+```
+
+
+Außerdem ergänzen wir die Summe der Augenzahlen,
+weil die Frage ja nach einer bestimmten Summe an Augenzahlen abzielt.
+
+
+```{r}
+d3 <-
+  d2 %>% 
+  mutate(augensumme = wuerfel1 + wuerfel2)
+
+head(d3)
+```
+
+
+
+Für manche Augensummen gibt es mehrere Möglichkeiten:
+
+```{r}
+d3 %>% 
+  filter(augensumme == 7)
+```
+
+
+... für andere weniger:
+
+
+```{r}
+d3 %>% 
+  filter(augensumme == 12)
+```
+
+
+Jetzt summieren wir (nach dem Additionssatz der Wahrscheinlichkeit) die Wahrscheinlichkeiten pro Augenzahl:
+
+
+```{r}
+d4 <- 
+  d3 %>% 
+  group_by(augensumme) %>% 
+  summarise(totale_w_pro_augenzahl = sum(prob))
+
+d4
+```
+
+
+Test: Die Summe der Wahrscheinlichkeit muss insgesamt 1 sein.
+
+
+```{r}
+d4 %>% 
+  summarise(sum(totale_w_pro_augenzahl))
+```
+
+
+Und:
+
+```{r}
+d2 %>% 
+  summarise(sum(prob))
+```
+
+
+Passt!
+
+
+Die Wahrscheinlichkeit für die Augensumme von mind. 10 beträgt also:
+
+
+```{r}
+loesung <-
+  d4 %>% 
+  filter(augensumme >= 10) %>% 
+  summarise(prob_sum = sum(totale_w_pro_augenzahl)) %>% 
+  pull(prob_sum)
+
+loesung
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- dice
+
