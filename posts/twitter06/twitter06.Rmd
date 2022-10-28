@@ -1,0 +1,250 @@
+---
+extype: string
+exsolution: NA
+exname: twitter06
+expoints: 1
+categories:
+- textmining
+- twitter
+- programming
+date: '2022-10-28'
+slug: twitter06
+title: twitter06
+
+---
+
+
+
+
+
+
+
+
+
+# Exercise
+
+
+Laden Sie $n=10^k$ Tweets von Twitter herunter (mit $k=4$) via der Twitter API;
+die Tweets sollen jeweils an eine prominente Person gerichtet sein.
+
+Beziehen Sie sich auf folgende Personen bzw. Twitter-Accounts:
+
+- `Markus_Soeder`
+- `karl_lauterbach`.
+
+
+
+Bereiten Sie die Textdaten mit grundlegenden Methoden des Textminings auf (Tokenisieren, Stopwörter entfernen, Zahlen entfernen, ...).
+
+Nutzen Sie die Daten dann,
+um eine Sentimentanalyse zu erstellen.
+
+
+Vergleichen Sie die Ergebnisse für alle untersuchten Personen.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+```{r}
+library(rtweet)
+library(tidyverse)
+library(tidytext)
+library(lsa)  # Stopwörter
+library(SnowballC)  # Stemming
+```
+
+
+```{r}
+data(sentiws, package = "pradadata")
+```
+
+
+
+Zuerst muss man sich anmelden und die Tweets herunterladen:
+
+
+
+```{r eval=FALSE}
+source("/Users/sebastiansaueruser/credentials/hate-speech-analysis-v01-twitter.R")
+
+auth <- rtweet_app(bearer_token = Bearer_Token)
+```
+
+
+
+
+```{r eval=FALSE}
+tweets_to_kl <- search_tweets("@karl_lauterbach", n = 1e2, include_rts = FALSE)
+#write_rds(tweets_to_kl, file = "tweets_to_kl.rds", compress = "gz")
+tweets_to_ms <- search_tweets("@Markus_Soeder", n = 1e4, include_rts = FALSE)
+#write_rds(tweets_to_ms, file = "tweets_to_ms.rds", compress = "gz")
+```
+
+
+
+```{r echo=FALSE}
+tweets_to_kl_raw <- 
+  read_rds(file = "/Users/sebastiansaueruser/datasets/tweets_to_karl_lauterbach.rds")
+
+tweets_to_ms_raw <- 
+  read_rds(file = "/Users/sebastiansaueruser/datasets/tweets_to_ms.rds")
+```
+
+
+
+Die Vorverarbeitung pro Screenname packen wir in eine Funktion,
+das macht es hinten raus einfacher:
+
+
+```{r}
+prepare_tweets <- function(tweets){
+  
+  tweets %>% 
+    select(full_text) %>% 
+    unnest_tokens(output = word, input = full_text) %>% 
+    anti_join(tibble(word = lsa::stopwords_de)) %>% 
+    mutate(word = str_replace_na(word, "^[:digit:]+$")) %>% 
+    mutate(word = str_replace_na(word, "hptts?://\\w+")) %>% 
+    mutate(word = str_replace_na(word, " +")) %>% 
+    drop_na()
+}
+```
+
+
+Test:
+
+```{r}
+kl_prepped <- 
+  prepare_tweets(tweets_to_kl_raw)
+
+head(kl_prepped)
+```
+
+
+```{r}
+ms_prepped <-
+  prepare_tweets(tweets_to_ms_raw)
+
+head(ms_prepped)
+```
+
+
+Scheint zu passen.
+
+
+
+Die Sentimentanalyse packen wir auch in eine Funktion:
+
+
+```{r}
+get_tweets_sentiments <- function(tweets){
+  
+  tweets %>% 
+    inner_join(sentiws) %>% 
+    group_by(neg_pos) %>% 
+    summarise(senti_avg = mean(value, na.rm = TRUE),
+              senti_sd = sd(value, na.rm = TRUE),
+              senti_n = n()) 
+}
+```
+
+
+Test:
+
+```{r}
+kl_prepped %>% 
+  get_tweets_sentiments()
+```
+
+
+
+
+Test:
+
+```{r}
+tweets_to_kl_raw %>% 
+  prepare_tweets() %>% 
+  get_tweets_sentiments()
+```
+
+Scheint zu passen.
+
+
+Wir könnten noch die beiden Funktionen in eine wrappen:
+
+
+```{r}
+prep_sentiments <- function(tweets) {
+
+  tweets %>% 
+    prepare_tweets() %>% 
+    get_tweets_sentiments()
+}
+```
+
+
+```{r}
+tweets_to_kl_raw %>% 
+  prep_sentiments()
+```
+
+
+Okay, jetzt werden wir die Funktion auf jede Screenname bzw. die Tweets jedes Screennames an.
+
+
+
+```{r}
+tweets_list <-
+  list(
+    kl = tweets_to_kl_raw, 
+    ms = tweets_to_ms_raw)
+```
+
+
+```{r}
+sentis <-
+  tweets_list %>% 
+  map_df(prep_sentiments, .id = "id")
+```
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- twitter
+- programming
+
