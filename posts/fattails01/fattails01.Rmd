@@ -1,0 +1,173 @@
+---
+exname: fattails01
+extype: schoice
+exsolution: 1
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- simulation
+- normal-distribution
+date: '2022-11-04'
+slug: fattails01
+title: fattails01
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Exercise
+
+In seinem Buch ["Statistical Consequences of Fat Tails"](https://nassimtaleb.org/2020/01/final-version-fat-tails/) schreibt der Autor, Nassim Taleb (S. 53):
+
+
+>   In the summer of 1998, the hedge fund called "Long Term Capital Management" (LTCM) proved to have a very short life; it went bust from some deviations in the markets –those "of an unexpected nature". The loss was a yuuuge deal because two of the partners received the Swedish Riksbank Prize, marketed as the "Nobel" in economics. (...)  At least two of the partners made the statement that it was a "10 sigma" event (10 standard deviations), hence they should be absolved of all accusations of incompetence (I was ﬁrst hand witness of two such statements).
+
+Wir testen in diesem Zusammenhang zwei Hypothesen: $H_N$, dass der Finanzmarkt normalverteilt ist und $H_F$, dass die Variable *fat tailed* ist, also nicht normalverteilt, sondernn einer Verteilung entspringt, in der "Extremereignisse" üblicher sind als in einer Normalverteilung.
+
+
+Um die Fat-Tails-Verteilung mit $n=10$ zu simulieren, nutzen wir hier folgende Funktion:
+
+```{r}
+fat_tail_data <- rt(n = 100, df = 2)
+```
+
+Dabei bedeutet `df = 1`, dass die Verteilung sehr randlastig (fat tailed) sein soll (genauer gesagt eine t-Verteilung mit zwei Freiheitsgraden).
+Details dazu sollen uns hier nicht interessieren.
+
+Berechnen wir die Wahrscheinlichkeit, dass die Daten einer Normalverteilung entspringen (und nicht der Fat-Tail-Verteilung).
+
+
+Die Wahrscheinlichkeit eines 10-Sigma-Events ist übrigens ... klein. Taleb berichtet sie mit $1.31 \cdot 10^{-23}$:
+
+```{r}
+L_norm <- 1.31e-23
+```
+
+
+Für die t-Verteilung ist der entsprechende Wert:
+
+```{r}
+L_fat <- 1 - pt(q = 10, df = 2)
+```
+
+
+*Wie hoch ist die Post-Wahrscheinlichkeit, dass die Varialbe normalverteilt ist?*
+
+
+Answerlist
+==========
+* kleiner als 50%
+* kleiner als 5%
+* kleiner als 0.5%
+* kleiner als 0.05%
+* kleiner als 0.005%
+
+
+Hinweise:
+
+- Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
+- Apriori sollen uns beide Hypothesen gleich plausibel sein.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+library(tidyverse)
+```
+
+
+Erstellen wir erstmal den ersten Teil einer Bayes-Box:
+
+```{r}
+d <-
+  tibble(H = c("Normalverteilt", "Randlastig verteilt"),
+         Prior = c(1,1))
+
+d
+```
+
+Dann fügen wir den Likelihood jeder Hypothese dazu:
+
+```{r}
+d <-
+  d %>% 
+  mutate(L = c(L_norm, L_fat))
+
+d
+```
+
+
+Dann berechnen wir die Post-Wahrscheinlichkeit:
+
+```{r}
+d <-
+  d %>% 
+  mutate(Post_unstand = Prior * L,
+         Post = Post_unstand / sum(Post_unstand))
+d
+```
+
+
+Die Wahrscheinlichkeit, dass die Variable normalverteilt ist, ist seeeeer klein, ca. $10^{-21}$.
+
+
+Answerlist
+==========
+* FALSE
+* FALSE
+* FALSE
+* FALSE
+* TRUE
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- simulation
+- normal-distribution
+
