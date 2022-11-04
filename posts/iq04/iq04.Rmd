@@ -1,0 +1,128 @@
+---
+exname: iq04
+extype: num
+exsolution: r solution
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- simulation
+- normal-distribution
+date: '2022-11-04'
+slug: iq04
+title: iq04
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Exercise
+
+Intelligenz wird häufig mittels einem *IQ-Test* ermittelt.
+
+Wie intelligent muss man sein, um zu den schlauesten 2% zu gehören?
+
+
+
+Hinweise:
+
+- Nutzen Sie Simulationsmethoden.
+- Gehen Sie von folgender IQ-Verteilung aus: $IQ \sim N(100,15)$
+- Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
+- Simulieren Sie $n=10^3$ Stichproben.
+- Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+library(tidyverse)
+```
+
+Wir simulieren die Daten:
+
+```{r}
+set.seed(42)
+d <- tibble(
+  id = 1:10^3,
+  iq = rnorm(n = 10^3, mean = 100, sd= 15))
+```
+
+
+Wir filtern die schlauesten 2 Prozent:
+
+
+```{r}
+solution_d <- 
+  d %>% 
+  arrange(iq) %>% 
+  slice_tail(prop = 0.02) %>% 
+  summarise(min(iq))
+
+solution_d
+```
+
+
+Alternativ könnte man schreiben:
+
+```{r}
+solution <- 
+  d %>% 
+  summarise(iq_top_2komma3_prozent = quantile(iq, prob = .98))
+
+solution
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- simulation
+- normal-distribution
+
