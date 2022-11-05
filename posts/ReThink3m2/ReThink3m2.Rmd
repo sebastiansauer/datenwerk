@@ -1,0 +1,143 @@
+---
+extype: string
+exsolution: NA
+exname: rethink-3m2
+expoints: 1
+categories:
+- bayes
+- post
+- probability
+date: '2022-11-05'
+slug: ReThink3m2
+title: ReThink3m2
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "50%",
+                      cache = FALSE)
+
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+
+
+
+Nehmen wir an, wir haben 8 (Wasser-)"Treffer" ($W=8$) bei 15 Würfen ($N=15$) erhalten (wieder im Globusversuch).
+
+a) Ziehen Sie $10^4$ Stichproben aus der Posteriori-Verteilung basierend auf der Gittermethode. Gehen Sie von einer gleichverteilung Priori-Wahrscheinlichkeit aus.
+
+b) Visualisieren Sie die Verteilung der Stichproben.
+
+b) Berechnen Sie ds 90%-HDI.
+
+
+Hinweise:
+
+- Berechnen Sie eine Bayes-Box (Gittermethode).
+- Verwenden Sie 1000 Gitterwerte.
+- Fixieren Sie die Zufallszahlen mit dem Startwert 42, d.h. `set.seed(42)`.
+- Gehen Sie von einem gleichverteilten Prior aus.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+```{r}
+library(tidyverse)
+```
+
+
+a) 
+
+
+Post-Verteilung berechnen:
+
+```{r}
+p_grid <- seq(from = 0, to = 1, length.out = 1000)
+prior <- rep(1, 1000)
+likelihood <- dbinom(8, size = 15, prob = p_grid)
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)
+```
+
+Stichproben-Postverteilung erstellen:
+
+```{r}
+samples <- 
+  tibble(anteil_wasser = sample(p_grid, prob = posterior, size = 1e4, replace = TRUE))
+
+head(samples)
+```
+
+
+b)
+
+```{r samples-p}
+samples %>% 
+  ggplot() +
+  aes(x = anteil_wasser) +
+  geom_histogram() + 
+  labs(title = "Stichproben aus der Posteriori-Verteilung")
+```
+
+
+c)
+
+
+```{r}
+library(easystats)
+hdi(samples, prob = 0.9)
+```
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- post
+- probability
+

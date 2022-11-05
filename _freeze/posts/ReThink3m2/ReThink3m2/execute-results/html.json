@@ -1,0 +1,14 @@
+{
+  "hash": "b74854aea1886266949e10bad9c83421",
+  "result": {
+    "markdown": "---\nextype: string\nexsolution: NA\nexname: rethink-3m2\nexpoints: 1\ncategories:\n- bayes\n- post\n- probability\ndate: '2022-11-05'\nslug: ReThink3m2\ntitle: ReThink3m2\n\n---\n\n\n\n\n\n\n\n\n\n\n\n\n\n# Exercise\n\n\n\n\nNehmen wir an, wir haben 8 (Wasser-)\"Treffer\" ($W=8$) bei 15 Würfen ($N=15$) erhalten (wieder im Globusversuch).\n\na) Ziehen Sie $10^4$ Stichproben aus der Posteriori-Verteilung basierend auf der Gittermethode. Gehen Sie von einer gleichverteilung Priori-Wahrscheinlichkeit aus.\n\nb) Visualisieren Sie die Verteilung der Stichproben.\n\nb) Berechnen Sie ds 90%-HDI.\n\n\nHinweise:\n\n- Berechnen Sie eine Bayes-Box (Gittermethode).\n- Verwenden Sie 1000 Gitterwerte.\n- Fixieren Sie die Zufallszahlen mit dem Startwert 42, d.h. `set.seed(42)`.\n- Gehen Sie von einem gleichverteilten Prior aus.\n\n\n\n\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n\n# Solution\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tidyverse)\n```\n:::\n\n\n\na) \n\n\nPost-Verteilung berechnen:\n\n\n::: {.cell}\n\n```{.r .cell-code}\np_grid <- seq(from = 0, to = 1, length.out = 1000)\nprior <- rep(1, 1000)\nlikelihood <- dbinom(8, size = 15, prob = p_grid)\nposterior <- likelihood * prior\nposterior <- posterior / sum(posterior)\n```\n:::\n\n\nStichproben-Postverteilung erstellen:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nsamples <- \n  tibble(anteil_wasser = sample(p_grid, prob = posterior, size = 1e4, replace = TRUE))\n\nhead(samples)\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n# A tibble: 6 × 1\n  anteil_wasser\n          <dbl>\n1         0.357\n2         0.413\n3         0.559\n4         0.667\n5         0.419\n6         0.268\n```\n:::\n:::\n\n\n\nb)\n\n\n::: {.cell}\n\n```{.r .cell-code}\nsamples %>% \n  ggplot() +\n  aes(x = anteil_wasser) +\n  geom_histogram() + \n  labs(title = \"Stichproben aus der Posteriori-Verteilung\")\n```\n\n::: {.cell-output-display}\n![](samples-p-1.png){fig-pos='H' width=50%}\n:::\n:::\n\n\n\nc)\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(easystats)\nhdi(samples, prob = 0.9)\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nHighest Density Interval\n\nParameter     |      95% HDI\n----------------------------\nanteil_wasser | [0.31, 0.76]\n```\n:::\n:::\n\n\n\n\n\n\n\n\n\n\n---\n\nCategories: \n\n- bayes\n- post\n- probability\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

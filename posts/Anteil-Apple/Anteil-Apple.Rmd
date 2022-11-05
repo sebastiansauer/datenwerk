@@ -1,0 +1,111 @@
+---
+extype: string
+exsolution: NA
+exname: Apple
+expoints: 1
+categories:
+- bayes
+- bayes-box
+date: '2022-11-05'
+slug: Anteil-Apple
+title: Anteil-Apple
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold",
+                     # out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+Zählen Sie, wie viele der Studentis im Raum mindestens ein Apple-Gerät besitzen (iPhone, Macbook,...).
+
+Berechnen Sie die Posteriori-Verteilung mit der Grid-Methode!
+
+Hinweise: 
+
+- Erstellen Sie eine Bayes-Box (Gittermethode).
+- Falls Sie keine Erhebung durchführen können oder wollen, erfinden Sie Zahlen.
+- Visualisieren Sie die Post-Verteilung
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Wir berechnen die Posteriori-Verteilung:
+
+```{r}
+library(tidyverse)
+d <-
+  tibble(
+    p_grid = seq(0,1, by = .01),
+    prior= 1,
+    Likelihood = dbinom(x = 9,
+                        size = 12,
+                        prob = p_grid),
+    post_unstand = prior * Likelihood,
+    post_stand = post_unstand / sum(post_unstand)
+  )
+
+head(d)
+```
+
+
+Visualisieren der Posteriori-Verteilung:
+
+```{r}
+d %>% 
+  ggplot(aes(x = p_grid, y = post_stand)) +
+  geom_point() +
+  geom_line()
+```
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- bayes-box
+

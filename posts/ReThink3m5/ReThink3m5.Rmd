@@ -1,0 +1,173 @@
+---
+extype: string
+exsolution: NA
+exname: rethink-3m5
+expoints: 1
+categories:
+- bayes
+- ppv
+- probability
+date: '2022-11-05'
+slug: ReThink3m5
+title: ReThink3m5
+
+---
+
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "50%",
+                      cache = FALSE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+
+
+
+
+Nehmen wir an, wir haben 8 (Wasser-)"Treffer" ($W=8$) bei 15 Würfen ($N=15$) erhalten (wieder im Globusversuch).
+
+
+Nehmen Sie dieses Mal *keine* gleichverteilte Priori-Verteilung an. Stattdessen verwenden Sie einen Priori-Wert von Null solange $p < 0.5$ und einen konstanten Wert für $p \ge 0.5$. Diese Priori-Verteilung kodiert die Information, dass mindestens die Hälfte der Erdoberfläche mit Sicherheit aus Wasser besteht. 
+
+Für alle folgenden Berechnungen, vergleichen Sie Ihre Ergebnisse zu der analogen Analyse mit einem konstanten (gleichverteilten) Priori-Wert!
+
+a) Berechnen Sie die Posteriori-Verteilung und visualisieren Sie sie. Nutzen Sie die Gittermethode.
+
+b) Ziehen Sie $10^4$ Stichproben aus der Posteriori-Verteilung, die Sie mit der Gittermethode erhalten haben. Berechnen Sie auf dieser Grundlage das 90%-HDI.
+
+c) Berechnen Sie die PPV für dieses Modell. Was ist die Wahrscheinlichkeit 8 von 15 Treffer zu erzielen laut dieser PPV?
+
+d) Auf Basis der aktuellen Posteriori-Wahrscheinlichkeit: Was ist die Wahrscheinlichkeit für 6 Wasser bei 9 Würfen?
+
+
+Hinweise:
+
+- Berechnen Sie eine Bayes-Box (Gittermethode).
+- Verwenden Sie 1000 Gitterwerte.
+- Fixieren Sie die Zufallszahlen mit dem Startwert 42, d.h. `set.seed(42)`.
+- Gehen Sie von einem gleichverteilten Prior aus.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+a) Berechnen Sie die Posteriori-Verteilung und visualisieren Sie sie. Nutzen Sie die Gittermethode.
+
+```{r}
+set.seed(42)
+p_grid <- seq(from = 0, to = 1, length.out = 1000)
+prior <- case_when(
+  p_grid <  0.5 ~ 0,
+  p_grid >= 0.5 ~ 1)
+likelihood <- dbinom(8, size = 15, prob = p_grid)
+unstand_posterior <- likelihood * prior
+posterior <- unstand_posterior / sum(unstand_posterior)
+```
+
+
+
+```{r post-vert-p}
+tibble(p = p_grid, 
+       posterior = posterior) %>%
+  ggplot(aes(x = p, y = posterior)) +
+ # geom_point() +
+  geom_line() +
+  labs(x = "Proportion Water (p)", y = "Posterior Density")
+```
+
+b) Ziehen Sie $10^4$ Stichproben aus der Posteriori-Verteilung, die Sie mit der Gittermethode erhalten haben. Berechnen Sie auf dieser Grundlage das 90%-HDI.
+
+
+```{r}
+library(easystats)
+# Stichproben (samples) aus der Posteriori-Verteilung:
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+hdi(samples, prob = 0.9)
+```
+
+
+c) Berechnen Sie die PPV für dieses Modell. Was ist die Wahrscheinlichkeit 8 von 15 Treffer zu erzielen laut dieser PPV?
+
+
+```{r}
+PPV <-
+  tibble(w = rbinom(1e4, size = 15, prob = samples))  # w wie Wasser
+
+PPV %>% 
+  count(w == 8) %>% 
+  mutate(prop = n/sum(n))
+```
+
+
+
+d) Auf Basis der aktuellen Posteriori-Wahrscheinlichkeit: Was ist die Wahrscheinlichkeit für 6 Wasser bei 9 Würfen?
+
+
+
+```{r}
+PPV <-
+  PPV %>% 
+  mutate(w2 = rbinom(1e4, size = 9, prob = samples))
+
+PPV %>% 
+  count(w2 == 6) %>% 
+  mutate(prop = n/sum(n))
+```
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- ppv
+- probability
+
