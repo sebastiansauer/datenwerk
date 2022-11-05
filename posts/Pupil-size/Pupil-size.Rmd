@@ -1,0 +1,239 @@
+---
+extype: string
+exsolution: NA
+exname: pupilsize
+expoints: 1
+categories:
+- probability
+- bayes
+- regression
+date: '2022-11-05'
+slug: Pupil-size
+title: Pupil-size
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Pupillendaten sind ein verbreiteter Analysegegenstand in Bereichen wie Psychologie, Marktforschung und Marketing.
+
+Betrachten wir dazu ein R-Paket (zum Vorverbarbeitung, preprocessing) 
+und einen Datensatz der [Uni Münster](http://cran.uni-muenster.de/web/packages/PupilPre/vignettes/PupilPre_Basic_Preprocessing.html).
+
+
+
+```{r}
+library(PupilPre)
+data("Pupildat")
+d <-
+  Pupildat %>% 
+  select(size = RIGHT_PUPIL_SIZE,
+         time = TIMESTAMP) %>% 
+  mutate(size = size / 100) # in millimeter
+```
+
+Mit dem R-Paket `easystats` kann man sich bequem typische Statistiken ausgeben lassen. Aber natürlich können Sie auch mit `summarise(mw = mean(size))` arbeiten.
+
+```{r}
+library(easystats)
+d %>% 
+  describe_distribution()
+```
+
+
+Wir verzichten hier auf eine Aufbereitung der Daten (was eigentlich nötig wäre, aber nicht Gegenstand dieser Übung ist). 
+Stattdessen konzentrieren wir uns auf die Posteriori-Verteilung zur Pupillengröße.
+
+Wir sind also interessiert an einem Modell zur Schätzung der (Verteilung der) Pupillengröße; 
+die Posteriori-Verteilung bildet das ab.
+
+
+a) Formulieren Sie ein passendes Modell.
+
+b) Verteidigen Sie Ihre Modellspezifikation.
+
+c) Simulieren Sie Daten aus der Priori-Verteilung. 
+Kritisieren Sie die Wahl der Priori-Werte.
+
+d) Berechnen Sie die Posteriori-Verteilung mit den Pupillendaten `d`. 
+Geben Sie zentrale Statistiken an.
+
+e) Geben Sie ein 95%-Intervall für die mittlere Pupillengröße an auf Basis der Posteriori-Verteilung.
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+a) Modelldefinition
+
+$$\begin{aligned}
+s_i &\sim \mathcal{N}(\mu, \sigma)\qquad \text{| s wie size }\\
+\mu &\sim \mathcal{N}(10, 5)\\
+\sigma &\sim \mathcal{U}(0, 20)
+\end{aligned}$$
+
+b) Begründung der Modellspezifikation
+
+$s_i$: Pupillengrößen sind normalverteilt, da viele Gene additiv auf die Größe hin zusammenwirken
+
+$\mu$: Da wir nicht viel wissen über die mittlere Pupillengröße, 
+entscheiden wir uns für Normalverteilung für diesen Parameter, 
+da dies keine weiteren Annahmen (außer dass Mittelwert und Streuung endlich sind) hinzufügt. 
+Ein Modell mit wenig Annahmen nennt man "sparsam" oder konservativ. 
+Es ist wünschenswert, dass Modelle mit so wenig wie möglich Annahmen auskommt (aber so vielen wie nötig).
+
+$\sigma$: Die Streuung muss positiv sein, 
+daher kommt keine Normalverteilung in Frage. Da wir (noch) keine passenden Verteilungen kennen außer der Gleichverteilung, 
+entscheiden wir uns für eine vage Gleichverteilung. 
+Die große Stichprobe wird den Priori-Wert vermutlich überstimmen.
+
+
+c) Priori-Prädiktiv-Verteilung
+
+
+```{r}
+n <- 1e4
+sim_prior_pred <-
+  tibble(
+    mu = rnorm(n, mean = 10, sd = 5),
+    sigma = runif(n, min = 0, max = 20),
+    size = rnorm(n, mu, sigma)
+  )
+
+sim_prior_pred %>% 
+  ggplot(aes(x = size)) +
+  geom_density()
+```
+
+Da es viele negative Pupillengröße-Werte gibt, 
+sieht man deutlich, dass das Modell nicht gut spezifiziert ist. 
+So könnte kleinere Streuungswerte zu einem realistischeren Modell führen. 
+Oder man verwendet Verteilungen, die rein positiv sind (hier nicht weiter ausgeführt).
+
+
+d) Berechnen Sie die Posteriori-Verteilung.
+
+Die Modelle wie `stan_glm()` tun sich leichter, 
+wenn man nur die relevanten Daten, ohne fehlende Werte und schon schön fertig vorverarbeitet, 
+zur Analyse in die Modellberechnung gibt:
+
+```{r}
+d3 <-
+  d %>% 
+  select(size) %>% 
+  drop_na()
+```
+
+Die Posteriori-Verteilung kann man mit dem Paket `{rstanarm}` d.h. mit der Funktion `stan_glm()` berechnen:
+
+```{r}
+library(rstanarm)
+m_pupil <- stan_glm(size ~ 1,
+                    data = d3,
+                    refresh = 0)
+```
+
+Die Daten sind groß, es kann ein paar Sekunden brauchen...
+
+
+Hier ist eine nützliche Zusammenfassung der Post-Verteilung.
+
+```{r}
+parameters(m_pupil)
+```
+
+
+Hier eine Visualisierung der Parameter:
+
+```{r}
+plot(parameters(m_pupil), show_intercept = TRUE)
+```
+
+
+Natürlich kann man auch die Post-Verteilung plotten:
+
+```{r}
+m_hdi <- hdi(m_pupil, ci = c(0.5, 0.95))
+
+plot(m_hdi, show_intercept = TRUE)
+```
+
+
+
+
+Hier zur Info die ersten paar Zeilen des Post-Verteilung:
+
+```{r echo = FALSE}
+as_tibble(m_pupil) %>% 
+  slice_head(n = 5) %>% 
+  gt() %>% 
+  fmt_number(everything())
+```
+
+
+e) Geben Sie ein 95%-Intervall für die mittlere Pupillengröße an auf Basis der Posteriori-Verteilung.
+
+```{r}
+eti(m_pupil)
+```
+
+
+Und dann erstellen wir ein 89%-PI:
+
+```{r}
+eti(m_pupil, ci = .89)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- regression
+
