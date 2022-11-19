@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-10-28">
+<meta name="dcterms.date" content="2022-11-19">
 
-<title>datenwerk - twitter05</title>
+<title>datenwerk - twitter07</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -162,10 +162,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">twitter05</h1>
+      <h1 class="title">twitter07</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">textmining</div>
                 <div class="quarto-category">twitter</div>
+                <div class="quarto-category">programming</div>
               </div>
                   </div>
   </div>
@@ -177,7 +178,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 28, 2022</p>
+        <p class="date">November 19, 2022</p>
       </div>
     </div>
       
@@ -196,16 +197,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <section id="exercise" class="level1">
 <h1>Exercise</h1>
-<p>Laden Sie <span class="math inline">\(n=10^k\)</span> Tweets von Twitter herunter (mit <span class="math inline">\(k=2\)</span>) via der Twitter API; Suchterm soll sein “<span class="citation" data-cites="karl_lauterbach">@karl_lauterbach</span>”. Bereiten Sie die Textdaten mit grundlegenden Methoden des Textminings auf (Tokenisieren, Stopwörter entfernen, Zahlen entfernen, …).</p>
-<p>Nutzen Sie die Daten, um eine Sentimentanalyse zu erstellen.</p>
+<p>Laden Sie <span class="math inline">\(n=10^k\)</span> Tweets von Twitter herunter (mit <span class="math inline">\(k=2\)</span>) und zwar pro Nutzerkonto wie unten angegeben . die Tweets sollen jeweils an eine prominente Person gerichtet sein.</p>
+<p>Beziehen Sie sich auf <a href="https://github.com/sebastiansauer/datascience-text/blob/main/data/twitter-german-politicians.csv">diese Politikis</a>.</p>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
-<p>Nutzen Sie die Daten der letzten Aufgabe, um eine Sentimentanalyse zu erstellen.</p>
-<p>Zuerst muss man sich anmelden und die Tweets herunterladen; dieser Teil ist hier nicht aufgeführt (s. andere Aufgaben).</p>
+<p>Wir starten die benötigten R-Pakete:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rtweet)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(academictwitteR)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
@@ -214,78 +215,75 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
 ✔ readr   2.1.3      ✔ forcats 0.5.2 
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter()  masks stats::filter()
-✖ purrr::flatten() masks rtweet::flatten()
-✖ dplyr::lag()     masks stats::lag()</code></pre>
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lsa)  <span class="co"># Stopwörter</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: SnowballC</code></pre>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(askpass)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SnowballC)  <span class="co"># Stemming</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>Hier ist der Datensatz mit den Twitterkonten, für die wir die Daten herunterladen sollen:</p>
 <div class="cell">
-
-</div>
-<p>Beachten Sie, dass die Spalten je nach Funktion, die Sie zum Herunterladen der Tweets verwenden, unterschiedlich heißen können.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>karl2 <span class="ot">&lt;-</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  karl1 <span class="sc">%&gt;%</span> </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"text"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>karl3 <span class="ot">&lt;-</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  karl2 <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(<span class="at">output =</span> word, <span class="at">input =</span> text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>karl4 <span class="ot">&lt;-</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>karl3 <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(<span class="fu">tibble</span>(<span class="at">word =</span> lsa<span class="sc">::</span>stopwords_de)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Joining, by = "word"</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>karl5 <span class="ot">&lt;-</span> </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  karl4 <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">str_replace_na</span>(word, <span class="st">"^[:digit:]+$"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">str_replace_na</span>(word, <span class="st">"hptts?://</span><span class="sc">\\</span><span class="st">w+"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">str_replace_na</span>(word, <span class="st">" +"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(sentiws, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>karl7 <span class="ot">&lt;-</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  karl5 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(sentiws)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Joining, by = "word"</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>karl7 <span class="sc">%&gt;%</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(neg_pos) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">senti_avg =</span> <span class="fu">mean</span>(value, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">senti_sd =</span> <span class="fu">sd</span>(value, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">senti_n =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>politicians_path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/sebastiansauer/datascience-text/main/data/twitter-german-politicians.csv"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>politicians <span class="ot">&lt;-</span> <span class="fu">import</span>(politicians_path)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>politicians</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 4
-  neg_pos senti_avg senti_sd senti_n
-  &lt;chr&gt;       &lt;dbl&gt;    &lt;dbl&gt;   &lt;int&gt;
-1 neg        -0.347    0.186       2
-2 pos         0.167    0.283       3</code></pre>
+<pre><code>                                               name  party      screenname
+1                                   Karl Lauterbach    SPD Karl_Lauterbach
+2                                       Olaf Scholz    SPD      OlafScholz
+3                                 Annalena Baerback Gruene       ABaerbock
+4  Bundesministerium für Wirtschaft und Klimaschutz Gruene            BMWK
+5                                    Friedrich Merz    CDU  _FriedrichMerz
+6                                      Markus Söder    CSU   Markus_Soeder
+7                                       Cem Özdemir Gruene    cem_oezdemir
+8                                    Janine Wissler  Linke  Janine_Wissler
+9                                 Martin Schirdewan  Linke      schirdewan
+10                                Christian Lindner    FDP       c_lindner
+11                    Marie-Agnes Strack-Zimmermann    FDP      MAStrackZi
+12                                   Tino Chrupalla    AFD  Tino_Chrupalla
+13                                     Alice Weidel    AFD    Alice_Weidel
+                                  comment
+1                                    &lt;NA&gt;
+2                                    &lt;NA&gt;
+3                                    &lt;NA&gt;
+4  Robert Habeck ist der Minister im BMWK
+5                                CDU-Chef
+6                                CSU-Chef
+7                                    BMEL
+8                            Linke-Chefin
+9                              Linke-Chef
+10                               FDP-Chef
+11     Vorsitzende Verteidigungsausschuss
+12                     AFD-Bundessprecher
+13                   AFD-Bundessprecherin</code></pre>
 </div>
 </div>
-<p>Achtung, Sentimentanalyse sollte <em>vor</em> dem Stemming kommen.</p>
+<p>Wir müssen noch das Passwort bereitstellen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bearer_token <span class="ot">&lt;-</span> askpass<span class="sc">::</span><span class="fu">askpass</span>(<span class="st">"bearer token"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Und dann definieren wir eine Funktion, die das Gewichtheben für uns erledigt:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>get_all_tweets_politicians <span class="ot">&lt;-</span> <span class="cf">function</span>(screenname, <span class="at">n =</span> <span class="fl">1e1</span>) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_all_tweets</span>(<span class="at">query =</span> <span class="fu">paste0</span>(<span class="st">"to:"</span>, screenname, <span class="st">" -is:retweet"</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">start_tweets =</span> <span class="st">"2021-01-01T00:00:00Z"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">end_tweets =</span> <span class="st">"2021-12-31T23:59:59Z"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">bearer_token =</span> bearer_token,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">file =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"~/datasets/Twitter/hate-speech/tweets_to_{screenname}_2021.rds"</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data_path =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"~/datasets/Twitter/hate-speech/{screenname}"</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">n =</span> n)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Jetzt wenden wir die Funktion auf jedes Twitterkonto unserer Liste (alle Politikis) an:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> politicians<span class="sc">$</span>screenname <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(get_all_tweets_politicians)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <hr>
 <p>Categories:</p>
 <ul>
 <li>textmining</li>
 <li>twitter</li>
+<li>programming</li>
 </ul>
 
 

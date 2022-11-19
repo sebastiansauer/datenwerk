@@ -1,0 +1,131 @@
+---
+extype: string
+exsolution: NA
+exname: twitter07
+expoints: 1
+categories:
+- textmining
+- twitter
+- programming
+date: '2022-11-19'
+slug: twitter07
+title: twitter07
+
+---
+
+
+
+
+
+
+
+
+
+# Exercise
+
+
+Laden Sie $n=10^k$ Tweets von Twitter herunter (mit $k=2$) und zwar pro Nutzerkonto wie unten angegeben .
+die Tweets sollen jeweils an eine prominente Person gerichtet sein.
+
+Beziehen Sie sich auf [diese Politikis](https://github.com/sebastiansauer/datascience-text/blob/main/data/twitter-german-politicians.csv).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Wir starten die benötigten R-Pakete:
+
+```{r}
+library(academictwitteR)
+library(tidyverse)
+library(askpass)
+library(rio)
+```
+
+
+Hier ist der Datensatz mit den Twitterkonten,
+für die wir die Daten herunterladen sollen:
+
+```{r}
+politicians_path <- "https://raw.githubusercontent.com/sebastiansauer/datascience-text/main/data/twitter-german-politicians.csv"
+politicians <- import(politicians_path)
+politicians
+```
+
+
+
+Wir müssen noch das Passwort bereitstellen:
+
+```{r}
+#| eval: false
+bearer_token <- askpass::askpass("bearer token")
+```
+
+
+
+Und dann definieren wir eine Funktion, 
+die das Gewichtheben für uns erledigt:
+
+```{r}
+get_all_tweets_politicians <- function(screenname, n = 1e1) {
+  get_all_tweets(query = paste0("to:", screenname, " -is:retweet"),
+                 start_tweets = "2021-01-01T00:00:00Z",
+                 end_tweets = "2021-12-31T23:59:59Z",
+                 bearer_token = bearer_token,
+                 file = glue::glue("~/datasets/Twitter/hate-speech/tweets_to_{screenname}_2021.rds"),
+                 data_path = glue::glue("~/datasets/Twitter/hate-speech/{screenname}"),
+                 n = n)
+}
+```
+
+
+Jetzt wenden wir die Funktion auf jedes Twitterkonto unserer Liste (alle Politikis) an:
+
+```{r}
+#| eval: false
+d <- politicians$screenname %>% 
+  map(get_all_tweets_politicians)
+```
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- twitter
+- programming
+
