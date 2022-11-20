@@ -25,7 +25,7 @@
     "href": "posts/Anteil-Apple/Anteil-Apple.html",
     "title": "Anteil-Apple",
     "section": "",
-    "text": "Solution\nWir berechnen die Posteriori-Verteilung:\n\nlibrary(tidyverse)\nd <-\n  tibble(\n    p_grid = seq(0,1, by = .01),\n    prior= 1,\n    Likelihood = dbinom(x = 9,\n                        size = 12,\n                        prob = p_grid),\n    post_unstand = prior * Likelihood,\n    post_stand = post_unstand / sum(post_unstand)\n  )\n\nhead(d)\n\n# A tibble: 6 × 5\n  p_grid prior Likelihood post_unstand post_stand\n   <dbl> <dbl>      <dbl>        <dbl>      <dbl>\n1   0        1   0            0          0       \n2   0.01     1   2.13e-16     2.13e-16   2.78e-17\n3   0.02     1   1.06e-13     1.06e-13   1.38e-14\n4   0.03     1   3.95e-12     3.95e-12   5.14e-13\n5   0.04     1   5.10e-11     5.10e-11   6.63e-12\n6   0.05     1   3.68e-10     3.68e-10   4.79e-11\n\n\nVisualisieren der Posteriori-Verteilung:\n\nd %>% \n  ggplot(aes(x = p_grid, y = post_stand)) +\n  geom_point() +\n  geom_line()\n\n\n\n\n\n\n\n\n\nCategories:\n\nbayes\nbayes-box"
+    "text": "Solution\nWir berechnen die Posteriori-Verteilung:\n\nlibrary(tidyverse)\nd <-\n  tibble(\n    p_grid = seq(0,1, by = .01),\n    prior= 1,\n    Likelihood = dbinom(x = 9,\n                        size = 12,\n                        prob = p_grid),\n    post_unstand = prior * Likelihood,\n    post_stand = post_unstand / sum(post_unstand)\n  )\n\nhead(d)\n\n# A tibble: 6 × 5\n  p_grid prior Likelihood post_unstand post_stand\n   <dbl> <dbl>      <dbl>        <dbl>      <dbl>\n1   0        1   0            0          0       \n2   0.01     1   2.13e-16     2.13e-16   2.78e-17\n3   0.02     1   1.06e-13     1.06e-13   1.38e-14\n4   0.03     1   3.95e-12     3.95e-12   5.14e-13\n5   0.04     1   5.10e-11     5.10e-11   6.63e-12\n6   0.05     1   3.68e-10     3.68e-10   4.79e-11\n\n\nVisualisieren der Posteriori-Verteilung:\n\nd %>% \n  ggplot(aes(x = p_grid, y = post_stand)) +\n  geom_point() +\n  geom_line()\n\n\n\n\n\n\n\n\n\nCategories:\n\nbayes\nbayes-grid"
   },
   {
     "objectID": "posts/IQ-Studentis/IQ-Studentis.html",
@@ -42,6 +42,34 @@
     "text": "Answerlist\n\nkleiner als 50%\nkleiner als 5%\nkleiner als 0.5%\nkleiner als 0.05%\nkleiner als 0.005%\n\n         \n\n\nSolution\n\nlibrary(tidyverse)\n\nErstellen wir erstmal den ersten Teil einer Bayes-Box:\n\nd <-\n  tibble(H = c(\"Normalverteilt\", \"Randlastig verteilt\"),\n         Prior = c(1e3,1))\n\nd\n\n# A tibble: 2 × 2\n  H                   Prior\n  <chr>               <dbl>\n1 Normalverteilt       1000\n2 Randlastig verteilt     1\n\n\nDann fügen wir den Likelihood jeder Hypothese dazu:\n\nd <-\n  d %>% \n  mutate(L = c(L_norm, L_fat))\n\nd\n\n# A tibble: 2 × 3\n  H                   Prior        L\n  <chr>               <dbl>    <dbl>\n1 Normalverteilt       1000 1.31e-23\n2 Randlastig verteilt     1 4.93e- 3\n\n\nDann berechnen wir die Post-Wahrscheinlichkeit:\n\nd <-\n  d %>% \n  mutate(Post_unstand = Prior * L,\n         Post = Post_unstand / sum(Post_unstand))\nd\n\n# A tibble: 2 × 5\n  H                   Prior        L Post_unstand     Post\n  <chr>               <dbl>    <dbl>        <dbl>    <dbl>\n1 Normalverteilt       1000 1.31e-23     1.31e-20 2.66e-18\n2 Randlastig verteilt     1 4.93e- 3     4.93e- 3 1   e+ 0\n\n\nDie Wahrscheinlichkeit, dass die Variable normalverteilt ist, ist seeeeehr klein, ca. \\(10^{-18}\\).\n\n\nAnswerlist\n\nFALSE\nFALSE\nFALSE\nFALSE\nTRUE\n\n\nCategories:\n\nprobability\nsimulation\nnormal-distribution"
   },
   {
+    "objectID": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html",
+    "href": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html",
+    "title": "Verteilungen-Quiz-05",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nIst eine stetige Verteilung symmetrisch, gilt dann\n\\(Pr(X \\ge \\bar{x} + 1) = Pr(X \\le \\bar{x} - 1)\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html#answerlist-1",
+    "title": "Verteilungen-Quiz-05",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html",
+    "href": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html",
+    "title": "Verteilungen-Quiz-02",
+    "section": "",
+    "text": "Beziehen Sie sich auf den Standard-Globusversuch mit \\(N=9\\) Würfen und \\(W=6\\) Wassertreffern (binomialverteilt), vgl. hier.\nDie Stichproben-Postverteilung sieht so aus:\n\n\n\n\n\n\n\n\n\nIst es (auf dieser Basis) plausibler von einem 50%-PI [.6,.8] auszugehen als von einem 50%-PI [.05,.95]?\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html#answerlist-1",
+    "title": "Verteilungen-Quiz-02",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
     "objectID": "posts/korr-als-regr/korr-als-regr.html",
     "href": "posts/korr-als-regr/korr-als-regr.html",
     "title": "korr-als-regr",
@@ -53,7 +81,7 @@
     "href": "posts/Inferenz-fuer-alle/Inferenz-fuer-alle.html",
     "title": "Inferenz-fuer-alle",
     "section": "",
-    "text": "Solution\n\nFür (grundsätzlich) alle: Für jede Statistik kann man prinzipiell von der jeweiligen Stichprobe (auf Basis derer die Statistik berechnet wurde) auf eine zugehörige Grundgesamtheit schließen.\nFür (grundsätzlich) alle: Die Methoden der Inferenzstatistik sind prinzipiell unabhängig von den Spezifika bestimmter Forschungsfragen oder -bereiche. In den meisten Forschungsfragen ist man daran interessiert allgemeingültige Aussagen zu treffen. Da Statistiken sich nur auf eine Stichprobe - also einen zumeist nur kleinen Teil einer Grundgesamtheit beziehen - wird man sich kaum mit einer Statistik zufrieden geben, sondern nach Inferenzstatistik verlangen.\nIn einigen Ausnahmefällen wird man auf eine Inferenzstatistik verzichten. Etwa wenn man bereits eine Vollerhebung durchgeführt hat, z.B. alle Mitarbeitis eines Unternehmens befragt hat, dann kennt man ja bereits den wahren Populationswert. Ein anderer Fall ist, wenn man nicht an Verallgemeinerungen interessiert ist: Kennt man etwa die Überlebenschance \\(p\\) des Titanic-Unglücks, so ist es fraglich auf welche Grundgesamtheit man die Statistik \\(p\\) bzw. zu welchem Paramter \\(\\pi\\) (kleines Pi) man generalisieren möchte.\n\n\nCategories:\n\nqm2\ninference\nuncertainty"
+    "text": "Solution\n\nFür (grundsätzlich) alle: Für jede Statistik kann man prinzipiell von der jeweiligen Stichprobe (auf Basis derer die Statistik berechnet wurde) auf eine zugehörige Grundgesamtheit schließen.\nFür (grundsätzlich) alle: Die Methoden der Inferenzstatistik sind prinzipiell unabhängig von den Spezifika bestimmter Forschungsfragen oder -bereiche. In den meisten Forschungsfragen ist man daran interessiert allgemeingültige Aussagen zu treffen. Da Statistiken sich nur auf eine Stichprobe - also einen zumeist nur kleinen Teil einer Grundgesamtheit beziehen - wird man sich kaum mit einer Statistik zufrieden geben, sondern nach Inferenzstatistik verlangen.\nIn einigen Ausnahmefällen wird man auf eine Inferenzstatistik verzichten. Etwa wenn man bereits eine Vollerhebung durchgeführt hat, z.B. alle Mitarbeitis eines Unternehmens befragt hat, dann kennt man ja bereits den wahren Populationswert. Ein anderer Fall ist, wenn man nicht an Verallgemeinerungen interessiert ist: Kennt man etwa die Überlebenschance \\(p\\) des Titanic-Unglücks, so ist es fraglich auf welche Grundgesamtheit man die Statistik \\(p\\) bzw. zu welchem Paramter \\(\\pi\\) (kleines Pi) man generalisieren möchte.\n\n\nCategories:\n\nqm2\ninference"
   },
   {
     "objectID": "posts/iq03/iq03.html",
@@ -82,6 +110,34 @@
     "title": "wuerfel01",
     "section": "",
     "text": "Solution\nErstellen wir uns eine Tabelle, die alle Permutationen der beiden Würfelergebnisse fasst, das sind 36 Paare: (1,1), (1,2), …, (1,6), …, (6,6).\nDas kann man von Hand erstellen, halbautomatisch in Excel oder z.B. so:\n\nlibrary(tidyverse)\nd <- expand_grid(wuerfel1 = 1:6,\n         wuerfel2 = 1:6)\nd\n\n# A tibble: 36 × 2\n   wuerfel1 wuerfel2\n      <int>    <int>\n 1        1        1\n 2        1        2\n 3        1        3\n 4        1        4\n 5        1        5\n 6        1        6\n 7        2        1\n 8        2        2\n 9        2        3\n10        2        4\n# … with 26 more rows\n\n\nJetzt ergänzen wir eine Spalte für die Wahrscheinlichkeit jeder Kombination, das ist einfach, denn \\(p(A \\cap B) = p(A) \\cdot p(B) = 1/36\\) gilt.\n\nd2 <-\n  d %>% \n  mutate(prob = 1/36)\n\nhead(d2)\n\n# A tibble: 6 × 3\n  wuerfel1 wuerfel2   prob\n     <int>    <int>  <dbl>\n1        1        1 0.0278\n2        1        2 0.0278\n3        1        3 0.0278\n4        1        4 0.0278\n5        1        5 0.0278\n6        1        6 0.0278\n\n\nAußerdem ergänzen wir die Summe der Augenzahlen, weil die Frage ja nach einer bestimmten Summe an Augenzahlen abzielt.\n\nd3 <-\n  d2 %>% \n  mutate(augensumme = wuerfel1 + wuerfel2)\n\nhead(d3)\n\n# A tibble: 6 × 4\n  wuerfel1 wuerfel2   prob augensumme\n     <int>    <int>  <dbl>      <int>\n1        1        1 0.0278          2\n2        1        2 0.0278          3\n3        1        3 0.0278          4\n4        1        4 0.0278          5\n5        1        5 0.0278          6\n6        1        6 0.0278          7\n\n\nFür manche Augensummen gibt es mehrere Möglichkeiten:\n\nd3 %>% \n  filter(augensumme == 7)\n\n# A tibble: 6 × 4\n  wuerfel1 wuerfel2   prob augensumme\n     <int>    <int>  <dbl>      <int>\n1        1        6 0.0278          7\n2        2        5 0.0278          7\n3        3        4 0.0278          7\n4        4        3 0.0278          7\n5        5        2 0.0278          7\n6        6        1 0.0278          7\n\n\n… für andere weniger:\n\nd3 %>% \n  filter(augensumme == 12)\n\n# A tibble: 1 × 4\n  wuerfel1 wuerfel2   prob augensumme\n     <int>    <int>  <dbl>      <int>\n1        6        6 0.0278         12\n\n\nJetzt summieren wir (nach dem Additionssatz der Wahrscheinlichkeit) die Wahrscheinlichkeiten pro Augenzahl:\n\nd4 <- \n  d3 %>% \n  group_by(augensumme) %>% \n  summarise(totale_w_pro_augenzahl = sum(prob))\n\nd4\n\n# A tibble: 11 × 2\n   augensumme totale_w_pro_augenzahl\n        <int>                  <dbl>\n 1          2                 0.0278\n 2          3                 0.0556\n 3          4                 0.0833\n 4          5                 0.111 \n 5          6                 0.139 \n 6          7                 0.167 \n 7          8                 0.139 \n 8          9                 0.111 \n 9         10                 0.0833\n10         11                 0.0556\n11         12                 0.0278\n\n\nTest: Die Summe der Wahrscheinlichkeit muss insgesamt 1 sein.\n\nd4 %>% \n  summarise(sum(totale_w_pro_augenzahl))\n\n# A tibble: 1 × 1\n  `sum(totale_w_pro_augenzahl)`\n                          <dbl>\n1                             1\n\n\nUnd:\n\nd2 %>% \n  summarise(sum(prob))\n\n# A tibble: 1 × 1\n  `sum(prob)`\n        <dbl>\n1           1\n\n\nPasst!\nDie Wahrscheinlichkeit für die Augensumme 10 beträgt also:\n\nloesung <-\n  d4 %>% \n  filter(augensumme == 10) %>% \n  pull(totale_w_pro_augenzahl)\n\nloesung\n\n[1] 0.08333333\n\n\n\nCategories:\n\nprobability\ndice"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html",
+    "href": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html",
+    "title": "Verteilungen-Quiz-03",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nWenn eine Verteilung einer stetigen Zufallsvariablen \\(X\\) (z.B. die Posteriori-Verteilung einer Bayes-Analyse) normalverteilt ist, gilt dann \\(Pr(X \\ge\\bar{x}) = 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html#answerlist-1",
+    "title": "Verteilungen-Quiz-03",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html",
+    "href": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html",
+    "title": "Verteilungen-Quiz-04",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nIst eine stetige Verteilung symmetrisch, dann ist sie normalverteilt.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html#answerlist-1",
+    "title": "Verteilungen-Quiz-04",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   },
   {
     "objectID": "posts/iq05/iq05.html",
@@ -151,7 +207,7 @@
     "href": "posts/ttest-skalenniveau/ttest-skalenniveau.html#answerlist-1",
     "title": "ttest-skalenniveau",
     "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nFalsch\nFalsch\nFalsch\nWahr\n\n\nCategories:\n\nttest\nregr\nvariable-levels"
+    "text": "Answerlist\n\nFalsch\nFalsch\nFalsch\nFalsch\nWahr\n\n\nCategories:\n\nttest\nregression\nvariable-levels"
   },
   {
     "objectID": "posts/Bed-Wskt2/Bed-Wskt2.html",
@@ -159,6 +215,34 @@
     "title": "Bed-Wskt2",
     "section": "",
     "text": "Solution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n0.58\n\nA_cond_B <- AandB / B_marg %>% round(2)\nAneg_cond_B <- AnegandB / B_marg %>% round(2)\nA_cond_Bneg <- AandBneg / Bneg_marg %>% round(2)\nAneg_cond_Bneg <- AnegandBneg / Bneg_marg %>% round(2)\n\n\\(Pr(A) = 0.62\\).\n\\(Pr(B) = 0.7154\\).\n\\(Pr(AB) = 0.4154\\).\n\\(Pr(A|B)= 0.5769444\\).\n\\(Pr(\\neg A|B) = 0.4222222\\).\n\\(Pr(A|\\neg B) = 0.7142857\\).\n\\(Pr(\\neg A|\\neg B) = 0.2857143\\).\n\nCategories:\n\nprobability\nconditional"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html",
+    "href": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html",
+    "title": "Verteilungen-Quiz-17",
+    "section": "",
+    "text": "Ei Forschi untersucht die mittlere Körpergröße eines bis dato unbekannten Urwaldvolks. Dabei findet sich aposteriori (also als Ergebnis der Untersuchung) \\(\\bar{x} \\sim N(160,5)\\) (in Zentimetern).\nDis Forschi resümiert: “Mit sehr hoher Wahrscheinlichkeit, also 95%, sind diese Menschen im Schnitt größer als 1 Meter 60 Zentimeter groß”.\nIst diese Aussage korrekt (gegeben der Angaben)?\nHinweise:\n\nNutzen Sie Simulationsmethoden zur Lösung\nFixieren Sie die Zufallszahlen auf die Startzahl 42.\nZiehen Sie \\(10^5\\) Zufallszahlen aus der gegebenen Verteilung.\n\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html#answerlist-1",
+    "title": "Verteilungen-Quiz-17",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html",
+    "href": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html",
+    "title": "Verteilungen-Quiz-10",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X = \\bar{x}) = 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html#answerlist-1",
+    "title": "Verteilungen-Quiz-10",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   },
   {
     "objectID": "posts/Rethink_2m5/Rethink_2m5.html",
@@ -179,7 +263,35 @@
     "href": "posts/iq10/iq10.html",
     "title": "iq10",
     "section": "",
-    "text": "Solution\n\nlibrary(tidyverse)\n\nSimulieren wir uns die Stichprobe:\n\nset.seed(42)\nstipro <-\n  tibble(iq = rnorm(n = 541, mean = 92.5, sd = 7.5))\n\nJetzt basteln wir die Bayes-Box:\n\nn <- 100\n\nset.seed(42)\npostvert <-\n  tibble(p_grid = seq(from = 75, to = 130, length.out = n),\n         prior  = 1) %>% \n  mutate(likelihood = dnorm(x = p_grid, mean = 92.5, sd = 7.5)) %>% \n  mutate(unstand_post = (likelihood * prior),\n         post = unstand_post / sum(unstand_post))\n\nDaraus ziehen wir Stichproben:\n\nset.seed(42)\npostvert_stipros <-\n  postvert %>% \n  slice_sample(\n    n = 1e4,\n    weight_by = post,\n    replace = T) %>% \n  select(p_grid)\n\nDa slice_sample auch zufällig Stichproben zieht, müssen wir auch hier die Zufallszahlen fixieren, wenn wir die exakt gleichen Ergebnisse reproduzieren wollen.\nJetzt schauen wir (mit Spannung), wie hoch die Wahrscheinlichkeit ist für Parameterwete (p_grid) innerhalb des Intervalls wie von der Forscherin vorgegeben.\n\npostvert_stipros %>% \n  count(between(p_grid, left = 85, right = 95))\n\n# A tibble: 2 × 2\n  `between(p_grid, left = 85, right = 95)`     n\n  <lgl>                                    <int>\n1 FALSE                                     5002\n2 TRUE                                      4998\n\n\nbetween ist eine Komfortfuntion; ins Deutsche übersetzt sagt die Syntax:\nNimm die Tabelle postvert_stipros und dann ...\n  zähle den Anteil der Werte von p_grid zwischen 85 und 95.\nDie Wahrscheinlichkeit der Hypothese der Forscherin beträgt ca. 50%.\nOb das viel oder weniger ist, ist eine subjektive Frage. Das beste Vorgehen wäre jetzt, die Hypothesen anderer Forschis dagegen zu legen. Dann würde man sehen, welche Hypothese am besten zu den Daten passt.\n\nCategories:\n\nprobability\nsimulation\nnormal-distribution\nbayes\nbayes-box"
+    "text": "Solution\n\nlibrary(tidyverse)\n\nSimulieren wir uns die Stichprobe:\n\nset.seed(42)\nstipro <-\n  tibble(iq = rnorm(n = 541, mean = 92.5, sd = 7.5))\n\nJetzt basteln wir die Bayes-Box:\n\nn <- 100\n\nset.seed(42)\npostvert <-\n  tibble(p_grid = seq(from = 75, to = 130, length.out = n),\n         prior  = 1) %>% \n  mutate(likelihood = dnorm(x = p_grid, mean = 92.5, sd = 7.5)) %>% \n  mutate(unstand_post = (likelihood * prior),\n         post = unstand_post / sum(unstand_post))\n\nDaraus ziehen wir Stichproben:\n\nset.seed(42)\npostvert_stipros <-\n  postvert %>% \n  slice_sample(\n    n = 1e4,\n    weight_by = post,\n    replace = T) %>% \n  select(p_grid)\n\nDa slice_sample auch zufällig Stichproben zieht, müssen wir auch hier die Zufallszahlen fixieren, wenn wir die exakt gleichen Ergebnisse reproduzieren wollen.\nJetzt schauen wir (mit Spannung), wie hoch die Wahrscheinlichkeit ist für Parameterwete (p_grid) innerhalb des Intervalls wie von der Forscherin vorgegeben.\n\npostvert_stipros %>% \n  count(between(p_grid, left = 85, right = 95))\n\n# A tibble: 2 × 2\n  `between(p_grid, left = 85, right = 95)`     n\n  <lgl>                                    <int>\n1 FALSE                                     5002\n2 TRUE                                      4998\n\n\nbetween ist eine Komfortfuntion; ins Deutsche übersetzt sagt die Syntax:\nNimm die Tabelle postvert_stipros und dann ...\n  zähle den Anteil der Werte von p_grid zwischen 85 und 95.\nDie Wahrscheinlichkeit der Hypothese der Forscherin beträgt ca. 50%.\nOb das viel oder weniger ist, ist eine subjektive Frage. Das beste Vorgehen wäre jetzt, die Hypothesen anderer Forschis dagegen zu legen. Dann würde man sehen, welche Hypothese am besten zu den Daten passt.\n\nCategories:\n\nprobability\nsimulation\nnormal-distribution\nbayes\nbayes-grid"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html",
+    "href": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html",
+    "title": "Verteilungen-Quiz-11",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBei einer Verteilung gilt: \\(\\bar{x} = Md = \\text{Modus}\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html#answerlist-1",
+    "title": "Verteilungen-Quiz-11",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html",
+    "href": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html",
+    "title": "Verteilungen-Quiz-16",
+    "section": "",
+    "text": "Für die Körpergröße des deutschen Mannes \\(X\\) gelte \\(X \\sim N(180,06)\\) (in Zentimetern).\nQuelle Mittelwert Quelle SD geschätzt\nÄhnliche Daten finden sich bei Our World in Data.\nIst folgende Aussage wahr?\nDas 50%-Quantil von \\(X\\) beträgt 180.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html#answerlist-1",
+    "title": "Verteilungen-Quiz-16",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   },
   {
     "objectID": "posts/nasa01/nasa01.html",
@@ -196,6 +308,20 @@
     "text": "Solution\n\nWie groß ist die Wahrscheinlichkeit (laut Modell), dass die KI-freundlichen Kundis bei Ihnen überwiegen?\n\nDas ist eine Frage nach der kumulative Verteilungsfuntion (cumulative distribution function, cdf).\n\np_grid <- seq(from=0, \n              to=1, \n              length.out=1000)  # Gitterwerte\n\nprior <- rep(1, 1000)  # Priori-Gewichte\n\nset.seed(42)  # Zufallszahlen festlegen\nlikelihood <- dbinom(23, size = 42, prob=p_grid ) \n\nunstandardisierte_posterior <- likelihood * prior \n\nposterior <- unstandardisierte_posterior / sum(unstandardisierte_posterior)\n\nZiehen wir daraus Stichproben:\n\nset.seed(42)  # Zufallszahlen festlegen\nsamples <- \n  tibble(\n    p = sample(p_grid , \n               prob = posterior, \n               size=1e4, \n               replace=TRUE))  \nsamples <-\n  samples %>% \n  mutate(id = 1:nrow(samples))\n\n\nsamples %>% \n  filter(p > 0.5) %>% \n  summarise(wskt_mehrheit_will_ki = n()/nrow(samples))\n\n# A tibble: 1 × 1\n  wskt_mehrheit_will_ki\n                  <dbl>\n1                 0.731\n\n\n\nsamples %>% \n  ggplot() +\n  aes(x = p) +\n  geom_histogram() +\n  geom_vline(xintercept = 0.5) +\n  labs(title = \"Post-Verteilung\")\n\n\n\n\n\n\n\n\n\nWie groß ist die Wahrscheinlichkeit (laut Modell), dass künftig eine Mehrheit an KI-freundlichen Kunfis zu beobachten sein wird?\n\n\nPPV <-\n  samples %>% \n  mutate(Anzahl_will_KI = rbinom(n = 1e4, size = 42, prob = p))\n\n\nPPV %>% \n  ggplot() +\n  aes(x = Anzahl_will_KI) +\n  geom_histogram() +\n  labs(title = \"PPV\")\n\n\n\n\n\n\n\n\nEine Mehrheit entspricht mind. 22 von 42 Personen.\n\nPPV %>% \n  filter(Anzahl_will_KI >= 22) %>% \n  summarise(prob_mehrheit_will_ki = n()/nrow(PPV))\n\n# A tibble: 1 × 1\n  prob_mehrheit_will_ki\n                  <dbl>\n1                 0.623\n\n\n\nWenn Sie nur eine Zahl angeben dürften: Was ist Ihr Schätzwert zum Anteil der KI-Freunde (in dieser Studie)?\n\nMan könnte den Mittelwert oder den Median angeben:\n\nlibrary(rstatix)\nget_summary_stats(samples)\n\n# A tibble: 2 × 13\n  variable     n   min       max   median      q1      q3    iqr     mad    mean\n  <chr>    <dbl> <dbl>     <dbl>    <dbl>   <dbl>   <dbl>  <dbl>   <dbl>   <dbl>\n1 id       10000 1     10000     5000.    2.50e+3 7.50e+3 5000.  3.71e+3 5.00e+3\n2 p        10000 0.274     0.789    0.546 4.95e-1 5.96e-1    0.1 7.4 e-2 5.45e-1\n# … with 3 more variables: sd <dbl>, se <dbl>, ci <dbl>\n\n\n\nCategories:\n\nprobability\nbayes-grid"
   },
   {
+    "objectID": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html",
+    "href": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html",
+    "title": "Verteilungen-Quiz-18",
+    "section": "",
+    "text": "Ei Forschi untersucht den Effekt eines Intelligenztraining auf den IQ.\nDabei findet sich aposteriori (also als Ergebnis der Untersuchung) \\(\\bar{x} \\sim N(3,5)\\) (in Standard-IQ-Punkten). Wir messen dabei die Erhöhung des Intelligenzwerts.\nDis Forschi resümiert: “Mit einer Wahrscheinlichkeit von 95% profitiert man von diesem Training”.\nIst diese Aussage korrekt (gegeben der Angaben)?\nHinweise:\n\nNutzen Sie Simulationsmethoden zur Lösung\nFixieren Sie die Zufallszahlen auf die Startzahl 42.\nZiehen Sie \\(10^5\\) Zufallszahlen aus der gegebenen Verteilung.\n\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html#answerlist-1",
+    "title": "Verteilungen-Quiz-18",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
     "objectID": "posts/purrr-map01/purrr-map01.html",
     "href": "posts/purrr-map01/purrr-map01.html",
     "title": "purrr-map01",
@@ -210,6 +336,13 @@
     "text": "Exercise\nErstellen Sie eine Tabelle mit mit folgenden Spalten:\n\nID-Spalte: \\(1,2,..., 10\\)\nEine Spalte mit Namem ds (ds wie Plural von Datensatz), die als geschachtelt (nested) pro Element jeweils einen der folgenden Datensätze enthält: mtcars, iris, chickweight, ToothGrowth (alle in R enthalten)\n\nBerechnen Sie eine Spalte, die die Anzahl der Spalten von ds zählt!\n         \n\n\nSolution\nHier sind einige Datensätze, in einer Liste zusammengefasst:\n\nds <- list(mtcars = mtcars, iris = iris, chickweight =  ChickWeight, toothgrowth = ToothGrowth)\n\nDaraus erstellen wir eine Tabelle mit Listenspalte für die Daten:\n\nd <- \n  tibble(id = 1:length(ds),\n         ds = ds)\n\nJetzt führen wir die Funktion ncol aus, und zwar für jedes Element von ds. Wir brauchen also eine Art Schleife, das besorgt map für uns. Viele Funktionen in R sind “auomatisch verschleift” - das nennt man vektorisiert. Vektorisierte Funktionen werden für jedes Element eines Vektors ausgeführt.\nEin Beispiel für eine vektorisierte Funktion ist die Funktion +:\n\nx <- c(1,2,3)\ny <- c(10, 20, 30)\nx + y\n\n[1] 11 22 33\n\n\nMan könnte übrigens auch schreiben:\n\n`+`(x, y)\n\n[1] 11 22 33\n\n\nWas zeigt, dass + eine normale Funktion ist.\nZurück zur eigentlichen Aufgabe. Aber ncol ist eben nicht vektorisiert, darum müssen wir da noch eine Schleife dazu bauen, das macht map.\n\nd2 <- \n  d %>% \n  mutate(n_col = map(ds, ncol)) \n\nhead(d2)\n\n# A tibble: 4 × 3\n     id ds                   n_col       \n  <int> <named list>         <named list>\n1     1 <df [32 × 11]>       <int [1]>   \n2     2 <df [150 × 5]>       <int [1]>   \n3     3 <nfnGrpdD [578 × 4]> <int [1]>   \n4     4 <df [60 × 3]>        <int [1]>   \n\n\nEntnesten wir noch n_col:\n\nd2 %>% \n  unnest(n_col)\n\n# A tibble: 4 × 3\n     id ds                   n_col\n  <int> <named list>         <int>\n1     1 <df [32 × 11]>          11\n2     2 <df [150 × 5]>           5\n3     3 <nfnGrpdD [578 × 4]>     4\n4     4 <df [60 × 3]>            3\n\n\nWir können auch gleich map anweisen, keine Liste, sondern eine Zahl (double, reelle ) Zahl zurückzuliefern, dann sparen wir uns das entschachteln:\n\nd %>% \n  mutate(n_col = map_dbl(ds, ncol)) \n\n# A tibble: 4 × 3\n     id ds                   n_col\n  <int> <named list>         <dbl>\n1     1 <df [32 × 11]>          11\n2     2 <df [150 × 5]>           5\n3     3 <nfnGrpdD [578 × 4]>     4\n4     4 <df [60 × 3]>            3\n\n\n\nCategories:\n\nprogramming\nloop"
   },
   {
+    "objectID": "posts/twitter07/twitter07.html",
+    "href": "posts/twitter07/twitter07.html",
+    "title": "twitter07",
+    "section": "",
+    "text": "Solution\nWir starten die benötigten R-Pakete:\n\nlibrary(academictwitteR)\nlibrary(tidyverse)\n\n── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──\n✔ ggplot2 3.4.0      ✔ purrr   0.3.5 \n✔ tibble  3.1.8      ✔ dplyr   1.0.10\n✔ tidyr   1.2.1      ✔ stringr 1.4.1 \n✔ readr   2.1.3      ✔ forcats 0.5.2 \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\n\nlibrary(askpass)\nlibrary(rio)\n\nHier ist der Datensatz mit den Twitterkonten, für die wir die Daten herunterladen sollen:\n\npoliticians_path <- \"https://raw.githubusercontent.com/sebastiansauer/datascience-text/main/data/twitter-german-politicians.csv\"\npoliticians <- import(politicians_path)\npoliticians\n\n                                               name  party      screenname\n1                                   Karl Lauterbach    SPD Karl_Lauterbach\n2                                       Olaf Scholz    SPD      OlafScholz\n3                                 Annalena Baerback Gruene       ABaerbock\n4  Bundesministerium für Wirtschaft und Klimaschutz Gruene            BMWK\n5                                    Friedrich Merz    CDU  _FriedrichMerz\n6                                      Markus Söder    CSU   Markus_Soeder\n7                                       Cem Özdemir Gruene    cem_oezdemir\n8                                    Janine Wissler  Linke  Janine_Wissler\n9                                 Martin Schirdewan  Linke      schirdewan\n10                                Christian Lindner    FDP       c_lindner\n11                    Marie-Agnes Strack-Zimmermann    FDP      MAStrackZi\n12                                   Tino Chrupalla    AFD  Tino_Chrupalla\n13                                     Alice Weidel    AFD    Alice_Weidel\n                                  comment\n1                                    <NA>\n2                                    <NA>\n3                                    <NA>\n4  Robert Habeck ist der Minister im BMWK\n5                                CDU-Chef\n6                                CSU-Chef\n7                                    BMEL\n8                            Linke-Chefin\n9                              Linke-Chef\n10                               FDP-Chef\n11     Vorsitzende Verteidigungsausschuss\n12                     AFD-Bundessprecher\n13                   AFD-Bundessprecherin\n\n\nWir müssen noch das Passwort bereitstellen:\n\nbearer_token <- askpass::askpass(\"bearer token\")\n\nUnd dann definieren wir eine Funktion, die das Gewichtheben für uns erledigt:\n\nget_all_tweets_politicians <- function(screenname, n = 1e1) {\n  get_all_tweets(query = paste0(\"to:\", screenname, \" -is:retweet\"),\n                 start_tweets = \"2021-01-01T00:00:00Z\",\n                 end_tweets = \"2021-12-31T23:59:59Z\",\n                 bearer_token = bearer_token,\n                 file = glue::glue(\"~/datasets/Twitter/hate-speech/tweets_to_{screenname}_2021.rds\"),\n                 data_path = glue::glue(\"~/datasets/Twitter/hate-speech/{screenname}\"),\n                 n = n)\n}\n\nJetzt wenden wir die Funktion auf jedes Twitterkonto unserer Liste (alle Politikis) an:\n\nd <- politicians$screenname %>% \n  map(get_all_tweets_politicians)\n\n\nCategories:\n\ntextmining\ntwitter\nprogramming"
+  },
+  {
     "objectID": "posts/Priori-Streuung/Priori-Streuung.html",
     "href": "posts/Priori-Streuung/Priori-Streuung.html",
     "title": "Priori-Streuung",
@@ -221,7 +354,7 @@
     "href": "posts/Priori-Streuung/Priori-Streuung.html#answerlist-1",
     "title": "Priori-Streuung",
     "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nFalsch\nWahr\nFalsch\nFalsch\n\nDa Streuung \\(\\sigma\\) per Definition positiv ist, kommt eine Verteilung, die negative Werte erlaubt, nicht in Frage. Die Normalverteilung scheidet also aus.\nDie Rate der Exponentialverteilung regelt gleichzeitig Streuung und Mittelwert. Allerdings hat \\(Exp(0)\\) eine unendliche Streuung, was nicht wünschenswert ist. Eine negative Rate ist für die Exponentialverteilung nicht definiert.\nNormalverteilungen:\n\n\n\n\n\\(N(0,1)\\):\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\(N(1,1)\\):\n\n\n\n\n\n\n\n\n\nExponentialverteilungen:\n\n\n\n\\(Exp(1)\\):\n\n\n\n\n\n\n\n\n\n\n\n\n\\(Exp(0)\\):\n\n\n\n\n\n\n\n\n\n\n\n\n\\(Exp(-1)\\):\n\n\nWarning in (function (x, rate = 1, log = FALSE) : NaNs produced\n\n\nWarning: Removed 101 row(s) containing missing values (geom_path).\n\n\n\n\n\n\n\n\n\n\nCategories:\n\nprobability\nsimulation\ndistribution\nbayes"
+    "text": "Answerlist\n\nFalsch\nFalsch\nWahr\nFalsch\nFalsch\n\nDa Streuung \\(\\sigma\\) per Definition positiv ist, kommt eine Verteilung, die negative Werte erlaubt, nicht in Frage. Die Normalverteilung scheidet also aus.\nDie Rate der Exponentialverteilung regelt gleichzeitig Streuung und Mittelwert. Allerdings hat \\(Exp(0)\\) eine unendliche Streuung, was nicht wünschenswert ist. Eine negative Rate ist für die Exponentialverteilung nicht definiert.\nNormalverteilungen:\n\n\n\n\n\\(N(0,1)\\):\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\(N(1,1)\\):\n\n\n\n\n\n\n\n\n\nExponentialverteilungen:\n\n\n\n\\(Exp(1)\\):\n\n\n\n\n\n\n\n\n\n\n\n\n\\(Exp(0)\\):\n\n\n\n\n\n\n\n\n\n\n\n\n\\(Exp(-1)\\):\n\n\nWarning in fun(x_trans, rate = -1): NaNs produced\n\n\nWarning: Removed 101 rows containing missing values (`geom_function()`).\n\n\n\n\n\n\n\n\n\n\nCategories:\n\nprobability\nsimulation\ndistributions\nbayes"
   },
   {
     "objectID": "posts/ReThink4e3/ReThink4e3.html",
@@ -235,7 +368,7 @@
     "href": "posts/corona-blutgruppe/corona-blutgruppe.html",
     "title": "corona-blutgruppe",
     "section": "",
-    "text": "Solution\n\n\n\nDie Lösung lautet: unabhängig.\n\\(S\\) und \\(A\\) sind unabhängig: Offenbar ist die Wahrscheinlichkeit eines schweren Verlaufs gleich groß unabhängig davon, ob die Blutgruppe A ist oder nicht. In diesem Fall spricht man von stochastischer Unabhängigkeit.\n\\(Pr(S|A) = Pr(S|A^C) = Pr(S)\\)\n\nCategories:\n\nprobabillity\ndependent"
+    "text": "Solution\n\n\n\nDie Lösung lautet: unabhängig.\n\\(S\\) und \\(A\\) sind unabhängig: Offenbar ist die Wahrscheinlichkeit eines schweren Verlaufs gleich groß unabhängig davon, ob die Blutgruppe A ist oder nicht. In diesem Fall spricht man von stochastischer Unabhängigkeit.\n\\(Pr(S|A) = Pr(S|A^C) = Pr(S)\\)\n\nCategories:\n\nprobability\ndependent"
   },
   {
     "objectID": "posts/Priorwahl1/Priorwahl1.html",
@@ -312,7 +445,7 @@
     "href": "posts/fat-tails-Artikel/fat-tails-Artikel.html",
     "title": "fat-tails-Artikel",
     "section": "",
-    "text": "Solution\n\nKriege\nPandemien\nErfolg auf der Singlebörse Tinder\nKapitelmarkt\n\n\nCategories:\n\nprobability\ndistribution\nfat-tails"
+    "text": "Solution\n\nKriege\nPandemien\nErfolg auf der Singlebörse Tinder\nKapitelmarkt\n\n\nCategories:\n\nprobability\ndistributions\nfat-tails"
   },
   {
     "objectID": "posts/adjustieren1/adjustieren1.html",
@@ -406,6 +539,20 @@
     "text": "Answerlist\n\nFalsch\nFalsch\nFalsch\nFalsch\nWahr. Die größte Stichprobe impliziert den kleinsten SE, ceteris paribus.\n\n\nCategories:\n\ninference\nlm\nqm2"
   },
   {
+    "objectID": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html",
+    "href": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html",
+    "title": "Verteilungen-Quiz-01",
+    "section": "",
+    "text": "Beziehen Sie sich auf den Standard-Globusversuch mit \\(N=9\\) Würfen und \\(W=6\\) Wassertreffern (binomialverteilt), vgl. hier.\nDie Stichproben-Postverteilung sieht so aus:\n\n\n\n\n\n\n\n\n\nIst sich das Modell auf Basis dieser Post-Verteilung sicher sein, dass der Wasseranteil \\(\\pi=.7\\) beträgt?\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html#answerlist-1",
+    "title": "Verteilungen-Quiz-01",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
     "objectID": "posts/punktschaetzer-reicht-nicht/punktschaetzer-reicht-nicht.html",
     "href": "posts/punktschaetzer-reicht-nicht/punktschaetzer-reicht-nicht.html",
     "title": "punktschaetzer-reicht-nicht",
@@ -434,6 +581,20 @@
     "text": "Solution\nDie gemeinsame Wahrscheinlichkeit beträgt 0.07.\n\n\n\n\n\n\n  \n  \n    \n      Lerntyp\n      Klausurergebnis\n      n\n      n_group\n      prop_conditional_group\n      joint_prob\n    \n  \n  \n    Viellerner\nDurchfallen\n5\n42\n0.1190476\n0.07142857\n  \n  \n  \n\n\n\n\nDie gemeinsame Wahrscheinlichkeit berechnet sich hier als der Quotient der Zellenhäufigkeit und der Gesamthäufigkeit.\nMan kann auch die Formel für gemeinsame Wahrscheinlichkeiten anwenden: \\(Pr(A) \\cdot \\Pr(B)\\).\nDazu berechnet man die Anteile für jedes der beiden Ereignisse und multipliziert diese beiden Anteile:\n`Klausurergebnis_selected * Lerntyp_selected*\n\nCategories:\n\nprobability\n‘2022’"
   },
   {
+    "objectID": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html",
+    "href": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html",
+    "title": "Verteilungen-Quiz-06",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge 100) \\ne 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html#answerlist-1",
+    "title": "Verteilungen-Quiz-06",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
     "objectID": "posts/wuerfel04/wuerfel04.html",
     "href": "posts/wuerfel04/wuerfel04.html",
     "title": "wuerfel04",
@@ -453,6 +614,20 @@
     "title": "Rethink_2E4",
     "section": "",
     "text": "Solution\nThe solution is taken from this source.\nThe idea is that probability is only a subjective perception of the likelihood that something will happen. In the globe tossing example, the result will always be either “land” or “water” (i.e., 0 or 1). When we toss the globe, we don’t know what the result will be, but we know it will always be “land” or “water.” To express our uncertainty in the outcome, we use probability. Because we know that water is more likely than land, we may say that the probability of “water” is 0.7; however, we’ll never actually observe a result of 0.7 waters, or observe any probability. We will only ever observe the two results of “land” and “water.”\n\nCategories:\n\nprobability\nphilosophy"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html",
+    "href": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html",
+    "title": "Verteilungen-Quiz-08",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge 115) \\approx 0.16\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html#answerlist-1",
+    "title": "Verteilungen-Quiz-08",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   },
   {
     "objectID": "posts/iq01/iq01.html",
@@ -483,11 +658,67 @@
     "text": "Solution\nErstellen wir uns eine Tabelle, die alle Permutationen der beiden Würfelergebnisse fasst, das sind 36 Paare: (1,1), (1,2), …, (1,6), …, (6,6).\nDas kann man von Hand erstellen, halbautomatisch in Excel oder z.B. so:\n\nlibrary(tidyverse)\nd <- expand_grid(wuerfel1 = 1:6,\n         wuerfel2 = 1:6)\n\nd\n\n# A tibble: 36 × 2\n   wuerfel1 wuerfel2\n      <int>    <int>\n 1        1        1\n 2        1        2\n 3        1        3\n 4        1        4\n 5        1        5\n 6        1        6\n 7        2        1\n 8        2        2\n 9        2        3\n10        2        4\n# … with 26 more rows\n\n\nJetzt ergänzen wir eine Spalte für die Wahrscheinlichkeit jeder Kombination, das ist einfach, denn \\(p(A \\cap B) = p(A) \\cdot p(B) = 1/36\\) gilt.\n\nd2 <-\n  d %>% \n  mutate(prob = 1/36)\n\nhead(d2)\n\n# A tibble: 6 × 3\n  wuerfel1 wuerfel2   prob\n     <int>    <int>  <dbl>\n1        1        1 0.0278\n2        1        2 0.0278\n3        1        3 0.0278\n4        1        4 0.0278\n5        1        5 0.0278\n6        1        6 0.0278\n\n\nAußerdem ergänzen wir die Summe der Augenzahlen, weil die Frage ja nach einer bestimmten Summe an Augenzahlen abzielt.\n\nd3 <-\n  d2 %>% \n  mutate(augensumme = wuerfel1 + wuerfel2)\n\nhead(d3)\n\n# A tibble: 6 × 4\n  wuerfel1 wuerfel2   prob augensumme\n     <int>    <int>  <dbl>      <int>\n1        1        1 0.0278          2\n2        1        2 0.0278          3\n3        1        3 0.0278          4\n4        1        4 0.0278          5\n5        1        5 0.0278          6\n6        1        6 0.0278          7\n\n\nFür manche Augensummen gibt es mehrere Möglichkeiten:\n\nd3 %>% \n  filter(augensumme == 7)\n\n# A tibble: 6 × 4\n  wuerfel1 wuerfel2   prob augensumme\n     <int>    <int>  <dbl>      <int>\n1        1        6 0.0278          7\n2        2        5 0.0278          7\n3        3        4 0.0278          7\n4        4        3 0.0278          7\n5        5        2 0.0278          7\n6        6        1 0.0278          7\n\n\n… für andere weniger:\n\nd3 %>% \n  filter(augensumme == 12)\n\n# A tibble: 1 × 4\n  wuerfel1 wuerfel2   prob augensumme\n     <int>    <int>  <dbl>      <int>\n1        6        6 0.0278         12\n\n\nJetzt summieren wir (nach dem Additionssatz der Wahrscheinlichkeit) die Wahrscheinlichkeiten pro Augenzahl:\n\nd4 <- \n  d3 %>% \n  group_by(augensumme) %>% \n  summarise(totale_w_pro_augenzahl = sum(prob))\n\nd4\n\n# A tibble: 11 × 2\n   augensumme totale_w_pro_augenzahl\n        <int>                  <dbl>\n 1          2                 0.0278\n 2          3                 0.0556\n 3          4                 0.0833\n 4          5                 0.111 \n 5          6                 0.139 \n 6          7                 0.167 \n 7          8                 0.139 \n 8          9                 0.111 \n 9         10                 0.0833\n10         11                 0.0556\n11         12                 0.0278\n\n\nTest: Die Summe der Wahrscheinlichkeit muss insgesamt 1 sein.\n\nd4 %>% \n  summarise(sum(totale_w_pro_augenzahl))\n\n# A tibble: 1 × 1\n  `sum(totale_w_pro_augenzahl)`\n                          <dbl>\n1                             1\n\n\nUnd:\n\nd2 %>% \n  summarise(sum(prob))\n\n# A tibble: 1 × 1\n  `sum(prob)`\n        <dbl>\n1           1\n\n\nPasst!\nDie Wahrscheinlichkeit für die Augensumme von mind. 10 beträgt also:\n\nloesung <-\n  d4 %>% \n  filter(augensumme >= 10) %>% \n  summarise(prob_sum = sum(totale_w_pro_augenzahl)) %>% \n  pull(prob_sum)\n\nloesung\n\n[1] 0.1666667\n\n\n\nCategories:\n\nprobability\ndice"
   },
   {
+    "objectID": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html",
+    "href": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html",
+    "title": "Verteilungen-Quiz-09",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge \\bar{x} + \\sigma) \\approx 0.84\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html#answerlist-1",
+    "title": "Verteilungen-Quiz-09",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html",
+    "href": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html",
+    "title": "Verteilungen-Quiz-07",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\le 100) \\ne 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html#answerlist-1",
+    "title": "Verteilungen-Quiz-07",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
     "objectID": "posts/nasa03/nasa03.html",
     "href": "posts/nasa03/nasa03.html",
     "title": "nasa03",
     "section": "",
     "text": "Solution\ntemp_is_above erstellen:\n\nd <-\n  d %>% \n  mutate(temp_is_above = case_when(\n    Jan > 0 ~ \"yes\",\n    Jan <= 0 ~ \"no\"\n  ))\n\nJahrhundert berechnen:\n\nd <-\n  d %>% \n  mutate(century = case_when(\n    Year < 1900 ~ \"19th\",\n    Year >= 1900 ~ \"20th\"\n  ))\n\nErhöhte Werte der Januar-Temperatur pro Jahrhundert berechnen:\n\nd_summarized <- \nd %>% \n  group_by(century) %>% \n  count(temp_is_above)\n\nd_summarized\n\n# A tibble: 4 × 3\n# Groups:   century [2]\n  century temp_is_above     n\n  <chr>   <chr>         <int>\n1 19th    no               19\n2 19th    yes               1\n3 20th    no               56\n4 20th    yes              67\n\n\nDer Befehl count() zählt aus, wie häufig die Ausprägungen der angegebenen Variablen X sind, m.a.W. er gibt die Verteilung von X wieder.\nEs macht vermutlich Sinn, noch die Anteile (relative Häufigkeiten) zu den absoluten Häufigkeiten zu ergänzen:\n\nd_summarized %>% \n  mutate(prop = n / sum(n))\n\n# A tibble: 4 × 4\n# Groups:   century [2]\n  century temp_is_above     n  prop\n  <chr>   <chr>         <int> <dbl>\n1 19th    no               19 0.95 \n2 19th    yes               1 0.05 \n3 20th    no               56 0.455\n4 20th    yes              67 0.545\n\n\nOdds Ratio berechnen:\nWir bezeichnen mit c19 (für “Chance 1”) das Verhältnis von erhöhter Temperatur zu nicht erhöhter Temperatur im 19. Jahrhundert.\n\nc19 <- 1 / 19\n\nMit c20 bezeichnen wir die analoge Chance für das 20. Jahrhundert:\n\nc20 <- 56 / 67\n\nDas Verhältnis der beiden Chancen gibt das Chancenverhältnis (Odds Ratio, OR):\n\nc19 / c20\n\n[1] 0.06296992\n\n\nGenauso gut kann man das OR von c20 zu c19 ausrechnen, der Effekt bleibt identisch:\n\nc20 / c19\n\n[1] 15.8806\n\n\nIn beiden Fällen ist es ein Faktor von knapp 16.\n\nCategories:\n\ndata\neda"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html",
+    "href": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html",
+    "title": "Verteilungen-Quiz-13",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBei rechtsschiefen Verteilungen gilt \\(\\bar{x} \\gt Md\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html#answerlist-1",
+    "title": "Verteilungen-Quiz-13",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html",
+    "href": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html",
+    "title": "Verteilungen-Quiz-14",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBeim Perzentilintervall (PI) werden “links” und “rechts” die gleiche Wahrscheinlichkeitsmasse von einer Verteilung “abgeschnitten”.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html#answerlist-1",
+    "title": "Verteilungen-Quiz-14",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   },
   {
     "objectID": "posts/Rethink_2m7/Rethink_2m7.html",
@@ -518,6 +749,20 @@
     "text": "Solution\nZur Erinnerung: Die Inferenzstatistik macht Aussagen bzgl. einer Population, nicht einer Stichprobe. Solche Aussagen sind ungewiss, also mit einer Unsicherheit behaftet, da wir nicht die ganze Population kennen. Aber die Daten der Stichprobe werden als Grundlage der Schätzung herangezogen.\n\nAuswahl geeigneter Kandidatis in einem Assessment-Verfahren. Man hat \\(n=40\\) Bewerbis, und die Wahrscheinlichkeit geeigneter Kandidatis liege bei \\(p=10%\\). Welche Spannweite an geeigneten Bewerbis kann man erwarten?\nSocial Influencing. Sie posten 100 Videoclips; davon werden 9 viral. Welche Spannweite plausibler Werte für eine Erfolgsquote kann man zugrunde legen?\nApp-Wartung. Sie prüfen eine Anzahl (\\(n=42\\)) alter Apps, aus einer früheren Kampagne. Sie finden, dass \\(k=19\\) noch funktionieren. Welche Quote an “technisch veraltet” muss man in der Population erwarten, und in welchem Bereich könnte sich diese Quote bewegen?\nSchulungsprogramm. Sie entwickeln ein Schulungsprogramm, das im großen Stil in einer Firma eingesetzt werden soll; mehrere Tausend Personen sollen das Programm durchlaufen. In einer Pilotstudie mit \\(n=90\\) Personen erreichen \\(k=42\\) nicht das Lernziel. Welche Parameterwerte für \\(p\\) (Lernziel erreicht) sind plausibel?\n\n\nCategories:\n\nprobability\nbinomial\nexample"
   },
   {
+    "objectID": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html",
+    "href": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html",
+    "title": "Verteilungen-Quiz-15",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nDas HDI schneidet auf beiden Seiten des Intervalls die gleiche Wahrscheinlichkeitsmasse ab.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html#answerlist-1",
+    "title": "Verteilungen-Quiz-15",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
     "objectID": "posts/randomdag1/randomdag1.html",
     "href": "posts/randomdag1/randomdag1.html",
     "title": "randomdag1",
@@ -530,6 +775,20 @@
     "title": "randomdag1",
     "section": "Answerlist",
     "text": "Answerlist\n\nFalsch\nFalsch\nFalsch\nFalsch\nRichtig\n\n\nCategories:\n\ncausal\ndag"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html",
+    "href": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html",
+    "title": "Verteilungen-Quiz-12",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBei einer symmetrischen Verteilung gilt: \\(\\bar{x} = Md = \\text{Modus}\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html#answerlist-1",
+    "title": "Verteilungen-Quiz-12",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   },
   {
     "objectID": "posts/ReThink3e1-7/ReThink3e1-7.html",
@@ -655,7 +914,7 @@
     "href": "posts/ttest-als-regr/ttest-als-regr.html#answerlist-1",
     "title": "ttest-als-regr",
     "section": "Answerlist",
-    "text": "Answerlist\n\nUV: binär\nAV: metrisch\nUnterscheiden sich die mittleren Einparkzeiten von Frauen und Männern?\nAus dem Datensatz mtcars:\n\n\ndata(mtcars)\nmtcars %>% \n  ggplot() +\n  aes(x = am, y = mpg) +\n  geom_point(alpha = .5) +\n  geom_smooth(method = \"lm\")\n\n`geom_smooth()` using formula 'y ~ x'\n\n\n\n\n\n\n\n\n\n\nCategories:\n\nregr\nttest\nvariable-levels"
+    "text": "Answerlist\n\nUV: binär\nAV: metrisch\nUnterscheiden sich die mittleren Einparkzeiten von Frauen und Männern?\nAus dem Datensatz mtcars:\n\n\ndata(mtcars)\nmtcars %>% \n  ggplot() +\n  aes(x = am, y = mpg) +\n  geom_point(alpha = .5) +\n  geom_smooth(method = \"lm\")\n\n`geom_smooth()` using formula 'y ~ x'\n\n\n\n\n\n\n\n\n\n\nCategories:\n\nregression\nttest\nvariable-levels"
   },
   {
     "objectID": "posts/log-y-regr1/log-y-regr1.html",
@@ -747,264 +1006,5 @@
     "title": "Ans Werk, Daten!",
     "section": "",
     "text": "Autor: Sebastian Sauer\nDer Quellcode findet sich hier.\nDie Lizenz ist permissiv, s. Hinweise hier."
-  },
-  {
-    "objectID": "posts/twitter07/twitter07.html",
-    "href": "posts/twitter07/twitter07.html",
-    "title": "twitter07",
-    "section": "",
-    "text": "Solution\nWir starten die benötigten R-Pakete:\n\nlibrary(academictwitteR)\nlibrary(tidyverse)\n\n── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──\n✔ ggplot2 3.4.0      ✔ purrr   0.3.5 \n✔ tibble  3.1.8      ✔ dplyr   1.0.10\n✔ tidyr   1.2.1      ✔ stringr 1.4.1 \n✔ readr   2.1.3      ✔ forcats 0.5.2 \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\n\nlibrary(askpass)\nlibrary(rio)\n\nHier ist der Datensatz mit den Twitterkonten, für die wir die Daten herunterladen sollen:\n\npoliticians_path <- \"https://raw.githubusercontent.com/sebastiansauer/datascience-text/main/data/twitter-german-politicians.csv\"\npoliticians <- import(politicians_path)\npoliticians\n\n                                               name  party      screenname\n1                                   Karl Lauterbach    SPD Karl_Lauterbach\n2                                       Olaf Scholz    SPD      OlafScholz\n3                                 Annalena Baerback Gruene       ABaerbock\n4  Bundesministerium für Wirtschaft und Klimaschutz Gruene            BMWK\n5                                    Friedrich Merz    CDU  _FriedrichMerz\n6                                      Markus Söder    CSU   Markus_Soeder\n7                                       Cem Özdemir Gruene    cem_oezdemir\n8                                    Janine Wissler  Linke  Janine_Wissler\n9                                 Martin Schirdewan  Linke      schirdewan\n10                                Christian Lindner    FDP       c_lindner\n11                    Marie-Agnes Strack-Zimmermann    FDP      MAStrackZi\n12                                   Tino Chrupalla    AFD  Tino_Chrupalla\n13                                     Alice Weidel    AFD    Alice_Weidel\n                                  comment\n1                                    <NA>\n2                                    <NA>\n3                                    <NA>\n4  Robert Habeck ist der Minister im BMWK\n5                                CDU-Chef\n6                                CSU-Chef\n7                                    BMEL\n8                            Linke-Chefin\n9                              Linke-Chef\n10                               FDP-Chef\n11     Vorsitzende Verteidigungsausschuss\n12                     AFD-Bundessprecher\n13                   AFD-Bundessprecherin\n\n\nWir müssen noch das Passwort bereitstellen:\n\nbearer_token <- askpass::askpass(\"bearer token\")\n\nUnd dann definieren wir eine Funktion, die das Gewichtheben für uns erledigt:\n\nget_all_tweets_politicians <- function(screenname, n = 1e1) {\n  get_all_tweets(query = paste0(\"to:\", screenname, \" -is:retweet\"),\n                 start_tweets = \"2021-01-01T00:00:00Z\",\n                 end_tweets = \"2021-12-31T23:59:59Z\",\n                 bearer_token = bearer_token,\n                 file = glue::glue(\"~/datasets/Twitter/hate-speech/tweets_to_{screenname}_2021.rds\"),\n                 data_path = glue::glue(\"~/datasets/Twitter/hate-speech/{screenname}\"),\n                 n = n)\n}\n\nJetzt wenden wir die Funktion auf jedes Twitterkonto unserer Liste (alle Politikis) an:\n\nd <- politicians$screenname %>% \n  map(get_all_tweets_politicians)\n\n\nCategories:\n\ntextmining\ntwitter\nprogramming"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html",
-    "href": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html",
-    "title": "Verteilungen-Quiz-05",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nIst eine stetige Verteilung symmetrisch, gilt dann\n\\(Pr(X \\ge \\bar{x} + 1) = Pr(X \\le \\bar{x} - 1)\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html#answerlist-1",
-    "title": "Verteilungen-Quiz-05",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html",
-    "href": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html",
-    "title": "Verteilungen-Quiz-02",
-    "section": "",
-    "text": "Beziehen Sie sich auf den Standard-Globusversuch mit \\(N=9\\) Würfen und \\(W=6\\) Wassertreffern (binomialverteilt), vgl. hier.\nDie Stichproben-Postverteilung sieht so aus:\n\n\n\n\n\n\n\n\n\nIst es (auf dieser Basis) plausibler von einem 50%-PI [.6,.8] auszugehen als von einem 50%-PI [.05,.95]?\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html#answerlist-1",
-    "title": "Verteilungen-Quiz-02",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html",
-    "href": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html",
-    "title": "Verteilungen-Quiz-03",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nWenn eine Verteilung einer stetigen Zufallsvariablen \\(X\\) (z.B. die Posteriori-Verteilung einer Bayes-Analyse) normalverteilt ist, gilt dann \\(Pr(X \\ge\\bar{x}) = 1/2\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html#answerlist-1",
-    "title": "Verteilungen-Quiz-03",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html",
-    "href": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html",
-    "title": "Verteilungen-Quiz-04",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nIst eine stetige Verteilung symmetrisch, dann ist sie normalverteilt.\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html#answerlist-1",
-    "title": "Verteilungen-Quiz-04",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html",
-    "href": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html",
-    "title": "Verteilungen-Quiz-17",
-    "section": "",
-    "text": "Ei Forschi untersucht die mittlere Körpergröße eines bis dato unbekannten Urwaldvolks. Dabei findet sich aposteriori (also als Ergebnis der Untersuchung) \\(\\bar{x} \\sim N(160,5)\\) (in Zentimetern).\nDis Forschi resümiert: “Mit sehr hoher Wahrscheinlichkeit, also 95%, sind diese Menschen im Schnitt größer als 1 Meter 60 Zentimeter groß”.\nIst diese Aussage korrekt (gegeben der Angaben)?\nHinweise:\n\nNutzen Sie Simulationsmethoden zur Lösung\nFixieren Sie die Zufallszahlen auf die Startzahl 42.\nZiehen Sie \\(10^5\\) Zufallszahlen aus der gegebenen Verteilung.\n\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html#answerlist-1",
-    "title": "Verteilungen-Quiz-17",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html",
-    "href": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html",
-    "title": "Verteilungen-Quiz-10",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X = \\bar{x}) = 1/2\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html#answerlist-1",
-    "title": "Verteilungen-Quiz-10",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html",
-    "href": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html",
-    "title": "Verteilungen-Quiz-11",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nBei einer Verteilung gilt: \\(\\bar{x} = Md = \\text{Modus}\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html#answerlist-1",
-    "title": "Verteilungen-Quiz-11",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html",
-    "href": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html",
-    "title": "Verteilungen-Quiz-16",
-    "section": "",
-    "text": "Für die Körpergröße des deutschen Mannes \\(X\\) gelte \\(X \\sim N(180,06)\\) (in Zentimetern).\nQuelle Mittelwert Quelle SD geschätzt\nÄhnliche Daten finden sich bei Our World in Data.\nIst folgende Aussage wahr?\nDas 50%-Quantil von \\(X\\) beträgt 180.\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html#answerlist-1",
-    "title": "Verteilungen-Quiz-16",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html",
-    "href": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html",
-    "title": "Verteilungen-Quiz-18",
-    "section": "",
-    "text": "Ei Forschi untersucht den Effekt eines Intelligenztraining auf den IQ.\nDabei findet sich aposteriori (also als Ergebnis der Untersuchung) \\(\\bar{x} \\sim N(3,5)\\) (in Standard-IQ-Punkten). Wir messen dabei die Erhöhung des Intelligenzwerts.\nDis Forschi resümiert: “Mit einer Wahrscheinlichkeit von 95% profitiert man von diesem Training”.\nIst diese Aussage korrekt (gegeben der Angaben)?\nHinweise:\n\nNutzen Sie Simulationsmethoden zur Lösung\nFixieren Sie die Zufallszahlen auf die Startzahl 42.\nZiehen Sie \\(10^5\\) Zufallszahlen aus der gegebenen Verteilung.\n\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html#answerlist-1",
-    "title": "Verteilungen-Quiz-18",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html",
-    "href": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html",
-    "title": "Verteilungen-Quiz-01",
-    "section": "",
-    "text": "Beziehen Sie sich auf den Standard-Globusversuch mit \\(N=9\\) Würfen und \\(W=6\\) Wassertreffern (binomialverteilt), vgl. hier.\nDie Stichproben-Postverteilung sieht so aus:\n\n\n\n\n\n\n\n\n\nIst sich das Modell auf Basis dieser Post-Verteilung sicher sein, dass der Wasseranteil \\(\\pi=.7\\) beträgt?\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html#answerlist-1",
-    "title": "Verteilungen-Quiz-01",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html",
-    "href": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html",
-    "title": "Verteilungen-Quiz-06",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge 100) \\ne 1/2\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html#answerlist-1",
-    "title": "Verteilungen-Quiz-06",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html",
-    "href": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html",
-    "title": "Verteilungen-Quiz-08",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge 115) \\approx 0.16\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html#answerlist-1",
-    "title": "Verteilungen-Quiz-08",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html",
-    "href": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html",
-    "title": "Verteilungen-Quiz-09",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge \\bar{x} + \\sigma) \\approx 0.84\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html#answerlist-1",
-    "title": "Verteilungen-Quiz-09",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html",
-    "href": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html",
-    "title": "Verteilungen-Quiz-07",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\le 100) \\ne 1/2\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html#answerlist-1",
-    "title": "Verteilungen-Quiz-07",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html",
-    "href": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html",
-    "title": "Verteilungen-Quiz-13",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nBei rechtsschiefen Verteilungen gilt \\(\\bar{x} \\gt Md\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html#answerlist-1",
-    "title": "Verteilungen-Quiz-13",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html",
-    "href": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html",
-    "title": "Verteilungen-Quiz-14",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nBeim Perzentilintervall (PI) werden “links” und “rechts” die gleiche Wahrscheinlichkeitsmasse von einer Verteilung “abgeschnitten”.\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html#answerlist-1",
-    "title": "Verteilungen-Quiz-14",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html",
-    "href": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html",
-    "title": "Verteilungen-Quiz-15",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nDas HDI schneidet auf beiden Seiten des Intervalls die gleiche Wahrscheinlichkeitsmasse ab.\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html#answerlist-1",
-    "title": "Verteilungen-Quiz-15",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html",
-    "href": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html",
-    "title": "Verteilungen-Quiz-12",
-    "section": "",
-    "text": "Ist folgende Aussage wahr?\nBei einer symmetrischen Verteilung gilt: \\(\\bar{x} = Md = \\text{Modus}\\).\n\n\n\nJa\nNein"
-  },
-  {
-    "objectID": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html#answerlist-1",
-    "href": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html#answerlist-1",
-    "title": "Verteilungen-Quiz-12",
-    "section": "Answerlist",
-    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   }
 ]
