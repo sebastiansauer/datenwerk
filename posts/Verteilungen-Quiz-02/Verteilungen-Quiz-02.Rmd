@@ -1,0 +1,150 @@
+---
+exname: Verteilungen-Quiz-02
+extype: schoice
+exsolution: 10
+exshuffle: no
+categories:
+- distributions
+- Verteilungen-Quiz
+- probability
+- bayes
+- simulation
+date: '2022-11-20'
+slug: Verteilungen-Quiz-02
+title: Verteilungen-Quiz-02
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+
+
+```
+
+
+
+
+
+
+# Exercise
+
+Beziehen Sie sich auf den Standard-Globusversuch mit $N=9$ Würfen und $W=6$ Wassertreffern
+(binomialverteilt), vgl. [hier](https://start-bayes.netlify.app/post#mit-stichproben-die-post-verteilung-zusammenfassen).
+
+Die Stichproben-Postverteilung [sieht so aus](https://start-bayes.netlify.app/post#fig-samples1):
+
+```{r echo=FALSE, out.width="50%"}
+knitr::include_graphics("https://start-bayes.netlify.app/Post_files/figure-html/fig-samples1-1.png")
+```
+
+
+Ist es (auf dieser Basis) plausibler von einem 50%-PI [.6,.8] auszugehen als von einem 50%-PI [.05,.95]?
+
+
+Answerlist
+----------
+* Ja
+* Nein
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+```
+
+
+
+Berechnen wir die Post-Verteilung:
+
+```{r}
+n <- 10
+n_success <- 6
+n_trials  <- 9
+
+d <-
+  tibble(p_grid = seq(from = 0, to = 1, length.out = n),
+         prior  = 1) %>% 
+  mutate(likelihood = dbinom(n_success, 
+                             size = n_trials, 
+                             prob = p_grid)) %>% 
+  mutate(unstand_post = (likelihood * prior),
+         post = unstand_post / sum(unstand_post))
+```
+
+Und dann ziehen wir daraus Stichproben,
+damit wir einfach ein PI (Perzentilintervall) berechnen können.
+
+```{r}
+samples <-
+  d %>%  # nimmt die Tabelle mit Posteriori-Daten,
+  slice_sample(  # Ziehe daraus eine Stichprobe,
+    n = 1e4,  # mit insgesamt n=10000 Zeilen,
+    weight_by = post,  # Gewichte nach Post-Wskt.,
+    replace = T)  %>%  # Ziehe mit Zurücklegen
+  select(p_grid)
+```
+
+
+Dann berechnen wir das 50%-PI:
+
+
+```{r}
+samples %>% 
+  eti(ci = .5)
+```
+
+
+Die Grenzen des 50%-PI liegen ziemlich nahe an [.6, .8].
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- distributions
+- Verteilungen-Quiz
+- probability
+- bayes
+- simulation
+

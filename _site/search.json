@@ -690,7 +690,7 @@
     "href": "posts/twitter05/twitter05.html",
     "title": "twitter05",
     "section": "",
-    "text": "Solution\nNutzen Sie die Daten der letzten Aufgabe, um eine Sentimentanalyse zu erstellen.\nZuerst muss man sich anmelden und die Tweets herunterladen; dieser Teil ist hier nicht aufgeführt (s. andere Aufgaben).\n\nlibrary(rtweet)\nlibrary(tidyverse)\n\n── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──\n✔ ggplot2 3.3.6      ✔ purrr   0.3.5 \n✔ tibble  3.1.8      ✔ dplyr   1.0.10\n✔ tidyr   1.2.1      ✔ stringr 1.4.1 \n✔ readr   2.1.3      ✔ forcats 0.5.2 \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter()  masks stats::filter()\n✖ purrr::flatten() masks rtweet::flatten()\n✖ dplyr::lag()     masks stats::lag()\n\nlibrary(tidytext)\nlibrary(lsa)  # Stopwörter\n\nLoading required package: SnowballC\n\nlibrary(SnowballC)  # Stemming\n\n\n\n\nBeachten Sie, dass die Spalten je nach Funktion, die Sie zum Herunterladen der Tweets verwenden, unterschiedlich heißen können.\n\nkarl2 <- \n  karl1 %>% \n  select(contains(\"text\"))\n\n\nkarl3 <- \n  karl2 %>% \n  unnest_tokens(output = word, input = text)\n\n\nkarl4 <- \nkarl3 %>% \n  anti_join(tibble(word = lsa::stopwords_de)) \n\nJoining, by = \"word\"\n\n\n\nkarl5 <- \n  karl4 %>% \n  mutate(word = str_replace_na(word, \"^[:digit:]+$\")) %>% \n  mutate(word = str_replace_na(word, \"hptts?://\\\\w+\")) %>% \n  mutate(word = str_replace_na(word, \" +\")) %>% \n  drop_na()\n\n\ndata(sentiws, package = \"pradadata\")\n\n\nkarl7 <-\n  karl5 %>% \n  inner_join(sentiws)\n\nJoining, by = \"word\"\n\n\n\nkarl7 %>% \n  group_by(neg_pos) %>% \n  summarise(senti_avg = mean(value, na.rm = TRUE),\n            senti_sd = sd(value, na.rm = TRUE),\n            senti_n = n())\n\n# A tibble: 2 × 4\n  neg_pos senti_avg senti_sd senti_n\n  <chr>       <dbl>    <dbl>   <int>\n1 neg        -0.347    0.186       2\n2 pos         0.167    0.283       3\n\n\nAchtung, Sentimentanalyse sollte vor dem Stemming kommen.\n\nCategories:\n\ntextmining\ntwitter"
+    "text": "Solution\nNutzen Sie die Daten der letzten Aufgabe, um eine Sentimentanalyse zu erstellen.\nZuerst muss man sich anmelden und die Tweets herunterladen; dieser Teil ist hier nicht aufgeführt (s. andere Aufgaben).\n\nlibrary(rtweet)\nlibrary(tidyverse)\n\n── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──\n✔ ggplot2 3.4.0      ✔ purrr   0.3.5 \n✔ tibble  3.1.8      ✔ dplyr   1.0.10\n✔ tidyr   1.2.1      ✔ stringr 1.4.1 \n✔ readr   2.1.3      ✔ forcats 0.5.2 \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter()  masks stats::filter()\n✖ purrr::flatten() masks rtweet::flatten()\n✖ dplyr::lag()     masks stats::lag()\n\nlibrary(tidytext)\nlibrary(lsa)  # Stopwörter\n\nLoading required package: SnowballC\n\nlibrary(SnowballC)  # Stemming\n\n\n\n\nBeachten Sie, dass die Spalten je nach Funktion, die Sie zum Herunterladen der Tweets verwenden, unterschiedlich heißen können.\n\nkarl2 <- \n  karl1 %>% \n  select(contains(\"text\"))\n\n\nkarl3 <- \n  karl2 %>% \n  unnest_tokens(output = word, input = text)\n\n\nkarl4 <- \nkarl3 %>% \n  anti_join(tibble(word = lsa::stopwords_de)) \n\nJoining, by = \"word\"\n\n\n\nkarl5 <- \n  karl4 %>% \n  mutate(word = str_replace_na(word, \"^[:digit:]+$\")) %>% \n  mutate(word = str_replace_na(word, \"hptts?://\\\\w+\")) %>% \n  mutate(word = str_replace_na(word, \" +\")) %>% \n  drop_na()\n\n\ndata(sentiws, package = \"pradadata\")\n\n\nkarl7 <-\n  karl5 %>% \n  inner_join(sentiws)\n\nJoining, by = \"word\"\n\n\n\nkarl7 %>% \n  group_by(neg_pos) %>% \n  summarise(senti_avg = mean(value, na.rm = TRUE),\n            senti_sd = sd(value, na.rm = TRUE),\n            senti_n = n())\n\n# A tibble: 2 × 4\n  neg_pos senti_avg senti_sd senti_n\n  <chr>       <dbl>    <dbl>   <int>\n1 neg        -0.347    0.186       2\n2 pos         0.167    0.283       3\n\n\nAchtung, Sentimentanalyse sollte vor dem Stemming kommen.\n\nCategories:\n\ntextmining\ntwitter"
   },
   {
     "objectID": "posts/twitter02/twitter02.html",
@@ -739,7 +739,7 @@
     "href": "index.html",
     "title": "datenwerk",
     "section": "",
-    "text": "textmining\n\n\ntwitter\n\n\nprogramming\n\n\n\n\n\n\n\n\n\n\n\nNov 19, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\nbayes\n\n\nbayes-box\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nprobability\n\n\npost\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nbayes-box\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\nbayes\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\ndistribution\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfat-tails\n\n\ndistributions\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndistribution\n\n\nfat-tails\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\nregression\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\npost\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nprobability\n\n\nppv\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nNov 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\nprogramming\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbinomial\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbinomial\n\n\nexample\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\n2022\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nphilosophy\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nconditional\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprogramming\n\n\nloop\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobabillity\n\n\ndependent\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndependent\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nmeta\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\n2022\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprogramming\n\n\nloop\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\ninference\n\n\nlm\n\n\n\n\n\n\n\n\n\n\n\nOct 7, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata\n\n\neda\n\n\n\n\n\n\n\n\n\n\n\nSep 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata\n\n\neda\n\n\n\n\n\n\n\n\n\n\n\nSep 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata\n\n\neda\n\n\n\n\n\n\n\n\n\n\n\nSep 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ncausal\n\n\ndag\n\n\n\n\n\n\n\n\n\n\n\nSep 7, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ncorrelation\n\n\nlm\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\ninference\n\n\nuncertainty\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nttest\n\n\nregr\n\n\nvariable-levels\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nstats-nutshell\n\n\nqm2\n\n\nregression\n\n\nlog\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\nlm\n\n\nbayes\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nbayes\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlm\n\n\ninference\n\n\nqm2\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ninference\n\n\nlm\n\n\nqm2\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregr\n\n\nttest\n\n\nvariable-levels\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nbayes\n\n\nadjust\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\ninference\n\n\nparameters\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlm\n\n\ninference\n\n\nqm2\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\nqm2-thema01\n\n\n\n\n\n\n\n\n\n\n\nJul 10, 2022\n\n\n\n\n\n\nNo matching items"
+    "text": "distributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndistributions\n\n\nVerteilungen-Quiz\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 20, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\nprogramming\n\n\n\n\n\n\n\n\n\n\n\nNov 19, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\nbayes\n\n\nbayes-box\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\nnormal-distribution\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nprobability\n\n\npost\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nbayes-box\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\nbayes\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nsimulation\n\n\ndistribution\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfat-tails\n\n\ndistributions\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndistribution\n\n\nfat-tails\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\nregression\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\npost\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nppv\n\n\nprobability\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbayes\n\n\nprobability\n\n\nppv\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNov 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nNov 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\nprogramming\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbinomial\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\nsimulation\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndice\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbinomial\n\n\nexample\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntextmining\n\n\ntwitter\n\n\n\n\n\n\n\n\n\n\n\nOct 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\n2022\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nphilosophy\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes-grid\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nbayes\n\n\n\n\n\n\n\n\n\n\n\nOct 27, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nconditional\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprogramming\n\n\nloop\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobabillity\n\n\ndependent\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\ndependent\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\nmeta\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprobability\n\n\n2022\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nprogramming\n\n\nloop\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nr\n\n\nmap\n\n\ntidyverse\n\n\n\n\n\n\n\n\n\n\n\nOct 24, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\ninference\n\n\nlm\n\n\n\n\n\n\n\n\n\n\n\nOct 7, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata\n\n\neda\n\n\n\n\n\n\n\n\n\n\n\nSep 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata\n\n\neda\n\n\n\n\n\n\n\n\n\n\n\nSep 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata\n\n\neda\n\n\n\n\n\n\n\n\n\n\n\nSep 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ncausal\n\n\ndag\n\n\n\n\n\n\n\n\n\n\n\nSep 7, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ncorrelation\n\n\nlm\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\ninference\n\n\nuncertainty\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nttest\n\n\nregr\n\n\nvariable-levels\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nstats-nutshell\n\n\nqm2\n\n\nregression\n\n\nlog\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\nlm\n\n\nbayes\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nbayes\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlm\n\n\ninference\n\n\nqm2\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ninference\n\n\nlm\n\n\nqm2\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregresssion\n\n\nen\n\n\nbayes\n\n\nfrequentist\n\n\nqm1\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregr\n\n\nttest\n\n\nvariable-levels\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nstats-nutshell\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nregression\n\n\nlm\n\n\nqm2\n\n\nbayes\n\n\nadjust\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\ninference\n\n\nparameters\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlm\n\n\ninference\n\n\nqm2\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nqm2\n\n\nqm2-thema01\n\n\n\n\n\n\n\n\n\n\n\nJul 10, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -753,6 +753,258 @@
     "href": "posts/twitter07/twitter07.html",
     "title": "twitter07",
     "section": "",
-    "text": "Solution\nWir starten die benötigten R-Pakete:\n\nlibrary(academictwitteR)\nlibrary(tidyverse)\n\n── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──\n✔ ggplot2 3.3.6      ✔ purrr   0.3.5 \n✔ tibble  3.1.8      ✔ dplyr   1.0.10\n✔ tidyr   1.2.1      ✔ stringr 1.4.1 \n✔ readr   2.1.3      ✔ forcats 0.5.2 \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\n\nlibrary(askpass)\nlibrary(rio)\n\nHier ist der Datensatz mit den Twitterkonten, für die wir die Daten herunterladen sollen:\n\npoliticians_path <- \"https://raw.githubusercontent.com/sebastiansauer/datascience-text/main/data/twitter-german-politicians.csv\"\npoliticians <- import(politicians_path)\npoliticians\n\n                                               name  party      screenname\n1                                   Karl Lauterbach    SPD Karl_Lauterbach\n2                                       Olaf Scholz    SPD      OlafScholz\n3                                 Annalena Baerback Gruene       ABaerbock\n4  Bundesministerium für Wirtschaft und Klimaschutz Gruene            BMWK\n5                                    Friedrich Merz    CDU  _FriedrichMerz\n6                                      Markus Söder    CSU   Markus_Soeder\n7                                       Cem Özdemir Gruene    cem_oezdemir\n8                                    Janine Wissler  Linke  Janine_Wissler\n9                                 Martin Schirdewan  Linke      schirdewan\n10                                Christian Lindner    FDP       c_lindner\n11                    Marie-Agnes Strack-Zimmermann    FDP      MAStrackZi\n12                                   Tino Chrupalla    AFD  Tino_Chrupalla\n13                                     Alice Weidel    AFD    Alice_Weidel\n                                  comment\n1                                    <NA>\n2                                    <NA>\n3                                    <NA>\n4  Robert Habeck ist der Minister im BMWK\n5                                CDU-Chef\n6                                CSU-Chef\n7                                    BMEL\n8                            Linke-Chefin\n9                              Linke-Chef\n10                               FDP-Chef\n11     Vorsitzende Verteidigungsausschuss\n12                     AFD-Bundessprecher\n13                   AFD-Bundessprecherin\n\n\nWir müssen noch das Passwort bereitstellen:\n\nbearer_token <- askpass::askpass(\"bearer token\")\n\nUnd dann definieren wir eine Funktion, die das Gewichtheben für uns erledigt:\n\nget_all_tweets_politicians <- function(screenname, n = 1e1) {\n  get_all_tweets(query = paste0(\"to:\", screenname, \" -is:retweet\"),\n                 start_tweets = \"2021-01-01T00:00:00Z\",\n                 end_tweets = \"2021-12-31T23:59:59Z\",\n                 bearer_token = bearer_token,\n                 file = glue::glue(\"~/datasets/Twitter/hate-speech/tweets_to_{screenname}_2021.rds\"),\n                 data_path = glue::glue(\"~/datasets/Twitter/hate-speech/{screenname}\"),\n                 n = n)\n}\n\nJetzt wenden wir die Funktion auf jedes Twitterkonto unserer Liste (alle Politikis) an:\n\nd <- politicians$screenname %>% \n  map(get_all_tweets_politicians)\n\n\nCategories:\n\ntextmining\ntwitter\nprogramming"
+    "text": "Solution\nWir starten die benötigten R-Pakete:\n\nlibrary(academictwitteR)\nlibrary(tidyverse)\n\n── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──\n✔ ggplot2 3.4.0      ✔ purrr   0.3.5 \n✔ tibble  3.1.8      ✔ dplyr   1.0.10\n✔ tidyr   1.2.1      ✔ stringr 1.4.1 \n✔ readr   2.1.3      ✔ forcats 0.5.2 \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\n\nlibrary(askpass)\nlibrary(rio)\n\nHier ist der Datensatz mit den Twitterkonten, für die wir die Daten herunterladen sollen:\n\npoliticians_path <- \"https://raw.githubusercontent.com/sebastiansauer/datascience-text/main/data/twitter-german-politicians.csv\"\npoliticians <- import(politicians_path)\npoliticians\n\n                                               name  party      screenname\n1                                   Karl Lauterbach    SPD Karl_Lauterbach\n2                                       Olaf Scholz    SPD      OlafScholz\n3                                 Annalena Baerback Gruene       ABaerbock\n4  Bundesministerium für Wirtschaft und Klimaschutz Gruene            BMWK\n5                                    Friedrich Merz    CDU  _FriedrichMerz\n6                                      Markus Söder    CSU   Markus_Soeder\n7                                       Cem Özdemir Gruene    cem_oezdemir\n8                                    Janine Wissler  Linke  Janine_Wissler\n9                                 Martin Schirdewan  Linke      schirdewan\n10                                Christian Lindner    FDP       c_lindner\n11                    Marie-Agnes Strack-Zimmermann    FDP      MAStrackZi\n12                                   Tino Chrupalla    AFD  Tino_Chrupalla\n13                                     Alice Weidel    AFD    Alice_Weidel\n                                  comment\n1                                    <NA>\n2                                    <NA>\n3                                    <NA>\n4  Robert Habeck ist der Minister im BMWK\n5                                CDU-Chef\n6                                CSU-Chef\n7                                    BMEL\n8                            Linke-Chefin\n9                              Linke-Chef\n10                               FDP-Chef\n11     Vorsitzende Verteidigungsausschuss\n12                     AFD-Bundessprecher\n13                   AFD-Bundessprecherin\n\n\nWir müssen noch das Passwort bereitstellen:\n\nbearer_token <- askpass::askpass(\"bearer token\")\n\nUnd dann definieren wir eine Funktion, die das Gewichtheben für uns erledigt:\n\nget_all_tweets_politicians <- function(screenname, n = 1e1) {\n  get_all_tweets(query = paste0(\"to:\", screenname, \" -is:retweet\"),\n                 start_tweets = \"2021-01-01T00:00:00Z\",\n                 end_tweets = \"2021-12-31T23:59:59Z\",\n                 bearer_token = bearer_token,\n                 file = glue::glue(\"~/datasets/Twitter/hate-speech/tweets_to_{screenname}_2021.rds\"),\n                 data_path = glue::glue(\"~/datasets/Twitter/hate-speech/{screenname}\"),\n                 n = n)\n}\n\nJetzt wenden wir die Funktion auf jedes Twitterkonto unserer Liste (alle Politikis) an:\n\nd <- politicians$screenname %>% \n  map(get_all_tweets_politicians)\n\n\nCategories:\n\ntextmining\ntwitter\nprogramming"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html",
+    "href": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html",
+    "title": "Verteilungen-Quiz-05",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nIst eine stetige Verteilung symmetrisch, gilt dann\n\\(Pr(X \\ge \\bar{x} + 1) = Pr(X \\le \\bar{x} - 1)\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-05/Verteilungen-Quiz-05.html#answerlist-1",
+    "title": "Verteilungen-Quiz-05",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html",
+    "href": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html",
+    "title": "Verteilungen-Quiz-02",
+    "section": "",
+    "text": "Beziehen Sie sich auf den Standard-Globusversuch mit \\(N=9\\) Würfen und \\(W=6\\) Wassertreffern (binomialverteilt), vgl. hier.\nDie Stichproben-Postverteilung sieht so aus:\n\n\n\n\n\n\n\n\n\nIst es (auf dieser Basis) plausibler von einem 50%-PI [.6,.8] auszugehen als von einem 50%-PI [.05,.95]?\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-02/Verteilungen-Quiz-02.html#answerlist-1",
+    "title": "Verteilungen-Quiz-02",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html",
+    "href": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html",
+    "title": "Verteilungen-Quiz-03",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nWenn eine Verteilung einer stetigen Zufallsvariablen \\(X\\) (z.B. die Posteriori-Verteilung einer Bayes-Analyse) normalverteilt ist, gilt dann \\(Pr(X \\ge\\bar{x}) = 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-03/Verteilungen-Quiz-03.html#answerlist-1",
+    "title": "Verteilungen-Quiz-03",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html",
+    "href": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html",
+    "title": "Verteilungen-Quiz-04",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nIst eine stetige Verteilung symmetrisch, dann ist sie normalverteilt.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-04/Verteilungen-Quiz-04.html#answerlist-1",
+    "title": "Verteilungen-Quiz-04",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html",
+    "href": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html",
+    "title": "Verteilungen-Quiz-17",
+    "section": "",
+    "text": "Ei Forschi untersucht die mittlere Körpergröße eines bis dato unbekannten Urwaldvolks. Dabei findet sich aposteriori (also als Ergebnis der Untersuchung) \\(\\bar{x} \\sim N(160,5)\\) (in Zentimetern).\nDis Forschi resümiert: “Mit sehr hoher Wahrscheinlichkeit, also 95%, sind diese Menschen im Schnitt größer als 1 Meter 60 Zentimeter groß”.\nIst diese Aussage korrekt (gegeben der Angaben)?\nHinweise:\n\nNutzen Sie Simulationsmethoden zur Lösung\nFixieren Sie die Zufallszahlen auf die Startzahl 42.\nZiehen Sie \\(10^5\\) Zufallszahlen aus der gegebenen Verteilung.\n\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-17/Verteilungen-Quiz-17.html#answerlist-1",
+    "title": "Verteilungen-Quiz-17",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html",
+    "href": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html",
+    "title": "Verteilungen-Quiz-10",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X = \\bar{x}) = 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-10/Verteilungen-Quiz-10.html#answerlist-1",
+    "title": "Verteilungen-Quiz-10",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html",
+    "href": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html",
+    "title": "Verteilungen-Quiz-11",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBei einer Verteilung gilt: \\(\\bar{x} = Md = \\text{Modus}\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-11/Verteilungen-Quiz-11.html#answerlist-1",
+    "title": "Verteilungen-Quiz-11",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html",
+    "href": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html",
+    "title": "Verteilungen-Quiz-16",
+    "section": "",
+    "text": "Für die Körpergröße des deutschen Mannes \\(X\\) gelte \\(X \\sim N(180,06)\\) (in Zentimetern).\nQuelle Mittelwert Quelle SD geschätzt\nÄhnliche Daten finden sich bei Our World in Data.\nIst folgende Aussage wahr?\nDas 50%-Quantil von \\(X\\) beträgt 180.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-16/Verteilungen-Quiz-16.html#answerlist-1",
+    "title": "Verteilungen-Quiz-16",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html",
+    "href": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html",
+    "title": "Verteilungen-Quiz-18",
+    "section": "",
+    "text": "Ei Forschi untersucht den Effekt eines Intelligenztraining auf den IQ.\nDabei findet sich aposteriori (also als Ergebnis der Untersuchung) \\(\\bar{x} \\sim N(3,5)\\) (in Standard-IQ-Punkten). Wir messen dabei die Erhöhung des Intelligenzwerts.\nDis Forschi resümiert: “Mit einer Wahrscheinlichkeit von 95% profitiert man von diesem Training”.\nIst diese Aussage korrekt (gegeben der Angaben)?\nHinweise:\n\nNutzen Sie Simulationsmethoden zur Lösung\nFixieren Sie die Zufallszahlen auf die Startzahl 42.\nZiehen Sie \\(10^5\\) Zufallszahlen aus der gegebenen Verteilung.\n\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-18/Verteilungen-Quiz-18.html#answerlist-1",
+    "title": "Verteilungen-Quiz-18",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html",
+    "href": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html",
+    "title": "Verteilungen-Quiz-01",
+    "section": "",
+    "text": "Beziehen Sie sich auf den Standard-Globusversuch mit \\(N=9\\) Würfen und \\(W=6\\) Wassertreffern (binomialverteilt), vgl. hier.\nDie Stichproben-Postverteilung sieht so aus:\n\n\n\n\n\n\n\n\n\nIst sich das Modell auf Basis dieser Post-Verteilung sicher sein, dass der Wasseranteil \\(\\pi=.7\\) beträgt?\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-01/Verteilungen-Quiz-01.html#answerlist-1",
+    "title": "Verteilungen-Quiz-01",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html",
+    "href": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html",
+    "title": "Verteilungen-Quiz-06",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge 100) \\ne 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-06/Verteilungen-Quiz-06.html#answerlist-1",
+    "title": "Verteilungen-Quiz-06",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html",
+    "href": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html",
+    "title": "Verteilungen-Quiz-08",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge 115) \\approx 0.16\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-08/Verteilungen-Quiz-08.html#answerlist-1",
+    "title": "Verteilungen-Quiz-08",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html",
+    "href": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html",
+    "title": "Verteilungen-Quiz-09",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\ge \\bar{x} + \\sigma) \\approx 0.84\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-09/Verteilungen-Quiz-09.html#answerlist-1",
+    "title": "Verteilungen-Quiz-09",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html",
+    "href": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html",
+    "title": "Verteilungen-Quiz-07",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nSei \\(X \\sim N(100,15)\\), dann ist \\(Pr(X \\le 100) \\ne 1/2\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-07/Verteilungen-Quiz-07.html#answerlist-1",
+    "title": "Verteilungen-Quiz-07",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html",
+    "href": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html",
+    "title": "Verteilungen-Quiz-13",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBei rechtsschiefen Verteilungen gilt \\(\\bar{x} \\gt Md\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-13/Verteilungen-Quiz-13.html#answerlist-1",
+    "title": "Verteilungen-Quiz-13",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html",
+    "href": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html",
+    "title": "Verteilungen-Quiz-14",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBeim Perzentilintervall (PI) werden “links” und “rechts” die gleiche Wahrscheinlichkeitsmasse von einer Verteilung “abgeschnitten”.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-14/Verteilungen-Quiz-14.html#answerlist-1",
+    "title": "Verteilungen-Quiz-14",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html",
+    "href": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html",
+    "title": "Verteilungen-Quiz-15",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nDas HDI schneidet auf beiden Seiten des Intervalls die gleiche Wahrscheinlichkeitsmasse ab.\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-15/Verteilungen-Quiz-15.html#answerlist-1",
+    "title": "Verteilungen-Quiz-15",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nFalsch\nWahr\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html",
+    "href": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html",
+    "title": "Verteilungen-Quiz-12",
+    "section": "",
+    "text": "Ist folgende Aussage wahr?\nBei einer symmetrischen Verteilung gilt: \\(\\bar{x} = Md = \\text{Modus}\\).\n\n\n\nJa\nNein"
+  },
+  {
+    "objectID": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html#answerlist-1",
+    "href": "posts/Verteilungen-Quiz-12/Verteilungen-Quiz-12.html#answerlist-1",
+    "title": "Verteilungen-Quiz-12",
+    "section": "Answerlist",
+    "text": "Answerlist\n\nWahr\nFalsch\n\n\nCategories:\n\ndistributions\nVerteilungen-Quiz\nprobability\nbayes\nsimulation"
   }
 ]
