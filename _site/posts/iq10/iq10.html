@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-11-11">
+<meta name="dcterms.date" content="2022-11-23">
 
 <title>datenwerk - iq10</title>
 <style>
@@ -180,7 +180,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 11, 2022</p>
+        <p class="date">November 23, 2022</p>
       </div>
     </div>
       
@@ -201,7 +201,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1>Exercise</h1>
 <p>Eine Forscherin, Prof.&nbsp;Weiss-Ois, untersucht den Effekt von Cannabis auf die Intelligenz.</p>
 <p>Dazu untersucht Sie die Intelligenz langjähriger Konsumentis.</p>
-<p>Prof.&nbsp;Weiss-Ois geht apriori von gleichverteilter Intelligenz. Ihre zentrale Hypothese ist <span class="math inline">\(\mu = 90\pm5\)</span>.</p>
+<p>Prof.&nbsp;Weiss-Ois geht apriori von gleichverteilter Intelligenz aus. Ihre zentrale Hypothese ist <span class="math inline">\(\mu = 90\pm5\)</span>.</p>
 <p>Mit großer Spannung wurden die Messdaten zur Intelligenz erwartet (die erst nach langem Streit über die zu verwendenden Intelligenztests erhoben werden konnten). Insgesamt wurden <span class="math inline">\(N=541\)</span> Personen untersucht.</p>
 <p>Tatsächlich sei die wahre IQ-Verteilung jener Cannabis-Konsumentis wie folgt: <span class="math inline">\(IQ \sim N(92.5, 7.5)\)</span>. Natürlich kennt die Forscherin diese Verteilung nicht.</p>
 <p><em>Wie wahrscheinlich ist die Hypothese der Forscherin im Lichte der Daten?</em></p>
@@ -211,6 +211,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).</li>
 <li>Simulieren Sie <span class="math inline">\(n=10^4\)</span> Stichproben.</li>
 <li>Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten).</li>
+<li>Gitterwerte für die Intelligenz könnten z.B. 75 bis 130 sein.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
@@ -219,40 +220,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Simulieren wir uns die Stichprobe:</p>
+<p>Zunächst basteln wir die Bayes-Box:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>stipro <span class="ot">&lt;-</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">iq =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">541</span>, <span class="at">mean =</span> <span class="fl">92.5</span>, <span class="at">sd =</span> <span class="fl">7.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>postvert <span class="ot">&lt;-</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">p_grid =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">75</span>, <span class="at">to =</span> <span class="dv">130</span>, <span class="at">length.out =</span> n),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">prior  =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">likelihood =</span> <span class="fu">dnorm</span>(<span class="at">x =</span> p_grid, <span class="at">mean =</span> <span class="fl">92.5</span>, <span class="at">sd =</span> <span class="fl">7.5</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">unstand_post =</span> likelihood <span class="sc">*</span> prior,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">post =</span> unstand_post <span class="sc">/</span> <span class="fu">sum</span>(unstand_post))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Jetzt basteln wir die Bayes-Box:</p>
+<p>Warum <code>75</code> bis <code>130</code>? Das ist ein beliebiger Wert, in dem Sinne, dass Sie sich inhaltlich überlegen müssen, welchen Wertebereich Sie für plausibel halten. Untersucht man IQ-Mittelwerte so erscheint (mir) ein Wertebereich von 75 bis 130 mehr als ausreichend. Untersucht man Mittelwerte der Körpergröße (heutiger Menschen in bekannten Zivilisationen) so erscheint (mir) ein Wertebereich von 140 cm bis 200cm als ausreichend.</p>
+<p>Aus der Post-Verteilung ziehen wir Stichproben:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>postvert <span class="ot">&lt;-</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">p_grid =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">75</span>, <span class="at">to =</span> <span class="dv">130</span>, <span class="at">length.out =</span> n),</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">prior  =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">likelihood =</span> <span class="fu">dnorm</span>(<span class="at">x =</span> p_grid, <span class="at">mean =</span> <span class="fl">92.5</span>, <span class="at">sd =</span> <span class="fl">7.5</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">unstand_post =</span> (likelihood <span class="sc">*</span> prior),</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">post =</span> unstand_post <span class="sc">/</span> <span class="fu">sum</span>(unstand_post))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>postvert_stipros <span class="ot">&lt;-</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  postvert <span class="sc">%&gt;%</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fl">1e4</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_by =</span> post,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">replace =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(p_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Daraus ziehen wir Stichproben:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>postvert_stipros <span class="ot">&lt;-</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  postvert <span class="sc">%&gt;%</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fl">1e4</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_by =</span> post,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">replace =</span> T) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(p_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>Damit haben wir unsere Stichproben-Post-Verteilung.</p>
 <p>Da <code>slice_sample</code> auch zufällig Stichproben zieht, müssen wir auch hier die Zufallszahlen fixieren, wenn wir die exakt gleichen Ergebnisse reproduzieren wollen.</p>
 <p>Jetzt schauen wir (mit Spannung), wie hoch die Wahrscheinlichkeit ist für Parameterwete (<code>p_grid</code>) innerhalb des Intervalls wie von der Forscherin vorgegeben.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>postvert_stipros <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="fu">between</span>(p_grid, <span class="at">left =</span> <span class="dv">85</span>, <span class="at">right =</span> <span class="dv">95</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>postvert_stipros <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="fu">between</span>(p_grid, <span class="at">left =</span> <span class="dv">85</span>, <span class="at">right =</span> <span class="dv">95</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
   `between(p_grid, left = 85, right = 95)`     n
@@ -264,8 +261,47 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><code>between</code> ist eine Komfortfuntion; ins Deutsche übersetzt sagt die Syntax:</p>
 <pre><code>Nimm die Tabelle postvert_stipros und dann ...
   zähle den Anteil der Werte von p_grid zwischen 85 und 95.</code></pre>
-<p>Die Wahrscheinlichkeit der Hypothese der Forscherin beträgt ca. 50%.</p>
+<p>Die Wahrscheinlichkeit der Hypothese der Forscherin beträgt also ca. 50%.</p>
 <p>Ob das viel oder weniger ist, ist eine subjektive Frage. Das beste Vorgehen wäre jetzt, die Hypothesen anderer Forschis dagegen zu legen. Dann würde man sehen, welche Hypothese am besten zu den Daten passt.</p>
+<p>Basteln wir zum Vergleich eine Bayes-Box mit Gitterwerte von von 60 bis 145:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>postvert2 <span class="ot">&lt;-</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">p_grid =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">60</span>, <span class="at">to =</span> <span class="dv">145</span>, <span class="at">length.out =</span> n),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">prior  =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">likelihood =</span> <span class="fu">dnorm</span>(<span class="at">x =</span> p_grid, <span class="at">mean =</span> <span class="fl">92.5</span>, <span class="at">sd =</span> <span class="fl">7.5</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">unstand_post =</span> likelihood <span class="sc">*</span> prior,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">post =</span> unstand_post <span class="sc">/</span> <span class="fu">sum</span>(unstand_post))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>postvert_stipros2 <span class="ot">&lt;-</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  postvert2 <span class="sc">%&gt;%</span> </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fl">1e4</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_by =</span> post,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">replace =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(p_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ob sich das Ergebnis ändert, jetzt, da wir einen breiteren Bereich an Gitterwerten untersuchzen?</p>
+<p>Jetzt schauen wir wieder (mit Spannung), wie hoch die Wahrscheinlichkeit ist für Parameterwete (<code>p_grid</code>) innerhalb des Intervalls wie von der Forscherin vorgegeben.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>postvert_stipros2 <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="fu">between</span>(p_grid, <span class="at">left =</span> <span class="dv">85</span>, <span class="at">right =</span> <span class="dv">95</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n<span class="sc">/</span><span class="fu">sum</span>(n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  `between(p_grid, left = 85, right = 95)`     n  prop
+  &lt;lgl&gt;                                    &lt;int&gt; &lt;dbl&gt;
+1 FALSE                                     5455 0.546
+2 TRUE                                      4545 0.454</code></pre>
+</div>
+</div>
+<p>Die Ergebnisse sind leicht anders als oben, wo wir den engeren Wertebereich als mögliche Werte angegeben haben.</p>
+<p>Aber bedenken Sie: Wir behaupten in <code>postvert2</code> ernsthaft, dass ein <em>Mittelwert</em> der Intelligenz in dieser Population mit gleicher Wascheinlichkeit 60 oder 145 sein könnte! Laut <a href="https://de.wikipedia.org/wiki/Intelligenzminderung">Wikipedia</a> beginnt mit 130 die Hochbegabung und unter 85 fängt die Lernbehinderung an. Dass diese Menschen super schlau oder mental behindert sind, erscheint uns gleich plausibel. Das ist eine <em>sehr starke</em> Apriori-Verteilung!</p>
+<p>Viel konservativer wäre zu sagen: “Okay, vermutlich sind diese Menschen so schlau wie alle anderen auch, vielleicht etwas mehr oder etwas weniger. Aber mit sehr hoher Wahrscheinlichkeit sind sie im Durchschnitt keine Einsteins oder nicht extrem mental eingeschränkt.”</p>
+<p>Wir brauchen also besser <em>nicht</em> gleichverteilte Priori-Verteilungen. Dazu an anderer Stelle mehr.</p>
 <hr>
 <p>Categories:</p>
 <ul>
@@ -273,7 +309,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>simulation</li>
 <li>normal-distribution</li>
 <li>bayes</li>
-<li>bayes-grid</li>
+<li>bayes-box</li>
 </ul>
 
 

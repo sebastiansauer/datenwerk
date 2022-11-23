@@ -11,7 +11,7 @@ categories:
 - normal-distribution
 - bayes
 - bayes-box
-date: '2022-11-11'
+date: '2022-11-23'
 slug: iq10
 title: iq10
 
@@ -45,7 +45,7 @@ Eine Forscherin, Prof. Weiss-Ois, untersucht den Effekt von Cannabis auf die Int
 
 Dazu untersucht Sie die Intelligenz langjähriger Konsumentis.
 
-Prof. Weiss-Ois geht apriori von gleichverteilter Intelligenz. 
+Prof. Weiss-Ois geht apriori von gleichverteilter Intelligenz aus. 
 Ihre zentrale Hypothese ist $\mu = 90\pm5$.
  
 
@@ -66,6 +66,7 @@ Hinweise:
 - Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
 - Simulieren Sie $n=10^4$ Stichproben.
 - Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten).
+- Gitterwerte für die Intelligenz könnten z.B. 75 bis 130 sein.
 
 
 </br>
@@ -86,16 +87,8 @@ library(tidyverse)
 ```
 
 
-Simulieren wir uns die Stichprobe:
 
-```{r}
-set.seed(42)
-stipro <-
-  tibble(iq = rnorm(n = 541, mean = 92.5, sd = 7.5))
-```
-
-
-Jetzt basteln wir die Bayes-Box:
+Zunächst basteln wir die Bayes-Box:
 
 ```{r}
 n <- 100
@@ -105,12 +98,19 @@ postvert <-
   tibble(p_grid = seq(from = 75, to = 130, length.out = n),
          prior  = 1) %>% 
   mutate(likelihood = dnorm(x = p_grid, mean = 92.5, sd = 7.5)) %>% 
-  mutate(unstand_post = (likelihood * prior),
+  mutate(unstand_post = likelihood * prior,
          post = unstand_post / sum(unstand_post))
 ```
 
 
-Daraus ziehen wir Stichproben:
+Warum `75` bis `130`? Das ist ein beliebiger Wert,
+in dem Sinne, dass Sie sich inhaltlich überlegen müssen,
+welchen Wertebereich Sie für plausibel halten.
+Untersucht man IQ-Mittelwerte so erscheint (mir) ein Wertebereich von 75 bis 130 mehr als ausreichend.
+Untersucht man Mittelwerte der Körpergröße (heutiger Menschen in bekannten Zivilisationen) so erscheint (mir) ein Wertebereich von 140 cm bis 200cm als ausreichend.
+
+
+Aus der Post-Verteilung ziehen wir Stichproben:
 
 ```{r}
 set.seed(42)
@@ -123,6 +123,8 @@ postvert_stipros <-
   select(p_grid)
   
 ```
+
+Damit haben wir unsere Stichproben-Post-Verteilung.
 
 Da `slice_sample` auch zufällig Stichproben zieht,
 müssen wir auch hier die Zufallszahlen fixieren, wenn
@@ -144,11 +146,64 @@ Nimm die Tabelle postvert_stipros und dann ...
   zähle den Anteil der Werte von p_grid zwischen 85 und 95.
 ```
 
-Die Wahrscheinlichkeit der Hypothese der Forscherin beträgt ca. 50%.
+Die Wahrscheinlichkeit der Hypothese der Forscherin beträgt also ca. 50%.
 
 Ob das viel oder weniger ist, ist eine subjektive Frage.
 Das beste Vorgehen wäre jetzt, die Hypothesen anderer Forschis dagegen zu legen.
 Dann würde man sehen, welche Hypothese am besten zu den Daten passt.
+
+
+
+Basteln wir zum Vergleich eine Bayes-Box mit Gitterwerte von von 60 bis 145:
+
+
+
+```{r}
+n <- 100
+
+set.seed(42)
+postvert2 <-
+  tibble(p_grid = seq(from = 60, to = 145, length.out = n),
+         prior  = 1) %>% 
+  mutate(likelihood = dnorm(x = p_grid, mean = 92.5, sd = 7.5)) %>% 
+  mutate(unstand_post = likelihood * prior,
+         post = unstand_post / sum(unstand_post))
+
+set.seed(42)
+postvert_stipros2 <-
+  postvert2 %>% 
+  slice_sample(
+    n = 1e4,
+    weight_by = post,
+    replace = T) %>% 
+  select(p_grid)
+```
+
+
+Ob sich das Ergebnis ändert, jetzt, da wir einen breiteren Bereich an Gitterwerten untersuchzen?
+
+Jetzt schauen wir wieder (mit Spannung), wie hoch die Wahrscheinlichkeit ist für Parameterwete (`p_grid`) innerhalb des Intervalls wie von der Forscherin vorgegeben.
+
+```{r}
+postvert_stipros2 %>% 
+  count(between(p_grid, left = 85, right = 95)) %>% 
+  mutate(prop = n/sum(n))
+```
+
+Die Ergebnisse sind leicht anders als oben, wo wir den engeren Wertebereich als mögliche Werte angegeben haben.
+
+Aber bedenken Sie: Wir behaupten in `postvert2` ernsthaft, dass ein *Mittelwert* der Intelligenz in dieser Population mit gleicher Wascheinlichkeit 60 oder 145 sein könnte!
+Laut [Wikipedia](https://de.wikipedia.org/wiki/Intelligenzminderung) beginnt mit 130 die Hochbegabung und unter 85 fängt die Lernbehinderung an.
+Dass diese Menschen super schlau oder mental behindert sind, erscheint uns gleich plausibel.
+Das ist eine *sehr starke* Apriori-Verteilung!
+
+Viel konservativer wäre zu sagen: "Okay, vermutlich sind diese Menschen so schlau wie alle anderen auch,
+vielleicht etwas mehr oder etwas weniger. Aber mit sehr hoher Wahrscheinlichkeit sind sie im Durchschnitt keine Einsteins oder nicht extrem mental eingeschränkt."
+
+Wir brauchen also besser *nicht* gleichverteilte Priori-Verteilungen.
+Dazu an anderer Stelle mehr.
+
+
 
 
 
@@ -162,6 +217,5 @@ Categories:
 - simulation
 - normal-distribution
 - bayes
-- bayes-grid
-
+- bayes-box
 
