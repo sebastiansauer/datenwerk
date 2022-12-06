@@ -1,0 +1,190 @@
+---
+exname: regression2
+extype: schoice
+exsolution: r mchoice2string(d_five_options$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- regression
+- '2022'
+date: '2022-12-06'
+slug: Regression2
+title: Regression2
+
+---
+
+
+<!-- based on Karsten Luebke et al. -->
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(mosaic)
+library(glue)
+library(testthat)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = FALSE,
+                      #dpi = 72,
+                      fig.show = "hold")
+```
+
+
+
+
+# Exercise
+
+
+```{r paramsets, echo=FALSE}
+
+params <- list()
+
+
+params$n_set <- c(30, 50, 70)
+params$n <- sample(params$n_set, 1)
+
+params$xmin_set <- c(-20,-10)
+params$xmin <- sample(params$xmin_set,1)
+
+params$xmax_set <- c(10,20)
+params$xmax <- sample(params$xmax_set,1)
+
+params$e_set <- seq(1:7)
+params$e <- sample(params$e_set, 1)
+params$steigung_set <- c(-10, 10)
+params$achsenabschnitt_set <- c(-40,+40)
+
+```
+
+
+
+```{r build-grid, echo = FALSE}
+d <- 
+  expand_grid(achsenabschnitt_set = params$achsenabschnitt_set,
+              steigung_set = params$steigung_set) %>% 
+  mutate(item = glue("$y = {achsenabschnitt_set} + {steigung_set} \\cdot x + \\epsilon$")) 
+
+
+```
+
+```{r compute-solution, echo = FALSE}
+x <- runif(params$n, 
+           min = params$xmin, 
+           max = params$xmax)
+
+# construct four possible answer options (all possibly correct)
+d_five_options <-
+  d %>% 
+  sample_n(size = 4) %>% 
+  # choose a "correct" model:
+  mutate(is_correct = sample(x = c(TRUE, rep.int(FALSE, times = nrow(.)-1))))
+
+
+# Add a fifth option, incorrect
+d_one_more_incorrect_option <- 
+  tibble(achsenabschnitt_set = 0,
+         steigung_set = -40) %>% 
+  mutate(item = glue("$y = {achsenabschnitt_set} + {steigung_set} \\cdot x + \\epsilon$"),
+            is_correct = FALSE)
+
+
+# Add wrong options to the other four options:
+d_five_options <-
+  d_five_options %>% 
+  bind_rows(d_one_more_incorrect_option)
+
+
+# draw the "correct" model:
+d_correct <- 
+  d_five_options %>% 
+  filter(is_correct == TRUE)
+
+
+```
+
+
+
+```{r plot-scatter}
+# this is the "correct" model per definition
+yhat <- d_correct$achsenabschnitt_set[1] + d_correct$steigung_set[1] * x
+yi <- yhat + rnorm(params$n, sd = sd(yhat)/params$e)
+
+lm_true <- lm(yi ~ x)
+
+expect_equal(length(yhat), length(yi))
+
+
+gf_point(yi ~ x)
+r2 <- round(rsquared(lm_true), 2)
+```
+
+
+
+
+
+Wählen Sie das am besten passende Modell aus der Liste aus!
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(d_five_options$item, markup = "markdown")
+```
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+```{r}
+gf_point(yi ~ x) %>% 
+  gf_lm() %>% 
+  gf_vline(xintercept = 0, color = "grey60", linetype = "dashed") %>% 
+  gf_hline(yintercept = 0, color = "grey60", linetype = "dashed") +
+  annotate(geom = "point",
+           x = 0,
+           y = predict(lm_true, newdata = data.frame(x=0)),
+           color = "red",
+           alpha = .5,
+           size = 5) +
+  labs(caption = glue("Steigung b={round(d_correct$steigung_set[1], 2)}"))
+```
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(d_five_options$is_correct, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- '2022'
+
