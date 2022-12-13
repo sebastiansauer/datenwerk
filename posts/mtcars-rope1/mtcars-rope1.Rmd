@@ -1,0 +1,175 @@
+---
+extype: cloze
+exsolution: r sol[1]|r sol[2]|r sol[3]
+exclozetype: num|num|num
+exname: Distances
+extol: 0.01
+date: '2022-12-13'
+slug: mtcars-rope1
+title: mtcars-rope1
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+
+
+
+# Exercise
+
+
+
+Im Datensatz `mtcars`: Ist der (mittlere) Unterschied im Spritverbrauch zwischen den beiden Stufen von `vs` vernachlässigbar klein?
+
+Definieren Sie “vernachlässigbar klein” mit “höchstens eine Meile”.
+
+a) Geben Sie die Breite des 95% PI an (im Bezug zur gesuchten Größe).
+b) Geben Sie das 95% HDI an (im Bezug zur gesuchten Größe).
+c) Im Hinblick auf die Rope-Methode: Ist der Unterschied vernachlässigbar klein? (ja/nein/unentschieden)
+
+
+Hinweise:
+
+- Verwenden Sie ansonsten die Standardwerte (Defaults) der typischen (im Unterricht verwendeten) R-Funktionen.
+- Runden Sie auf 2 Dezimalstellen.
+- Verwenden Sie Methoden der Bayes-Statistik.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Setup:
+
+```{r message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)
+library(bayesplot)  # Histogramm-Plots für Post-Vert.
+library(bayestestR)  # rope
+```
+
+
+
+
+Modell berechnen:
+
+```{r}
+m1 <- stan_glm(mpg ~ vs, data = mtcars,
+               refresh = 0)
+```
+
+```{r}
+coef(m1)
+```
+
+
+zu a) 
+
+95%-PI:
+
+```{r}
+post_m1_vs <- posterior_interval(m1, prob = .95,
+                   pars = "vs")
+post_m1_vs[1]
+post_m1_vs[2]
+```
+
+
+Breite des Intervalls:
+
+```{r}
+breite <- post_m1_vs[2] - post_m1_vs[1]
+breite <- breite %>% round(2)
+breite
+```
+
+Die Antwort für a) lautet also `r breite`.
+
+
+```{r}
+mcmc_areas(m1)
+```
+
+
+zu b)
+
+Wir nutzen den Befehl `hdi()` aus `{bayestestR}`.
+
+```{r}
+hdi(m1)
+```
+
+Mit dem Schalter `ci = .89` bekäme man bspw. ein 89%-Intervall (s. Hilfe für den Befehl).
+
+"hdi" und "hdpi" und "hpdi" sind synonym.
+
+
+```{r}
+ggplot(mtcars) +
+  aes(x = vs, y = mpg) +
+  geom_point()+
+  geom_smooth(method = "lm")
+
+```
+
+
+zu c)
+
+
+```{r}
+rope(m1,range = c(-1,1))
+```
+
+```{r}
+plot(rope(m1, range = c(-1,1)))
+```
+
+Wir verwerfen also die H0-Rope.
+
+
+  
+  
+
+  
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+~
+

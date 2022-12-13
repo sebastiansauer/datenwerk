@@ -1,0 +1,102 @@
+---
+extype: string
+exsolution: NA
+exname: Regr-Bayes-interpret3
+expoints: 1
+categories:
+- bayes
+- regression
+date: '2022-12-13'
+slug: Regr-Bayes-interpret03
+title: Regr-Bayes-interpret03
+
+---
+
+
+
+
+
+
+# Exercise
+
+Berechnen Sie das Modell und interpretieren Sie die Ausgabe des folgenden Regressionsmodells.
+Geben Sie für jeden Regressionskoeffizienten an, wie sein Wert zu verstehen ist!
+
+
+`mpg_z ~ hp_z + am + hp_z:am`
+
+
+Hinweise:
+
+- Fixieren Sie die Zufallszahlen.
+- Verwenden Sie Stan zur Berechnung.
+- Runden Sie auf 2 Dezimalstellen.
+- Das Suffix `_z` steht für z-standardisierte Variablen.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r message=FALSE}
+library(tidyverse)  # Datenjudo
+library(rstanarm)  # Stan, komm her
+library(easystats)  # Komfort
+
+data(mtcars)
+```
+
+
+Zuerst standardisieren wir die Daten:
+
+```{r}
+mtcars2 <-
+  mtcars %>% 
+  standardize(append = TRUE)
+
+mtcars2  %>% 
+  describe_distribution()
+```
+
+
+
+```{r}
+m1 <- 
+  stan_glm(mpg_z ~ hp_z + am + hp_z:am, 
+           seed = 42,
+           refresh = 0,
+           data = mtcars2)
+
+coef(m1)
+```
+
+
+- *Intercept*: Ein Auto mit 0 PS und Automatikantrieb (`am=0`, s. Hilfe zum Datensatz: `help(mtcars)`) kann laut Modell mit einer Gallone Sprit ca. `r round(coef(m1)[[1]], 2)` Meilen fahren. Dieser Wert ist ca. Null, da die AV z-standardisiert ist. Ein Wert von Null in einer z-standardisierten Variablen entspricht dem Mittelwert in den Rohwerten.
+- *hp*: Pro zusätzlichem PS kann ein Auto mit Automatikantrieb pro Gallone Sprit ca. `r round(coef(m1)[[2]], 2)` Meilen weniger weit fahren.
+- *am*: Ein Auto mit 0 PS und Schaltgetriebe (`am=1`) kommt pro Gallone Sprit ca. `r round(coef(m1)[[3]], 2)` Meilen weiter als ein Auto mit Automatikantrieb.
+- *hp:am*:  Der Interaktionseffekt ist praktisch Null (`r round(coef(m1)[[1]], 2)`): Der Zusammenhang von PS-Zahl und Spritverbrauch unterscheidet sich nicht (wesentlich) zwischen Autos mit bzw. ohne Automatikantrieb.
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+

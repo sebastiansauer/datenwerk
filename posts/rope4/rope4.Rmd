@@ -1,0 +1,235 @@
+---
+exname: rope4
+extype: schoice
+exsolution: 64
+exshuffle: no
+categories:
+- rope
+- bayes
+date: '2022-12-13'
+slug: rope4
+title: rope4
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Einer der (bisher) größten Studien der Untersuchung psychologischer Konsequenzen (oder Korrelate) 
+der Covid-Zeit ist die Studie [COVIDiStress](https://www.nature.com/articles/s41597-020-00784-9).
+
+Im Folgenden sollen Sie folgende Forschungsfrage untersuchen:
+
+*Forschungsfrage*:
+
+Ist der Unterschied zwischen Männern und Frauen (`Dem_gender`) im Hinblick zum Zusammenhang von Stress (`PSS10_avg`, AV) und Neurotizismus (`neu`, UV) vernachlässigbar klein?
+
+
+Den Datensatz können Sie so herunterladen (Achtung, groß):
+
+
+
+
+```{r}
+osf_d_path <- "https://osf.io/cjxua/?action=download"
+
+d <- read_csv(osf_d_path)
+```
+
+
+
+
+Hinweise:
+
+- Sie benötigen einen Computer, um diese Aufgabe zu lösen.
+- Verwenden Sie die statistischen Methoden, die im Unterricht behandelt wurden.
+- Verwenden Sie Ansätze aus der Bayes-Statistik zur Lösung dieser Aufgabe.
+- Bei der Variable für Geschlecht können Sie sich auf Fälle begrenzen, die Männer und Frauen umfassen.
+- Wandeln Sie die die Variable für Geschlecht in eine binäre Variable - also Werte mit 0 und 1 - um.
+- Alle Daten (und weitere Informationen) zum Projekt sind [hier](https://osf.io/z39us/) abgelegt.
+- Eine Beschreibung der Variablen der Studie finden Sie [hier](https://moodle.hs-ansbach.de/mod/url/view.php?id=79230).
+
+
+*Antwortoptionen:*
+
+Answerlist
+----------
+* Ja
+* Nein
+* Die Daten sind nicht konkludent; es ist keine Entscheidung möglich.
+* Auf Basis der bereitgestellten Informationen ist keine Entscheidung möglich.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Pakete laden:
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+library(rstatix)
+library(bayestestR)
+```
+
+
+
+
+Relevante Spalten auswählen:
+
+```{r}
+d2 <-
+  d %>% 
+  select(PSS10_avg, neu, Dem_gender)
+```
+
+Das sind die Variablen:
+
+- Stress
+- Neurotizismus
+- Geschlecht
+
+Deskriptive Statistiken zum Datensatz:
+
+```{r}
+d2 %>% 
+  get_summary_stats(type = "robust")
+```
+
+```{r}
+d2 %>% 
+  count(Dem_gender)
+```
+
+
+Datensatz aufbereiten:
+
+```{r}
+d3 <-
+  d2 %>% 
+  filter(Dem_gender %in% c("Female", "Male")) %>% 
+  drop_na() %>% 
+  mutate(Female = ifelse(Dem_gender == "Female", 1, 0)) %>% 
+  select(-Dem_gender)
+```
+
+
+
+Check:
+
+```{r}
+d3 %>% 
+  count(Female)
+```
+
+
+Check:
+
+```{r}
+d3 %>% 
+  get_summary_stats()
+```
+
+
+
+Modell berechnen:
+
+```{r}
+m1 <-
+  stan_glm(PSS10_avg ~ neu + Female + PSS10_avg:Female, 
+           refresh = 0,
+           data = d3)
+```
+
+
+Modellkoeffizienten auslesen:
+
+```{r}
+coef(m1)
+```
+
+Posteriori-Verteilung auslesen:
+
+```{r}
+posterior_interval(m1, prob = .89)
+```
+
+
+Posteriori-Verteilung plotten:
+
+```{r}
+plot(m1)
+```
+
+
+Rope berechnen:
+
+```{r}
+rope(m1)
+```
+
+Rope visualisieren:
+
+```{r}
+plot(rope(m1))
+```
+
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Wahr
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- rope
+- bayes
+

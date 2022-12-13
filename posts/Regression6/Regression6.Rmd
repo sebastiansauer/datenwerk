@@ -1,0 +1,174 @@
+---
+exname: regression6
+extype: schoice
+exsolution: 10000
+exshuffle: no
+expoints: 1
+categories:
+- dyn
+- regression
+date: '2022-12-13'
+slug: Regression6
+title: Regression6
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+library(mosaic)
+library(glue)
+library(testthat)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+
+```{r preds, include=FALSE}
+pred1_set <- c("Geschlecht_Frau (0: nein, 1: ja)", "Muttersprachler (0: nein, 1: ja)", "Quereinsteiger (0: nein, 1: ja)")
+pred1 <- sample(pred1_set, 1)
+
+pred2_set <- c("Intelligenz-Testwert (z-Wert)", "Abitur-Durchschnitt (z-Wert)", "Letzte Mathenote (z-Wert)")
+pred2 <- sample(pred2_set, 1)
+
+pred3_set <- c("Alter (z-Wert)", "Matheanteil im Studium (z-Wert)", "Motivation-Testwert (z-Wert)")
+pred3 <- sample(pred3_set, 1)
+
+
+```
+
+
+Gegeben sei ein Datensatz mit folgenden Prädiktoren, 
+wobei Studierende die Beobachtungseinheit darstellen:
+
+- $X_1$: `r pred1`
+- $X_2$: `r pred2`
+- $X_3$: `r pred3`
+- $X_4$:  Interaktion von $X1$ und $X2$
+
+
+Die vorherzusagende Variable ($Y$; Kriterium) ist  *Gehalt nach Studienabschluss*.
+
+
+
+
+
+Folgende Modellparameter einer Regression (Least Squares, mit `lm()`) seien gegeben:
+
+
+```{r params, include = FALSE}
+b0_set <- c(30, 40, 50, 60, 70)
+b0 <- sample(b0_set, 1)
+
+b1_set <- c(10, 20, 30, 40)
+b1 <- sample(b1_set, 1)
+
+b2_set <- seq(1:10)
+b2 <- sample(b2_set, 1)
+
+b3_set <- c(1, 5, 10, 15, 20)
+b3 <- sample(b3_set, 1)
+
+b4_set <- seq.int(from = 1, to = 12, by = 2)
+b4 <- sample(b4_set, 1)
+```
+
+
+
+- $\beta_0: `r b0`$
+- $\beta_1: `r b1`$
+- $\beta_2: `r b2`$
+- $\beta_3: `r b3`$
+- $\beta_4: `r b4`$
+
+
+
+Welche der Aussagen ist korrekt?
+
+
+
+
+
+
+
+
+
+Answerlist
+----------
+* Für einen bestimmten (festen) Wert von $X_2=$ ``r pred2`` und $X_3=$ ``r pred3`` gilt, dass das erwartete Gehalt im Mittel höher ist bei $X_1=1$ im Vergleich zu $X_1=0$, laut dem Modell.
+
+* Für einen bestimmten (festen) Wert von $X_2$= ``r pred2`` und $X_3$= ``r pred3`` gilt, dass das erwartete Gehalt im Mittel höher ist bei $X_1=0$ im Vergleich zu $X_1=1$, laut dem Modell.
+
+* Der mittlere erwartete Gehaltsunterschied $Y$ zweier Personen $a$ und $b$, wobei bei Person $a$ gilt $X_1=0$ und bei Person $b$ gilt $X_1=1$, beträgt stets $`r b0`$, laut dem Modell.
+
+* Der mittlere erwartete Gehaltsunterschied $Y$ zweier Personen $a$ und $b$, wobei bei Person $a$ gilt $X_1=0$ und bei Person $b$ gilt $X_1=1$, kann *nicht* ohne weitere Angaben auf eine Zahl fixiert werden, laut dem Modell.
+
+* Der mittlere erwartete  Gehaltsunterschied von Menschen ist eine Wirkung von genau drei Ursachen: ``r pred1``, ``r pred2``, ``r pred3``, laut dem Modell.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+Der Wert des Kriteriums ($y$) ist durch folgende Gleichung gegeben:
+
+$y=\beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + \beta_4 x_1x_2$.
+
+Alle Regressionsgewichte ($\beta$) sind positiv, 
+daher ist $y$ je größer, desto höher die Prädiktorwerte sind.
+
+Hält man einige $x_2$ und $x_3$ konstant (fest, fix), so wird daher die Gruppe mit $x_1=1$ höhere Werte in $y$ aufweisen als die Gruppe mit $x_1=0$.
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch. Ein Regressionsmodell ist nicht automatisch ein Kausalmodell.
+
+
+
+
+
+
+---
+
+Categories: 
+
+- dyn
+- regression
+

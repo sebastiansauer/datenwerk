@@ -1,0 +1,169 @@
+---
+exname: stan-glm-parameterzahl
+extype: num
+exsolution: r sol
+exshuffle: no
+extol: 0
+expoints: 1
+date: '2022-12-13'
+slug: stan_glm_parameterzahl
+title: stan_glm_parameterzahl
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+library(rstanarm)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+
+Berechnet man eine Posteriori-Verteilung mit `stan_glm()`, 
+so kann man entweder die schwach informativen Prioriwerte der Standardeinstellung verwenden, 
+oder selber Prioriwerte definieren.
+
+Betrachten Sie dazu dieses Modell:
+
+```
+stan_glm(price ~ cut, data = diamonds, 
+                   prior = normal(location = c(100, 100, 100, 100),
+                                  scale = c(100, 100, 100, 100)),
+                   prior_intercept = normal(3000, 500))
+```
+
+Wie viele Parameter gibt es in diesem Modell?
+
+Hinweise:
+
+- Geben Sie nur eine (ganze) Zahl ein.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Berechnet man das Modell, 
+so kann man sich auch Infos über die Prioris ausgeben lassen:
+
+
+```{r echo = TRUE}
+m1 <- stan_glm(price ~ cut, data = diamonds, 
+               prior = normal(location = c(100, 100, 100, 100),
+                              scale = c(100, 100, 100, 100)),
+               prior_intercept = normal(3000, 500),
+               refresh = 0)
+
+prior_summary(m1)
+```
+
+Wie man sieht, 
+wird für die Streuung im Standard eine Exponentialverteilung verwendet von `stan_glm()`. 
+Gibt man also nicht an - wie im Beispiel `m1` oben, 
+so wird `stan_glm()` für die Streuung, d.h. `prior_aux` eine Exponentialverteilung verwenden.
+Zu beachten ist, dass `stan_glm()` ein automatische Skalierung vornimmt.
+
+S. [hier](http://mc-stan.org/rstanarm/articles/priors.html#auxiliary-parameters) für weitere Erläuterung.
+
+Möchte man den Prior für die Streuung direkt ansprechen, so kann man das so formulieren:
+
+```{r echo = TRUE}
+m2 <- stan_glm(price ~ cut, data = diamonds, 
+               prior = normal(location = c(100, 100, 100, 100),
+                              scale = c(100, 100, 100, 100)),
+               prior_intercept = normal(3000, 500),
+               prior_aux = exponential(1),
+               refresh = 0)
+
+prior_summary(m1)
+```
+
+Zu beachten ist beim selber definieren der Prioris,
+dass dann keine Auto-Skalierung von `stan_glm()` vorgenommen wird,
+es sei denn, man weist es explizit an:
+
+```{r echo = TRUE}
+m3 <- stan_glm(price ~ cut, data = diamonds, 
+               prior = normal(location = c(100, 100, 100, 100),
+                              scale = c(100, 100, 100, 100),
+                              autoscale = TRUE),
+               prior_intercept = normal(3000, 500, autoscale = TRUE),
+               prior_aux = exponential(1, autoscale = TRUE),
+               chain = 1,  # nur 1 mal Stichproben ziehen, um Zeit zu sparen
+               refresh = 0)
+
+prior_summary(m3)
+```
+
+Grundsätzlich ist es nützlich für die numerische Stabilität,
+dass die Zahlen (hier die Parameterwerte) etwa die gleiche Größenordnung haben,
+am besten um die 0-1 herum.
+Daher bietet sich oft eine z-Standardisierung an.
+
+
+Unabhängig von der der Art der Parameter ist die Anzahl immer gleich.
+
+Die Anzahl der *geschätzten Parameter* werden im Modell-Summary 
+unter `Estimates` gezeigt:
+
+
+```{r}
+summary(m1)
+```
+
+
+Das sind:
+
+- 1 Intercept (Achsenabschnitt) - `prior_intercept`
+- 4 Gruppen (zusätzlich zur Referenzgruppe, die mit dem Achsenabschnitt dargestellt ist) - `prior_normal`
+- 1 Sigma (Ungewissheit "innerhalb des Modells") - `prior_aux`
+
+
+
+```{r}
+sol <- 6
+```
+
+Die Anzahl der Parameter in diesem Modell ist also: 
+`r sol`
+
+
+
+
+---
+
+Categories: 
+
+~
+

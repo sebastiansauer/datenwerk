@@ -1,0 +1,99 @@
+---
+extype: string
+exsolution: NA
+exname: Regr-Bayes-interpret
+expoints: 1
+categories:
+- bayes
+- regression
+date: '2022-12-13'
+slug: Regr-Bayes-interpret
+title: Regr-Bayes-interpret
+
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Berechnen Sie das Modell und interpretieren Sie die Ausgabe des folgenden Regressionsmodells.
+Geben Sie für jeden Regressionskoeffizienten an, wie sein Wert zu verstehen ist!
+
+`mpg ~ hp + am + hp:am`
+
+
+Hinweise:
+
+- Fixieren Sie die Zufallszahlen.
+- Verwenden Sie Stan zur Berechnung.
+- Runden Sie auf 2 Dezimalstellen.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+library(tidyverse)  # Datenjudo
+library(rstanarm)  # Stan, komm her
+library(easystats)  # Komfort
+```
+
+
+```{r}
+m1 <- 
+  stan_glm(mpg ~ hp + am + hp:am, 
+           seed = 42,
+           refresh = 0,
+           data = mtcars)
+
+coef(m1)
+```
+
+
+- *Intercept*: Ein Auto mit 0 PS und Automatikantrieb (`am=0`, s. Hilfe zum Datensatz: `help(mtcars)`) kann laut Modell mit einer Gallone Sprit ca. 26.62 Meilen fahren.
+- *hp*: Pro zusätzlichem PS kann ein Auto mit Automatikantrieb pro Gallone Sprit ca. 0.06 Meilen weniger weit fahren.
+- *am*: Ein Auto mit 0 PS und Schaltgetriebe (`am=1`) kommt pro Gallone Sprit ca. 5.26 Meilen weiter als ein Auto mit Automatikantrieb.
+- *hp:am*:  Der Interaktionseffekt ist praktisch Null: Der Zusammenhang von PS-Zahl und Spritverbrauch unterscheidet sich nicht (wesentlich) zwischen Autos mit bzw. ohne Automatikantrieb.
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+
