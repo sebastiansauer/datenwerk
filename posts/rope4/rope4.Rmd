@@ -6,7 +6,7 @@ exshuffle: no
 categories:
 - rope
 - bayes
-date: '2022-12-13'
+date: '2022-12-14'
 slug: rope4
 title: rope4
 
@@ -73,6 +73,7 @@ Hinweise:
 - Wandeln Sie die die Variable für Geschlecht in eine binäre Variable - also Werte mit 0 und 1 - um.
 - Alle Daten (und weitere Informationen) zum Projekt sind [hier](https://osf.io/z39us/) abgelegt.
 - Eine Beschreibung der Variablen der Studie finden Sie [hier](https://moodle.hs-ansbach.de/mod/url/view.php?id=79230).
+- Fixieren Sie die Zufallszahlen auf den Startwert 42.
 
 
 *Antwortoptionen:*
@@ -105,8 +106,7 @@ Pakete laden:
 ```{r}
 library(tidyverse)
 library(rstanarm)
-library(rstatix)
-library(bayestestR)
+library(easystats)
 ```
 
 
@@ -130,7 +130,7 @@ Deskriptive Statistiken zum Datensatz:
 
 ```{r}
 d2 %>% 
-  get_summary_stats(type = "robust")
+  describe_distribution()
 ```
 
 ```{r}
@@ -164,7 +164,7 @@ Check:
 
 ```{r}
 d3 %>% 
-  get_summary_stats()
+  describe_distribution()
 ```
 
 
@@ -175,6 +175,7 @@ Modell berechnen:
 m1 <-
   stan_glm(PSS10_avg ~ neu + Female + PSS10_avg:Female, 
            refresh = 0,
+           seed = 42,
            data = d3)
 ```
 
@@ -188,7 +189,7 @@ coef(m1)
 Posteriori-Verteilung auslesen:
 
 ```{r}
-posterior_interval(m1, prob = .89)
+parameters(m1)
 ```
 
 

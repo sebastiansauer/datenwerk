@@ -6,17 +6,13 @@ expoints: 1
 categories:
 - rope
 - bayes
-date: '2022-12-13'
+date: '2022-12-14'
 slug: rope2
 title: rope2
 
 ---
 
 
-
-```{r libs, include = FALSE}
-library(tidyverse)
-```
 
 
 ```{r global-knitr-options, include=FALSE}
@@ -25,6 +21,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
                       fig.width = 4,
                       fig.cap = "", 
                       fig.path = "",
+                      echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
                       # out.width = "100%",
@@ -87,6 +84,13 @@ Answerlist
 
 # Solution
 
+```{r message=FALSE}
+library(easystats)
+library(tidyverse)
+library(rstanarm)
+```
+
+
 Zur ersten Orientierung erstellen wir uns, rein deskriptiv, 
 eine Darstellung des Spritverbrauchs beider Gruppen, z.B. so:
 
@@ -119,38 +123,24 @@ m1_mtcars <- stan_glm(mpg ~ am, data = mtcars, refresh = 0)
 
 Posteriori-Verteilung betrachten:
 
-```{r}
-m1_mtcars
-coef(m1_mtcars)
-```
-
 
 ```{r}
-posterior_interval(m1_mtcars, prob = .95)
+parameters(m1_mtcars)
 ```
 
-Spuckt ein PI aus, kein HDI (HDI noch nicht implementiert in `rstanarm`).
-
+Spuckt ein PI (ETI) aus, kein HDI.
 
 
 
 Visualisieren der Posteriori-Verteilung:
 
 ```{r}
-plot(m1_mtcars)
+plot(parameters(m1_mtcars), show_intercept = TRUE)
 ```
 
-Oder als Histogramm:
-
-```{r}
-library(bayesplot)
-mcmc_areas(m1_mtcars)
-```
+[Hilfe zum Plot-Befehl von `parameters](https://easystats.github.io/see/reference/plot.see_parameters_model.html)
 
 
-
-Man sieht direkt, 
-dass der Unterschied komplett außerhalb des Rope liegt.
 
 Rope berechnen:
 

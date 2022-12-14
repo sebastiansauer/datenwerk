@@ -6,7 +6,7 @@ exshuffle: no
 categories:
 - rope
 - bayes
-date: '2022-12-13'
+date: '2022-12-14'
 slug: rope3
 title: rope3
 
@@ -69,6 +69,9 @@ Hinweise:
 - Alle Daten (und weitere Informationen) zum Projekt sind [hier](https://osf.io/z39us/) abgelegt.
 - Eine Beschreibung der Variablen der Studie finden Sie [hier](https://moodle.hs-ansbach.de/mod/url/view.php?id=79230).
 - Das Codebook findet sich [hier](https://osf.io/v68t9/).
+- Der Datensatz ist recht groß (ca. 150 MB).
+- Fixieren Sie die Zufallszahlen auf den Startwert 42.
+- Berechnen Sie 89%-PIs, wenn Sie Ungewissheit quantifizieren.
 
 
 
@@ -103,16 +106,10 @@ Pakete laden:
 ```{r}
 library(tidyverse)
 library(rstanarm)
-library(rstatix)
-library(bayestestR)
+library(easystats)
 ```
 
 
-Wie groß ist der Datensatz (im Speicher) eigentlich, in Megabyte?
-
-```{r}
-object.size(d) / 1024 / 1024
-```
 
 
 Relevante Spalten auswählen:
@@ -137,6 +134,7 @@ Modell berechnen:
 m1 <-
   stan_glm(PSS10_avg ~ neu, 
            refresh = 0,
+           seed = 42,
            data = d3)
 ```
 
@@ -150,7 +148,7 @@ coef(m1)
 Posteriori-Verteilung auslesen:
 
 ```{r}
-posterior_interval(m1, prob = .89)
+parameters(m1, ci = .89)
 ```
 
 Warum 89%? Kein besonderer Grund. Aber ich mag Primzahlen :-)
@@ -158,7 +156,7 @@ Warum 89%? Kein besonderer Grund. Aber ich mag Primzahlen :-)
 Posteriori-Verteilung plotten:
 
 ```{r}
-plot(m1)
+plot(parameters(m1, ci = .89), show_intercept = TRUE)
 ```
 
 

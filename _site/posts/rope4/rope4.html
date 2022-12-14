@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-12-13">
+<meta name="dcterms.date" content="2022-12-14">
 
 <title>datenwerk - rope4</title>
 <style>
@@ -176,7 +176,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 13, 2022</p>
+        <p class="date">December 14, 2022</p>
       </div>
     </div>
       
@@ -220,6 +220,7 @@ e.g.:
 <li>Wandeln Sie die die Variable für Geschlecht in eine binäre Variable - also Werte mit 0 und 1 - um.</li>
 <li>Alle Daten (und weitere Informationen) zum Projekt sind <a href="https://osf.io/z39us/">hier</a> abgelegt.</li>
 <li>Eine Beschreibung der Variablen der Studie finden Sie <a href="https://moodle.hs-ansbach.de/mod/url/view.php?id=79230">hier</a>.</li>
+<li>Fixieren Sie die Zufallszahlen auf den Startwert 42.</li>
 </ul>
 <p><em>Antwortoptionen:</em></p>
 <section id="answerlist" class="level2">
@@ -236,11 +237,10 @@ e.g.:
 <section id="solution" class="level1">
 <h1>Solution</h1>
 <p>Pakete laden:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-2_780fba375cf42ec80ec43dc150993e9c">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-2_330e5dd262dc670ae87cfacc0dbc3073">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayestestR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Relevante Spalten auswählen:</p>
 <div class="cell" data-hash="rope4_cache/html/unnamed-chunk-3_ae63a465b6c1f4ec7ed63c005ddb41eb">
@@ -255,15 +255,14 @@ e.g.:
 <li>Geschlecht</li>
 </ul>
 <p>Deskriptive Statistiken zum Datensatz:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-4_f31fba0112b06a0b37688b945988a2c8">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-4_836a5d87617b67470066cfeaabee1272">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_summary_stats</span>(<span class="at">type =</span> <span class="st">"robust"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 4
-  variable       n median   iqr
-  &lt;fct&gt;      &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-1 PSS10_avg 116097   2.6   1   
-2 neu       108367   3.33  1.33</code></pre>
+<pre><code>Variable  | Mean |   SD |  IQR |        Range | Skewness | Kurtosis |      n | n_Missing
+----------------------------------------------------------------------------------------
+PSS10_avg | 2.63 | 0.74 | 1.00 | [1.00, 5.00] |     0.21 |    -0.31 | 116097 |      9209
+neu       | 3.34 | 1.05 | 1.33 | [1.00, 6.00] |     0.07 |    -0.45 | 108367 |     16939</code></pre>
 </div>
 </div>
 <div class="cell" data-hash="rope4_cache/html/unnamed-chunk-5_89d3149d16338354b8a97325abc586b0">
@@ -301,25 +300,24 @@ e.g.:
 </div>
 </div>
 <p>Check:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-8_48c72bebc859267425b839b88a80a02f">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-8_88594829e093683bb84c9a0b8f305cf0">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_summary_stats</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 13
-  variable       n   min   max median    q1    q3   iqr   mad  mean    sd    se
-  &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1 PSS10_avg 106843     1     5   2.6   2.1    3.1  1    0.741 2.62  0.735 0.002
-2 neu       106843     1     6   3.33  2.67   4    1.33 0.988 3.34  1.05  0.003
-3 Female    106843     0     1   1     0      1    1    0     0.734 0.442 0.001
-# … with 1 more variable: ci &lt;dbl&gt;</code></pre>
+<pre><code>Variable  | Mean |   SD |  IQR |        Range | Skewness | Kurtosis |      n | n_Missing
+----------------------------------------------------------------------------------------
+PSS10_avg | 2.62 | 0.74 | 1.00 | [1.00, 5.00] |     0.22 |    -0.32 | 106843 |         0
+neu       | 3.34 | 1.05 | 1.33 | [1.00, 6.00] |     0.07 |    -0.45 | 106843 |         0
+Female    | 0.73 | 0.44 | 1.00 | [0.00, 1.00] |    -1.06 |    -0.87 | 106843 |         0</code></pre>
 </div>
 </div>
 <p>Modell berechnen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-9_cc362c98f364d4d0d6c9e79f4cd6a42b">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-9_d6ded4af1246ead04fa8697e81041584">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stan_glm</span>(PSS10_avg <span class="sc">~</span> neu <span class="sc">+</span> Female <span class="sc">+</span> PSS10_avg<span class="sc">:</span>Female, </span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">refresh =</span> <span class="dv">0</span>,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">seed =</span> <span class="dv">42</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Modellkoeffizienten auslesen:</p>
 <div class="cell" data-hash="rope4_cache/html/unnamed-chunk-10_b5d7bf08f504bff1853ffd159bd6c1a9">
@@ -330,15 +328,15 @@ e.g.:
 </div>
 </div>
 <p>Posteriori-Verteilung auslesen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-11_4818bf2d911eaed6885fabdfc5ea9afb">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">posterior_interval</span>(m1, <span class="at">prob =</span> .<span class="dv">89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-11_ecc375903ed8bb63b644d1e27e97e4f9">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                       5.5%      94.5%
-(Intercept)       2.1138961  2.1271335
-neu               0.1097369  0.1133484
-Female           -2.3008836 -2.2833041
-PSS10_avg:Female  0.9192519  0.9252166
-sigma             0.3500510  0.3524536</code></pre>
+<pre><code>Parameter        | Median |         95% CI |   pd |  Rhat |     ESS |                 Prior
+-------------------------------------------------------------------------------------------
+(Intercept)      |   2.12 | [ 2.11,  2.13] | 100% | 1.000 | 3242.00 | Normal (2.62 +- 1.84)
+neu              |   0.11 | [ 0.11,  0.11] | 100% | 1.000 | 3670.00 | Normal (0.00 +- 1.75)
+Female           |  -2.29 | [-2.30, -2.28] | 100% | 1.000 | 2018.00 | Normal (0.00 +- 4.16)
+PSS10_avg:Female |   0.92 | [ 0.92,  0.93] | 100% | 1.000 | 2061.00 | Normal (0.00 +- 1.37)</code></pre>
 </div>
 </div>
 <p>Posteriori-Verteilung plotten:</p>
