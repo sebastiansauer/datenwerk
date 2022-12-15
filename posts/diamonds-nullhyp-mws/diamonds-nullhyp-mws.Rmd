@@ -7,7 +7,7 @@ categories:
 - bayes
 - regression
 - nullhypothesis
-date: '2022-12-14'
+date: '2022-12-15'
 slug: diamonds-nullhyp-mws
 title: diamonds-nullhyp-mws
 
@@ -43,23 +43,25 @@ knitr::opts_chunk$set(fig.pos = 'H',
 Betrachten Sie folgende Ausgabe eines Bayesmodells, das mit `rstanarm` "gefittet" wurde:
 
 ```
-## stan_glm
-##  family:       gaussian [identity]
-##  formula:      price ~ cut
-##  observations: 1000
-##  predictors:   5
-## ------
-##              Median  MAD_SD 
-## (Intercept)   4571.7   675.1
-## cutGood       -570.2   777.2
-## cutIdeal     -1288.3   688.1
-## cutPremium     362.5   709.8
-## cutVery Good  -807.4   706.3
-## 
-## Auxiliary parameter(s):
-##       Median MAD_SD
-## sigma 3795.0   82.4
-````
+stan_glm
+ family:       gaussian [identity]
+ formula:      price ~ cut
+ observations: 53940
+ predictors:   5
+------
+             Median MAD_SD
+(Intercept)  4358.6  100.7
+cutGood      -431.4  112.4
+cutIdeal     -901.9  104.3
+cutPremium    226.7  105.4
+cutVery Good -375.2  103.9
+
+Auxiliary parameter(s):
+      Median MAD_SD
+sigma 3964.2   11.8
+```
+
+
 
 Welche Aussage passt (am besten)?
 
@@ -71,11 +73,11 @@ Hinweise:
 
 Answerlist
 ----------
-* Die Nullhypothese ist falsch und muss daher verworfen werden.
-* Die Nullhypothese ist wahr und muss daher beibehalten werden.
-* Man kann schließen, dass bei allen Parametern der Prädiktoren der Wert Null außerhalb des 95%-PI der Posteriori-Verteilung liegt.
-* Man kann *nicht* schließen, dass bei allen Parametern der Prädiktoren der Wert Null außerhalb des 95%-PI der Posteriori-Verteilung liegt.
-* Man kann schließen, dass bei *keinem* der Parameter der Prädiktoren der Wert Null außerhalb des 95%-PI der Posteriori-Verteilung liegt.
+* Die Nullhypothese ist (sicher) falsch und muss daher verworfen werden.
+* Die Nullhypothese ist (sicher) wahr und muss daher beibehalten werden.
+* Man kann schließen, dass beim Parameter von `cutGood` der Wert Null außerhalb des 95%-PI der Posteriori-Verteilung liegt.
+* Man kann schließen, dass alle Parameter positiv sind.
+
 
 
 
@@ -93,15 +95,46 @@ Answerlist
 # Solution
 
 
+
+
+Probieren geht über Studieren:
+
+```{r}
+#| message: false
+library(rstanarm)
+library(tidyverse)
+library(easystats)
+
+diamonds_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv"
+
+d <- data_read(diamonds_path)
+```
+
+
+
+```{r}
+m1 <- stan_glm(price ~ cut,
+               seed = 42,
+               refresh = 0,
+               data = d)
+```
+
+
+```{r}
+eti(m1)
+```
+
+
+
 Answerlist
 ----------
 
 
-* Falsch
-* Falsch
-* Falsch
-* Wahr
-* Falsch
+* Falsch. Streng genommen können wir nicht *ganz* sicher sein, ob eine Hypothese auf Basis eines Modells richtig oder falsch ist.
+* Falsch. Streng genommen können wir nicht *ganz* sicher sein, ob eine Hypothese auf Basis eines Modells richtig oder falsch ist.
+* Richtig. Mittelwert plus/minus 2 SD-Einheiten gibt bei einer Normalverteilung das 95%-ETI an.
+* Falsch. `cutGood` hat z.B. negative Werte in seinem 95%-ETI der Postverteilung.
+
 
 
 

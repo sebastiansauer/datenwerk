@@ -6,7 +6,7 @@ exshuffle: no
 categories:
 - bayes
 - regression
-date: '2022-12-14'
+date: '2022-12-15'
 slug: stan_glm_prioriwerte
 title: stan_glm_prioriwerte
 
@@ -45,7 +45,7 @@ oder selber Prioriwerte definieren.
 
 Betrachten Sie dazu dieses Modell:
 
-````
+```
 stan_glm(price ~ cut, data = diamonds, 
                    prior = normal(location = c(100, 100, 100, 100),
                                   scale = c(10, 10, 10, 10)),
@@ -54,16 +54,20 @@ stan_glm(price ~ cut, data = diamonds,
 
 Beziehen Sie sich auf den Datensatz `diamonds`.
 
+Hinweise:
+
+- Gehen Sie davon aus, dass die Post-Verteilung von Intercept und Gruppeneffekte normalverteilt sind.
+
 
 Welche Aussage dazu passt (am besten)?
 
 Answerlist
 ----------
 * Es wird für (genau) einen Parameter eine Priori-Verteilung definiert.
-* Für keinen Regressionsparameter der UV liegt apriori die Wahrscheinlichkeit für einen negativen Wert bei mehr als 5%.
+* Für das Regressionsgewicht $\beta_1$ sind negative Werte *apriori* plausibel.
 * Mit `prior = normal()` werden Gruppenmittelwerte definiert.
 * Alle Parameter des Modells sind normalverteilt.
-* mit `prior_intercept = normal(3000, 500)` wird praktisch eine Gleichverteilung definiert (da die Streuung sehr hoch ist).
+
 
 
 
@@ -81,16 +85,65 @@ Answerlist
 
 # Solution
 
+Probieren geht über Studieren:
+
+```{r}
+#| message: false
+library(rstanarm)
+library(tidyverse)
+library(easystats)
+
+diamonds_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv"
+
+d <- data_read(diamonds_path)
+```
+
+
+```{r}
+m1 <- stan_glm(price ~ cut,
+               seed = 42,
+               refresh = 0,
+               data = d)
+```
+
+
+Die Prioris, die Stan gewählt hat, kann man sich so anschauen:
+
+```{r}
+prior_summary(m1)
+```
+
+
+
+Da gilt: $\forall i: \beta_i \sim \mathcal{N}(0, 2.5)$ (alle betas sind normalverteilt mit Mittelwert 0 und Streuung 2.5), liegt die Wahrscheinlichkeit (apriori) bei 50%,
+dass der Wert von \beta_i$ negativ ist.
+Anders gesagt: Wir glauben zu 50%, dass der Parameter einen negativen Wert hat.
+
+
+Hier sind die Modellparameter:
+
+```{r}
+parameters(m1)
+```
+
+Wie man sieht, sind negative Werte auch *aposteriori* plausibel für $\beta_1$, `cutGood`:
+
+```{r}
+plot(hdi(m1))
+```
+
+
+
+
 
 Answerlist
 ----------
 
 
-* Falsch
-* Wahr
-* Falsch
-* Falsch
-* Falsch
+* Falsch. Es gibt mehrere Parameter im Modell (Achsenabschnitt, 4 Prädiktoren, sigma)
+* Wahr. Für `cutGood` sind negative Werte plausibel.
+* Falsch. `prior = normal()` werden Regressionskoeffizienten in ihren Prioris definiert.
+* Falsch. sigma ist in Stans Voreinstellung exponentialverteilt.
 
 
 

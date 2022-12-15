@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-12-14">
+<meta name="dcterms.date" content="2022-12-15">
 
 <title>datenwerk - stan_glm_prioriwerte</title>
 <style>
@@ -60,6 +60,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -113,7 +114,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 14, 2022</p>
+        <p class="date">December 15, 2022</p>
       </div>
     </div>
       
@@ -134,31 +135,92 @@ ul.task-list li input[type="checkbox"] {
 <h1>Exercise</h1>
 <p>Berechnet man eine Posteriori-Verteilung mit <code>stan_glm()</code>, so kann man entweder die schwach informativen Prioriwerte der Standardeinstellung verwenden, oder selber Prioriwerte definieren.</p>
 <p>Betrachten Sie dazu dieses Modell:</p>
-<p>`<code>stan_glm(price ~ cut, data = diamonds,                     prior = normal(location = c(100, 100, 100, 100),                                   scale = c(10, 10, 10, 10)),                    prior_intercept = normal(3000, 500))</code></p>
+<pre><code>stan_glm(price ~ cut, data = diamonds, 
+                   prior = normal(location = c(100, 100, 100, 100),
+                                  scale = c(10, 10, 10, 10)),
+                   prior_intercept = normal(3000, 500))</code></pre>
 <p>Beziehen Sie sich auf den Datensatz <code>diamonds</code>.</p>
+<p>Hinweise:</p>
+<ul>
+<li>Gehen Sie davon aus, dass die Post-Verteilung von Intercept und Gruppeneffekte normalverteilt sind.</li>
+</ul>
 <p>Welche Aussage dazu passt (am besten)?</p>
 <section id="answerlist" class="level2">
 <h2 class="anchored" data-anchor-id="answerlist">Answerlist</h2>
 <ul>
 <li>Es wird für (genau) einen Parameter eine Priori-Verteilung definiert.</li>
-<li>Für keinen Regressionsparameter der UV liegt apriori die Wahrscheinlichkeit für einen negativen Wert bei mehr als 5%.</li>
+<li>Für das Regressionsgewicht <span class="math inline">\(\beta_1\)</span> sind negative Werte <em>apriori</em> plausibel.</li>
 <li>Mit <code>prior = normal()</code> werden Gruppenmittelwerte definiert.</li>
 <li>Alle Parameter des Modells sind normalverteilt.</li>
-<li>mit <code>prior_intercept = normal(3000, 500)</code> wird praktisch eine Gleichverteilung definiert (da die Streuung sehr hoch ist).</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
+<p>Probieren geht über Studieren:</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<p>Die Prioris, die Stan gewählt hat, kann man sich so anschauen:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Priors for model 'm1' 
+------
+Intercept (after predictors centered)
+  Specified prior:
+    ~ normal(location = 3933, scale = 2.5)
+  Adjusted prior:
+    ~ normal(location = 3933, scale = 9974)
+
+Coefficients
+  Specified prior:
+    ~ normal(location = [0,0,0,...], scale = [2.5,2.5,2.5,...])
+  Adjusted prior:
+    ~ normal(location = [0,0,0,...], scale = [34685.38,20362.28,22862.49,...])
+
+Auxiliary (sigma)
+  Specified prior:
+    ~ exponential(rate = 1)
+  Adjusted prior:
+    ~ exponential(rate = 0.00025)
+------
+See help('prior_summary.stanreg') for more details</code></pre>
+</div>
+</div>
+<p>Da gilt: <span class="math inline">\(\forall i: \beta_i \sim \mathcal{N}(0, 2.5)\)</span> (alle betas sind normalverteilt mit Mittelwert 0 und Streuung 2.5), liegt die Wahrscheinlichkeit (apriori) bei 50%, dass der Wert von _i$ negativ ist. Anders gesagt: Wir glauben zu 50%, dass der Parameter einen negativen Wert hat.</p>
+<p>Hier sind die Modellparameter:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter    |  Median |              95% CI |     pd |  Rhat |     ESS |                       Prior
+-----------------------------------------------------------------------------------------------------
+(Intercept)  | 4358.60 | [ 4167.42, 4557.78] |   100% | 1.005 | 1004.00 | Normal (3932.80 +- 9973.60)
+cutGood      | -431.42 | [ -657.57, -201.53] | 99.98% | 1.003 | 1189.00 |   Normal (0.00 +- 34685.38)
+cutIdeal     | -901.92 | [-1107.89, -699.53] |   100% | 1.004 | 1056.00 |   Normal (0.00 +- 20362.28)
+cutPremium   |  226.73 | [   15.48,  424.47] | 98.02% | 1.004 | 1090.00 |   Normal (0.00 +- 22862.49)
+cutVery Good | -375.16 | [ -591.14, -172.91] |   100% | 1.005 | 1045.00 |   Normal (0.00 +- 23922.15)</code></pre>
+</div>
+</div>
+<p>Wie man sieht, sind negative Werte auch <em>aposteriori</em> plausibel für <span class="math inline">\(\beta_1\)</span>, <code>cutGood</code>:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="unnamed-chunk-5-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
 <section id="answerlist-1" class="level2">
 <h2 class="anchored" data-anchor-id="answerlist-1">Answerlist</h2>
 <ul>
-<li>Falsch</li>
-<li>Wahr</li>
-<li>Falsch</li>
-<li>Falsch</li>
-<li>Falsch</li>
+<li>Falsch. Es gibt mehrere Parameter im Modell (Achsenabschnitt, 4 Prädiktoren, sigma)</li>
+<li>Wahr. Für <code>cutGood</code> sind negative Werte plausibel.</li>
+<li>Falsch. <code>prior = normal()</code> werden Regressionskoeffizienten in ihren Prioris definiert.</li>
+<li>Falsch. sigma ist in Stans Voreinstellung exponentialverteilt.</li>
 </ul>
 <hr>
 <p>Categories:</p>
