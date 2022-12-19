@@ -1,0 +1,158 @@
+---
+exname: dag3
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal03
+title: kausal03
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Gegeben sei der DAG `g` (s.u.). 
+Was ist die minimale Menge an Variablen,
+die man kontrollieren muss,
+um den kausalen Effekt von `x` auf `y` zu identifizieren?
+
+
+```{r }
+dag <- dagitty::dagitty("dag {
+    y <- x <- z1 <- v -> z2 -> y
+    z1 <- w1 <-> w2 -> z2
+    x <- w1 -> y
+    x <- w2 -> y
+    x [exposure]
+    y [outcome]
+  }"
+) 
+
+
+plot(graphLayout(dag))
+
+```
+
+
+
+Hinweise:
+
+- Gebogene Kurven mit doppelter Pfeilspitze zeigen *keine* Kausaleinflüsse ein (was in DAGs nicht erlaubt wäre). 
+- Stattdessen zeigen Sie eine Assoziation bedingt durch eine (nicht aufgeführte) Konfundierungsvariable an.
+
+
+Answerlist
+----------
+
+* { w1, w2, z2 }
+* { w2, z2 }
+* { w1, w2 }
+* { w1, z2 }
+* { w1 }
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r comment = ""}
+print( adjustmentSets( dag, "x", "y" ,
+                       type = "minimal",
+                       effect = "direct") )
+```
+
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+Die Regressionsformel lautet also. `y ~ x + w1 + w2 + z2`.
+
+Es gibt mehrere *Adjustment Sets*,
+aber unsere Lösungsoptionen lassen nur eine zu.
+
+
+
+Alternative Visualisierung:
+
+```{r echo = TRUE}
+dag <- dagitty::dagitty(
+  "dag {
+    y <- x <- z1 <- v -> z2 -> y
+    z1 <- w1 <-> w2 -> z2
+    x <- w1 -> y
+    x <- w2 -> y
+    x [exposure]
+    y [outcome]
+  }"
+) 
+
+ggdag(dag) + theme_dag()
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

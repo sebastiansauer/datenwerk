@@ -1,0 +1,147 @@
+---
+exname: dag4
+extype: schoice
+exsolution: 512
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal04
+title: kausal04
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+Gegeben sei ein DAG `g` (s.u.). 
+Was ist die minimale Menge an Variablen (minimal adjustment set),
+die man kontrollieren muss,
+um den kausalen Effekt von `smoking` auf `arrest` zu identifizieren?
+
+
+```{r }
+smoking_ca_dag <- dagify(cardiacarrest ~ cholesterol,
+       cholesterol ~ smoking + weight,
+       smoking ~ unhealthy,
+       weight ~ unhealthy,
+       labels = c("cardiacarrest" = "Cardiac\n Arrest", 
+                  "smoking" = "Smoking",
+                  "cholesterol" = "Cholesterol",
+                  "unhealthy" = "Unhealthy\n Lifestyle",
+                  "weight" = "Weight"),
+       latent = "unhealthy",
+       exposure = "smoking",
+       outcome = "cardiacarrest")
+
+ggdag(smoking_ca_dag, text = FALSE, use_labels = "label") +
+  theme_dag()
+
+```
+
+
+
+
+
+
+
+Answerlist
+----------
+
+
+
+* { Cholestorol }
+* { Weight }
+* keine, da nicht identifiziferbar
+* { Cholestrol, Unhealty Lifestyle }
+* { Cholestorol, Weight }
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r comment = ""}
+print( adjustmentSets( smoking_ca_dag, "smoking", "cardiacarrest" ,
+                       type = "minimal",
+                       effect = "total") )
+```
+
+Durck die Kontrolle von `weight` wird der gesuchte kausale Effekt identifizierbar.
+
+
+```{r}
+ggdag_adjustment_set(smoking_ca_dag, text = FALSE, use_labels = "label", shadow = TRUE)
+```
+
+
+Also lautet die Regressionsformel:
+`arrest ~ smoking + weight`.
+
+Es wäre ein fataler Fehler, nähme man den Mediator `Cholestorol` mit auf:
+
+`arrest ~ smoking + cholestorol`. ⛈️🛑
+
+
+
+
+
+Answerlist
+----------
+
+* Falsch
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

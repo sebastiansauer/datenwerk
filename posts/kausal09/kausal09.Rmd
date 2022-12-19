@@ -1,0 +1,154 @@
+---
+exname: dag9
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal09
+title: kausal09
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(testthat)
+library(glue)
+#library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Ein Forschungsteam aus Epidemiologen untersucht den (möglicherweise kausalen) 
+Zusammenhang von Erziehung (`education`) und Diabetes (`diabetes`). 
+Das Team schlägt folgendes Modell zur Erklärung des Zusammenhangs vor (s. DAG).
+
+
+
+```{r}
+ggdag::m_bias(x = "Education", y = "Diabetes", a = "Income during Childhood", 
+       b = "Genetic Risk \nfor Diabetes", m = "Mother's Diabetes") %>% 
+  ggdag(use_labels = "label") +
+  theme_dag()
+```
+
+
+Nochmal den gleich DAG ohne "Schilder", 
+damit man 
+die Pfeilspitzen besser sieht:
+
+
+
+```{r}
+ggdag::m_bias(x = "Education", y = "Diabetes", a = "Income during Childhood", 
+       b = "Genetic Risk \nfor Diabetes", m = "Mother's Diabetes") %>% 
+  ggdag(use_labels = NULL) +
+  theme_dag()
+```
+
+
+Sollte die Krankengeschichte der Mutter hinsichtlich Diabetes kontrolliert werden,
+um den kausalen Effekt von Erziehung auf Diabetes zu identifizieren? 
+
+
+
+
+
+Answerlist
+----------
+* Nein, `Mother's Diabetes` sollte *nicht* kontrolliert werden, da so ein Collider Bias (Kollisionsverzerrung) resultiert.
+* Nein, `Mother's Diabetes` sollte *nicht* kontrolliert werden, da so eine Konfundierung resultiert.
+* Nein, `Mother's Diabetes` sollte *nicht* kontrolliert werden, da zwar keine Verzerrung entsteht, es aber auch nicht nötig ist.
+* Ja, `Mother's Diabetes` sollte kontrolliert werden, da so ein Collider Bias (Kollisionsverzerrung) vermieden wird.
+* Ja, `Mother's Diabetes` sollte kontrolliert werden, da so eine Konfundierung vermieden wird.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Durch Kontrolle von `Mother's Diabetes` wird eine Scheinkorrelation erzeugt, 
+wo es vorher keine gab. 
+Das nennt man eine Kollisionsverzerrung (collider bias).
+Daher sollte `Mother's Diabetes` *nicht* kontrolliert werden.
+
+
+Im foglenden Diagramm ist der durch Kontrolle einer Kollisionsvariable geöffnete Pfad
+von `a` nach `b` im DAG eingezeichnet:
+
+```{r out.width=7}
+ggdag::m_bias(x = "Education", y = "Diabetes", a = "Income during \nChildhood", 
+       b = "Genetic Risk \nfor Diabetes", m = "Mother's Diabetes") %>% 
+  ggdag_dseparated(controlling_for = "m", use_labels = "label") +
+  theme_dag()
+```
+
+
+
+OHNE Kontrolle gibt es keine Verbindung zwischen `x` und `y` (sie sind d-separiert).
+
+```{r}
+m_bias(x = "Education", y = "Diabetes", a = "Income during \nChildhood", 
+       b = "Genetic Risk \nfor Diabetes", m = "Mother's Diabetes") %>% 
+  ggdag_dseparated( use_labels = "label")
+```
+
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

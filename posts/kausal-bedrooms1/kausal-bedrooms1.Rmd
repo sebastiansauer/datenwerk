@@ -1,0 +1,184 @@
+---
+extype: string
+exsolution: NA
+exname: bedroom-dag1
+expoints: 1
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal-bedrooms1
+title: kausal-bedrooms1
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+```{r}
+library(ggdag)
+library(tidyverse)
+library(rstanarm)
+```
+
+
+
+
+
+# Exercise
+
+Betrachten wir den Datensatz `SaratogaHouses`, den Sie [hier](https://vincentarelbundock.github.io/Rdatasets/csv/mosaicData/SaratogaHouses.csv) herunterladen können. 
+Ein Codebook findet sich [hier](https://vincentarelbundock.github.io/Rdatasets/doc/mosaicData/SaratogaHouses.html).
+
+
+Sie kommen auch so an die Daten ran:
+
+```{r echo = TRUE}
+library(mosaicData)
+data("SaratogaHouses")
+```
+
+Gegeben sei in diesem Zusammenhang folgender DAG:
+
+```{r echo = TRUE}
+dag1 <- "
+dag{
+a -> p
+a -> b -> p
+}
+"
+```
+
+Wobei `a` für *(living) area* steht, also der Wohnfläche eines Hauses, 
+`b` für *bedrooms*, der Anzahl der Schlafzimmer
+und `p` für *prize*, den Preis, den das Haus beim Verkauf erzielt hat.
+
+So sieht das dann aus:
+
+
+```{r echo = TRUE}
+ggdag(dag1) + theme_dag()
+```
+
+
+UV sei `a`; AV sei `p`.
+
+a) Berechnen Sie den *direkten* Effekt der *Wohnfläche* auf den *Preis*! 
+b) Berechnen Sie den *totalen* Effekt der Wohnfläche auf den Preis!
+
+Hinweise:
+- Mit *direkter* Effekt ist der kausale Effekt von UV auf AV - ohne Zwischenglieder (Mediatoren) - gemeint.
+- Mit *indirekter* Effekt ist der kausale Effekt von UV über einen (oder ggf. mehrere) Mediator(en) auf die AV gemeint.
+- Mit *totaler* Effekt ist die Summe des direkten plus des oder der indirekten Effekte gemeint.
+- Geben Sie jeweils den Punktschätzer eines linearen Regressionsmodells an!
+- Gehen Sie vom oben genannten DAG aus.
+- Runden Sie ohne Dezimalstellen.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+```{r echo = TRUE}
+d <-
+  SaratogaHouses %>% 
+  select(price, bedrooms, livingArea) %>% 
+  drop_na()
+```
+
+
+a) direkter Effekt:
+
+```{r echo = TRUE}
+direkter_eff_lm <-
+  stan_glm(price ~ bedrooms + livingArea, 
+           data = d,
+           refresh = 0)
+coef(direkter_eff_lm)
+```
+
+
+Um einen direkten Effekt zu berechnen, müssen wir den *spezifischen*, 
+uniquen Effekt der UV berechnen.
+Das erreichen wir durch eine multiple Regression,
+in der also die übrigen Prädiktoren aufgenommen sind. 
+Das Resultat ist ein Koeffizient für die Assoziation der UV mit der AV,
+bereinigt um die Zusammenhänge der übrigen Prädiktoren.
+
+Zur Erinnerung: Die multiple Regression liefert Koeffizienten pro Prädiktor,
+die bereinigt sind um den (statistischen) Einfluss der anderen Prädiktoren,
+mit anderne Worten: die Koeffizienten der multiplen Regression zeigen den Effekt
+von "nur diesem Prädiktor".
+
+
+
+Der Punktschätzer für den direkten Effekt (von Wohnfläche) ist:
+
+```{r echo=TRUE}
+direkter_eff <-
+  coef(direkter_eff_lm)[3] %>% 
+  round(0)
+
+direkter_eff
+```
+
+
+b) totaler Effekt:
+
+```{r}
+totaler_eff_lm <-
+  stan_glm(price ~ livingArea, data = d,
+           refresh = 0)
+coef(totaler_eff_lm)
+```
+
+
+Der totale Effekt lässt sich berechnen,
+in dem man keine weiteren Prädiktoren neben der UV in die Regression mitaufnimmt.
+Die *einfache* (univariate) Regression zeigt den totalen Effekt der UV auf die AV.
+
+
+
+
+
+Der Punktschätzer für den totalen Effekt beträgt:
+
+```{r}
+totaler_eff <-
+  coef(totaler_eff_lm)[2] %>% 
+  round(0)
+
+totaler_eff
+```
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

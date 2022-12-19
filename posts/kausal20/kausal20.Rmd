@@ -1,0 +1,302 @@
+---
+exname: kausal20
+expoints: 1
+extype: schoice
+exsolution: r mchoice2string(sol_df$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal20
+title: kausal20
+
+---
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+library(exams)
+library(teachertools)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = FALSE,
+                      #dpi = 72,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+
+
+
+
+
+
+```{r dag-examples}
+#dag with one adjustment set with one element: x3->x5
+
+dag1 <- "
+dag {
+x1
+x2
+x3
+x4
+x5
+x1 -> x2
+x2 -> x3
+x2 -> x5
+x3 -> x5
+x4 -> x5
+}
+"
+
+# dag with one empty adjustment set, ie., already identified: x3->x5
+
+dag2 <-
+  "
+dag {
+x1
+x2
+x3
+x4
+x5
+x6
+x7
+x1 -> x3
+x1 -> x7
+x2 -> x4
+x2 -> x5
+x2 -> x6
+x2 -> x7
+x3 -> x4
+x3 -> x6
+x3 -> x7
+x4 -> x5
+x4 -> x6
+x5 -> x6
+x6 -> x7
+}
+"
+
+# dag with two solutions each with 1 element/node: x3->x5
+
+dag3 <-
+  "
+dag {
+x1
+x2
+x3
+x4
+x5
+x6
+x7
+x1 -> x2
+x1 -> x3
+x1 -> x6
+x2 -> x5
+x3 -> x6
+x3 -> x7
+x4 -> x7
+x5 -> x7
+x6 -> x7
+}
+"
+
+
+# dag WITHOUT any solution, a haunted dag: x6->x5
+
+dag4 <-
+  "
+dag {
+x1
+x2
+x3
+x4
+x5
+x6
+x1 -> x2
+x1 -> x3
+x1 -> x4
+x1 -> x5
+x2 -> x3
+x2 -> x4
+x2 -> x5
+x2 -> x6
+x3 -> x5
+x3 -> x6
+x4 -> x5
+x4 -> x6
+x5 -> x6
+}
+"
+#plot(dag4)
+
+```
+
+
+
+
+```{r create-dag}
+exposure_var <- "x3"
+outcome_var <- "x5"
+
+dag_size <- 5
+
+g <- dag1
+
+# compute minimal adjustment set:
+adj <- adjustmentSets(g, 
+               exposure = exposure_var,
+               outcome = outcome_var) 
+```
+
+
+
+
+Gegeben sei der DAG `g` (s. u.). Der DAG verfügt über mehrere Variablen, 
+die als Knoten im Graph dargestellt sind und mit $x_1, x_2, \ldots x_n$ bezeichnet sind.
+
+
+*Welche minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt von der UV zur AV zu identifizieren?*
+
+
+UV: `r exposure_var`.
+
+AV: `r outcome_var`.
+
+
+
+*Hinweise*: 
+
+- Mengen sind mittels geschweifter Klammern gekennzeichnet, z.B. `{x8, x9}` meint die Menge mit den zwei Elementen `x8` und `x9`.
+- Die leere Menge `{ }` bedeutet, dass keine Variable kontrolliert werden muss, um den kausalen Effekt zu identifizieren.
+- Alle Variablen werden als gemessen vorausgesetzt.
+- Es ist möglich, dass es keine Lösung gibt, dass es also keine Adjustierungsmenge gibt, um den kausalen Effekt zu identifizieren. Wenn dies der Fall sein sollte, wählen Sie "keine Lösung".
+
+
+
+
+
+
+```{r build-solution, include=FALSE}
+sol_df <- 
+  build_adj_set_answers(
+  dag_def = g,
+  exposure_var = exposure_var,
+  outcome_var = outcome_var)
+```
+
+
+```{r plot-dag}
+#ggdag(g, stylized = TRUE) + theme_dag()
+graphLayout(g) %>% plot()
+```
+
+
+
+
+```{r questionlist, results="asis"}
+answerlist(sol_df$sol, 
+           markup = "markdown")
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Folgende minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt der UV auf die AV zu identifizieren: ``r sol_df$sol[sol_df$is_correct == TRUE]``.
+
+Es wird also nach dem *minimal adjustment set* gefragt.
+Zu beachten ist, dass es weitere, aber größere Mengen geben kann, die den kausalen Effekt identifizieren,
+aber gefragt ist nach der minimalen Menge.
+Außerdem ist es möglich, dass es weitere minimale Adjustierungsmengen gibt, 
+die aber nicht in der Auswahlliste vorkommen.
+
+
+*Erläuterung*:
+
+```{r}
+is_dseparated <- dseparated(g, X = exposure_var, Y = outcome_var)
+is_dconnected <- dconnected(g, X = exposure_var, Y = outcome_var)
+```
+
+
+UV und AV sind `r ifelse(is_dconnected==FALSE, "nicht", "")` (durch mindestens einen offenen Pfad) verbunden ("d-connected").
+
+
+Folgende Unabhängigkeitsbeziehungen (`_||_`) werden durch den DAG definiert:
+```{r}
+impliedConditionalIndependencies(g)
+```
+
+UV und AV werden durch folgende Pfade verbunden:
+
+```{r}
+g_paths <- paths(g,
+      from = exposure_var,
+      to = outcome_var)
+
+g_paths
+```
+
+
+Offenen Pfade sind der/die Pfad/e, die in der obigen Ausgabe unter `$open` mit `TRUE` gekennzeichnet sind.
+
+
+Der DAG ist wie folgt definiert:
+
+```{r, comment = ""}
+g
+```
+
+
+
+
+```{r, echo = FALSE, results = "asis"}
+answerlist(ifelse(sol_df$is_correct, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

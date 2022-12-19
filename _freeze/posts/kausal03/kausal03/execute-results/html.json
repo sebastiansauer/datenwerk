@@ -1,0 +1,14 @@
+{
+  "hash": "09389c5d8925d2f0383c25527f720c23",
+  "result": {
+    "markdown": "---\nexname: dag3\nextype: schoice\nexsolution: 10000\nexshuffle: yes\ncategories:\n- dag\n- causal\ndate: '2022-12-19'\nslug: kausal03\ntitle: kausal03\n\n---\n\n\n\n\n\n\n\n\n\n\n\n# Exercise\n\nGegeben sei der DAG `g` (s.u.). \nWas ist die minimale Menge an Variablen,\ndie man kontrollieren muss,\num den kausalen Effekt von `x` auf `y` zu identifizieren?\n\n\n\n::: {.cell}\n::: {.cell-output-display}\n![](unnamed-chunk-1-1.png){fig-pos='H' width=672}\n:::\n:::\n\n\n\n\nHinweise:\n\n- Gebogene Kurven mit doppelter Pfeilspitze zeigen *keine* Kausaleinflüsse ein (was in DAGs nicht erlaubt wäre). \n- Stattdessen zeigen Sie eine Assoziation bedingt durch eine (nicht aufgeführte) Konfundierungsvariable an.\n\n\nAnswerlist\n----------\n\n* { w1, w2, z2 }\n* { w2, z2 }\n* { w1, w2 }\n* { w1, z2 }\n* { w1 }\n\n\n\n\n\n\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n\n# Solution\n\n\n\n::: {.cell}\n::: {.cell-output .cell-output-stdout}\n```\n{ w1, w2, z2 }\n{ v, w1, w2 }\n{ w1, w2, z1 }\n```\n:::\n:::\n\n\n\n\n\nAnswerlist\n----------\n\n\n* Wahr\n* Falsch\n* Falsch\n* Falsch\n* Falsch\n\n\nDie Regressionsformel lautet also. `y ~ x + w1 + w2 + z2`.\n\nEs gibt mehrere *Adjustment Sets*,\naber unsere Lösungsoptionen lassen nur eine zu.\n\n\n\nAlternative Visualisierung:\n\n\n::: {.cell}\n\n```{.r .cell-code}\ndag <- dagitty::dagitty(\n  \"dag {\n    y <- x <- z1 <- v -> z2 -> y\n    z1 <- w1 <-> w2 -> z2\n    x <- w1 -> y\n    x <- w2 -> y\n    x [exposure]\n    y [outcome]\n  }\"\n) \n\nggdag(dag) + theme_dag()\n```\n\n::: {.cell-output-display}\n![](unnamed-chunk-3-1.png){fig-pos='H' width=672}\n:::\n:::\n\n\n\n\n\n\n---\n\nCategories: \n\n- dag\n- causal\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

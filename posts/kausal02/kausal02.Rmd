@@ -1,0 +1,130 @@
+---
+exname: dag2
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal02
+title: kausal02
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+#library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+Gegeben sei der DAG `g` (s.u.). Welche Variable/n sind zu kontrollieren, um den kausalen Effekt von `x` auf `y` zu identifizieren?
+
+
+```{r}
+dag_old <- 
+"
+dag{ 
+z -> x ; z -> y 
+x [exposure]
+y [outcome]
+}
+"
+
+dag_g <-
+  dagify(x ~ z,
+         y ~ z + x,
+         
+         exposure = "x",
+         outcome = "y")
+
+#g <- dagitty( dag_raw ) 
+ggdag(dag_g) + theme_dag()
+
+```
+
+
+
+
+
+
+
+Answerlist
+----------
+* z
+* keine, bereits identifiziert
+* x
+* y
+* keine, nicht identifizierbar
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Durch Kontrolle von `z` wird der kausale Effekt von `x` auf `y` identifiziert.
+
+
+```{r echo = FALSE}
+ggdag_adjustment_set(dag_g) + theme_dag()
+```
+
+Anmerkung: *Kein* Pfeil bedeutet, dass kein kausaler Pfad geöffnet ist.
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

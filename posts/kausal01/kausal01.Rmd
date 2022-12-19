@@ -1,0 +1,137 @@
+---
+exname: dag1
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+expoints: 1
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal01
+title: kausal01
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+
+Gegeben sei der DAG `g` (s.u.). Welche Variable/n sind zu kontrollieren, um den kausalen Effekt von `x` auf `y` zu identifizieren?
+
+
+```{r}
+g <- dagitty( "dag{ x -> y ; x <-> m <-> y }" ) 
+
+g <- dagify(y ~ x,
+            x ~~ m,
+            y ~~ m)
+ggdag(g) + theme_dag() +
+  labs(title = "DAG g")
+```
+
+
+
+Gegeben sei der DAG `g` (s.o.). 
+Dabei ist zu beachten, dass die gebogene Kurve (keine Gerade) mit zwei Pfeilspitzen *keinen* Kausaleffekt beschreibt,
+sondern eine *Assoziation.*
+Die dahinterstehende kausale Struktur ist eine Konfundierung.
+Daher ist der "Doppelpfeil" als Abkürzung für eine Konfundierung zu verstehen.
+
+*Welche Variable/n sind zu kontrollieren,* 
+*um den kausalen Effekt von `x` auf `y` zu identifizieren?*
+
+
+
+
+Answerlist
+----------
+* keine, bereits identifiziert
+* x
+* y
+* m
+* keine, nicht identifizierbar
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Keine. Der kausale Effekt von `x` auf `y` ist bereits identifiziert. 
+Identifiziert bedeutet,
+dasss die statistische Assoziation zwischen den beiden Variablen komplett kausal ist.
+Es gibt keine Hintertürpfade.
+
+```{r}
+adjustmentSets(g, "x", "y" )
+```
+
+
+```{r cache=FALSE}
+ggdag_adjustment_set(g,
+                     exposure = "x",
+                     outcome = "y")
+```
+
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+
