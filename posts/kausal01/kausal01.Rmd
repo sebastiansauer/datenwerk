@@ -7,7 +7,7 @@ expoints: 1
 categories:
 - dag
 - causal
-date: '2022-12-19'
+date: '2023-01-01'
 slug: kausal01
 title: kausal01
 
@@ -17,7 +17,7 @@ title: kausal01
 
 
 ```{r libs, include = FALSE}
-library(tidyverse)
+#library(tidyverse)
 #library(testthat)
 #library(glue)
 library(dagitty)
@@ -47,14 +47,17 @@ knitr::opts_chunk$set(fig.pos = 'H',
 Gegeben sei der DAG `g` (s.u.). Welche Variable/n sind zu kontrollieren, um den kausalen Effekt von `x` auf `y` zu identifizieren?
 
 
-```{r}
-g <- dagitty( "dag{ x -> y ; x <-> m <-> y }" ) 
+```{r echo = FALSE}
+g <- dagitty( "dag { x -> y ; x <-> m <-> y } " ) 
 
 g <- dagify(y ~ x,
             x ~~ m,
             y ~~ m)
+
 ggdag(g) + theme_dag() +
-  labs(title = "DAG g")
+  ggplot2::labs(title = "DAG g")
+
+
 ```
 
 
@@ -96,9 +99,10 @@ Answerlist
 # Solution
 
 Keine. Der kausale Effekt von `x` auf `y` ist bereits identifiziert. 
-Identifiziert bedeutet,
-dasss die statistische Assoziation zwischen den beiden Variablen komplett kausal ist.
-Es gibt keine Hintertürpfade.
+"Identifiziert" bedeutet,
+dass die statistische Assoziation zwischen den beiden Variablen komplett kausal ist.
+Es gibt keine Hintertürpfade,
+keine Pfade also, die Scheinkorrelation erzeugen würden.
 
 ```{r}
 adjustmentSets(g, "x", "y" )
@@ -108,7 +112,7 @@ adjustmentSets(g, "x", "y" )
 ```{r cache=FALSE}
 ggdag_adjustment_set(g,
                      exposure = "x",
-                     outcome = "y")
+                     outcome = "y") + theme_dag()
 ```
 
 

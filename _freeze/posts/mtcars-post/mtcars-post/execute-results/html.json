@@ -1,0 +1,14 @@
+{
+  "hash": "7d3dcc4bf0ec9a486941b146e8c3bdb2",
+  "result": {
+    "markdown": "---\nextype: num\nexsolution: 3.38\nexname: mtcars-post\nextol: 0.5\ncategories:\n- bayes\n- post\n- estimation\ndate: '2023-01-01'\nslug: mtcars-post\ntitle: mtcars-post\n\n---\n\n\n\n\n\n\n\n\n# Exercise\n\n\n\nIm Datensatz `mtcars`: \nBerichten Sie die Breite eines Schätzintervalls (89%, HDI) zum mittleren Spritverbrauch!\nNutzen Sie Methoden der Bayes-Statistik.\n\n\n\n\n[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)\n\n\n\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n\n# Solution\n\n\nSetup:\n\n\n::: {.cell}\n\n```{.r .cell-code}\ndata(mtcars)\nlibrary(tidyverse)\nlibrary(rstanarm)\nlibrary(easystats)\n```\n:::\n\n\n\n\n\nModell berechnen:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nm1 <- stan_glm(mpg ~ 1, \n               data = mtcars,\n               seed = 42,\n               refresh = 0)\n```\n:::\n\n\nModellparameter auslesen, wobei wir als CI-Methode ein HDI auswählen, und als CI-Größe 89%:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nparameters(m1, ci = .89, ci_method = \"hdi\")\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nParameter   | Median |         89% CI |   pd |  Rhat |     ESS |                   Prior\n----------------------------------------------------------------------------------------\n(Intercept) |  20.10 | [18.26, 21.64] | 100% | 1.001 | 2838.00 | Normal (20.09 +- 15.07)\n```\n:::\n:::\n\n\nIm Standard wird ein 95%-Perzentilintervall berechnet, s. die Dokumentation zur Funktion [hier](https://easystats.github.io/parameters/reference/model_parameters.default.html).\n\nDie Lösung lautet also:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nsolution <- 21.64 - 18.26\nsolution\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] 3.38\n```\n:::\n:::\n\n\n\n\n\n\n---\n\nCategories: \n\n- bayes\n- post\n- estimation\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -6,7 +6,8 @@ expoints: 1
 categories:
 - rope
 - bayes
-date: '2022-12-15'
+- regression
+date: '2023-01-01'
 slug: rope2
 title: rope2
 
@@ -52,11 +53,7 @@ Prüfen Sie rechnerisch, anhand des angegebenen Datensatzes, folgende Behauptung
 Wählen Sie die Antwortoption, die am besten zu der obigen Behauptung passt!
 
 
-Hinweise:
-
-- Sie benötigen einen Computer, um diese Aufgabe zu lösen.
-- Verwenden Sie die statistischen Methoden, die im Unterricht behandelt wurden.
-- Verwenden Sie Ansätze aus der Bayes-Statistik zur Lösung dieser Aufgabe.
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
 
 
 *Antwortoptionen*:
@@ -88,6 +85,7 @@ Answerlist
 library(easystats)
 library(tidyverse)
 library(rstanarm)
+data(mtcars)
 ```
 
 
@@ -114,11 +112,10 @@ sondern den deskriptiven Befund widerspiegeln.
 Modell berechnen:
 
 ```{r}
-library(rstanarm)
-library(tidyverse)
-data(mtcars)
-
-m1_mtcars <- stan_glm(mpg ~ am, data = mtcars, refresh = 0)
+m1_mtcars <- stan_glm(mpg ~ am, 
+                      data = mtcars, 
+                      seed = 42,
+                      refresh = 0)
 ```
 
 Posteriori-Verteilung betrachten:
@@ -128,31 +125,35 @@ Posteriori-Verteilung betrachten:
 parameters(m1_mtcars)
 ```
 
-Spuckt ein PI (ETI) aus, kein HDI.
+Die Funktion spucht im Default ein PI (ETI) aus, kein HDI.
 
 
 
 Visualisieren der Posteriori-Verteilung:
 
-```{r}
+```{r echo = FALSE}
+plot(parameters(m1_mtcars), show_intercept = TRUE, data = m1_mtcars)
+```
+
+
+```{r eval=FALSE}
 plot(parameters(m1_mtcars), show_intercept = TRUE)
 ```
 
-[Hilfe zum Plot-Befehl von `parameters](https://easystats.github.io/see/reference/plot.see_parameters_model.html)
+[Hilfe zum Plot-Befehl von `parameters`](https://easystats.github.io/see/reference/plot.see_parameters_model.html)
 
 
 
 Rope berechnen:
 
 ```{r}
-library(bayestestR)
 rope_m1 <- rope(m1_mtcars, range = c(-1, 1)) #  ±1 Meile Unterschied
 ```
 
-Rope visualisieren:
+Rope visualisieren mit `plot(rope_m1)`.
 
-```{r}
-plot(rope_m1)
+```{r echo = FALSE}
+plot(x = rope_m1, data = m1_mtcars)
 ```
 
 
@@ -173,25 +174,31 @@ ob der Unterschied auch ein kausaler Effekt ist.
 Alternative Rope-Definition: Z-Standardisieren.
 
 Ein kleiner Effekt ist, laut Kruschke 2018, 
-ein Unterschied der nicht größer ist als ±0.1 SD.
+ein Unterschied, der nicht größer ist als ±0.1 SD.
 
 
+Mit diesen Angaben berechnen wir das ROPE erneut:
 
 ```{r}
 m2_mtcars <- 
   mtcars %>% 
   mutate(mpg_z = scale(mpg)) %>% 
-  stan_glm(mpg_z ~ am, data = ., refresh = 0)
+  stan_glm(mpg_z ~ am, 
+           seed = 42,
+           data = .,  # Der Punkt bezieht sich auf die Tabelle im vorherigen Pfeifen-Schritt
+           refresh = 0)
 ```
 
 
 ```{r}
 rope(m2_mtcars)
 ```
+Im Standard bezieht sich `rope()` auf ein 95%-ETI, wie uns die Hilfe verrät.
 
 
-```{r}
-plot(rope(m2_mtcars))
+
+```{r echo = FALSE}
+plot(rope(m2_mtcars), data = m2_mtcars)
 ```
 
 
@@ -216,4 +223,5 @@ Categories:
 
 - rope
 - bayes
+- regression
 

@@ -1,0 +1,134 @@
+---
+extype: num
+exsolution: r sol
+exname: penguins-stan-02
+extol: 5
+expoints: 1
+categories:
+- bayes
+- regression
+date: '2023-01-01'
+slug: penguins-stan-02
+title: penguins-stan-02
+
+---
+
+
+
+
+
+# Exercise
+
+
+Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen.
+In dieser Aufgabe untersuchen wir den Zusammenhang von *Schnabellänge* (als UV) und *Körpergewicht* (als AV).
+
+
+*Wie groß ist der statistische Einfluss der UV auf die AV?*
+
+Geben Sie die *Breite eines 90%-HDI* an (zum Effekt)!
+
+
+Hinweise:
+
+- Nutzen Sie den Datensatz zu den *Palmer Penguins*.
+- Sie können den Datensatz z.B. [hier](https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv) beziehen oder über das R-Paket `palmerpenguins`.
+- [Weitere Hinweise](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Pruefung-Open-Book.html)
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Zentrieren ist eigentlich immer nützlich,
+aber hier streng genommen nicht unbedingt nötig.
+Der Hauptgrund dafür ist, dass Stan für uns den Prior für den Intercept festlegt,
+und zwar auf Basis der Daten,
+wir uns also nicht um die komische Frage zu kümmern brauchen,
+welchen Prior wir für den unzentrierten Achsenabschnitt vergeben wollten:
+Wie schwer sind Pinguins der Schnabellänge Null?
+Mit zentrierten Prädiktoren ist die Frage nach dem Prior viel einfacher zu beantworten:
+Wie schwer ist ein Pinguin mit mittelgroßem Schnabel?
+
+Setup:
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+
+data("penguins", package = "palmerpenguins")
+```
+
+
+Es wird in dieser Aufgabe vorausgesetzt,
+dass Sie den Datensatz selbständig importieren können.
+Tipp: Kurzes Googeln hilft ggf., den Datensatz zu finden.
+
+
+
+Alternativ könnten Sie den Datensatz als CSV-Datei importieren:
+
+
+```{r eval=FALSE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+penguins <- data_read(d_path)
+```
+
+
+Ein Blick in die Daten zur Kontrolle,
+ob das Importieren richtig funktioniert hat:
+
+```{r}
+glimpse(penguins)
+```
+
+
+Vertrauen ist gut, aber - was Golems betrifft - ist Kontrolle eindeutig besser ;-)
+
+
+
+
+
+```{r}
+m1 <- stan_glm(body_mass_g ~  bill_length_mm,  # Regressionsgleichung
+               data = penguins, #  Daten
+               seed = 42,  # Repro.
+               refresh = 0)  # nicht so viel Output
+```
+
+
+```{r}
+parameters(m1, ci_method = "hdi", ci = .9, keep = "bill_length_mm")
+```
+
+
+```{r echo = FALSE}
+sol <- parameters(m1, ci_method = "hdi", ci = .9, keep = "bill_length_mm")$CI_high -
+  parameters(m1, ci_method = "hdi", ci = .9, keep = "bill_length_mm")$CI_low
+```
+
+
+Die Lösung lautet also, wie aus der Ausgabe von `parameters()` ersichtlich, `r round(sol, 2)`.
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+

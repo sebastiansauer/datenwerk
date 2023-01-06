@@ -1,0 +1,192 @@
+---
+extype: num
+exsolution: 1
+exname: mtcars-abhaengig_var2
+extol: 0.03
+expoints: 1
+categories:
+- dyn
+- probability
+date: '2023-01-01'
+slug: mtcars-abhaengig_var2
+title: mtcars-abhaengig_var2
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+library(assertthat)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      echo = TRUE,
+                      warning = FALSE,
+                      #out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+# Exercise
+
+
+Im Folgenden ist der Datensatz `mtcars` zu analysieren.
+
+Der Datensatz ist z.B. als CSV-Datei [von dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/csv/datasetsv) abrufbar.
+
+Hilfe zum Datensatz ist via `help("name_des_datensatzes")` oder [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/doc/datasets) abrufbar.
+
+
+
+
+
+
+Ob die Variable `hp` (UV; Ereignis $A$) und *Spritverbrauch* (`mpg`; AV; Ereignis $B$) wohl voneinander abhängig sind? 
+Was meinen Sie? Was ist Ihre Einschätzung dazu? 
+Vermutlich haben Sie ein (wenn vielleicht auch implizites) Vorab-Wissen zu dieser Frage. 
+Lassen wir dieses Vorab-Wissen aber einmal außen vor und schauen uns rein Daten dazu an. 
+Vereinfachen wir die Frage etwas,
+indem wir beide Variablen am Mittelwert aufteilen:
+Wenn eine Beobachtung (d.h. ein Auto) einen Wert in der jeweiligen Variablen höchstens 
+so groß wie der Mittelwert der Variable aufweist,
+geben wir der Beobachtung der Wert `0`, ansonsten den Wert `1`.
+Wir nehmen die Anteile der gesuchten Größen als Schätzwert für deren Wahrscheinlichkeit.
+
+Die resultierenden binären Variablen nennen wir `av_high` bzw. `uv_high` (im schönsten Denglisch).
+
+
+
+
+
+*Berechnen Sie:* $Pr(\neg \text{uv_high} \, | \,  \text{av_high})$
+
+
+*Hinweise*:
+
+- Das "Ellbogen-Zeichen" $\neg$ kennzeichnet eine logische Negierung (das Gegenteil).
+- [Weitere Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+Schauen wir zuerst mal in den Datensatz: 
+
+```{r echo = TRUE}
+mtcars %>% 
+  select(mpg, hp) %>% 
+  slice_head(n = 5)
+```
+
+
+Dann berechnen wir die binären Variablen.
+
+Zuerst `av_high`: 
+
+
+
+
+```{r compute-binary-vars}
+# split by mean:
+d2 <-
+  mtcars %>% 
+  select(mpg, hp) %>% 
+  mutate(av_high = case_when(
+    mpg <= mean(mpg) ~ 0,
+    mpg > mean(mpg) ~ 1
+  )) %>% 
+  select(-mpg) 
+
+glimpse(d2)
+```
+`av_high = 1` zeigt hohe Werte in `mpg` an, und `av_high = 0` zeigt geringe Werte (im Verhältnis zum Mittelwert).
+
+Man beachte, dass *hohe* Werte in MPG einen *geringen* Spritverbrauch bedeuten (also eine *hohe* Sparsamkeit im Verbrauch).
+
+Dann berechnen wir `uv_high`:
+
+```{r}
+d3 <-
+  d2 %>% 
+  select(av_high, hp) %>% 
+  mutate(uv_high = case_when(
+    hp <= mean(hp) ~ 0,
+    hp > mean(hp) ~ 1
+  )) %>% 
+  select(-hp) 
+
+glimpse(d3)
+```
+
+
+
+Dann zählen wir die gesuchten Wahrscheinlichkeiten bzw. Anteile der AV:
+```{r echo = TRUE}
+d3 %>% 
+  count(av_high)
+```
+
+Es gibt also 14 Autos, die den oben gesuchten "hinteren Teil"
+der Bedingung erfüllen (`av_high = 1)`.
+
+Filtern wir als nächstes *nur in diesen 14 Autos* nach dem "vorderen Teil" der gesuchten Wahrscheinlichkeit,
+also `uv_high = 0`.
+
+
+
+```{r echo = TRUE}
+d3 %>% 
+  filter(av_high == 1) %>% 
+  count(uv_high) %>% 
+  mutate(prop = n/sum(n))
+```
+
+
+Es gibt also 14 von 14 Autos, die diese Bedingung, `uv_high = 0` erfüllen.
+Das sind 100%.
+
+In Worten: Von den Autos mit hoher Sparsamkeit haben alle eine geringe PS-Zahl.
+Das macht intuitiv Sinn.
+
+
+
+Der gesuchte Wert beträgt also `1`. 
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- dyn
+- probability
+

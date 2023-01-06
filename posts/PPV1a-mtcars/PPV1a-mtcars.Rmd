@@ -1,0 +1,182 @@
+---
+exname: ppv1a-mtcars
+extype: schoice
+exsolution: 1
+extol: 2
+exshuffle: no
+expoints: 1
+categories:
+- bayes
+- regression
+date: '2023-01-01'
+slug: PPV1a-mtcars
+title: PPV1a-mtcars
+
+---
+
+
+<!-- Achtung, es kann passieren, dass mehrere Antwortoptionen den Wert "0" anzeigen, -->
+<!-- was von Studis als "Fehler" gesehen werden kann. Muss noch korrigiert werden. -->
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(exams)
+library(assertthat)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+#chains <- 1  # set to one for debugging, set to 4 for production
+```
+
+
+
+
+
+
+# Exercise
+
+
+
+<!-- Hart verdrahtet für mtcars! -->
+
+Im Folgenden ist der Datensatz `mtcars` zu analysieren.
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+
+Berechnen Sie das folgende lineare Modell:
+
+
+
+AV: `mpg`.
+
+UVs: `hp, am`.
+
+
+
+
+*Aufgabe*: Was ist der Wert des Punktschätzers für eine Beobachtung, bei der alle Prädiktoren den Wert 0 aufweisen?
+
+
+[*Hinweise*](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Pruefung-Open-Book.html)
+
+
+
+
+
+Wählen Sie die am besten passende Antwortoption!
+
+
+Answerlist
+---------
+
+* -27
+* -17
+* -7
+* 17
+* 27
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+Zunächst kommt die übliche Vorbereitung:
+
+```{r}
+library(rstanarm)
+library(tidyverse)
+library(easystats)
+data(mtcars)
+```
+
+
+
+Dann berechnet man das Modell, etwa so:
+
+```{r}
+m1 <- stan_glm(mpg ~ hp + am, 
+               seed = 42,
+               refresh = 0,
+               data = mtcars
+)
+```
+
+
+
+Wir sagen vorher:
+
+
+```{r}
+pred1 <- predict(m1, newdata = tibble(hp = 0, am = 0))
+pred1
+```
+
+
+
+
+
+Dann lesen Sie den vorhergesagten Wert von `predict()` ab, runden, und reichen ihn ein.
+
+
+```{r echo=FALSE}
+sol <- pred1
+```
+
+
+Lösung: `r sol`
+
+
+
+Answerlist
+---------
+
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+* Wahr
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+

@@ -1,0 +1,138 @@
+---
+extype: schoice
+exsolution: 8
+exname: mtcars-post2
+categories:
+- bayes
+- regression
+- post
+date: '2023-01-01'
+slug: mtcars-post2
+title: mtcars-post2
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+
+
+
+# Exercise
+
+
+
+Im Datensatz `mtcars`: Wie groß ist der Effekt der UV `vs`  auf die AV `mpg`?  Geben Sie die Breite des 95% PI an (im Bezug zur gesuchten Größe).
+Berechnen Sie das dazu passende Modell mit Methoden der Bayes-Statistik.
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+Wählen Sie die am besten passende Option:
+
+Answerlist
+----------
+
+* 0.7
+* 2.7
+* 4.7
+* 6.7
+* 8.7
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Setup:
+
+```{r message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)
+library(easystats) 
+```
+
+
+
+
+Modell berechnen:
+
+```{r}
+m1 <- stan_glm(mpg ~ vs, data = mtcars,
+               seed = 42,
+               refresh = 0)
+```
+
+
+
+95%-PI:
+
+```{r}
+post_m1_vs <- parameters(m1)
+post_m1_vs
+```
+
+Berechnen wir die Breite des Intervalls:
+
+```{r}
+breite <- 11.26 - 4.60
+breite
+```
+
+
+
+Die Antwort für lautet also `r breite`.
+
+
+
+Answerlist
+----------
+
+* Falsch
+* Falsch
+* Falsch
+* Wahr
+* Falsch
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+- post
+

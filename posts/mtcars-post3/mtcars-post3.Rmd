@@ -1,0 +1,144 @@
+---
+extype: schoice
+exsolution: 8
+exname: mtcars-post3
+categories:
+- bayes
+- regression
+- post
+date: '2023-01-01'
+slug: mtcars-post3
+title: mtcars-post3
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+
+
+
+# Exercise
+
+
+
+Im Datensatz `mtcars`: Wie groß ist die Wahrscheinlichkeit, dass der  Effekt der UV `vs`  auf die AV `mpg` positiv ist?
+Berechnen Sie das dazu passende Modell mit Methoden der Bayes-Statistik.
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+Wählen Sie die am besten passende Option:
+
+Answerlist
+----------
+
+* .42
+* .73
+* .23
+* 1
+* 0
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Setup:
+
+```{r message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)
+library(easystats) 
+```
+
+
+
+
+Modell berechnen:
+
+```{r}
+m1 <- stan_glm(mpg ~ vs, data = mtcars,
+               seed = 42,
+               refresh = 0)
+```
+
+
+
+Die Statistik `pd` gibt uns den gesuchten Wert, die "Effektwahrscheinlichkeit":
+
+```{r}
+post_m1_vs <- parameters(m1)
+post_m1_vs
+```
+
+Weitere Information zu `pd` findet sich z.B. [hier](https://easystats.github.io/bayestestR/reference/p_direction.html).
+
+Wir könnten auch von Hand die Postverteilungs-Stichproben filtern und dann die
+Anzahl der Stichproben zählen, die diese Bedingung (vs>0) erfüllt:
+
+```{r}
+m1 %>% 
+  as_tibble() %>% 
+  count(vs > 0)
+```
+
+Das sind alle (4000 von 4000), also 100%.
+
+
+Die Antwort für lautet also 1.
+
+
+
+Answerlist
+----------
+
+* Falsch
+* Falsch
+* Falsch
+* Wahr
+* Falsch
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+- post
+
