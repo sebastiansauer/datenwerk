@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-01-01">
+<meta name="dcterms.date" content="2023-01-11">
 
 <title>datenwerk - rope2</title>
 <style>
@@ -167,6 +167,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
                 <div class="quarto-category">rope</div>
                 <div class="quarto-category">bayes</div>
                 <div class="quarto-category">regression</div>
+                <div class="quarto-category">exam-22</div>
               </div>
                   </div>
   </div>
@@ -178,7 +179,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 1, 2023</p>
+        <p class="date">January 11, 2023</p>
       </div>
     </div>
     
@@ -196,8 +197,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
 <p>Im Datensatz <code>mtcars</code>: Ist der (mittlere) Unterschied im Spritverbrauch zwischen den beiden Gruppen <em>Automatik</em> vs.&nbsp;<em>Schaltgetriebe</em> vernachlässigbar?</p>
 <p>Definieren Sie selber, was “vernachlässigbar klein” bedeutet. Oder greifen Sie auf die Definition “höchstens eine Meile” zurück.</p>
 <p>Prüfen Sie rechnerisch, anhand des angegebenen Datensatzes, folgende Behauptung:</p>
@@ -211,13 +212,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Ja, die Behauptung ist korrekt.</li>
 <li>Nein, die Behauptung ist falsch.</li>
 <li>Die Daten sind bzw. das Modell nicht konkludent; es ist keine Entscheidung über die Behauptung möglich.</li>
-<li>Auf Basis der bereitgestellten Informationen ist keine Entscheidung möglich über die Behauptung.</li>
+<li>Auf Basis der bereitgestellten Informationen ist keine Antwort möglich.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
 <div class="cell" data-hash="rope2_cache/html/unnamed-chunk-1_5aca4218da4d00b4ed0a89e774382acc">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -239,7 +240,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
-<p>Man sieht direkt, dass es substanzielle Unterschiede zwischen den beiden Gruppen gibt. Vermutlich wird das Modell, das wir gleich berechnen, uns wenig überraschen, sondern den deskriptiven Befund widerspiegeln.</p>
+<p>Man sieht direkt, dass es substanzielle Unterschiede zwischen den <em>Mittelwerten</em> beiden Gruppen gibt. Auch wenn sich die Verteilungen überlappen, sind die Mittelwerte doch vermutlich nicht (fast) identisch. Vermutlich wird das Modell, das wir gleich berechnen, uns wenig überraschen, sondern den deskriptiven Befund widerspiegeln.</p>
 <p>Modell berechnen:</p>
 <div class="cell" data-hash="rope2_cache/html/unnamed-chunk-3_5a856af42431ac30c1fce1ad1656d2e7">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>m1_mtcars <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(mpg <span class="sc">~</span> am, </span>
@@ -273,8 +274,17 @@ am          |   7.14 | [ 3.63, 10.84] | 100% | 1.000 | 3265.00 |  Normal (0.00 +
 </div>
 <p><a href="https://easystats.github.io/see/reference/plot.see_parameters_model.html">Hilfe zum Plot-Befehl von <code>parameters</code></a></p>
 <p>Rope berechnen:</p>
-<div class="cell" data-hash="rope2_cache/html/unnamed-chunk-7_74d459872b83ff75bb42aeb6f0573f05">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>rope_m1 <span class="ot">&lt;-</span> <span class="fu">rope</span>(m1_mtcars, <span class="at">range =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="co">#  ±1 Meile Unterschied</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="rope2_cache/html/unnamed-chunk-7_41609696556339a805763083dc79ebf9">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>rope_m1 <span class="ot">&lt;-</span> <span class="fu">rope</span>(m1_mtcars, <span class="at">range =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="co">#  ±1 Meile Unterschied</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>rope_m1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Proportion of samples inside the ROPE [-1.00, 1.00]:
+
+Parameter   | inside ROPE
+-------------------------
+(Intercept) |      0.00 %
+am          |      0.00 %</code></pre>
+</div>
 </div>
 <p>Rope visualisieren mit <code>plot(rope_m1)</code>.</p>
 <div class="cell" data-hash="rope2_cache/html/unnamed-chunk-8_e693c94eebbe6c270039cdb9afecb156">
@@ -293,16 +303,16 @@ am          |   7.14 | [ 3.63, 10.84] | 100% | 1.000 | 3265.00 |  Normal (0.00 +
 <p>Ein kleiner Effekt ist, laut Kruschke 2018, ein Unterschied, der nicht größer ist als ±0.1 SD.</p>
 <p>Mit diesen Angaben berechnen wir das ROPE erneut:</p>
 <div class="cell" data-hash="rope2_cache/html/unnamed-chunk-9_ab4eb17be27f054758b00172620f9d84">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>m2_mtcars <span class="ot">&lt;-</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mpg_z =</span> <span class="fu">scale</span>(mpg)) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stan_glm</span>(mpg_z <span class="sc">~</span> am, </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">seed =</span> <span class="dv">42</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> .,  <span class="co"># Der Punkt bezieht sich auf die Tabelle im vorherigen Pfeifen-Schritt</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>m2_mtcars <span class="ot">&lt;-</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mpg_z =</span> <span class="fu">scale</span>(mpg)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stan_glm</span>(mpg_z <span class="sc">~</span> am, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">seed =</span> <span class="dv">42</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> .,  <span class="co"># Der Punkt bezieht sich auf die Tabelle im vorherigen Pfeifen-Schritt</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-hash="rope2_cache/html/unnamed-chunk-10_6894d7cd5f4eebfbf80ce4fed7a9d9b3">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rope</span>(m2_mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rope</span>(m2_mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Proportion of samples inside the ROPE [-0.10, 0.10]:
 
@@ -336,6 +346,7 @@ am          |      0.00 %</code></pre>
 <li>rope</li>
 <li>bayes</li>
 <li>regression</li>
+<li>exam-22</li>
 </ul>
 
 

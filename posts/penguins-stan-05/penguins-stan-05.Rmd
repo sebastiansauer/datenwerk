@@ -1,13 +1,14 @@
 ---
-extype: num
-exsolution: r sol
 exname: penguins-stan-05
-extol: 10
+extype: num
+exsolution: r exams::fmt(sol, 2)
+extol: 5
 expoints: 1
 categories:
 - bayes
 - regression
-date: '2023-01-01'
+- exam-22
+date: '2023-01-11'
 slug: penguins-stan-05
 title: penguins-stan-05
 
@@ -17,23 +18,19 @@ title: penguins-stan-05
 
 
 
-# Exercise
+# Aufgabe
 
 
 Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen.
 In dieser Aufgabe untersuchen wir den Zusammenhang von *Schnabellänge* (als UV) und *Körpergewicht* (als AV).
 
 
- Wie groß ist das 95%-ETI, wenn Sie *nur* die Spezies *Adelie* untersuchen?
-
+Aufgabe: **Wie breit ist das 95%-ETI, wenn Sie nur die Spezies *Adelie* untersuchen?**
 
 
 
 Hinweise:
 
-- Nutzen Sie den Datensatz zu den *Palmer Penguins*.
-- Verwenden Sie Methoden der Bayes-Statistik und die Software Stan.
-- Beziehen Sie sich auf den Median-Schätzer.
 - Sie können den Datensatz z.B. [hier](https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv) beziehen oder über das R-Paket `palmerpenguins`.
 - [Weitere Hinweise](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Pruefung-Open-Book.html)
 
@@ -50,7 +47,7 @@ Hinweise:
 </br>
 </br>
 
-# Solution
+# Lösung
 
 Zentrieren ist eigentlich immer nützlich,
 aber hier streng genommen nicht unbedingt nötig.
@@ -90,7 +87,7 @@ d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/pen
 Ein Blick in die Daten zur Kontrolle,
 ob das Importieren richtig funktioniert hat:
 
-```{r}
+```{r penguins-adelie}
 penguins <- data_read(d_path)
 penguins_adelie <- 
   penguins %>% 
@@ -106,7 +103,7 @@ Vertrauen ist gut, aber - was Golems betrifft - ist Kontrolle eindeutig besser ;
 
 
 
-```{r}
+```{r mod}
 m1 <- stan_glm(body_mass_g ~  bill_length_mm,  # Regressionsgleichung
                data = penguins_adelie, #  Daten
                seed = 42,  # Repro.
@@ -120,7 +117,9 @@ parameters(m1, ci = .95, ci_method = "eti")
 
 
 ```{r echo = FALSE}
-sol <- parameters(m1, ci = .95, ci_method = "eti", keep = "bill_length_mm")$Median
+sol_raw <- parameters(m1, ci = .95, ci_method = "eti", keep = "bill_length_mm") 
+
+sol <- sol_raw$CI_high - sol_raw$CI_low
 ```
 
 
@@ -135,4 +134,5 @@ Categories:
 
 - bayes
 - regression
+- exam-22
 
