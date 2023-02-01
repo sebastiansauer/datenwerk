@@ -1,0 +1,399 @@
+---
+exname: tidy1
+extype: schoice
+exsolution: r mchoice2string(tibbles_chosen$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- tidy
+- data-wrangling
+- schoice
+date: '2023-02-01'
+slug: tidy1
+title: tidy1
+
+---
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+```
+
+
+
+
+
+
+# Aufgabe
+
+Das Konzept von "tidy" Daten ("Tidyformat") spielt in der Datenanalyse eine wichtige Rolle.
+
+Betrachten Sie die Tabellen im Folgenden.
+Welche ist "tidy"?
+
+Hinweise:
+
+- Alle Variablen sollen nicht konstant sein, also mehr als einen uniquen Wert aufweisen.
+- Alle Variablen sollen keine fehlenden Werte aufweisen, also komplett sein.
+- Alle Variablen sollen numerisch sein.
+
+
+```{r some-constants}
+# prepare some helper constants:
+rows_n <- 4
+group_n <- 2
+constant_factor <- 10
+```
+
+
+```{r def-tidy-df}
+tidy_df <- 
+  tibble(
+    group = rep(c(1:group_n), times = rows_n/group_n),
+    y = (1:rows_n)*constant_factor
+  ) %>% 
+  mutate(id1 = row_number()) %>% 
+  group_by(group) %>% 
+  mutate(id2 = row_number()) %>% 
+  ungroup()
+```
+
+```{r constants2}
+# more helper constants:
+cols_n <-
+  ncol(tidy_df)
+
+col_random <- sample(1:cols_n, 1)
+row_random <- sample(1:nrow(tidy_df), 1)
+col_names <- names(tidy_df)
+col_names_random <- sample(col_names, 1)
+col_names_random_position <- which(names(tidy_df) == col_names_random)
+```
+
+```{r untidy-tibbles}
+untidy_tibbles <- list()
+tibbles_listdf <- tibble(type = "tidy",
+                         data = list(tidy_df),
+                         explanation = "Das ist ein 'tidy Tibble'.")
+```
+
+
+
+```{r untidy1}
+untidy_df1 <- 
+tidy_df %>% 
+  pivot_wider(names_from = group,
+              values_from = y)
+
+untidy_tibbles <- 
+list() %>% 
+  append(list(untidy_df1))
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df1), 
+                   explanation = "Ein Tibble im breiten Format. Die Spalten `1` und `2` sind eigentlich eine Variable."))
+```
+
+
+
+
+```{r empty-row-df}
+empty_row_df <- 
+  tidy_df %>% 
+  # mutate(across(everything(),
+  #               as.numeric)) %>% 
+  filter(row_number() == 1) %>% 
+  mutate(across(everything(),
+                ~ assign_in(.x, where = 1, value = NA)))
+
+```
+
+```{r empty-col-df}
+col_chosen <- sample(cols_n, 1)
+
+empty_col_df <- 
+  tidy_df %>% 
+  select(all_of(col_chosen))
+
+empty_col_df[1] <- NA
+
+```
+
+
+```{r empty-col-noname-df}
+empty_col_noname_df <-
+  tidy_df %>% 
+  mutate(` ` = NA ) %>% 
+  select(last_col())
+```
+
+
+```{r untidy2}
+untidy_df2 <- 
+  tidy_df %>% 
+  bind_rows(empty_row_df) %>% 
+  sample_n(size = nrow(.))
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df2))
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df2),
+                   explanation = "In einem Tidy-Tibble darf keine leere Zeile vorkommen."))
+```
+
+
+
+```{r untidy3}
+untidy_df3 <- 
+tidy_df %>% 
+  bind_cols(empty_col_noname_df) %>% 
+  relocate(last_col(), .after = col_random)
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df3))
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df3),
+                   explanation = "In einem Tidy-Tibble darf keine leere Spalte vorkommen."))
+```
+
+
+
+```{r}
+untidy_df4 <- 
+tidy_df %>% 
+  mutate(!!col_names_random := NA)
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df4))
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df4),
+                   explanation = "In einem Tidy-Tibble darf keine Spalte nur aus `NA` bestehen."))
+```
+
+
+```{r}
+untidy_df5 <-
+  tidy_df %>% 
+  mutate(!!col_names_random := LETTERS[1:nrow(.)])
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df5))
+
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df5),
+                   explanation = "Alle Werte sollen numerisch sein"))
+```
+
+
+
+```{r}
+untidy_df6 <-
+  tidy_df %>% 
+  mutate(!!col_names_random := 1)
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df6))
+
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df6),
+                   explanation = "Variablen sollen nicht konstant sein."))
+```
+
+
+```{r}
+untidy_df7 <-
+  tidy_df %>% 
+  mutate(!!col_names_random := na_if(id1, row_random))
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df7))
+
+
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df7),
+                   explanation = "Fehlende Werte sind nicht erlaubt"))
+```
+
+
+
+
+```{r}
+untidy_df8 <-
+  tidy_df %>% 
+  mutate(!!col_names_random := "1,2")
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df8))
+
+
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df8),
+                   explanation = "In einer Zelle darf nur ein (numerischer) Wert stehen."))
+```
+
+
+
+```{r}
+untidy_df9 <-
+  tidy_df %>% 
+  mutate(across(!!col_names_random,
+                   .fns = ~max(.)))
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df9))
+
+
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df9),
+                   explanation = "Eine Spalte soll nicht aus einem uniquen Wert bestehen."))
+```
+
+
+
+
+
+```{r}
+untidy_df10 <-
+  tidy_df %>% 
+  mutate(!!col_names_random := as.character(!!col_names_random))
+
+untidy_df10[row_random, col_names_random_position] <- "1,2"
+
+untidy_tibbles <- 
+untidy_tibbles %>% 
+  append(list(untidy_df10))
+
+
+tibbles_listdf <- 
+tibbles_listdf %>% 
+  bind_rows(tibble(type = "untidy", data = list(untidy_df10),
+                   explanation = paste0("Die Spalte ", col_names_random, 
+                                        "weißt einen nicht erlaubten Wert auf.")))
+```
+
+
+```{r}
+untidy_tibbles_chosen_nr <- sample(2:nrow(tibbles_listdf), size = 4)
+
+
+tibbles_chosen <-
+  tibbles_listdf %>% 
+  mutate(id = row_number(), .before = type) %>% 
+  filter(id == 1 | id %in% untidy_tibbles_chosen_nr) %>% 
+  sample_n(size = 5) %>%  # Reihenfolge permutieren
+  mutate(id2 = paste0("Tabelle ", LETTERS[row_number()])) %>% 
+  mutate(is_correct = ifelse(type == "tidy", TRUE, FALSE))
+```
+
+
+Tabelle A:
+```{r}
+gt(tibbles_chosen$data[[1]]) %>% tab_header(title = tibbles_chosen$id2[[1]])
+```
+
+Tabelle B:
+```{r}
+gt(tibbles_chosen$data[[2]]) %>% tab_header(title = tibbles_chosen$id2[[2]])
+```
+
+Tabelle C:
+```{r}
+gt(tibbles_chosen$data[[3]]) %>% tab_header(title = tibbles_chosen$id2[[3]])
+```
+
+
+Tabelle D:
+```{r}
+gt(tibbles_chosen$data[[4]]) %>% tab_header(title = tibbles_chosen$id2[[4]])
+```
+
+
+
+Tabelle E:
+```{r}
+gt(tibbles_chosen$data[[5]]) %>% tab_header(title = tibbles_chosen$id2[[5]])
+```
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(tibbles_chosen$id2, markup = "markdown")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(
+  ifelse(tibbles_chosen$is_correct, "Richtig", "Falsch"),
+  tibbles_chosen$explanation, markup = "markdown")
+```
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- - tidy
+- data-wrangling
+- schoice
+

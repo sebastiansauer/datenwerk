@@ -1,0 +1,158 @@
+---
+exname: Skalenniveau1b
+extype: mchoice
+exsolution: r sol
+exshuffle: no
+dynamic: yes
+categories:
+- dyn
+- scale-level
+- variable-niveau
+- mchoice
+date: '2023-02-01'
+slug: Skalenniveau1b
+title: Skalenniveau1b
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(mosaic)
+#library(testthat)
+library(glue)
+library(exams)
+library(assertthat)
+library(testthat)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+```{r load-data}
+d_raw <- 
+tibble::tribble(
+                                                                                ~Variable,     ~Skalenniveau, ~Nominalniveau, ~Ordinalniveau, ~Intervallniveau, ~Verhältnisniveau, ~stetig, ~diskret,
+                                                                  "Temperatur in Celcius",  "Intervallskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                   "Temperatur in Kelvin", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                               "Temperatur in Fahrenheit", "Verhältnisskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                                  "Alter", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                             "Schuhgröße", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht einer Person", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht eines Tieres", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht eines Buches", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                 "Gewicht einer Maschine", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                    "Anzahl Geschwister in einer Familie", "Verhältnisskala",             0L,             0L,               0L,                1L,      0L,       1L,
+                                                         "Anzahl Kinder in einer Familie", "Verhältnisskala",             0L,             0L,               0L,                1L,      0L,       1L,
+                                "Ranking von Hochschulen (1. Platz XYZ, 2. Platz ABC, …)",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L,
+                                                                                     "IQ",  "Intervallskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                             "Augenfarbe",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                              "Haarfarbe",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                              "Präferenz für eine Partei",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                    "Beliebtester Politiker einer Person",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                     "Umsatz einer Firma", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                     "Gewinn einer Firma", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                             "Geschlecht",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                           "Nationalität",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                            "Rangfolge der Lieblingsspeisen einer Person",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L,
+  "Ergebnis bei Talent-Show (1. Platz Mr. Cool, 2. Platz Mr. Bright, 3. Platz Mr. Right)",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L
+  )
+
+
+```
+
+
+
+```{r}
+# Add "metric level":
+d <-
+  d_raw %>% 
+  mutate(metrisch =
+           case_when(Skalenniveau == "Intervallskala" | Skalenniveau == "Verhältnisskala" ~ 1,
+                     TRUE ~ 0))
+```
+
+
+
+
+
+```{r}
+d_sol <- 
+  d %>% 
+  sample_n(size = 4)
+```
+
+Geben Sie für jede Variable an, ob sie über ein metrisches Skalenniveau verfügt!
+
+
+```{r questionslist, echo = FALSE, results = "asis"}
+answerlist(d_sol$Variable, markup = "markdown")
+```
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Hier ist ein Überblick über die Skalenniveau-Information der ausgewählten Variablen:
+
+```{r}
+d_sol %>% gt::gt()
+```
+
+
+
+
+
+
+Dementsprechend lauten die Lösungen zu den Items:
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(d_sol$metrisch, "Richtig", "Falsch"), markup = "markdown")
+sol <-  mchoice2string(ifelse(d_sol$metrisch, 1, 0))
+```
+
+
+
+
+---
+
+Categories: 
+
+- - dyn
+- scale-level
+- variable-niveau
+- mchoice
+

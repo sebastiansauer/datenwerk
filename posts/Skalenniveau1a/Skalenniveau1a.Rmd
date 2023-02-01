@@ -1,0 +1,159 @@
+---
+exname: Skalenniveau1a
+extype: schoice
+exsolution: r sol_str
+exshuffle: no
+dynamic: yes
+categories:
+- dyn
+- scale-level
+- variable-niveau
+- schoice
+date: '2023-02-01'
+slug: Skalenniveau1a
+title: Skalenniveau1a
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(mosaic)
+#library(testthat)
+library(glue)
+library(exams)
+library(assertthat)
+library(testthat)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+```{r load-data}
+d_raw <- 
+tibble::tribble(
+                                                                                ~Variable,     ~Skalenniveau, ~Nominalniveau, ~Ordinalniveau, ~Intervallniveau, ~Verhältnisniveau, ~stetig, ~diskret,
+                                                                  "Temperatur in Celcius",  "Intervallskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                   "Temperatur in Kelvin", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                               "Temperatur in Fahrenheit", "Verhältnisskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                                  "Alter", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                             "Schuhgröße", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht einer Person", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht eines Tieres", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht eines Buches", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                 "Gewicht einer Maschine", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                    "Anzahl Geschwister in einer Familie", "Verhältnisskala",             0L,             0L,               0L,                1L,      0L,       1L,
+                                                         "Anzahl Kinder in einer Familie", "Verhältnisskala",             0L,             0L,               0L,                1L,      0L,       1L,
+                                "Ranking von Hochschulen (1. Platz XYZ, 2. Platz ABC, …)",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L,
+                                                                                     "IQ",  "Intervallskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                             "Augenfarbe",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                              "Haarfarbe",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                              "Präferenz für eine Partei",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                    "Beliebtester Politiker einer Person",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                     "Umsatz einer Firma", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                     "Gewinn einer Firma", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                             "Geschlecht",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                           "Nationalität",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                            "Rangfolge der Lieblingsspeisen einer Person",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L,
+  "Ergebnis bei Talent-Show (1. Platz Mr. Cool, 2. Platz Mr. Bright, 3. Platz Mr. Right)",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L
+  )
+
+
+```
+
+
+```{r}
+# Add "metric level":
+d <-
+  d_raw %>% 
+  mutate(metrisch =
+           case_when(Skalenniveau == "Intervallskala" | Skalenniveau == "Verhältnisskala" ~ 1,
+                     TRUE ~ 0))
+```
+
+
+
+
+
+```{r}
+d_sol <- 
+  d %>% 
+  sample_n(size = 1)
+```
+
+
+Verfügt die Variable *`r d_sol$Variable`* über ein metrisches Skalenniveau?
+
+Answerlist
+----------
+
+* nein
+* ja
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+if (d_sol$metrisch == 1) {
+  sol <- "ja"
+  sol_str <- "01"
+  } else {
+    sol <- "nein"
+    sol_str <- "10"
+}
+```
+
+Hier ist ein Überblick über die Skalenniveau-Information der ausgewählten Variablen:
+
+```{r}
+d_sol %>% gt::gt()
+```
+
+
+Die richtige Antwort lautet: **`r  sol`**.
+
+
+
+
+---
+
+Categories: 
+
+- - dyn
+- scale-level
+- variable-niveau
+- schoice
+
