@@ -1,0 +1,158 @@
+---
+extype: string
+exsolution: NA
+exname: haeufigkeit01
+expoints: 1
+categories:
+- datawrangling
+- eda
+- count
+- string
+date: '2023-02-08'
+slug: haeufigkeit01
+title: haeufigkeit01
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+Werten Sie die Häufigkeiten (der Stufen) folgender Variablen  aus wie unten beschrieben.
+
+Datensatz: `mtcars`.
+
+
+Variablen:
+
+- `am`
+- `cyl`
+- `vs` 
+
+
+1. Erstellen Sie für jede der genannten Variablen eine univariate Häufigkeitsanalyse (also nur eine Variable).
+2. Erstellen Sie dann für die ersten beiden genannten Variablen eine gemeinsame Häufigkeitsanalyse (bivariat).
+3. Erstellen Sie dann für alle genannten Variablen eine gemeinsame Häufigkeitsanalyse.
+4. Wie viele Gruppen (also Häufigkeitswerte) ergeben sich (theoretisch) in der letzten Auswertung?
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+library("tidyverse")
+data("mtcars")
+```
+
+
+1. univariate Häufigkeitsanalyse
+
+
+```{r}
+mtcars %>% 
+  group_by(am) %>% 
+  summarise(zeilen_n = n())
+```
+
+Der Befehle `n()` gibt die Anzahl der Zeilen (Reihen) zurück.
+Da in einem Dataframe alle Zeilen gleich lang sind,
+brauchen wir keine Spalte anzugeben.
+
+
+Alternativ könnte man auch schreiben:
+
+```{r}
+mtcars %>% 
+  count(am)
+```
+
+Das ist haargenau der gleiche Effekt wie die vorherige Syntax.
+
+Üblich ist auch, eine Kontingenztabelle so darzustellen:
+
+
+
+
+
+
+2. gemeinsame Häufigkeitsanalyse (bivariat)
+
+
+```{r}
+mtcars %>% 
+  count(am, cyl)
+```
+
+
+
+```{r}
+table(mtcars$am, mtcars$cyl)
+```
+
+
+Wir sehen, dass wir $2\cdot3=6$ Gruppen haben,
+in denen sich die $n=32$ Beobachtungen aufteilen.
+
+3. Häufigkeitsanalyse mit 3 Variablen
+
+```{r}
+mtcars %>% 
+  count(am, cyl, vs)
+```
+
+
+
+
+
+Das sind drei Variablen mit $2 \cdot 3 \cdot 2 = 12$ Gruppen.
+
+Da einige der 12 Gruppen in den Daten nicht vorkommen,
+sind sie in der Auszählung der Häufigkeiten nicht aufgenommen;
+in den Daten gibt es nur 7 der 12 Gruppen.
+
+
+
+
+---
+
+Categories: 
+
+- datawrangling
+- eda
+- count
+- string
+
