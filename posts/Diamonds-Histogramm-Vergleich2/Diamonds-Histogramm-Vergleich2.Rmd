@@ -1,0 +1,139 @@
+---
+exname: Diamonds-Histogramm-Vergleich2
+extype: schoice
+exsolution: 64
+exshuffle: yes
+expoints: 1
+categories:
+- vis
+- '2023'
+- schoice
+date: '2023-02-26'
+slug: Diamonds-Histogramm-Vergleich2
+title: Diamonds-Histogramm-Vergleich2
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      dpi = 96,
+                      message = FALSE,
+                      echo = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+Die Daten beziehen sich auf den Datensatz `diamonds` und sind [hier](https://ggplot2.tidyverse.org/reference/diamonds.html) einzusehen bzw. können bei Interesse dort heruntergeladen werden.
+
+```{r p-diamonds2, echo = FALSE}
+data(diamonds, package = "ggplot2")
+library(tidyverse)
+library(gghighlight)
+library(cowplot)
+
+p1 <- diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>% 
+  mutate(price = price/1000 %>% round) %>% 
+    ggplot() +
+  aes(x = price) +
+  geom_histogram()  +
+  geom_vline(aes(xintercept = median(price))) +
+  theme_light() +
+  facet_wrap( ~ cut, scales = "free")
+
+
+diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>%
+  group_by(cut) %>% 
+  mutate(price = price/1000 %>% round) %>% 
+  summarise(price = median(price)) -> diamonds_sum
+
+    
+p2 <- diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>% 
+  mutate(price = price/1000 %>% round) %>% 
+  ggplot() +
+  aes(x = price, fill = cut) +
+  geom_histogram() +
+  scale_fill_viridis_d() +
+  gghighlight() + 
+  facet_wrap(~ cut, scales = "free") +
+  geom_vline(data = diamonds_sum, aes(xintercept = price)) +
+  theme_light()
+
+
+plot_grid(p1, p2,
+          nrow = 2,
+          labels = c("A", "B"))
+
+```
+
+
+
+Answerlist
+----------
+* Im Diagramm A wird ein Maß der zentralen Tendenz gruppenbezogen gezeigt, also den jeweiligen Kennwert der Gruppe (Schliffart) wiedergegeben.
+* Im Diagramm B wird die Gesamtverteilung über die drei Gruppen hinweg (in hellgrau) dargestellt; in den kräftigeren Farbtönen wird die Verteilung pro Gruppe (Schliffart) dargestellt.
+* Insgesamt sind die Verteilung linksschief.
+* Insgesamt sind die Verteilung rechtssteil.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Answerlist
+----------
+* Falsch
+* Wahr
+* Falsch
+* Falsch
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- vis
+- '2023'
+- schoice
+

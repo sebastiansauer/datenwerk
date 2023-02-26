@@ -1,0 +1,122 @@
+---
+exname: movies-vis2
+extype: string
+exsolution: ''
+exshuffle: no
+categories:
+- vis
+- eda
+- string
+date: '2023-02-26'
+slug: movies-vis2
+title: movies-vis2
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+```
+
+
+
+
+
+
+# Aufgabe
+
+Importieren Sie bitte für diese Aufgabe den Datensatz [movies](https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv) (aus dem R-Paket `ggplot2movies`).
+Ein Data-Dictionary findet sich [hier](https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2movies/movies.html).
+
+Erstellen Sie folgende Visualisierung:
+
+- Gruppenvergleich des Budgets pro Jahr
+- Berücksichtigen Sie nur Actionfilme ab 2000
+- Verzichten Sie auf Filme mit einer unterdurchschnittlichen Zahl an Bewertungen (`votes`; gemessen an allen Filmen, gerundet zur nächsten ganzen Zahl)
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Pakete starten:
+
+```{r message=FALSE}
+library(tidyverse)
+library(DataExplorer)
+```
+
+
+
+Daten importieren:
+
+```{r echo=TRUE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv"
+d <- read.csv(d_path)
+```
+
+
+Durchschnittliche Zahl an Bewertungen:
+
+```{r}
+d %>% 
+  summarise(votes_mean = mean(votes))
+```
+
+Die durchschnittliche Zahl an Bewertungen beträgt also 632. 
+
+
+```{r}
+d %>% 
+  select(budget, rating, year, votes, Action) %>% 
+  filter(year >= 2000) %>% 
+  filter(Action == 1) %>% 
+  filter(votes >= 632) %>% 
+  select(-Action) %>% 
+  mutate(year = factor(year)) %>% 
+  select(budget, year) %>% 
+  plot_boxplot(by = "year")
+```
+
+
+Hinweis: Die Zahl "5.0e+07" ist eine Zahl in der Exponenzial-Schreibweis, nämlich $5\cdot10^7$, also $5 \cdot 1000000$.
+
+
+
+
+
+---
+
+Categories: 
+
+- vis
+- eda
+- string
+

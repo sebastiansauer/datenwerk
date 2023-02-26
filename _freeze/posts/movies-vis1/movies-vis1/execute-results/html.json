@@ -1,0 +1,14 @@
+{
+  "hash": "9cda80e75b6206ae6b6b4e9d58e2aa6d",
+  "result": {
+    "markdown": "---\nexname: movies-vis1\nextype: string\nexsolution: ''\nexshuffle: no\ncategories:\n- vis\n- eda\n- string\ndate: '2023-02-26'\nslug: movies-vis1\ntitle: movies-vis1\n\n---\n\n\n\n\n\n\n\n\n\n\n\n# Aufgabe\n\nImportieren Sie bitte für diese Aufgabe den Datensatz [movies](https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv) (aus dem R-Paket `ggplot2movies`).\nEin Data-Dictionary findet sich [hier](https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2movies/movies.html).\n\nErstellen Sie folgende Visualisierung:\n\n- Streudiagramme mit `rating` als Y-Variable, und alle übrigen metrischen Variablen als X-Variable.\n- Lassen Sie aber folgende Variablen außen vor: etwaige ID-Variablen, die Variablen, die die Perzentile der Bewertungen angeben (`rX`, mit `X` von 1 bis 10)\n- Berücksichtigen Sie nur Actionfilme ab 2000\n- Verzichten Sie auf Filme mit einer unterdurchschnittlichen Zahl an Bewertungen (`votes`; gemessen an allen Filmen, gerundet zur nächsten ganzen Zahl)\n\n\n\n\n\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n\n# Lösung\n\nPakete starten:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tidyverse)\nlibrary(DataExplorer)\n```\n:::\n\n\n\n\nDaten importieren:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nd_path <- \"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv\"\nd <- read.csv(d_path)\n```\n:::\n\n\n\nDurchschnittliche Zahl an Bewertungen:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nd %>% \n  summarise(votes_mean = mean(votes))\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n  votes_mean\n1   632.1304\n```\n:::\n:::\n\n\nDie durchschnittliche Zahl an Bewertungen beträgt also 632. \n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nd %>% \n  select(length, budget, rating, year, votes, Action) %>% \n  filter(year >= 2000) %>% \n  filter(Action == 1) %>% \n  filter(votes >= 632) %>% \n  select(-Action) %>% \n  plot_scatterplot(by = \"rating\")\n```\n\n::: {.cell-output .cell-output-stderr}\n```\nWarning: Removed 66 rows containing missing values (`geom_point()`).\n```\n:::\n\n::: {.cell-output-display}\n![](unnamed-chunk-4-1.png){fig-pos='H' width=384}\n:::\n:::\n\n\n\n\n\n\n\n\n---\n\nCategories: \n\n- vis\n- eda\n- string\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
