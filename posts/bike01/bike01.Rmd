@@ -1,0 +1,174 @@
+---
+exname: bike01
+extype: num
+exsolution: r fmt(sol)
+exshuffle: no
+expoints: 1
+categories:
+- stat-learning
+- tidymodels
+- num
+date: '2023-03-27'
+slug: bike01
+title: bike01
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Kann man die Anzahl gerade verliehener Fahrräder eines entsprechenden Anbieters anhand der Temperatur vorhersagen?
+
+In dieser Übung untersuchen wir diese Frage.
+
+Sie können die Daten von der [Webseite der UCI](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset#) herunterladen.
+
+Wir beziehen uns auf den Datensatz `day`.
+
+Berechnen Sie ein lineares Modell mit der Anzahl der aktuell vermieteten Räder als AV und der aktuellen Temperatur als UV!
+
+Geben Sie den MSE an!
+
+[Hinweise](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Bearbeitung.html)
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+library(tidymodels)
+library(tidyverse)
+```
+
+
+
+```{r}
+d <- read.csv("/Users/sebastiansaueruser/datasets/Bike-Sharing-Dataset/day.csv")
+```
+
+
+```{r}
+glimpse(d)
+```
+
+## Data split
+
+```{r}
+set.seed(42)
+split_vec <- initial_split(d, strata = cnt)
+
+d_train <- training(split_vec)
+d_test <- testing(split_vec)
+```
+
+
+
+## Define recipe
+
+```{r}
+rec1 <- 
+  recipe(cnt ~ temp, data = d)
+```
+
+
+
+## Define model
+
+
+```{r}
+m1 <-
+  linear_reg()
+```
+
+
+
+
+## Workflow
+
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_model(m1) %>% 
+  add_recipe(rec1) 
+```
+
+
+
+## Fit
+
+```{r}
+fit1 <- last_fit(wf1, split_vec)
+fit1
+```
+
+
+
+## Model performance (metrics) in test set
+
+```{r}
+fit1 %>% collect_metrics()
+```
+
+```{r}
+MSE <- fit1 %>% collect_metrics() %>% pluck(3, 1)
+MSE
+```
+
+
+
+**Solution**: `r MSE`
+
+
+```{r echo=FALSE}
+sol <- MSE
+```
+
+
+
+
+---
+
+Categories: 
+
+- stat-learning
+- tidymodels
+- num
+
