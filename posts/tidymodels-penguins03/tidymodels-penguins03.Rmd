@@ -1,0 +1,238 @@
+---
+exname: tidymodels-penguins03
+extype: num
+exsolution: r fmt(sol)
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- stat-learning
+- num
+date: '2023-04-06'
+slug: tidymodels-penguins03
+title: tidymodels-penguins03
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+
+```
+
+
+
+
+
+
+# Aufgabe
+
+Berechnen Sie ein kNN-Modell mit tidymodels und zwar anhand des `penguins` Datensatzes.
+
+Modellgleichung: `body_mass_g ~ bill_length_mm, data = d_train`.
+
+
+
+Gesucht ist R-Quadrat als Maß für die Modellgüte im *TEST-Sample*.
+
+
+
+*Hinweise*:
+
+
+- Fixieren Sie die Zufallszahlen auf den Startwert 42.
+- Nutzen Sie eine v=5,r=1 CV.
+- Tunen Sie $K$ (Default-Tuning)
+- Entfernen Sie fehlende Werte in den Variablen.
+- Verzichten Sie auf weitere Schritte der Vorverarbeitung.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Setup:
+
+```{r}
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Rechenzeit messen, optional
+# data(penguins, package = "palmerpenguins")
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/penguins.csv"
+d <- read_csv(d_path)
+```
+
+
+Datensatz auf NAs prüfen:
+
+```{r}
+d2 <-
+  d %>% 
+  drop_na() 
+```
+
+
+
+Datensatz aufteilen:
+
+
+```{r}
+set.seed(42)
+d_split <- initial_split(d2)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+Workflow:
+
+```{r}
+rec1 <-
+  recipe(body_mass_g ~ bill_length_mm, data = d_train) %>% 
+  step_naomit(all_numeric())
+
+knn_model <-
+  nearest_neighbor(
+    mode = "regression",
+    neighbors = tune()
+  ) 
+
+wflow <-
+  workflow() %>%
+  add_recipe(rec1) %>%
+  add_model(knn_model)
+
+wflow
+```
+
+
+Backen:
+
+```{r}
+d_baked <- prep(rec1) %>% bake(new_data = NULL)
+d_baked %>% head()
+```
+
+
+Auf NA prüfen:
+
+```{r}
+sum(is.na(d_baked))
+```
+
+
+
+CV:
+
+```{r}
+set.seed(43)
+folds <- vfold_cv(d_train, v = 5)
+folds
+```
+
+
+
+Tunen:
+
+```{r}
+d_resamples <-
+  tune_grid(
+    wflow,
+    resamples = folds,
+    control = control_grid(save_workflow = TRUE)
+  )
+
+d_resamples
+```
+
+
+Bester Kandidat:
+
+```{r}
+show_best(d_resamples)
+```
+
+
+
+```{r}
+fitbest <- fit_best(d_resamples)
+fitbest
+```
+
+
+Last Fit:
+
+
+
+```{r}
+fit_last <- last_fit(fitbest, d_split)
+fit_last
+```
+
+
+Modellgüte im Test-Sample:
+
+```{r}
+fit_last %>% collect_metrics()
+```
+
+
+
+R-Quadrat:
+
+
+```{r}
+sol <- collect_metrics(fit_last)[[".estimate"]][2]
+sol
+```
+
+
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- stat-learning
+- num
+
