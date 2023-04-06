@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -152,12 +186,38 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-1_502fe0f2397babdf7e9654ea01b6e3f9">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(ames)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Multiplikatives Modell:</p>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-2_a1fcff984e18db2b1d0b729a5449ab24">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ames <span class="ot">&lt;-</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  ames <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Sale_Price =</span> <span class="fu">log10</span>(Sale_Price)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Sale_Price, Gr_Liv_Area)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Nicht vergessen: AV-Transformation in beiden Samples!</p>
 <p>Datensatz aufteilen:</p>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-3_9828403bcf054b3f6aafce7534c4740a">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ames_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(ames, <span class="at">prop =</span> <span class="fl">0.80</span>, <span class="at">strata =</span> Sale_Price)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ames_train <span class="ot">&lt;-</span> <span class="fu">training</span>(ames_split)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ames_test  <span class="ot">&lt;-</span>  <span class="fu">testing</span>(ames_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Modell definieren:</p>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-4_f20f5535c5c4ad62b3d268e0e9034cb2">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linear_reg</span>() <span class="co"># engine ist "lm" im Default</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Modell fitten:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-6_b08835038d68c9884e85385e337c3371">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-5_3f1fff6e971808225b00434d7d80769e">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">%&gt;%</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(Sale_Price <span class="sc">~</span> Gr_Liv_Area, <span class="at">data =</span> ames)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-6_8ff41bd075180ba834c2da7360e68666">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">"fit"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -169,8 +229,14 @@ Coefficients:
 </div>
 </div>
 <p>Modellgüte im Train-Sample:</p>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-7_8012b8a8ae4cb66cac484fbd7a771f4c">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit1_performance <span class="ot">&lt;-</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  fit1 <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit_engine</span>()  <span class="co"># identisch zu pluck("fit")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Modellgüte im Train-Sample:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-8_65416f3ba86dc28a1e2fb669eae483ee">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-8_35b206d934cfcf3410de3cd9d163d142">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit1_performance <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -193,14 +259,17 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>R-Quadrat via easystats:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-9_6b9c59b45406e7c7a66351b0d0f0ee26">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-9_e8565b2806b401c69475a792fd78cb67">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fit1_performance <span class="sc">%&gt;%</span> <span class="fu">r2</span>()  <span class="co"># rmse()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># R2 for Linear Regression
        R2: 0.484
   adj. R2: 0.484</code></pre>
 </div>
 </div>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-10_e6523b2c6a9b06c568e18af32167e0c9">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-10_8826222545e6ff36dfc328effb406f82">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit1_performance)  <span class="co"># ähnlich zu parameters()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
   term        estimate  std.error statistic p.value
@@ -210,7 +279,9 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>Vorhersagen im Test-Sample:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-11_2ace73ad10e4fc5e7665fd8609484ac2">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-11_cf0a00f2a5f8eddf3606a10aa768f1d6">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit1, <span class="at">new_data =</span> ames_test)  <span class="co"># liefert TABELLE (tibble) zurück</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(preds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 1
   .pred
@@ -224,7 +295,16 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p><code>preds</code> ist ein Tibble, also müssen wir noch die Spalte <code>.pred.</code> herausziehen, z.B. mit <code>pluck(preds, ".pred")</code>:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-13_844cd1b33dc4a7c7c78ebf81e41cbef3">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-12_c49e8b648d68e9b80b2d4d23ce158c5d">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>preds_vec <span class="ot">&lt;-</span> preds<span class="sc">$</span>.pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-13_ab8e9fab305b21d21d255fe067535685">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ames_test2 <span class="ot">&lt;-</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  ames_test <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">preds =</span> <span class="fu">pluck</span>(preds, <span class="st">".pred"</span>),  <span class="co"># pluck aus der Tabelle rausziehen</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.pred =</span> preds_vec)  <span class="co"># oder  mit dem Dollar-Operator</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ames_test2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
   Sale_Price Gr_Liv_Area preds .pred
@@ -238,7 +318,13 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>Oder mit <code>unnest</code>:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-14_eefbe8bd7dd45e018a80d7acd8e14fdf">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-14_e5c16ae348f56d5a9dd29d9b42ed8f84">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>ames_test2 <span class="ot">&lt;-</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  ames_test <span class="sc">%&gt;%</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">preds =</span> preds) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(preds) <span class="co"># Listenspalte "entschachteln"</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ames_test2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   Sale_Price Gr_Liv_Area .pred
@@ -252,7 +338,12 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>Oder wir binden einfach die Spalte an den Tibble:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-15_416a3ea28fea358e3faf4f13e37a5038">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-15_d1191144be0b0addf57e186accc9263b">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>ames_test2 <span class="ot">&lt;-</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  ames_test <span class="sc">%&gt;%</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="at">preds =</span> preds)  <span class="co"># nimmt Tabelle und bindet die Spalten dieser Tabelle an eine Tabelle</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ames_test2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   Sale_Price Gr_Liv_Area .pred
@@ -266,7 +357,10 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>Modellgüte im Test-Sample:</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-16_ebaa96ac33048ef163b9a65688fda4b1">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-16_f36172117b8828e445e202fba1866444">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rsq</span>(ames_test2,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">truth =</span> Sale_Price,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
@@ -274,11 +368,16 @@ F-statistic:  2749 on 1 and 2928 DF,  p-value: &lt; 2.2e-16</code></pre>
 1 rsq     standard       0.517</code></pre>
 </div>
 </div>
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-17_fa7a8affab4ba07920ee6db8a4a0f7e8">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>sol <span class="ot">&lt;-</span> <span class="fl">0.51679</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Zur Interpretation von Log10-Werten</p>
-<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-18_cda37957be10e234bc53e468e7b920d1">
+<div class="cell" data-hash="tidymodels-ames-02_cache/html/unnamed-chunk-18_c85ba7031c67f2539043e2bde0bef572">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fl">5e5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 5e+05</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="dv">5</span><span class="sc">*</span><span class="dv">10</span><span class="sc">^</span><span class="dv">5</span> <span class="sc">-</span> <span class="dv">500000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
