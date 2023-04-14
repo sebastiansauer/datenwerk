@@ -1,0 +1,165 @@
+---
+exname: tidymodels-poly01
+extype: num
+exsolution: r fmt(sol)
+exshuffle: no
+expoints: 1
+categories:
+- R
+- stat-learning
+- tidymodels
+- num
+date: '2023-04-14'
+slug: tidymodels-poly01
+title: tidymodels-poly01
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Fitten Sie ein Polynomial-Modell für folgende Modellgleichung:
+
+`body_mass_g ~ bill_length_mm`.
+
+Gesucht ist der optimale Polynomgrad im Train-Sample (optimal hinsichtlich minimalem Prognosefehler).
+
+Hinweise:
+
+- Datensatz `penguins` (palmerpenguins)
+- Verwenden Sie Tidymodels
+- Fitten Sie Polynome des Grades 1 bis 10.
+- Definieren Sie die Polynomegrade als Tuningparameter.
+- Beziehen Sie sich auf RMSE als Kennzahl der Modellgüte.
+- Entfernen Sie fehlende Werte in den Prädiktoren
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Setup:
+
+```{r}
+library(tidymodels)
+data(penguins, package = "palmerpenguins")
+```
+
+
+Rezept:
+
+```{r}
+rec1 <- 
+  recipe(body_mass_g ~ bill_length_mm, data = penguins) %>% 
+  step_naomit(all_predictors()) %>% 
+  step_poly(all_predictors(), degree = tune()) %>% 
+  update_role(contains("_poly_"), new_role = "predictor")
+```
+
+
+
+Check:
+
+```{r eval = FALSE}
+d_baked <- bake(prep(rec1), new_data = NULL)
+```
+
+
+
+Workflow:
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_model(linear_reg()) %>% 
+  add_recipe(rec1)
+```
+
+
+Rezepte mit Tuningparametern kann man nicht preppen/backen.
+
+
+
+Tuning:
+
+```{r}
+tune1 <-
+  tune_grid(
+    wf1,
+    resamples = vfold_cv(data = penguins),
+    metrics = metric_set(rmse),
+    grid = grid_regular(degree(range = c(1, 10)),
+                               levels = 10)
+  )
+```
+
+
+
+
+
+```{r}
+autoplot(tune1)
+```
+
+
+```{r}
+show_best(tune1)
+```
+
+
+
+
+
+```{r}
+sol <- show_best(tune1)$degree[1]
+sol
+```
+
+
+Die Antwort lautet: `r sol`.
+
+
+
+---
+
+Categories: 
+
+- R
+- stat-learning
+- tidymodels
+- num
+

@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-04-14">
 
-<title>datenwerk - tidymodels-penguins01</title>
+<title>datenwerk - tidymodels-poly01</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -135,13 +135,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">tidymodels-penguins01</h1>
+      <h1 class="title">tidymodels-poly01</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">ds1</div>
-                <div class="quarto-category">tidymodels</div>
-                <div class="quarto-category">prediction</div>
-                <div class="quarto-category">yacsda</div>
+                <div class="quarto-category">R</div>
                 <div class="quarto-category">stat-learning</div>
+                <div class="quarto-category">tidymodels</div>
                 <div class="quarto-category">num</div>
               </div>
                   </div>
@@ -174,158 +172,98 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Berechnen Sie ein lineares Modell mit tidymodels und zwar anhand des <code>penguins</code> Datensatzes.</p>
-<p>Modellgleichung: <code>body_mass_g ~ bill_length_mm, data = d_train</code>.</p>
-<p>Gesucht ist R-Quadrat als Maß für die Modellgüte im <em>TEST-Sample</em>.</p>
-<p><em>Hinweise</em>:</p>
+<p>Fitten Sie ein Polynomial-Modell für folgende Modellgleichung:</p>
+<p><code>body_mass_g ~ bill_length_mm</code>.</p>
+<p>Gesucht ist der optimale Polynomgrad im Train-Sample (optimal hinsichtlich minimalem Prognosefehler).</p>
+<p>Hinweise:</p>
 <ul>
-<li>Fixieren Sie die Zufallszahlen auf den Startwert 42.</li>
-<li>Nutzen Sie eine v=5,r=1 CV.</li>
-<li>Entfernen Sie fehlende Werte in den Variablen.</li>
-<li>Verzichten Sie auf weitere Schritte der Vorverarbeitung.</li>
+<li>Datensatz <code>penguins</code> (palmerpenguins)</li>
+<li>Verwenden Sie Tidymodels</li>
+<li>Fitten Sie Polynome des Grades 1 bis 10.</li>
+<li>Definieren Sie die Polynomegrade als Tuningparameter.</li>
+<li>Beziehen Sie sich auf RMSE als Kennzahl der Modellgüte.</li>
+<li>Entfernen Sie fehlende Werte in den Prädiktoren</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
 <p>Setup:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-1_f0f0977ded0f10267a18119aedad9498">
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-1_58b214cd51153f41b6bb4ea1064573de">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)  <span class="co"># Rechenzeit messen, optional</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># data(penguins, package = "palmerpenguins")</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/penguins.csv"</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(d_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(penguins, <span class="at">package =</span> <span class="st">"palmerpenguins"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Datensatz aufteilen:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-2_8caa24424569495fbba4dfc0f80b3a1a">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(penguins)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span> <span class="fu">training</span>(d_split)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Rezept:</p>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-2_ff92acea72e224d7c7b355397d387cab">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(body_mass_g <span class="sc">~</span> bill_length_mm, <span class="at">data =</span> penguins) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_naomit</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_poly</span>(<span class="fu">all_predictors</span>(), <span class="at">degree =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(<span class="fu">contains</span>(<span class="st">"_poly_"</span>), <span class="at">new_role =</span> <span class="st">"predictor"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No columns were selected in `update_role()`.</code></pre>
+</div>
+</div>
+<p>Check:</p>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-3_372298e45187b6b8ed019e19553ee076">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(<span class="fu">prep</span>(rec1), <span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Workflow:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-3_062772eea0767d6b7ad2cdf3a2c50b1e">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(body_mass_g <span class="sc">~</span> bill_length_mm, <span class="at">data =</span> d_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_naomit</span>(<span class="fu">all_numeric</span>())</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>lm_mod <span class="ot">&lt;-</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linear_reg</span>()</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>wflow <span class="ot">&lt;-</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1) <span class="sc">%&gt;%</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(lm_mod)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>wflow</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-4_bd03b8e66bf7dfec290b9f4d225823d7">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(<span class="fu">linear_reg</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Rezepte mit Tuningparametern kann man nicht preppen/backen.</p>
+<p>Tuning:</p>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-5_868fe08a07868c56c7e4283cd048ac0b">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tune1 <span class="ot">&lt;-</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    wf1,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(<span class="at">data =</span> penguins),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">metrics =</span> <span class="fu">metric_set</span>(rmse),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">grid =</span> <span class="fu">grid_regular</span>(<span class="fu">degree</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">levels =</span> <span class="dv">10</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-6_082590959688212f3c4095273af28316">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(tune1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="unnamed-chunk-6-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-7_7b19c52c94a90048969bcd1962467195">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">show_best</span>(tune1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
-Preprocessor: Recipe
-Model: linear_reg()
-
-── Preprocessor ────────────────────────────────────────────────────────────────
-1 Recipe Step
-
-• step_naomit()
-
-── Model ───────────────────────────────────────────────────────────────────────
-Linear Regression Model Specification (regression)
-
-Computational engine: lm </code></pre>
+<pre><code># A tibble: 5 × 7
+  degree .metric .estimator  mean     n std_err .config              
+   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
+1      2 rmse    standard    645.    10    18.6 Preprocessor02_Model1
+2      5 rmse    standard    647.    10    15.8 Preprocessor05_Model1
+3      1 rmse    standard    648.    10    22.7 Preprocessor01_Model1
+4      4 rmse    standard    649.    10    19.4 Preprocessor04_Model1
+5      3 rmse    standard    652.    10    20.9 Preprocessor03_Model1</code></pre>
 </div>
 </div>
-<p>Backen:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-4_dbca1363159ec8f9243f2319f1ef83f1">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d_baked <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec1) <span class="sc">%&gt;%</span> <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>d_baked <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="tidymodels-poly01_cache/html/unnamed-chunk-8_b9f56313d509167839c82ba2163bbca9">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sol <span class="ot">&lt;-</span> <span class="fu">show_best</span>(tune1)<span class="sc">$</span>degree[<span class="dv">1</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sol</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-  bill_length_mm body_mass_g
-           &lt;dbl&gt;       &lt;int&gt;
-1           36          3450
-2           50.9        3675
-3           46.1        4500
-4           45.8        4150
-5           48.6        5800
-6           39          3650</code></pre>
+<pre><code>[1] 2</code></pre>
 </div>
 </div>
-<p>Auf NA prüfen:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-5_ae802b58cb5230fbb8dc3cbd06a92a36">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(d_baked))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0</code></pre>
-</div>
-</div>
-<p>CV:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-6_2cb36b2707305cef78ceacb7a803b644">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(d_train, <span class="at">v =</span> <span class="dv">5</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>folds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>#  5-fold cross-validation 
-# A tibble: 5 × 2
-  splits           id   
-  &lt;list&gt;           &lt;chr&gt;
-1 &lt;split [206/52]&gt; Fold1
-2 &lt;split [206/52]&gt; Fold2
-3 &lt;split [206/52]&gt; Fold3
-4 &lt;split [207/51]&gt; Fold4
-5 &lt;split [207/51]&gt; Fold5</code></pre>
-</div>
-</div>
-<p>Resampling:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-7_2e9e82543229768a59eb98c16ce23b42">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>penguins_resamples <span class="ot">&lt;-</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    wflow,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> folds</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>penguins_resamples</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># Resampling results
-# 5-fold cross-validation 
-# A tibble: 5 × 4
-  splits           id    .metrics         .notes          
-  &lt;list&gt;           &lt;chr&gt; &lt;list&gt;           &lt;list&gt;          
-1 &lt;split [206/52]&gt; Fold1 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
-2 &lt;split [206/52]&gt; Fold2 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
-3 &lt;split [206/52]&gt; Fold3 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
-4 &lt;split [207/51]&gt; Fold4 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
-5 &lt;split [207/51]&gt; Fold5 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
-</div>
-</div>
-<p>Last Fit:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-8_31e9899d67fdba629e29748d9a485006">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>penguins_last <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(wflow, d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Modellgüte im Test-Sample:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-9_d618fd054d0a599ea9b6516eb3cfacde">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>penguins_last <span class="sc">%&gt;%</span> <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 4
-  .metric .estimator .estimate .config             
-  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     652.    Preprocessor1_Model1
-2 rsq     standard       0.385 Preprocessor1_Model1</code></pre>
-</div>
-</div>
-<p>R-Quadrat:</p>
-<div class="cell" data-hash="tidymodels-penguins01_cache/html/unnamed-chunk-10_6ba0e6bfdf8597feaea638a30a54d7b8">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sol <span class="ot">&lt;-</span>  <span class="fu">collect_metrics</span>(penguins_last)[[<span class="st">".estimate"</span>]][<span class="dv">2</span>]</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sol</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.3850608</code></pre>
-</div>
-</div>
+<p>Die Antwort lautet: 2.</p>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>ds1</li>
-<li>tidymodels</li>
-<li>prediction</li>
-<li>yacsda</li>
+<li>R</li>
 <li>stat-learning</li>
+<li>tidymodels</li>
 <li>num</li>
 </ul>
 
