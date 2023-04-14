@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -104,6 +138,8 @@ ul.task-list li input[type="checkbox"] {
     <div class="quarto-title column-body">
       <h1 class="title">knn-ames01</h1>
                                 <div class="quarto-categories">
+                <div class="quarto-category">stat-learning</div>
+                <div class="quarto-category">tidymodels</div>
                 <div class="quarto-category">num</div>
               </div>
                   </div>
@@ -138,6 +174,7 @@ ul.task-list li input[type="checkbox"] {
 <h1>Aufgabe</h1>
 <p>Berechnen Sie ein knn-Modell für den Datensatz <code>ames</code>!</p>
 <p>Nutzen Sie diese Modellformel: <code>Sale_Price ~ Lot_Area + Fireplaces + Longitude + Latitude</code>.</p>
+<p>Berichten Sie die Modellgüte.</p>
 <p>Hinweise:</p>
 <ul>
 <li>Tunen Sie <span class="math inline">\(k\)</span> mit den Werten 1 bis 10.</li>
@@ -150,41 +187,96 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-1_cdac86317e8e8680e56e8e10077eada2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(ames)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Daten aufteilen:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-2_46494172f5b3184ab727b13febd62349">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(ames)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span> <span class="fu">training</span>(d_split)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Modell definieren:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-3_d90c6a735d7b159021ba5f8bead5a5f4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nearest_neighbor</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">mode =</span> <span class="st">"regression"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbors =</span> <span class="fu">tune</span>())  <span class="co"># k-Wert zum Tunen taggen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Rezept definieren:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-4_125b61fb021fd50450c76a58e375cc30">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Sale_Price <span class="sc">~</span> Lot_Area <span class="sc">+</span> Fireplaces <span class="sc">+</span> Longitude <span class="sc">+</span> Latitude, <span class="at">data =</span> d_split) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Workflow definieren:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-5_dc0108d5e97293f812afe9c8c523f88f">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod1) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Resampling definieren:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-6_d5c74d8417d8b30439a0b7ad0fb33301">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cv1 <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(d_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Tuning definieren:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-7_cd55ac9d59737ccb0eb7d99a01761f53">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>k_grid <span class="ot">&lt;-</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">neighbors =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Fitting:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-8_f2f75d1d08f47464f23dce66958a0290">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(wf1,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(d_train),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">metrics =</span> <span class="fu">metric_set</span>(rmse),  <span class="co"># nur RMSE als Modellgüte, Default ist RMSE und R2</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> k_grid,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">control =</span> <span class="fu">control_grid</span>(<span class="at">save_workflow =</span> <span class="cn">TRUE</span>)  <span class="co"># nur nötig für "fit_best", s.u.</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Metriken im Train-Sample (genauer: im Assessment-Sample):</p>
-<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-9_9589ecfad1dc1c72852ba6e03f9473b3">
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-9_b35a8e34e30a5f0459db176dae1f4ffe">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">show_best</span>(fit1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 7
   neighbors .metric .estimator   mean     n std_err .config              
       &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
-1        10 rmse    standard   43107.    10   1429. Preprocessor1_Model10
-2         9 rmse    standard   43171.    10   1420. Preprocessor1_Model09
-3         8 rmse    standard   43302.    10   1416. Preprocessor1_Model08
-4         7 rmse    standard   43541.    10   1438. Preprocessor1_Model07
-5         6 rmse    standard   43887.    10   1466. Preprocessor1_Model06</code></pre>
+1        10 rmse    standard   44209.    10   1612. Preprocessor1_Model10
+2         9 rmse    standard   44356.    10   1605. Preprocessor1_Model09
+3         8 rmse    standard   44547.    10   1600. Preprocessor1_Model08
+4         7 rmse    standard   44774.    10   1595. Preprocessor1_Model07
+5         6 rmse    standard   45105.    10   1610. Preprocessor1_Model06</code></pre>
 </div>
 </div>
 <p>(Komplettes) Train-Sample mit bestem Tuning-Kandidat fitten:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-10_3bad14341bfeb5031205ff76c3f9c533">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tune1_best <span class="ot">&lt;-</span> <span class="fu">fit_best</span>(fit1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Im Test-Sample predicten:</p>
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-11_b80f043458b8df4d9f7eb3dcb9783681">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fit_test <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(tune1_best, d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Metriken einsammeln:</p>
-<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-12_0a43928bb35b008741dc12f751bbd3fc">
+<div class="cell" data-hash="knn-ames01_cache/html/unnamed-chunk-12_5a2cde9ccad3268f2e32906ee54c07d0">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(fit_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 4
   .metric .estimator .estimate .config             
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   41813.    Preprocessor1_Model1
-2 rsq     standard       0.739 Preprocessor1_Model1</code></pre>
+1 rmse    standard   40819.    Preprocessor1_Model1
+2 rsq     standard       0.730 Preprocessor1_Model1</code></pre>
 </div>
 </div>
+<p>Die Lösung lautet 4.081919^{4}.</p>
 <hr>
 <p>Categories:</p>
-<p>num</p>
+<ul>
+<li>stat-learning</li>
+<li>tidymodels</li>
+<li>num</li>
+</ul>
 
 
 </section>
