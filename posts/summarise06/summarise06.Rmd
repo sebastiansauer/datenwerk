@@ -1,0 +1,125 @@
+---
+exname: summarise06
+extype: num
+exsolution: 12.82
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- datawrangling
+- eda
+- tidyverse
+- dplyr
+- variability
+- num
+date: '2023-04-28'
+slug: summarise06
+title: summarise06
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Im Datensatz `mariokart`: 
+
+ Fassen Sie die Spalte `total_pr` zusammen und zwar zu verschiedenene Maßen der Streuung (keine Gruppierung).
+
+
+Welchem Koeffizienten der Streuung schenken Sie am meisten Vertrauen in diesem Fall?  Geben Sie den Wert als Antwort an.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Pakete starten:
+
+```{r}
+library(easystats)
+library(tidyverse)  # startet das Paket tidyverse
+```
+
+
+
+
+
+
+Daten importieren:
+
+```{r eval=FALSE}
+mariokart <- data_read("https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv")
+```
+
+Oder so:
+
+```{r}
+data(mariokart, package = "openintro")  # aus dem Paket "openintro"
+```
+
+Dazu muss das Paket `openintro` auf Ihrem Computer installiert sein.
+
+
+
+
+Zusammenfassen:
+
+
+```{r}
+library(DescTools)
+mariokart_summarised <- summarise(mariokart, 
+                                  pr_sd = sd(total_pr),
+                                  pr_iqr = IQR(total_pr),
+                                  pr_maa = mean(abs(total_pr - mean(total_pr))),
+                                  pr_maa2 = MeanAD(total_pr)
+)  # zusammenfassen
+mariokart_summarised
+```
+
+Möchte man  den `MAA` nicht von Hand ausrechnen, so kann man die Funktion `MeanAD` aus dem Paket `DescTools` nutzen (Denken Sie daran, dass Sie das Paket einmalig installiert haben müssen.)
+
+Da es Extremwerte gibt in `total_pr` wird die SD besonders hoch sein.
+Der Grund ist, dass die SD eine Statistik ist, die auf einem Mittelwert beruht. 
+Außerdem werden bei der Berechnung der SD die einzelnen Werte quadriert, was große Werte überproportional vergrößert.
+Aus diesem Grund könnte der IQR hier gegenüber anderen Maßen bevorzugt werden.
+
+
+*Lösung*: 12.82
+
+
+
+---
+
+Categories: 
+
+- datawrangling
+- eda
+- tidyverse
+- dplyr
+- variability
+- num
+
