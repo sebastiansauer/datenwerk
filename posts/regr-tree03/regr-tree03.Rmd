@@ -1,0 +1,193 @@
+---
+exname: regr-tree03
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- stat-learning
+- trees
+- tidymodels
+- string
+date: '2023-05-03'
+slug: regr-tree03
+title: regr-tree03
+
+---
+
+
+
+
+```{r}
+library(tidymodels)
+```
+
+
+
+# Aufgabe
+
+
+Berechnen Sie einfaches Prognosemodell auf Basis eines Entscheidungsbaums!
+
+Modellformel: `am ~ .` (Datensatz `mtcars`)
+
+Berichten Sie die Modellgüte (ROC-AUC).
+
+Hinweise:
+
+- Tunen Sie alle Parameter (die der Engine anbietet). 
+- Erstellen Sie ein Tuning-Grid mit 5 Werten pro Tuningparameter.
+- Führen Sie eine $v=2$-fache Kreuzvalidierung durch (weil die Stichprobe so klein ist).
+- Beachten Sie die [üblichen Hinweise](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(tidymodels)
+data(mtcars)
+library(tictoc)  # Zeitmessung
+```
+
+
+Für Klassifikation verlangt Tidymodels eine nominale AV, keine numerische:
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(am = factor(am))
+```
+
+
+
+## Daten teilen
+
+```{r}
+d_split <- initial_split(mtcars)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+## Modell(e)
+
+
+```{r}
+mod_tree <-
+  decision_tree(mode = "classification",
+                cost_complexity = tune(),
+                tree_depth = tune(),
+                min_n = tune())
+```
+
+
+
+
+## Rezept(e)
+
+```{r}
+rec1 <- 
+  recipe(am ~ ., data = d_train)
+```
+
+
+
+## Resampling
+
+```{r}
+rsmpl <- vfold_cv(d_train, v = 2)
+```
+
+
+## Workflow
+
+```{r}
+wf1 <-
+  workflow() %>%  
+  add_recipe(rec1) %>% 
+  add_model(mod_tree)
+```
+
+
+
+
+
+## Tuning/Fitting
+
+Tuninggrid:
+
+```{r}
+tune_grid <- grid_regular(extract_parameter_set_dials(mod_tree), levels = 5)
+tune_grid
+```
+
+
+
+```{r}
+tic()
+fit1 <-
+  tune_grid(object = wf1,
+            grid = tune_grid,
+            metrics = metric_set(roc_auc),
+            resamples = rsmpl)
+toc()
+```
+
+
+## Bester Kandidat
+
+```{r}
+autoplot(fit1)
+```
+
+```{r}
+show_best(fit1)
+```
+
+
+## Finalisieren
+
+
+```{r}
+wf1_finalized <-
+  wf1 %>% 
+  finalize_workflow(select_best(fit1))
+```
+
+
+## Last Fit
+
+```{r}
+final_fit <- 
+  last_fit(object = wf1_finalized, d_split)
+
+collect_metrics(final_fit)
+```
+
+
+
+
+---
+
+Categories: 
+
+- stat-learning
+- trees
+- tidymodels
+- string
+
