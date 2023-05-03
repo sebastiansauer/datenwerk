@@ -1,5 +1,5 @@
 ---
-exname: bike01
+exname: bike03
 extype: num
 exsolution: r fmt(sol)
 exshuffle: no
@@ -9,8 +9,8 @@ categories:
 - tidymodels
 - num
 date: '2023-05-03'
-slug: bike01
-title: bike01
+slug: bike03
+title: bike03
 
 ---
 
@@ -49,12 +49,13 @@ Sie können die Daten von der [Webseite der UCI](https://archive.ics.uci.edu/ml/
 
 Wir beziehen uns auf den Datensatz `day`.
 
-Berechnen Sie ein lineares Modell mit der Anzahl der aktuell vermieteten Räder als AV und der aktuellen Temperatur als UV!
+Berechnen Sie einen Entscheidungsbaum  mit der Anzahl der aktuell vermieteten Räder als AV und der aktuellen Temperatur als UV!
+
+Tunen Sie den Cp-Parameter des Baumes; lassen Sie sich 20 Tuningparameter vorschlagen.
 
 Geben Sie den MSE an!
 
-[Hinweise](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Bearbeitung.html)
-
+[Hinweise](https://datenwerk.netlify.app/Hinweise.html)
 
 
 
@@ -75,6 +76,7 @@ Geben Sie den MSE an!
 ```{r}
 library(tidymodels)
 library(tidyverse)
+library(tictoc)
 ```
 
 
@@ -92,10 +94,10 @@ glimpse(d)
 
 ```{r}
 set.seed(42)
-split_vec <- initial_split(d, strata = cnt)
+d_split <- initial_split(d, strata = cnt)
 
-d_train <- training(split_vec)
-d_test <- testing(split_vec)
+d_train <- training(d_split)
+d_test <- testing(d_split)
 ```
 
 
@@ -114,10 +116,34 @@ rec1 <-
 
 ```{r}
 m1 <-
-  linear_reg()
+  decision_tree(cost_complexity = tune(),
+                mode = "regression")
 ```
 
 
+## Tuning grid
+
+
+```{r}
+grid <-
+  grid_regular(cost_complexity(), levels = 20)
+grid
+```
+
+Alternativ:
+
+```{r}
+grid <-
+  grid_regular(extract_parameter_set_dials(m1), levels = 20)
+grid
+```
+
+
+## Define Resamples
+
+```{r}
+rsmpl <- vfold_cv(d_train)
+```
 
 
 ## Workflow
@@ -135,8 +161,33 @@ wf1 <-
 ## Fit
 
 ```{r}
-fit1 <- last_fit(wf1, split_vec)
+tic()
+fit1 <- tune_grid(
+  object = wf1, 
+  resamples = rsmpl)
+toc()
 fit1
+```
+
+
+## Bester Kandidat
+
+```{r}
+show_best(fit1)
+```
+
+
+```{r}
+wf1_best <-
+  wf1 %>% 
+  finalize_workflow(parameters = select_best(fit1))
+```
+
+
+## Last Fit
+
+```{r}
+fit_testsample <- last_fit(wf1_best, d_split)
 ```
 
 
@@ -144,11 +195,11 @@ fit1
 ## Model performance (metrics) in test set
 
 ```{r}
-fit1 %>% collect_metrics()
+fit_testsample %>% collect_metrics()
 ```
 
 ```{r}
-MSE <- fit1 %>% collect_metrics() %>% pluck(3, 1)
+MSE <- fit_testsample %>% collect_metrics() %>% pluck(3, 1)
 MSE
 ```
 

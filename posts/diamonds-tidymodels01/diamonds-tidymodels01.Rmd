@@ -1,0 +1,221 @@
+---
+extype: string
+exsolution: NA
+exname: diamonds-tidymodels1
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- stat-learning
+- string
+date: '2023-05-03'
+slug: diamonds-tidymodels01
+title: diamonds-tidymodels01
+
+---
+
+
+
+
+
+
+# Aufgabe
+
+Finden Sie ein möglichst "gutes" prädiktives Modell zur Vorhersage des Diamantenpreises im Datensatz `diamonds`!
+
+Gegenstand dieser Aufgabe ist die Modellierung; 
+Datenvorverarbeitug (wie explorative Datenanalyse) steht nicht im Fokus.
+
+Hinweise:
+
+- Verwenden Sie die Methoden aus `tidymodels`.
+- Hohe Modellgüte ("gutes Modell") sei definiert über $R^2$, RMSE und MAE
+- Verwenden Sie verschiedene Algorithmen (lineare Modell, kNN, ...) und verschiedene Rezepte.
+- Resampling und Tuning ist hier noch nicht nötig.s
+
+
+Der Datensatz ist [hier](https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv) zu beziehen.
+Außerdem ist er Teil von ggplot2 bzw. des Tidyverse und daher mit `data()` zu laden,
+wenn das entsprechende Paket vorhanden ist.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+# Setup
+
+```{r message = FALSE}
+library(tidyverse)
+library(tidymodels)
+```
+
+Daten laden:
+
+```{r}
+data(diamonds, package = "ggplot2")
+```
+
+
+Oder so:
+
+```{r}
+d <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv")
+```
+
+# Train- vs. Testdaten:
+
+```{r}
+d_split <- initial_split(d, strata = price)
+
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+
+
+# Modelle:
+
+```{r}
+lin_mod <-
+  linear_reg()
+```
+
+
+```{r}
+knn_mod <-
+  nearest_neighbor(mode = "regression")
+```
+
+Hilfe zu kNN findet sich z.B. [hier](https://parsnip.tidymodels.org/reference/nearest_neighbor.html).
+
+# Rezepte:
+
+```{r}
+rec1 <-
+  recipe(price ~ ., data = d) %>% 
+  update_role(1, new_role = "id") %>% 
+  step_naomit() %>% 
+  step_log(all_outcomes())
+```
+
+
+# Rezept prüfen (preppen und backen)
+
+```{r}
+rec1_prepped <-
+  rec1 %>% 
+  prep()
+
+rec1_prepped
+```
+
+
+```{r}
+d_train_baked <-
+  bake(rec1_prepped, new_data = d_train)
+
+```
+
+
+
+Einen Überblick zu `steps` findet sich z.B. [hier](https://recipes.tidymodels.org/reference/).
+
+Rollen-Definitionen in Tidymodels-Rezepten kann man [hier](https://recipes.tidymodels.org/reference/has_role.html) nachlesen.
+
+
+```{r}
+rec2 <-i
+  recipe(price ~ ., data = d) %>% 
+  update_role(1, new_role = "id") %>% 
+  step_impute_knn() %>% 
+  step_log(all_outcomes())
+```
+
+
+# Workflows:
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_recipe(rec1) %>% 
+  add_model(lin_mod)
+```
+
+```{r}
+wf2 <-
+  wf1 %>% 
+  update_model(knn_mod)
+```
+
+
+
+# Fitting
+
+```{r}
+fit1 <-
+  wf1 %>% 
+  fit(d_train)
+fit1
+```
+
+# Fitten des Test-Samples
+
+```{r}
+fit1_test <-
+  wf1 %>% 
+  last_fit(d_split)
+fit1_test
+```
+
+
+# Modellgüte
+
+```{r}
+collect_metrics(fit1_test)
+```
+
+De-logarithmieren, wenn man Vorhersagen in den Rohwerten haben möchte:
+
+
+```{r}
+collect_predictions(fit1_test) %>% 
+  head()
+```
+
+```{r}
+d_test_w_preds <- 
+collect_predictions(fit1_test) %>% 
+  mutate(pred_raw = exp(.pred)) 
+
+head(d_test_w_preds)
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- stat-learning
+- string
+
