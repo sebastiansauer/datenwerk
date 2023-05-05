@@ -1,14 +1,14 @@
 ---
 extype: string
 exsolution: NA
-exname: diamonds-tidymodels1
+exname: diamonds-tidymodels01
 expoints: 1
 categories:
 - ds1
 - tidymodels
 - stat-learning
 - string
-date: '2023-05-03'
+date: '2023-05-05'
 slug: diamonds-tidymodels01
 title: diamonds-tidymodels01
 
@@ -73,13 +73,13 @@ data(diamonds, package = "ggplot2")
 Oder so:
 
 ```{r}
-d <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv")
+diamonds <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv")
 ```
 
 # Train- vs. Testdaten:
 
 ```{r}
-d_split <- initial_split(d, strata = price)
+d_split <- initial_split(diamonds, strata = price)
 
 d_train <- training(d_split)
 d_test <- testing(d_split)
@@ -107,7 +107,7 @@ Hilfe zu kNN findet sich z.B. [hier](https://parsnip.tidymodels.org/reference/ne
 
 ```{r}
 rec1 <-
-  recipe(price ~ ., data = d) %>% 
+  recipe(price ~ ., data = d_train) %>% 
   update_role(1, new_role = "id") %>% 
   step_naomit() %>% 
   step_log(all_outcomes())
@@ -139,8 +139,8 @@ Rollen-Definitionen in Tidymodels-Rezepten kann man [hier](https://recipes.tidym
 
 
 ```{r}
-rec2 <-i
-  recipe(price ~ ., data = d) %>% 
+rec2 <-
+  recipe(price ~ ., data = d_train) %>% 
   update_role(1, new_role = "id") %>% 
   step_impute_knn() %>% 
   step_log(all_outcomes())

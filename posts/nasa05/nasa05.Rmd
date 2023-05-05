@@ -1,0 +1,216 @@
+---
+extype: string
+exsolution: NA
+exname: nasa05
+expoints: 1
+categories:
+- data
+- eda
+- lagemaße
+- vis
+- animation
+- string
+date: '2023-05-05'
+slug: nasa05
+title: nasa05
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+
+# Aufgabe
+
+
+Viele Quellen berichten Klimadaten unserer Erde, z.B. auch [National Aeronautics and Space Administration - Goddard Institute for Space Studies](https://data.giss.nasa.gov/gistemp/).
+
+Von dieser Quelle beziehen wir [diesen Datensatz](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv).
+
+
+Die Datensatz sind auf der Webseite wie folgt beschrieben:
+
+
+*Tables of Global and Hemispheric Monthly Means and Zonal Annual Means*
+
+Combined Land-Surface Air and Sea-Surface Water Temperature Anomalies (Land-Ocean Temperature Index, L-OTI)
+
+The following are plain-text files in tabular format of temperature anomalies, i.e. *deviations from the corresponding 1951-1980 means*.
+
+
+>   Global-mean monthly, seasonal, and annual means, 1880-present, updated through most recent month: TXT, CSV
+
+Starten Sie zunächst das R-Paket `tidyverse` falls noch nicht geschehen.
+
+```{r message = FALSE}
+library(tidyverse)
+```
+
+Zum Animieren verwenden wir diese Pakete:
+
+```{r}
+library(gganimate)
+library(plotly)
+```
+
+
+Importieren Sie dann die Daten:
+
+```{r}
+data_path <- "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
+d <- read_csv(data_path, skip = 1)
+```
+
+Wir lassen die 1. Zeile des Datensatzes aus (Argument `skip`), da dort *Metadaten* stehen,
+also keine Daten, sondern Informationen (Daten) zu den eigentlichen Daten.
+
+
+**Aufgabe**
+
+- Visualisieren Sie Temperatur pro Jahr und Dekade; animieren Sie Ihre Diagramme mittels `plotly`. 
+
+
+Hinweise:
+
+- Sie müssen zuerst die Dekade als neue Spalte berechnen.
+
+
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Daten aufbereiten
+
+
+Character in Zahlen umwandeln:
+
+```{r}
+d2 <-
+  d %>% 
+  select(Year:Dec) %>% 
+  mutate(across(Apr:Dec, as.numeric))
+```
+
+```{r}
+d3 <- 
+  d2 %>% 
+  pivot_longer(-Year, values_to = "temp", names_to = "month")
+```
+
+```{r}
+months <-
+  tibble(
+    month = d3$month[1:12],
+    month_num = 1:12
+  )
+```
+
+```{r}
+d3 <- 
+  d3 %>% 
+  full_join(months)
+```
+
+
+
+## Daten zusammenfassen
+
+
+
+
+
+
+## Animation mit plotly
+
+
+
+
+```{r}
+d3 %>% 
+plot_ly(
+  x = ~Year,
+  y = ~temp,
+  #color = ~month,
+  frame = ~Year,
+  hoverinfo = "text",
+  text = ~Year,
+  type = "scatter",
+  mode = "markers"
+)
+```
+
+
+
+
+
+```{r}
+d3 %>% 
+plot_ly(
+  x = ~Year,
+  y = ~temp,
+  color = ~month_num,
+  frame = ~Year,
+  hoverinfo = "text",
+  text = ~Year,
+  type = "scatter",
+  mode = "markers"
+)
+```
+
+## Fazit
+
+Falls Sie Teile der R-Syntax nicht kennen: Machen Sie sich nichts daraus. Be happy 😄
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- data
+- eda
+- lagemaße
+- vis
+- animation
+- string
+
