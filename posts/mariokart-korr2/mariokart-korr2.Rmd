@@ -1,0 +1,127 @@
+---
+exname: mariokart-korr2
+extype: num
+exsolution: r sol
+exshuffle: no
+extol: 0.05
+expoints: 1
+categories:
+- datawrangling
+- dplyr
+- eda
+- association
+- num
+date: '2023-05-08'
+slug: mariokart-korr2
+title: mariokart-korr2
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Aufgabe
+
+Importieren Sie den Datensatz `mariokart` in R.
+Filtern Sie die *neuen* Spiele.
+Berechnen Sie die Korrelation von Verkaufspreis (`total_pr`) und Startgebot (`start_pr`)!
+
+Hinweise:
+
+- Runden Sie auf 2 Dezimalstellen.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Pakete starten:
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+```
+
+
+Daten importieren:
+
+```{r}
+d_url <- "https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv"
+d <- data_read(d_url)
+```
+
+
+Oder so:
+
+```{r}
+data(mariokart, package = "openintro")
+```
+
+
+```{r}
+solution <- 
+d  %>% 
+  filter(cond == "new") %>% 
+  summarise(pr_cor = cor(total_pr, start_pr))
+solution
+```
+
+
+Alternativ kann man (komfortabel) die Korrelation z.B. so berechnen:
+
+```{r}
+d %>% 
+  select(start_pr, total_pr, cond) %>% 
+  filter(cond == "new") %>% 
+  correlation()
+```
+
+
+```{r echo=FALSE}
+sol <- exams::fmt(solution[1,1], digits = 2)
+```
+
+**Lösung:** `r sol`. 
+
+
+
+
+
+---
+
+Categories: 
+
+- datawrangling
+- dplyr
+- eda
+- association
+- num
+

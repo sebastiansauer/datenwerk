@@ -1,0 +1,142 @@
+---
+extype: string
+exsolution: NA
+exname: nichtlineare-regr1
+expoints: 1
+categories:
+- lm
+- vis
+- qm2
+- regression
+- string
+date: '2023-05-08'
+slug: nichtlineare-regr1
+title: nichtlineare-regr1
+
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE)
+```
+
+
+
+
+
+# Aufgabe
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+Wir suchen ein Modell, das einen *nichtlinearen* Zusammenhang von PS-Zahl und Spritverbrauch darstellt (Datensatz `mtcars`).
+
+
+Geben Sie dafür ein mögliches Modell an! Nutzen Sie den R-Befehl `lm`. 
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(mpg_log = log(mpg)) 
+
+lm1 <- lm(mpg_log ~ hp, data = mtcars)
+summary(lm1)
+```
+
+
+Visualisieren wir die Vorhersagen des Modells:
+
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(pred = predict(lm1))
+```
+
+
+```{r}
+mtcars %>% 
+  ggplot() +
+  aes(x = hp) +
+  geom_line(aes( y = pred), color = "blue") +
+  geom_point(aes(y = mpg_log)) +
+  labs(y = "log(mpg)",
+       title = "Vorhersage von log-mpg in einem Log-Y-Modell")
+```
+
+Oder so visualisieren:
+
+```{r}
+library(easystats)
+estimate_expectation(lm1) %>% plot()
+```
+
+
+Möchte man auf der Y-Achse *mpg* und nicht log(mpg) anzeigen, muss man den Logarithmus wieder "auflösen", das erreicht man mit der Umkehrfunktion des Logarithmus, das Exponentieren (man "delogarithmiert"):
+
+$$\begin{aligned}
+log(y) &= x \qquad | \text{Y in Log-Form}\\
+    exp(log(y)) &= exp(x)  \qquad | \text{Jetzt exponenzieren wir beide Seiten}\\
+    y = exp(x)
+\end{aligned}$$
+
+
+Dabei gilt $exp(x) = e^x$, mit $e$ als Eulersche Zahl (2.71...).
+
+
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(pred_delog = exp(pred))  # delogarithmieren
+```
+
+
+```{r}
+mtcars %>% 
+  ggplot() +
+  aes(x = hp) +
+  geom_line(aes( y = pred_delog), color = "blue") +
+  geom_point(aes(y = mpg_log)) +
+  labs(y = "mpg",
+       title = "Vorhersage von mpg in einem Log-Y-Modell")
+```
+
+
+
+
+---
+
+Categories: 
+
+- lm
+- vis
+- qm2
+- regression
+- string
+

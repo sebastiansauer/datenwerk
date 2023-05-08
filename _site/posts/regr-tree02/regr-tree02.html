@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-05-03">
 
-<title>datenwerk - regr-tree02</title>
+<title>datenwerk - regression-tree02</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -145,7 +145,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">regr-tree02</h1>
+      <h1 class="title">regression-tree02</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">stat-learning</div>
                 <div class="quarto-category">trees</div>
@@ -201,7 +201,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Learn how to get started at https://www.tidymodels.org/start/</code></pre>
+• Use tidymodels_prefer() to resolve common conflicts.</code></pre>
 </div>
 </div>
 <section id="aufgabe" class="level1">
@@ -281,25 +281,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">metrics =</span> <span class="fu">metric_set</span>(roc_auc),</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">resamples =</span> rsmpl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>→ A | warning: 30 samples were requested but there were 12 rows in the data. 12 will be used.</code></pre>
+<pre><code>→ A | warning: 15 samples were requested but there were 12 rows in the data. 12 will be used.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>There were issues with some computations   A: x1</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>→ B | warning: 23 samples were requested but there were 12 rows in the data. 12 will be used.</code></pre>
+<pre><code>→ B | warning: 18 samples were requested but there were 12 rows in the data. 12 will be used.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>There were issues with some computations   A: x1
-→ C | warning: 15 samples were requested but there were 12 rows in the data. 12 will be used.
+→ C | warning: 31 samples were requested but there were 12 rows in the data. 12 will be used.
 There were issues with some computations   A: x1
-→ D | warning: 33 samples were requested but there were 12 rows in the data. 12 will be used.
+→ D | warning: 24 samples were requested but there were 12 rows in the data. 12 will be used.
 There were issues with some computations   A: x1
-→ E | warning: 19 samples were requested but there were 12 rows in the data. 12 will be used.
+→ E | warning: 40 samples were requested but there were 12 rows in the data. 12 will be used.
 There were issues with some computations   A: x1
-→ F | warning: 25 samples were requested but there were 12 rows in the data. 12 will be used.
+→ F | warning: 26 samples were requested but there were 12 rows in the data. 12 will be used.
 There were issues with some computations   A: x1
-→ G | warning: 36 samples were requested but there were 12 rows in the data. 12 will be used.
+→ G | warning: 33 samples were requested but there were 12 rows in the data. 12 will be used.
 There were issues with some computations   A: x1
 There were issues with some computations   A: x2   B: x2   C: x2   D: x2   E: x…
 There were issues with some computations   A: x2   B: x2   C: x2   D: x2   E: x…</code></pre>
@@ -320,11 +320,11 @@ There were issues with some computations   A: x2   B: x2   C: x2   D: x2   E: x�
 <pre><code># A tibble: 5 × 9
   cost_complexity tree_depth min_n .metric .estimator  mean     n std_err
             &lt;dbl&gt;      &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
-1        2.02e- 6         11    30 roc_auc binary     0.823     2  0.0659
-2        1.50e- 8          8    23 roc_auc binary     0.823     2  0.0659
-3        1.17e-10          7     7 roc_auc binary     0.823     2  0.0659
-4        2.54e- 2         14    15 roc_auc binary     0.823     2  0.0659
-5        4.48e- 3          3     5 roc_auc binary     0.823     2  0.0659
+1   0.00103                7    10 roc_auc binary     0.829     2   0.115
+2   0.0000102              7     5 roc_auc binary     0.829     2   0.115
+3   0.0000987              3     6 roc_auc binary     0.829     2   0.115
+4   0.000000311           10    15 roc_auc binary     0.801     2   0.144
+5   0.00000000135         11    18 roc_auc binary     0.801     2   0.144
 # ℹ 1 more variable: .config &lt;chr&gt;</code></pre>
 </div>
 </div>
@@ -341,17 +341,15 @@ There were issues with some computations   A: x2   B: x2   C: x2   D: x2   E: x�
 <h2 class="anchored" data-anchor-id="last-fit">Last Fit</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>final_fit <span class="ot">&lt;-</span> </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(<span class="at">object =</span> wf1_finalized, d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>→ A | warning: 30 samples were requested but there were 24 rows in the data. 24 will be used.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(final_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(<span class="at">object =</span> wf1_finalized, d_split)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(final_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 4
   .metric  .estimator .estimate .config             
   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
 1 accuracy binary         0.875 Preprocessor1_Model1
-2 roc_auc  binary         0.9   Preprocessor1_Model1</code></pre>
+2 roc_auc  binary         0.833 Preprocessor1_Model1</code></pre>
 </div>
 </div>
 <hr>

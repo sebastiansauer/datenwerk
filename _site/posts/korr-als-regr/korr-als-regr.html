@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-09-04">
+<meta name="dcterms.date" content="2023-05-08">
 
 <title>datenwerk - korr-als-regr</title>
 <style>
@@ -149,6 +149,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                                 <div class="quarto-categories">
                 <div class="quarto-category">correlation</div>
                 <div class="quarto-category">lm</div>
+                <div class="quarto-category">regression</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -160,7 +162,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 4, 2022</p>
+        <p class="date">May 8, 2023</p>
       </div>
     </div>
     
@@ -182,9 +184,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits=</span><span class="dv">2</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">width =</span> <span class="dv">80</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
-<p>Die Korrelation prüft, ob zwei Merkmale linear zusammenhängen.</p>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
+<p>Die Korrelation prüft, ob bzw. inwieweit zwei Merkmale linear zusammenhängen.</p>
 <p>Wie viele andere Verfahren kann die Korrelation als ein Spezialfall der Regression bzw. des linearen Modells <span class="math inline">\(y = \beta_0 + \beta_1 + \ldots \beta_n + \epsilon\)</span> betrachtet werden.</p>
 <p>Als ein spezielles Beispiel betrachten wir die Frage, ob das Gewicht eines Diamanten (<code>carat</code>) mit dem Preis (<code>price</code>) zusammenhängt (Datensatz <code>diamonds</code>).</p>
 <p>Den Datensatz können Sie so laden:</p>
@@ -229,12 +231,14 @@ F-statistic: 3.04e+05 on 1 and 53938 DF,  p-value: &lt;2e-16</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code># Attaching packages: easystats 0.5.2
-✔ insight     0.18.2     ✔ datawizard  0.5.1   
-✔ bayestestR  0.12.1.1   ✔ performance 0.9.2   
-✔ parameters  0.18.2     ✔ effectsize  0.7.0.5 
-✔ modelbased  0.8.5      ✔ correlation 0.8.2   
-✔ see         0.7.2      ✔ report      0.5.5   </code></pre>
+<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
+✖ bayestestR  0.13.0   ✔ correlation 0.8.4 
+✔ datawizard  0.7.1    ✔ effectsize  0.8.3 
+✔ insight     0.19.1   ✔ modelbased  0.8.6 
+✖ performance 0.10.2   ✖ parameters  0.20.3
+✔ report      0.5.7    ✔ see         0.7.5 
+
+Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="dv">30</span>) <span class="sc">%&gt;%</span> </span>
@@ -245,7 +249,7 @@ F-statistic: 3.04e+05 on 1 and 53938 DF,  p-value: &lt;2e-16</code></pre>
 
 Parameter1 | Parameter2 |    r |       95% CI | t(28) |         p
 -----------------------------------------------------------------
-price      |      carat | 0.94 | [0.88, 0.97] | 14.87 | &lt; .001***
+price      |      carat | 0.95 | [0.90, 0.98] | 16.76 | &lt; .001***
 
 p-value adjustment method: Holm (1979)
 Observations: 30</code></pre>
@@ -253,8 +257,8 @@ Observations: 30</code></pre>
 </div>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
 <ol type="a">
 <li><p><code>carat</code> ist metrisch (verhältnisskaliert) und <code>price</code> ist metrisch (verhältnisskaliert)</p></li>
 <li><p><span class="math inline">\(R^2\)</span> kann bei einer einfachen (univariaten) Regression als das Quadrat von <span class="math inline">\(r\)</span> berechnet werden. Daher <span class="math inline">\(r = \sqrt{R^2}\)</span>.</p></li>
@@ -286,6 +290,8 @@ Observations: 30</code></pre>
 <ul>
 <li>correlation</li>
 <li>lm</li>
+<li>regression</li>
+<li>string</li>
 </ul>
 
 

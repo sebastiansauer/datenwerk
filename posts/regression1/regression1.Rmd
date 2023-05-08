@@ -1,0 +1,234 @@
+---
+extype: schoice
+exname: regression1
+exsolution: r mchoice2string(questions_sample$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- regression
+- dyn
+- lm
+- schoice
+date: '2023-05-08'
+slug: regression1
+title: regression1
+
+---
+
+
+<!-- This question is based on `essayreg.Rmd`, provided by the r-exams team. -->
+
+
+
+
+
+```{r include = FALSE, message=FALSE}
+library(glue)
+library(tidyverse)
+library(testthat)
+library(exams)
+```
+
+
+
+
+
+```{r data generation, echo = FALSE, results = "hide"}
+## regression parameters
+n <- sample(40:90, 1)
+b <- sample(c(-1, 1), 1) * runif(1, 1, 2) * sample(c(0.1, 0.5, 1), 1)
+s <- sample(c(0.5, 1, 2), 1)
+
+## data and regression
+d <- data.frame(
+  x = rnorm(n),
+  err = rnorm(n, sd = s)
+)
+d$y <- 0 + b * d$x + d$err
+
+## different types
+
+type_set <- c("lineare", "y-logarithmisierte", "y-x-logarithmisierte")
+
+type <- sample(type_set, 1)
+
+type_wrong <- sample(setdiff(type_set, type), 1)
+
+expect(type != type_wrong, 
+       failure_message = "Correct and incorrect answer to type of regression must differ!")
+
+if(type == "lineare") {
+  m <- lm(y ~ x, data = d)
+  xunit <- "Einheit" 
+  yunit <- "Einheiten"
+  eff <- round(coef(m)[2], digits = 2)
+  
+  eff_wrong <- round(coef(m)[1], digits = 2)  # wrong!
+  
+} else if(type == "y-logarithmisierte") {
+  d$y <- exp(d$y)
+  m <- lm(log(y) ~ x, data = d)
+  xunit <- "Einheit" 
+  yunit <- "Prozent"
+  eff <- round(100 * exp(coef(m)[2]) - 100, digits = 2)
+  
+  eff_wrong <- round(100 * exp(coef(m)[1]) - 100, digits = 2)  # wrong!
+  
+  
+} else if(type == "y-x-logarithmisierte") {
+  d$y <- exp(d$y)
+  d$x <- exp(d$x)
+  m <- lm(log(y) ~ log(x), data = d)
+  xunit <- "Prozent" 
+  yunit <- "Prozent"
+  eff <- round(100 * exp(0.01 * coef(m)[2]) - 100, digits = 2)
+  
+  
+  eff_wrong <- round(100 * exp(0.01 * coef(m)[1]) - 100, digits = 2)  # wrong!
+  
+}
+
+
+## summaries
+direct <- if(coef(m)[2] > 0) "steigt" else "sinkt"
+
+direct_wrong <- if(coef(m)[2] < 0) "steigt" else "sinkt"  # wrong!
+
+
+if(summary(m)$coefficients[2, 4] < 0.05) {
+  sign1 <- "Auch"
+  sign2 <- ""
+} else {
+  sign1 <- "Aber"
+  sign2 <- "_nicht_"
+}
+
+y_at_x1 <- round(predict(m, newdata = data.frame(x = 1)), 2)
+y_at_x1_wrong <- round(predict(m, newdata = data.frame(x = 0)), 2)
+
+
+y_at_x2 <- round(predict(m, newdata = data.frame(x = 2)), 2)
+y_at_x2_wrong <- round(predict(m, newdata = data.frame(x = 1)), 2)
+
+y_at_x0 <- round(predict(m, newdata = data.frame(x = 0)), 2)  # intercept
+y_at_x0_wrong <- round(predict(m, newdata = data.frame(x = 1)) , 2) # intercept
+```
+
+
+
+
+
+
+```{r item-generation, echo = FALSE, results = "hide"}
+
+# first one is CORRECT, second is FALSE
+type_regression_items <- c(glue("Es handelt sich um eine {type} Regression."),
+                           glue("Es handelt sich um eine {type_wrong} Regression."))
+
+
+effect_direction_items <- c(glue("Der Mittelwert der abhängigen Variaben `y` {direct} mit zunehmenden `x`."),
+                  glue("Der Mittelwert der abhängigen Variaben `y` {direct_wrong} mit zunehmenden `x`."))
+
+effect_items <- c(glue("Wenn `x` um 1 {xunit} steigt, dann kann eine Veränderung um etwa {eff} {yunit} in `y` erwartet werden."),
+                  glue("Wenn `x` um 1 {xunit} steigt, dann kann eine Veränderung um etwa {eff_wrong} {yunit} in `y` erwartet werden."))
+
+
+y_at_x0_items <- c(glue("Wenn `x=0`, dann ist ein Mittelwert von `y` in Höhe von etwa {y_at_x0} zu erwarten."),
+                   glue("Wenn `x=0`, dann ist ein Mittelwert von `y` in Höhe von etwa {y_at_x0_wrong} zu erwarten."))
+
+y_at_x1_items <- c(glue("Wenn `x=1`, dann ist ein Mittelwert von `y` in Höhe von ca. {y_at_x1} zu erwarten."),
+                   glue("Wenn `x=1`, dann ist ein Mittelwert von `y` in Höhe von ca. {y_at_x1_wrong} zu erwarten."))
+
+
+y_at_x2_items <- c(glue("Wenn `x=2`, dann ist ein Mittelwert von `y` in Höhe von ca. {y_at_x2} zu erwarten."),
+                   glue("Wenn `x=2`, dann ist ein Mittelwert von `y` in Höhe von ca. {y_at_x2_wrong} zu erwarten."))
+
+
+questions <- bind_cols(data.frame(type_regression_items),
+                       data.frame(effect_direction_items),
+                       data.frame(effect_items),
+                       data.frame(y_at_x0_items),
+                       data.frame(y_at_x1_items),
+                       data.frame(y_at_x2_items)
+                       ) %>% 
+  mutate(is_correct = c(TRUE, FALSE))
+
+
+questions_long <- 
+  questions %>% 
+  pivot_longer(-c(is_correct),
+               names_to = "question_content",
+               values_to = "item")
+
+
+# Draw 1 correct and 4 incorrect questions (items):
+
+
+to_be_presented_as_correct <- sample(questions_long$question_content, 1)
+to_be_presented_as_INcorrect <- setdiff(questions_long$question_content, to_be_presented_as_correct) %>% sample(size = 4)
+
+questions_sample <-
+  questions_long %>% 
+  filter((is_correct == TRUE & question_content == to_be_presented_as_correct) |
+         (is_correct == FALSE & question_content %in% to_be_presented_as_INcorrect))
+
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Die folgende Frage bezieht sich auf dieses Ergebnis einer Regressionsanalyse:
+
+```{r lm output, echo = FALSE, comment = NA}
+summary(m)
+```
+
+Welche der folgenden Aussagen ist korrekt?
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions_sample$item, markup = "markdown")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(questions_sample$is_correct, "Wahr", "Falsch"), markup = "markdown")
+```
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- dyn
+- lm
+- schoice
+
