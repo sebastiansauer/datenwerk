@@ -1,0 +1,130 @@
+---
+exname: tidymodels-vorlage2
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-05-09'
+slug: tidymodels-vorlage2
+title: tidymodels-vorlage2
+
+---
+
+
+
+
+# Aufgabe
+
+Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels!
+
+<!-- Schreiben Sie eine prototypische Analyse für ein Vorhersagemodell, das sich als Vorlage für Analysen dieser Art eignet! -->
+
+Hinweise:
+
+- Berechnen Sie ein Modell
+- Tunen Sie mind. einen Parameter des Modells
+- Verwenden Sie Kreuzvalidierung
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r eval = FALSE}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+library(<other_package_you_might_need_for_modelling>)  # tidymodels uses existing packages for modelling so you need to make them available
+
+
+# Data:
+d_path <- "Enter data path here"
+d <- read_csv(d_path)
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+
+# model:
+mod1 <-
+  <enter_parsnip_model_name_here>(mode = "<choose_regression_or_classification>",
+           cost_complexity = tune())
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec1 <- recipe(<enter_output_variable> ~  ., data = d_train)
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+
+
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  tune_grid(
+    resamples = rsmpl)
+toc()
+
+# best candidate:
+show_best(wf1_fit)
+
+
+# finalize wf:
+wf1_final <-
+  wf1 %>% 
+  finalize_workflow(select_best(wf1_fit))
+
+
+wf1_fit_final <-
+  wf1_final %>% 
+  last_fit(d_split)
+
+
+# Modellgüte im Test-Set:
+collect_metrics(wf1_fit_final)
+```
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

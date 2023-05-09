@@ -1,0 +1,150 @@
+---
+exname: rf-finalize2
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-05-09'
+slug: rf-finalize2
+title: rf-finalize2
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Berechnen Sie ein prädiktives Modell (Random Forest) mit dieser Modellgleichung:
+
+`body_mass_g ~ .` (Datensatz: palmerpenguins::penguins).
+
+
+Zeigen Sie, welche Werte für mtry im Default von Tidymodels gesetzt werden!
+
+Hinweise:
+- Tunen Sie `mtry`
+- Verwenden Sie Kreuzvalidierung
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Zuererst der Standardablauf:
+
+```{r}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+
+# rm NA in the dependent variable:
+d <- d %>% 
+  drop_na(body_mass_g)
+
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+
+# model:
+mod_rf <-
+  rand_forest(mode = "regression",
+           mtry = tune())
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec_plain <- 
+  recipe(body_mass_g ~  ., data = d_train) %>% 
+  step_impute_bag(all_predictors())
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod_rf) %>% 
+  add_recipe(rec_plain)
+
+
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  tune_grid(
+    resamples = rsmpl)
+toc()
+
+```
+
+Dann schauen wir uns das Ergebnisobjekt vom Tuning an.
+
+```{r}
+wf1_fit %>% 
+  collect_metrics() %>% 
+  filter(.metric == "rmse") %>% 
+  arrange(mtry)
+```
+
+
+In der Hilfe ist zu lesen:
+
+>   If no tuning grid is provided, a semi-random grid (via dials::grid_latin_hypercube()) is created with 10 candidate parameter combinations.
+
+Aus irgendwelchen Gründen wurden hier nur 10 Kandidatenwerte berechnet.
+
+
+
+Weiter steht dort:
+
+>    In some cases, the tuning parameter values depend on the dimensions of the data. For example, mtry in random forest models depends on the number of predictors. In this case, the default tuning parameter object requires an upper range. dials::finalize() can be used to derive the data-dependent parameters. Otherwise, a parameter set can be created (via dials::parameters()) and the dials update() function can be used to change the values. This updated parameter set can be passed to the function via the param_info argument.
+
+
+Achtung: `step_impute_knn` scheint Probleme zu haben, wenn es Charakter-Variablen gibt.
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

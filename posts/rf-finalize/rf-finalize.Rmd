@@ -1,0 +1,143 @@
+---
+exname: rf-finalize
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-05-09'
+slug: rf-finalize
+title: rf-finalize
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Berechnen Sie ein prädiktives Modell (Random Forest) mit dieser Modellgleichung:
+
+`body_mass_g ~ .` (Datensatz: palmerpenguins::penguins).
+
+
+Berichten Sie den RSMSE im Test-Sample!
+
+Hinweise:
+- Tunen Sie `mtry`
+- Verwenden Sie Kreuzvalidierung
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+
+# rm NA in the dependent variable:
+d <- d %>% 
+  drop_na(body_mass_g)
+
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+
+# model:
+mod_rf <-
+  rand_forest(mode = "regression",
+           mtry = tune())
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec_plain <- 
+  recipe(body_mass_g ~  ., data = d_train) %>% 
+  step_impute_bag(all_predictors())
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod_rf) %>% 
+  add_recipe(rec_plain)
+
+
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  tune_grid(
+    resamples = rsmpl)
+toc()
+
+# best candidate:
+show_best(wf1_fit)
+
+
+# finalize wf:
+wf1_final <-
+  wf1 %>% 
+  finalize_workflow(select_best(wf1_fit))
+
+
+wf1_fit_final <-
+  wf1_final %>% 
+  last_fit(d_split)
+
+
+# Modellgüte im Test-Set:
+collect_metrics(wf1_fit_final)
+```
+
+
+Achtung: `step_impute_knn` scheint Probleme zu haben, wenn es Charakter-Variablen gibt.
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

@@ -1,0 +1,108 @@
+---
+exname: rf-usemodels
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-05-09'
+slug: rf-usemodels
+title: rf-usemodels
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Berechnen Sie ein prädiktives Modell mit dieser Modellgleichung:
+
+`body_mass_g ~ .` (Datensatz: palmerpenguins::penguins).
+
+
+Nutzen Sie [`usemodels`](https://usemodels.tidymodels.org/)!
+
+Hinweise:
+- Tunen Sie `mtry`
+- Verwenden Sie Kreuzvalidierung
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Vorbereitung:
+
+```{r}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+
+# rm NA in the dependent variable:
+d <- d %>% 
+  drop_na(body_mass_g)
+
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+```
+
+
+
+```{r}
+library(usemodels)
+use_ranger(body_mass_g ~ ., data = d_train)
+```
+
+
+Oder die resultierende Syntax in die Zwischenablage kopieren lassen:
+
+```{r eval = FALSE}
+use_ranger(body_mass_g ~ ., data = d_train,
+           clipboard = TRUE)  # kopiert Syntax in die Zwischenablage
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

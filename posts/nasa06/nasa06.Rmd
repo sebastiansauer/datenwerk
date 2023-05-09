@@ -1,0 +1,220 @@
+---
+extype: string
+exsolution: NA
+exname: nasa06
+expoints: 1
+categories:
+- data
+- eda
+- lagemaße
+- string
+date: '2023-05-09'
+slug: nasa06
+title: nasa06
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+
+# Aufgabe
+
+
+Viele Quellen berichten Klimadaten unserer Erde, z.B. auch [National Aeronautics and Space Administration - Goddard Institute for Space Studies](https://data.giss.nasa.gov/gistemp/).
+
+Von dieser Quelle beziehen wir [diesen Datensatz](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv).
+
+
+Die Datensatz sind auf der Webseite wie folgt beschrieben:
+
+
+*Tables of Global and Hemispheric Monthly Means and Zonal Annual Means*
+
+Combined Land-Surface Air and Sea-Surface Water Temperature Anomalies (Land-Ocean Temperature Index, L-OTI)
+
+The following are plain-text files in tabular format of temperature anomalies, i.e. *deviations from the corresponding 1951-1980 means*.
+
+
+>   Global-mean monthly, seasonal, and annual means, 1880-present, updated through most recent month: TXT, CSV
+
+Starten Sie zunächst das R-Paket `tidyverse` falls noch nicht geschehen.
+
+```{r message = FALSE}
+library(tidyverse)
+```
+
+
+Importieren Sie dann die Daten:
+
+```{r}
+data_path <- "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
+d <- read_csv(data_path, skip = 1)
+```
+
+Wir lassen die 1. Zeile des Datensatzes aus (Argument `skip`), da dort *Metadaten* stehen,
+also keine Daten, sondern Informationen (Daten) zu den eigentlichen Daten.
+
+
+**Aufgaben**
+
+
+- Fassen Sie immer 10 Jahre (eine Dekade) an Jahren zusammen.
+- Präsentieren Sie gängige Statistiken pro Dekade für alle Monate.
+
+
+
+Hinweise:
+
+- Sie müssen zuerst die Dekade als neue Spalte berechnen.
+- Treffen Sie Annahmen, wo nötig.
+- Beachten Sie die [Hinweise](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Tabelle in die Lang-Form bringen:
+
+```{r warning=FALSE}
+d_long <- 
+  d %>% 
+  select(Year, Jan:Dec) %>% 
+  mutate(across(Jan:Dec, as.numeric)) %>% 
+  pivot_longer(cols = Jan:Dec, values_to = "temp", names_to = "month") 
+```
+
+Ein Blick in die Tabelle: 
+
+```{r}
+head(d_long)
+```
+
+
+Dekade berechnen:
+
+
+```{r}
+d_long2 <-
+  d_long %>% 
+  mutate(decade = round(Year/10) * 10)
+```
+
+```{r}
+tail(d_long2)  # letzten paar Zeilen der Tabelle "d_long2"
+```
+
+
+```{r}
+d_summarized <-
+d_long2 %>% 
+  group_by(decade, month) %>% 
+  summarise(temp_mean = mean(temp, na.rm = TRUE),
+            temp_sd = sd(temp, na.rm = TRUE))
+```
+
+```{r echo = FALSE}
+d_summarized %>% head()
+```
+
+
+
+```{r echo = FALSE}
+d_summarized %>% 
+  ggplot(aes(x = decade, y = temp_mean)) +
+  geom_point(color = "darkblue") +
+  geom_errorbar(aes(ymin = temp_mean - temp_sd, ymax = temp_mean + temp_sd)) +
+  geom_line(alpha = .7) +
+  facet_wrap(~ month) +
+  labs(caption = "Fehlerbalken zeigen plus/minus 1 SD")
+```
+
+Monate zu einem Jahreswert zusammen:
+
+
+```{r}
+d_summarized2 <- 
+  d_summarized %>% 
+  group_by(decade) %>% 
+  summarise(temp_mean = mean(temp_mean),
+            temp_sd = sd(temp_sd))
+
+d_summarized2
+```
+
+
+Alternativ können Sie zum Visualisieren der Daten z.B. das Paket `ggpubr` nutzen:
+
+```{r}
+library(ggpubr)
+ggscatter(d_summarized2, x = "decade", y = "temp_mean", add = "reg.line")
+```
+
+Oder auch mit den Facetten pro Monat:
+
+```{r}
+ggscatter(d_summarized, x = "decade", y = "temp_mean", add = "reg.line",
+          facet.by = "month")
+```
+
+
+Die weltweilte Temperatur steigt.
+Bleibt u.a. die Frage, ob eine lineare Funktion angemessen ist,
+oder ob die Steigung nicht vielleicht prozentual steigt (das wäre eine exponenzielle Steigerung)?
+
+
+
+Falls Sie Teile der R-Syntax nicht kennen: Machen Sie sich nichts daraus.  😄
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- data
+- eda
+- lagemaße
+- string
+

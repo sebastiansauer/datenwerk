@@ -1,0 +1,196 @@
+---
+exname: tidymodels-tree3
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- stat-learning
+- trees
+- tidymodels
+- string
+date: '2023-05-09'
+slug: tidymodels-tree3
+title: tidymodels-tree3
+
+---
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Berechnen Sie folgendes einfache Modell:
+
+1. Entscheidungsbaum
+
+
+Modellformel: `body_mass_g ~ .` (Datensatz `palmerpenguins::penguins`)
+
+Hier geht es darum, die Geschwindigkeit (und den Ressourcenverbrauch) beim Fitten zu verringern.
+Benutzen Sie dazu folgende Methoden
+
+- Auslassen gering performanter Tuningparameterwerte
+
+Hinweise:
+
+- Tunen Sie alle Parameter (die der Engine anbietet). 
+- Verwenden Sie Defaults, wo nicht anders angegeben.
+- Beachten Sie die [üblichen Hinweise](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(tidymodels)
+data("penguins", package = "palmerpenguins")
+library(tictoc)  # Zeitmessung
+library(finetune)  # tune_race_anova
+set.seed(42)
+```
+
+
+
+Entfernen wir Fälle ohne y-Wert:
+
+```{r}
+d <-
+  penguins %>% 
+  drop_na(body_mass_g)
+```
+
+
+
+## Daten teilen
+
+```{r}
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+## Modell(e)
+
+
+```{r}
+mod_tree <-
+  decision_tree(mode = "regression",
+                cost_complexity = tune(),
+                tree_depth = tune(),
+                min_n = tune())
+```
+
+
+
+
+## Rezept(e)
+
+```{r}
+rec_plain <- 
+  recipe(body_mass_g ~ ., data = d_train)
+```
+
+
+
+## Resampling
+
+```{r}
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+```
+
+
+## Workflows
+
+```{r}
+wf_tree <-
+  workflow() %>%  
+  add_recipe(rec_plain) %>% 
+  add_model(mod_tree)
+```
+
+
+
+
+
+## Tuning-Grid
+
+Tuninggrid:
+
+```{r}
+tune_grid <- grid_regular(extract_parameter_set_dials(mod_tree), levels = 5)
+```
+
+
+Die Zeilen im Tuninggrid zeigen uns, für wie viele Modellparameter ein Modell berechnet wird.
+Natürlich üblicherweise jedes Modell mit Resampling.
+Da kommt in Summe ein mitunter sehr große Menge an Modellberechnungen zusammen.
+
+## Ohne Speed-up
+
+```{r}
+tic()
+fit_tree <-
+  tune_grid(object = wf_tree,
+            grid = tune_grid,
+            metrics = metric_set(rmse),
+            resamples = rsmpl)
+toc()
+```
+
+ca. `r toc()` auf meinem Rechner (4-Kerne-MacBook Pro 2020).
+
+
+## Mit geschicktem Weglassen von Tuningparametern
+
+
+
+
+```{r}
+tic()
+fit_tree2 <-
+  tune_race_anova(object = wf_tree,
+            grid = tune_grid,
+            metrics = metric_set(rmse),
+            resamples = rsmpl)
+toc()
+```
+
+
+ca. `r toc()` - schneller!
+
+
+
+
+
+
+---
+
+Categories: 
+
+- stat-learning
+- trees
+- tidymodels
+- string
+

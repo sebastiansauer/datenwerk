@@ -1,0 +1,230 @@
+---
+exname: tidymodels-tree1
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- stat-learning
+- trees
+- tidymodels
+- string
+date: '2023-05-09'
+slug: tidymodels-tree1
+title: tidymodels-tree1
+
+---
+
+
+
+
+
+
+# Aufgabe
+
+
+Berechnen Sie folgende prädiktiven Modelle und vergleichen Sie die Modellgüte:
+
+1. Entscheidungsbaum
+2. Bagging (Bootstrap-Bäume)
+
+
+Modellformel: `am ~ .` (Datensatz `mtcars`)
+
+Berichten Sie die Modellgüte (ROC-AUC).
+
+Hinweise:
+
+- Tunen Sie alle Parameter (die der Engine anbietet). 
+- Verwenden Sie Defaults, wo nicht anders angegeben.
+- Führen Sie eine $v=2$-fache Kreuzvalidierung durch (weil die Stichprobe so klein ist).
+- Beachten Sie die [üblichen Hinweise](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(tidymodels)
+data(mtcars)
+library(tictoc)  # Zeitmessung
+library(baguette)
+```
+
+
+Für Klassifikation verlangt Tidymodels eine nominale AV, keine numerische:
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(am = factor(am))
+```
+
+
+
+## Daten teilen
+
+```{r}
+d_split <- initial_split(mtcars)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+## Modell(e)
+
+
+```{r}
+mod_tree <-
+  decision_tree(mode = "classification",
+                cost_complexity = tune(),
+                tree_depth = tune(),
+                min_n = tune())
+
+mod_bag <-
+  bag_tree(mode = "classification",
+           cost_complexity = tune(),
+           tree_depth = tune(),
+           min_n = tune())
+```
+
+
+
+
+## Rezept(e)
+
+```{r}
+rec_plain <- 
+  recipe(am ~ ., data = d_train)
+```
+
+
+
+## Resampling
+
+```{r}
+rsmpl <- vfold_cv(d_train, v = 2)
+```
+
+
+## Workflows
+
+```{r}
+wf_tree <-
+  workflow() %>%  
+  add_recipe(rec_plain) %>% 
+  add_model(mod_tree)
+```
+
+
+
+```{r}
+wf_bag <-
+  workflow() %>%  
+  add_recipe(rec_plain) %>% 
+  add_model(mod_bag)
+```
+
+
+
+
+
+## Tuning/Fitting
+
+Tuninggrid:
+
+```{r}
+tune_grid <- grid_regular(extract_parameter_set_dials(mod_tree), levels = 5)
+tune_grid
+```
+
+Da beide Modelle die gleichen Tuningparameter aufweisen,
+brauchen wir nur ein Grid zu erstellen.
+
+
+```{r}
+tic()
+fit_tree <-
+  tune_grid(object = wf_tree,
+            grid = tune_grid,
+            metrics = metric_set(roc_auc),
+            resamples = rsmpl)
+toc()
+
+fit_tree
+```
+
+
+
+
+```{r}
+tic()
+fit_bag <-
+  tune_grid(object = wf_bag,
+            grid = tune_grid,
+            metrics = metric_set(roc_auc),
+            resamples = rsmpl)
+toc()
+```
+
+## Bester Kandidat
+
+```{r}
+show_best(fit_tree)
+```
+```{r}
+show_best(fit_bag)
+```
+
+
+Bagging erzielte eine klar bessere Modellgüte (in den Validierungssamples) als das Entscheidungsbaum-Modell.
+
+
+## Finalisieren
+
+
+```{r}
+wf_best_finalized <-
+  wf_bag %>% 
+  finalize_workflow(select_best(fit_bag))
+```
+
+
+## Last Fit
+
+```{r}
+final_fit <- 
+  last_fit(object = wf_best_finalized, d_split)
+
+collect_metrics(final_fit)
+```
+
+Wie man sieht, ist die Modellgüte im Test-Sample schlechter als in den Train- bzw. Validierungssamples; ein typischer Befund.
+
+
+
+
+
+---
+
+Categories: 
+
+- stat-learning
+- trees
+- tidymodels
+- string
+
