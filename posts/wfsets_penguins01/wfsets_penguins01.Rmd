@@ -1,0 +1,224 @@
+---
+exname: wfsets_penguins01
+extype: num
+exsolution: r fmt(sol)
+exshuffle: no
+expoints: 1
+categories:
+- R
+- stat-learning
+- tidymodels
+- num
+date: '2023-05-09'
+slug: wfsets_penguins01
+title: wfsets_penguins01
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Berechnen Sie die Vorhersagegüte (RMSE) für folgende Lernalgorithmen:
+
+- lineares Modell
+- knn (neighbors: tune)
+
+Modellgleichung: `body_mass_g ~ bill_length_mm, data = d_train`.
+
+Nutzen Sie minimale Vorverarbeitung.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+```{r}
+library(tidymodels)
+data(penguins, package = "palmerpenguins")
+```
+
+## Daten
+
+
+```{r}
+d <-
+  penguins %>% 
+  drop_na()
+```
+
+
+
+
+
+```{r}
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+## Modelle
+
+
+Lineares Modell:
+
+
+
+```{r}
+mod_lin <- linear_reg()
+
+mod_knn <- nearest_neighbor(mode = "regression",
+                                  neighbors = tune())
+```
+
+
+## Rezepte
+
+```{r}
+rec_basic <- recipe(body_mass_g ~ bill_length_mm, data = d_train) %>% 
+         step_normalize(all_predictors())
+
+rec_basic
+```
+
+
+## Resampling
+
+```{r}
+rsmpls <- vfold_cv(d_train)
+```
+
+
+## Workflow Set
+
+```{r}
+wf_set <-
+  workflow_set(
+    preproc = list(rec_simple = rec_basic),
+    models = list(mod_lm = mod_lin,
+                  mod_nn = mod_knn)
+  )
+
+wf_set
+```
+
+
+## Fitten
+
+
+```{r}
+wf_fit <-
+  wf_set %>% 
+  workflow_map(resamples = rsmpls)
+
+wf_fit
+```
+
+
+Check:
+
+```{r}
+wf_fit %>% pluck("result")
+```
+
+
+## Bester Kandidat
+
+```{r}
+autoplot(wf_fit)
+```
+
+
+```{r}
+autoplot(wf_fit, select_best = TRUE)
+```
+
+
+
+```{r}
+rank_results(wf_fit, rank_metric = "rmse") %>% 
+  filter(.metric == "rmse")
+```
+
+
+Am besten war das lineare Modell, aber schauen wir uns auch mal das knn-Modell an, v.a. um zu wissen, wie man den besten Tuningparameter-Wert sieht:
+
+```{r}
+extract_workflow_set_result(wf_fit, "rec_simple_mod_nn") %>% 
+  select_best()
+```
+
+
+## Last Fit
+
+```{r}
+best_wf <-
+  wf_fit %>% 
+  extract_workflow("rec_simple_mod_lm")
+```
+
+
+Finalisieren müssen wir diesen Workflow nicht, da er keine Tuningparameter hatte.
+
+```{r}
+fit_final <-
+  best_wf %>% 
+  last_fit(d_split)
+```
+
+
+## Modellgüte im Test-Set
+
+```{r}
+collect_metrics(fit_final)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- R
+- stat-learning
+- tidymodels
+- num
+

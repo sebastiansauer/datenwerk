@@ -1,0 +1,235 @@
+---
+exname: rf-finalize3
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-05-09'
+slug: rf-finalize3
+title: rf-finalize3
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Berechnen Sie ein prädiktives Modell (Random Forest) mit dieser Modellgleichung:
+
+`body_mass_g ~ .` (Datensatz: palmerpenguins::penguins).
+
+
+Zeigen Sie, welche Werte für mtry im Default von Tidymodels gesetzt werden!
+
+Hinweise:
+- Tunen Sie alle Tuningparameter mit jeweils 3 Werten.
+- Verwenden Sie Kreuzvalidierung
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Standard-Start
+
+Zuererst der Standardablauf:
+
+```{r}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+set.seed(42)
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+
+# rm NA in the dependent variable:
+d <- d %>% 
+  drop_na(body_mass_g)
+
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+
+# model:
+mod_rf <-
+  rand_forest(mode = "regression",
+           mtry = tune(),
+           min_n = tune(),
+           trees = tune())
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec_plain <- 
+  recipe(body_mass_g ~  ., data = d_train) %>% 
+  step_impute_bag(all_predictors())
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod_rf) %>% 
+  add_recipe(rec_plain)
+
+```
+
+## Tuninggrid
+
+Welche Tuningparameter hat unser Workflow? 
+
+```{r}
+wf1_params_unclear <- 
+  extract_parameter_set_dials(wf1)
+wf1_params_unclear
+```
+
+
+
+Verlangt waren 3 Tuningparameterwerte pro Parameter:
+
+
+
+```{r error=TRUE}
+my_grid <- grid_latin_hypercube(wf1_params_unclear, levels = 3)
+my_grid
+```
+
+Tidymodels weiß nicht, welche Werte für `mtry` benutzt werden sollen,
+da dieser Wert abhängig ist von der Anzahl der Spalten des Datensatzes,
+und damit unabhängig vom Modell.
+
+Die Ausgabe `nparam[?]` oben sagt uns, dass Tidymodels den Wertebereich des Tuningparameter nicht klären könnte, da er Daten abhängig ist.
+
+Informieren wir also Tidymodels zu diesem Wertebereich:
+
+```{r}
+wf1_params <- 
+  wf1 %>% 
+  extract_parameter_set_dials() %>% 
+  update(mtry = finalize(mtry(), d_train))
+
+wf1_params
+```
+
+So, jetzt weiß Tidymodels, wie viele Werte für `mtry` benutzt werden können.
+
+Wir können jetzt das Tuninggitter erstellen (das macht das Paket `dials`):
+
+
+
+```{r error=TRUE}
+my_grid <- grid_latin_hypercube(wf1_params, size = 125)
+my_grid %>% head()
+```
+
+Wie viele verschiedene Werte gibt es in dem Tuningitter?
+
+Schauen wir es uns mal an.
+
+```{r}
+my_grid %>% 
+  ggplot(aes(x = trees, y = mtry)) +
+  geom_point()
+```
+
+
+Wir können das Tuninggitter auch selber erstellen:
+
+
+```{r}
+my_grid <-
+  grid_latin_hypercube(mtry(range = c(1, ncol(d_train)-1)),
+                       trees(),
+                       min_n(),
+                       size = 60)
+dim(my_grid)
+```
+
+
+## Tuning/Fitting
+
+
+```{r}
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  tune_grid(
+    grid = my_grid,
+    resamples = rsmpl)
+toc()
+```
+
+Dann schauen wir uns das Ergebnisobjekt vom Tuning an.
+
+```{r}
+wf1_fit %>% 
+  collect_metrics() %>% 
+  filter(.metric == "rmse") %>% 
+  arrange(mtry)
+```
+
+
+In der Hilfe ist zu lesen:
+
+
+>    In some cases, the tuning parameter values depend on the dimensions of the data. For example, mtry in random forest models depends on the number of predictors. In this case, the default tuning parameter object requires an upper range. dials::finalize() can be used to derive the data-dependent parameters. Otherwise, a parameter set can be created (via dials::parameters()) and the dials update() function can be used to change the values. This updated parameter set can be passed to the function via the param_info argument.
+
+
+Achtung: `step_impute_knn` scheint Probleme zu haben, wenn es Charakter-Variablen gibt.
+
+
+
+Praktischerweise findet Tidymodels die Begrenzung von `mtry` selber heraus, wenn Sie kein Tuninggrid definieren.
+Das erkennen Sie daran, dass Tidymodels beim Tuning/Fitten die folgende Ausgabe zeigt:
+
+`i Creating pre-processing data to finalize unknown parameter: mtry`.
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

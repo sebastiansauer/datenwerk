@@ -1,0 +1,334 @@
+---
+exname: tmdb08
+extype: num
+exsolution: r sol
+extol: 0.2
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+date: '2023-05-09'
+slug: tmdb08
+title: tmdb08
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+Wir bearbeiten hier die Fallstudie [TMDB Box Office Prediction - 
+Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview),
+ein [Kaggle](https://www.kaggle.com/)-Prognosewettbewerb.
+
+Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.
+
+
+Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:
+
+```{r}
+d_train_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"
+d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"
+```
+
+
+# Aufgabe
+
+Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!
+
+
+Hinweise:
+
+- Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.
+- Halten Sie das Modell so *einfach* wie möglich. Verwenden Sie als Algorithmus die *regularisierte lineare Regression* .
+- Minimieren Sie die Vorverarbeitung (`steps`) so weit als möglich.
+- Verwenden Sie `tidymodels`.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+# Vorbereitung
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(tictoc)
+```
+
+
+
+```{r}
+d_train_raw <- read_csv(d_train_path)
+d_test_raw <- read_csv(d_test_path)
+```
+
+
+
+
+
+## Train-Set verschlanken
+
+```{r}
+d_train <-
+  d_train_raw %>% 
+  select(id, popularity, runtime, revenue, budget) 
+```
+
+
+## Test-Set verschlanken
+
+```{r}
+d_test <-
+  d_test_raw %>% 
+  select(id,popularity, runtime, budget) 
+```
+
+
+# Rezept
+
+## Rezept definieren
+
+
+```{r}
+rec2 <-
+  recipe(revenue ~ ., data = d_train) %>% 
+  step_mutate(budget = ifelse(budget == 0, 1, budget)) %>%  # log mag keine 0
+  step_log(budget) %>% 
+  step_impute_knn(all_predictors()) %>% 
+  step_dummy(all_nominal_predictors())  %>% 
+  update_role(id, new_role = "id")
+
+rec2
+```
+
+
+
+# Kreuzvalidierung / Resampling
+
+
+```{r}
+cv_scheme <- vfold_cv(d_train,
+                      v = 5)
+```
+
+
+# Modelle
+
+
+
+## LM regularisiert 
+
+Mit `mixture = 1` definieren wir ein Lasso.
+
+
+```{r}
+mod_lm <-
+  linear_reg(penalty = tune(), mixture = 1) %>% 
+  set_engine("glmnet")
+```
+
+Check:
+
+```{r}
+mod_lm
+```
+
+
+
+
+# Workflow-Set
+
+Hier nur ein sehr kleiner Workflow-Set.
+
+Das ist übrigens eine gute Strategie: Erstmal mit einem kleinen Prozess anfangen,
+und dann sukzessive erweitern.
+
+
+```{r all-wfs}
+preproc2 <- list(rec1 = rec2)
+models2 <- list(lm1 = mod_lm)
+ 
+all_workflows2 <- workflow_set(preproc2, models2)
+```
+
+
+# Fitten und tunen
+
+
+```{r}
+my_grid <- grid_max_entropy(penalty(), size = 10)
+```
+
+
+
+```{r wf-map}
+tmdb_model_set2 <-
+    all_workflows2 %>% 
+    workflow_map(resamples = cv_scheme,
+                 verbose = TRUE,
+                 grid = my_grid
+                 )
+```
+
+
+
+```{r}
+autoplot(tmdb_model_set2)
+```
+
+
+
+
+# Finalisieren
+
+Wir müssen uns leider händisch das beste Modell raussuchen:
+
+
+```{r}
+tmdb_model_set2 %>% 
+  collect_metrics() %>% 
+  arrange(mean) %>% 
+  filter(.metric == "rmse") %>% 
+  select(1,2, mean, std_err)
+```
+
+
+
+
+```{r}
+best_model_params2 <-
+extract_workflow_set_result(tmdb_model_set2, "rec1_lm1") %>% 
+  select_best()
+
+best_model_params2
+```
+
+
+
+## Finalisieren
+
+Finalisieren bedeutet:
+
+- Besten Workflow identifizieren (zur Erinnerung: Workflow = Rezept + Modell)
+- Den besten Workflow mit den optimalen Modell-Parametern ausstatten
+- Damit dann den ganzen Train-Datensatz fitten
+- Auf dieser Basis das Test-Sample vorhersagen
+
+```{r}
+best_wf2 <- 
+all_workflows2 %>% 
+  extract_workflow("rec1_lm1")
+
+best_wf2
+```
+
+
+```{r}
+best_wf_finalized2 <- 
+  best_wf2 %>% 
+  finalize_workflow(best_model_params2)
+
+best_wf_finalized2
+```
+
+## Final Fit
+
+
+```{r}
+fit_final2 <-
+  best_wf_finalized2 %>% 
+  fit(d_train)
+
+fit_final2
+```
+
+
+
+```{r error = TRUE}
+preds <- 
+fit_final2 %>% 
+  predict(new_data = d_test)
+
+head(preds)
+```
+
+
+## Submission df
+
+Wir brauchen die ID-Spalte und die Vorhersagen für die Einreichung:
+
+```{r}
+submission_df <-
+  d_test %>% 
+  select(id) %>% 
+  bind_cols(preds) %>% 
+  rename(revenue = .pred)
+
+head(submission_df)
+```
+
+
+Abspeichern und einreichen:
+
+```{r eval = FALSE}
+write_csv(submission_df, file = "submission_regul_lm.csv")
+```
+
+
+
+Leider ein schlechter Score: `5.77945`.
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+

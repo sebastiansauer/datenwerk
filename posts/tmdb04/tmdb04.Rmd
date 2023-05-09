@@ -1,0 +1,495 @@
+---
+exname: tmdb04
+extype: num
+exsolution: r sol
+extol: 0.2
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+date: '2023-05-09'
+slug: tmdb04
+title: tmdb04
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+Wir bearbeiten hier die Fallstudie [TMDB Box Office Prediction - 
+Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview),
+ein [Kaggle](https://www.kaggle.com/)-Prognosewettbewerb.
+
+Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.
+
+
+Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:
+
+```{r}
+d_train_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"
+d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"
+```
+
+
+# Aufgabe
+
+Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!
+
+
+Hinweise:
+
+- Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.
+- Halten Sie das Modell so *einfach* wie möglich. Verwenden Sie als Algorithmus die *lineare Regression* ohne weitere Schnörkel.
+- Logarithmieren Sie `budget` und `revenue`.
+- Minimieren Sie die Vorverarbeitung (`steps`) so weit als möglich.
+- Verwenden Sie `tidymodels`.
+- Die Zielgröße ist `revenue` in Dollars; nicht in "Log-Dollars". Sie müssen also rücktransformieren,
+wenn Sie `revenue` logarithmiert haben, bevor Sie Ihre Prognose einreichen.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+# Vorbereitung
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(finetune)
+library(doParallel)
+library(tictoc)
+```
+
+
+
+```{r}
+d_train_raw <- read_csv(d_train_path)
+d_test_raw <- read_csv(d_test_path)
+```
+
+
+
+Sicher ist sicher:
+
+```{r}
+d_train_backup <- d_train_raw
+```
+
+
+
+Mal einen Blick werfen:
+
+```{r}
+glimpse(d_train_raw)
+```
+
+
+## Train-Set verschlanken
+
+```{r}
+d_train_raw_reduced <-
+  d_train_raw %>% 
+  select(id, popularity, runtime, revenue, budget) 
+```
+
+
+## Test-Set verschlanken
+
+```{r}
+d_test <-
+  d_test_raw %>% 
+  select(id,popularity, runtime, budget) 
+```
+
+
+
+
+## Outcome logarithmieren
+
+Der Outcome [sollte *nicht* im Rezept transformiert werden (vgl. Part 3, S. 30, in dieser Unterlage)](https://github.com/topepo/nyr-2020).
+
+```{r}
+d_train <-
+  d_train_raw_reduced %>% 
+  mutate(revenue = if_else(revenue < 10, 10, revenue)) %>% 
+  mutate(revenue = log(revenue)) 
+```
+
+
+Prüfen, ob das funktioniert hat:
+
+
+```{r}
+d_train$revenue %>% is.infinite() %>% any()
+```
+
+
+Keine unendlichen Werte mehr, auf dieser Basis können wir weitermachen.
+
+
+# Fehlende Werte prüfen
+
+Welche Spalten haben viele fehlende Werte?
+
+```{r}
+library(easystats)
+describe_distribution(d_train)
+```
+
+
+
+```{r}
+sum_isna <- function(x) {sum(is.na(x))}
+```
+
+
+```{r}
+d_train %>% 
+  summarise(across(everything(), sum_isna))
+```
+
+
+
+# Rezept
+
+## Rezept definieren
+
+
+```{r}
+rec2 <-
+  recipe(revenue ~ ., data = d_train) %>% 
+  step_mutate(budget = ifelse(budget == 0, NA, budget)) %>%  # log mag keine 0
+  step_log(budget) %>% 
+  step_impute_knn(all_predictors()) %>% 
+  step_dummy(all_nominal_predictors())  %>% 
+  update_role(id, new_role = "id")
+
+rec2
+```
+
+Schauen Sie mal, der Log mag keine Nullen:
+
+```{r}
+x <- c(1,2, NA, 0)
+
+log(x)
+```
+
+
+Da $log(0) = -\infty$. Aus dem Grund wandeln wir 0 lieber in `NA` um.
+
+```{r}
+tidy(rec2)
+```
+
+
+
+## Check das Rezept 
+
+Wir berechnen das Rezept:
+
+
+```{r}
+rec2_prepped <-
+  prep(rec2, verbose = TRUE)
+
+rec2_prepped
+```
+
+
+Das ist noch *nicht* auf einen Datensatz angewendet! Lediglich die `steps` wurden *vorbereitet*, "präpariert": z.B.
+"Diese Dummy-Variablen impliziert das Rezept".
+
+
+So sieht das dann aus, wenn man das *präparierte* Rezept auf das Train-Sample anwendet:
+
+
+
+```{r}
+d_train_baked2 <-
+  rec2_prepped %>% 
+  bake(new_data = NULL) 
+
+head(d_train_baked2)
+```
+
+
+
+
+```{r}
+d_train_baked2 %>% 
+  map_df(sum_isna)
+```
+
+
+Keine fehlenden Werte mehr *in den Prädiktoren*.
+
+Nach fehlenden Werten könnte man z.B. auch so suchen:
+
+```{r describe-distr}
+datawizard::describe_distribution(d_train_baked2)
+```
+
+
+So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.
+
+## Check Test-Sample
+
+Das Test-Sample backen wir auch mal, um zu prüfen, das alles läuft:
+
+```{r}
+d_test_baked2 <-
+  bake(rec2_prepped, new_data = d_test)
+
+d_test_baked2 %>% 
+  head()
+```
+
+
+Sieht soweit gut aus.
+
+
+# Kreuzvalidierung / Resampling
+
+
+Hier ist *nur* aus Gründen der Rechenzeit auf kleine Werte von $v$ und $r$ ausgewichen worden.
+Besser wäre z.B. $v=10$ und $r=3$.
+
+```{r cv-def}
+cv_scheme <- vfold_cv(d_train,
+                      v = 3, 
+                      repeats = 1)
+```
+
+
+# Modelle
+
+
+
+## LM
+
+
+```{r}
+mod_lm <-
+  linear_reg()
+```
+
+
+
+# Workflow-Set
+
+Hier nur ein sehr kleiner Workflow-Set.
+
+Das ist übrigens eine gute Strategie: Erstmal mit einem kleinen Prozess anfangen,
+und dann sukzessive erweitern.
+
+
+```{r all-wfs}
+preproc2 <- list(rec1 = rec2)
+models2 <- list(lm1 = mod_lm)
+ 
+ 
+all_workflows2 <- workflow_set(preproc2, models2)
+```
+
+
+# Fitten und tunen
+
+
+```{r tune}
+tmdb_model_set2 <-
+    all_workflows2 %>% 
+    workflow_map(resamples = cv_scheme,
+                 control = control_grid(verbose = TRUE),
+                 fn = "tune_race_anova")
+```
+
+
+
+
+
+# Finalisieren
+
+
+```{r}
+tmdb_model_set2 %>% 
+  collect_metrics() %>% 
+  arrange(-mean) %>% 
+  head(10)
+```
+
+
+```{r}
+best_model_params2 <-
+extract_workflow_set_result(tmdb_model_set2, "rec1_lm1") %>% 
+  select_best()
+
+best_model_params2
+```
+
+
+
+## Finalisieren
+
+Finalisieren bedeutet:
+
+- Besten Workflow identifizieren (zur Erinnerung: Workflow = Rezept + Modell)
+- Den besten Workflow mit den optimalen Modell-Parametern ausstatten
+- Damit dann den ganzen Train-Datensatz fitten
+- Auf dieser Basis das Test-Sample vorhersagen
+
+```{r}
+best_wf2 <- 
+all_workflows2 %>% 
+  extract_workflow("rec1_lm1")
+
+best_wf2
+```
+
+
+```{r}
+best_wf_finalized2 <- 
+  best_wf2 %>% 
+  finalize_workflow(best_model_params2)
+
+best_wf_finalized2
+```
+
+## Final Fit
+
+
+```{r}
+fit_final2 <-
+  best_wf_finalized2 %>% 
+  fit(d_train)
+
+fit_final2
+```
+
+
+
+```{r error = TRUE}
+preds <- 
+fit_final2 %>% 
+  predict(new_data = d_test)
+
+head(preds)
+```
+
+Achtung, wenn die Outcome-Variable im Rezept verändert wurde,
+dann würde obiger Code *nicht* durchlaufen.
+
+
+Grund ist [hier](https://github.com/tidymodels/workflows/issues/63) beschrieben:
+
+
+>    When predict() is used, it only has access to the predictors (mirroring how this would work with new samples). Even if the outcome column is present, it is not exposed to the recipe. This is generally a good idea so that we can avoid information leakage.
+
+
+>    One approach is the use the skip = TRUE option in step_log() so that it will avoid that step during predict() and/or bake(). However, if you are using this recipe with the tune package, there will still be an issue because the metric function(s) would get the predictions in log units and the observed outcome in the original units.
+
+>   The better approach is, for simple transformations like yours, to log the outcome outside of the recipe (before data analysis and the initial split).
+
+## Submission df
+
+
+```{r}
+submission_df <-
+  d_test %>% 
+  select(id) %>% 
+  bind_cols(preds) %>% 
+  rename(revenue = .pred)
+
+head(submission_df)
+```
+
+
+
+## Zurücktransformieren
+
+
+```{r}
+submission_df <-
+  submission_df %>% 
+  mutate(revenue = exp(revenue)-1)
+
+head(submission_df)
+```
+
+
+[Hier](https://numpy.org/doc/stable/reference/generated/numpy.expm1.html) ein Beispiel,
+warum $e^x-1$ genauer ist für kleine Zahlen als $e^x$.
+
+Abspeichern und einreichen:
+
+```{r eval = FALSE}
+write_csv(submission_df, file = "submission.csv")
+```
+
+
+# Kaggle Score
+
+Diese Submission erzielte einen Score von **Score: 2.46249** (RMSLE).
+
+```{r}
+sol <- 2.5
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+

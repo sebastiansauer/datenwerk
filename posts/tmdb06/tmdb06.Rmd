@@ -1,0 +1,293 @@
+---
+exname: tmdb06
+extype: num
+exsolution: r sol
+extol: 0.5
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+date: '2023-05-09'
+slug: tmdb06
+title: tmdb06
+
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Aufgabe
+
+Melden Sie sich an für die Kaggle Competition [TMDB Box Office Prediction -
+Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview).
+
+Sie benötigen dazu ein Konto; es ist auch möglich, sich mit seinem Google-Konto anzumelden.
+
+Bei diesem Prognosewettbewerb geht es darum, vorherzusagen,
+wieviel Umsatz wohl einige Filme machen werden. 
+Als Prädiktoren stehen einige Infos wie Budget, Genre, Titel etc. zur Verfügung.
+Eine klassische "predictive Competition" also :-)
+Allerdings können immer ein paar Schwierigkeiten auftreten ;-)
+
+
+*Aufgabe*
+
+Erstellen Sie ein *Lineares Modell* mit Tidymodels!
+
+
+*Hinweise*
+
+<!-- - Nehmen Sie folgende Prädiktoren auf: `budget` und `popularity` -->
+- Verzichten Sie auf Vorverarbeitung. 
+- Verzichten Sie auf Tuning.
+- Reichen Sie das Modell ein und berichten Sie Ihren Score.
+- Begrenzen Sie sich auf folgende Prädiktoren.
+- Verwenden Sie (langweiligerweise) nur ein *lineares Modell*.
+
+```{r}
+preds_chosen <- 
+  c("id", "budget", "popularity", "runtime")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+# Pakete starten
+
+```{r message=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(tictoc)
+library(finetune)  # Anova Race
+library(doParallel)  # parallele Verarbeitung
+```
+
+
+
+# Daten importieren
+
+```{r}
+d_train_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"
+d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"
+
+d_train <- read_csv(d_train_path)
+d_test <- read_csv(d_test_path)
+```
+
+Werfen wir einen Blick in die Daten:
+
+```{r}
+glimpse(d_train)
+glimpse(d_test)
+```
+
+
+
+
+`preds_chosen` sind alle Prädiktoren im Datensatz, oder nicht? 
+Das prüfen wir mal kurz:
+
+
+```{r}
+preds_chosen %in% names(d_train) %>% 
+  all()
+```
+
+
+Ja, alle Elemente von `preds_chosen` sind  Prädiktoren im (Train-)Datensatz.
+
+
+# CV
+
+
+Wir brauchen keine CV, da wir keine Tuningparameter haben.
+
+```{r}
+cv_scheme <- vfold_cv(d_train)
+```
+
+
+
+
+# Rezept
+
+
+
+```{r}
+rec1 <- 
+  recipe(revenue ~ budget + popularity + runtime, data = d_train) %>% 
+  step_impute_bag(all_predictors()) %>% 
+  step_naomit(all_predictors()) 
+rec1
+```
+
+
+
+Man beachte, dass noch 21 Prädiktoren angezeigt werden,
+da das Rezept noch nicht auf den Datensatz angewandt ("gebacken") wurde.
+
+```{r}
+tidy(rec1)
+```
+
+
+
+
+Rezept checken:
+
+
+```{r}
+prep(rec1)
+```
+
+
+```{r}
+d_train_baked <-
+  rec1 %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+
+glimpse(d_train_baked)
+```
+
+
+
+
+Fehlende Werte noch übrig?
+
+```{r}
+library(easystats)
+describe_distribution(d_train_baked) %>% 
+  select(Variable, n_Missing)
+```
+
+
+
+
+
+
+# Modell
+
+```{r}
+model_lm <- linear_reg()
+```
+
+
+# Workflow
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_model(model_lm) %>% 
+  add_recipe(rec1)
+```
+
+
+
+
+#  Modell fitten (und tunen)
+
+
+```{r}
+#doParallel::registerDoParallel(4)
+tic()
+lm_fit1 <-
+  wf1 %>% 
+  fit(d_train)
+toc()
+```
+
+
+
+
+
+
+
+
+```{r}
+preds <-
+  lm_fit1 %>% 
+  predict(d_test)
+```
+
+
+# Submission df
+
+
+```{r}
+submission_df <-
+  d_test %>% 
+  select(id) %>% 
+  bind_cols(preds) %>% 
+  rename(revenue = .pred)
+
+head(submission_df)
+```
+
+
+
+Abspeichern und einreichen:
+
+```{r eval = FALSE}
+#write_csv(submission_df, file = "submission.csv")
+```
+
+
+# Kaggle Score
+
+Diese Submission erzielte einen Score von **Score: 6.14787** (RMSLE).
+
+```{r}
+sol <- 6.14787
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+

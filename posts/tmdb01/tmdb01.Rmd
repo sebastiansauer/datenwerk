@@ -1,0 +1,357 @@
+---
+exname: tmdb01
+extype: num
+exsolution: r sol
+extol: 0.6
+categories:
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+date: '2023-05-09'
+slug: tmdb01
+title: tmdb01
+
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Aufgabe
+
+Melden Sie sich an für die Kaggle Competition [TMDB Box Office Prediction -
+Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview).
+
+Sie benötigen dazu ein Konto; es ist auch möglich, sich mit seinem Google-Konto anzumelden.
+
+Bei diesem Prognosewettbewerb geht es darum, vorherzusagen,
+wieviel Umsatz wohl einige Filme machen werden. 
+Als Prädiktoren stehen einige Infos wie Budget, Genre, Titel etc. zur Verfügung.
+Eine klassische "predictive Competition" also :-)
+Allerdings können immer ein paar Schwierigkeiten auftreten ;-)
+
+
+*Aufgabe*
+
+
+Erstellen Sie ein *Random-Forest-Modell* mit Tidymodels! Reichen Sie es bei Kaggle ein un berichten Sie den Score!
+
+
+*Hinweise*
+
+<!-- - Nehmen Sie folgende Prädiktoren auf: `budget` und `popularity` -->
+- Verzichten Sie auf Vorverarbeitung. 
+
+- Tunen Sie die typischen Parameter. 
+- Begrenzen Sie sich auf folgende Prädiktoren.
+
+```{r}
+preds_chosen <- 
+  c("id", "budget", "popularity", "runtime")
+```
+
+
+
+
+- Ausnahme: Log-transformieren Sie `budget`. 
+- Tunen Sie die typischen Parameter. 
+- Reichen Sie das Modell ein und berichten Sie Ihren Score.
+
+
+```{r}
+preds_chosen <- 
+  c("id", "budget", "popularity", "runtime", "status", "revenue")
+```
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+### Pakete starten
+
+
+```{r message=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(tictoc)
+library(doParallel)
+```
+
+
+
+
+### Daten importieren
+
+
+```{r}
+d_train_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"
+d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"
+
+d_train <- read_csv(d_train_path)
+d_test <- read_csv(d_test_path)
+```
+
+Werfen wir einen Blick in die Daten:
+
+```{r}
+glimpse(d_train)
+glimpse(d_test)
+```
+
+
+
+
+
+`preds_chosen` sind alle Prädiktoren im Datensatz, oder nicht? 
+Das prüfen wir mal kurz:
+
+
+```{r}
+preds_chosen %in% names(d_train) %>% 
+  all()
+```
+
+
+Ja, alle Elemente von `preds_chosen` sind  Prädiktoren im (Train-)Datensatz.
+
+
+#### CV
+
+Nur um Zeit zu sparen, setzen wir die Anzahl der Folds auf $v=4$.
+Besser wäre z.B. $v=10$.
+
+```{r}
+cv_scheme <- vfold_cv(d_train, v = 4)
+```
+
+
+
+### Rezept 1
+
+
+```{r}
+rec1 <- 
+  recipe(revenue ~ budget + popularity + runtime, data = d_train) %>% 
+  step_impute_bag(all_predictors()) %>% 
+  step_naomit(all_predictors()) 
+```
+
+
+
+
+Man beachte, dass noch 21 Prädiktoren angezeigt werden,
+da das Rezept noch nicht auf den Datensatz angewandt ("gebacken") wurde.
+
+```{r}
+tidy(rec1)
+```
+
+
+
+
+Rezept checken:
+
+
+```{r}
+prep(rec1)
+```
+
+
+```{r}
+d_train_baked <-
+  rec1 %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+
+glimpse(d_train_baked)
+```
+
+
+
+
+Fehlende Werte noch übrig?
+
+```{r}
+library(easystats)
+describe_distribution(d_train_baked) %>% 
+  select(Variable, n_Missing)
+```
+
+
+
+
+
+
+### Modell 1: RF
+
+
+
+```{r rf-model1}
+model1 <- rand_forest(mtry = tune(),
+                        trees = tune(),
+                        min_n = tune()) %>% 
+            set_engine('ranger') %>% 
+            set_mode('regression')
+```
+
+
+
+### Workflow 1
+
+
+```{r wf1}
+wf1 <-
+  workflow() %>% 
+  add_model(model1) %>% 
+  add_recipe(rec1)
+```
+
+
+
+
+
+###  Modell fitten (und tunen)
+
+Parallele Verarbeitung starten:
+
+```{r}
+cl <- makePSOCKcluster(4)  # Create 4 clusters
+registerDoParallel(cl)
+```
+
+
+
+```{r tune-grid-wf1}
+tic()
+rf_fit1 <-
+  wf1 %>% 
+  tune_grid(resamples = cv_scheme)
+toc()
+```
+
+
+Irgendwelche Probleme oder Hinweise?
+
+```{r}
+rf_fit1[[".notes"]][1]
+```
+
+Nein; bei mir nicht jedenfalls.
+
+### Bester Kandidat
+
+```{r}
+select_best(rf_fit1)
+```
+
+
+
+### Workflow finalisieren
+
+
+```{r}
+wf_best <-
+  wf1 %>% 
+  finalize_workflow(parameters = select_best(rf_fit1))
+```
+
+
+
+### Final Fit
+
+
+```{r}
+fit1_final <-
+  wf_best %>% 
+  fit(d_train)
+
+fit1_final
+```
+
+
+
+```{r}
+preds <-
+  fit1_final %>% 
+  predict(d_test)
+```
+
+
+
+### Submission df
+
+
+```{r}
+submission_df <-
+  d_test %>% 
+  select(id) %>% 
+  bind_cols(preds) %>% 
+  rename(revenue = .pred)
+
+head(submission_df)
+```
+
+
+
+Abspeichern und einreichen:
+
+```{r eval = FALSE}
+#write_csv(submission_df, file = "submission.csv")
+```
+
+
+### Kaggle Score
+
+Diese Submission erzielte einen Score von **Score:  2.76961** (RMSLE).
+
+```{r}
+sol <-  2.76961
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- stat-learning
+- tmdb
+- random-forest
+- num
+
