@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-05-15">
 
-<title>datenwerk - lm-mario1</title>
+<title>datenwerk - lm-mario3</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -144,7 +144,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">lm-mario1</h1>
+      <h1 class="title">lm-mario3</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">R</div>
                 <div class="quarto-category">lm</div>
@@ -181,11 +181,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Sagen Sie den Verkaufspreis vorher für ein Spiel mit 2 Lenkrädern!</p>
-<p>Hinweise:</p>
-<ul>
-<li>Entfernen Sie Spiele mit einem Verkaufspreis von über 100 Euro aus dem Datensatz.</li>
-</ul>
+<p>Sagen Sie den Verkaufspreis vorher für Spiele mit 1, 2, bzw. 3 Euro Versandkosten (<code>ship_pr</code>)!</p>
+<p>Geben Sie den Durchschnitt der Vorhersagen als Lösung an!</p>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
@@ -221,101 +218,55 @@ Restart the R-Session and update packages in red with `easystats::easystats_upda
 </div>
 </div>
 </section>
-<section id="bild-der-daten" class="level2">
-<h2 class="anchored" data-anchor-id="bild-der-daten">Bild der Daten</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)  <span class="co"># einmalig vorab installieren, nicht vergessen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'ggpubr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:datawizard':
-
-    mean_sd, median_mad</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(mariokart, <span class="at">x =</span> <span class="st">"wheels"</span>, <span class="at">y =</span> <span class="st">"total_pr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="lm-mario1_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>Oder mit <code>DataExplorer</code> visualisieren:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DataExplorer)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_scatterplot</span>(mariokart, <span class="at">by =</span> <span class="st">"total_pr"</span>)  <span class="co"># "by" ist Y-Achse</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="lm-mario1_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="cell-output-display">
-<p><img src="lm-mario1_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="extremwerte-entfernen" class="level2">
-<h2 class="anchored" data-anchor-id="extremwerte-entfernen">Extremwerte entfernen</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mariokart2 <span class="ot">&lt;-</span> </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  mariokart <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_pr <span class="sc">&lt;</span> <span class="dv">100</span>)  <span class="co"># alle Spiele teuerer als 100€ entfernen</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(mariokart2, <span class="at">x =</span> <span class="st">"wheels"</span>, <span class="at">y =</span> <span class="st">"total_pr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="lm-mario1_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="regressionsgerade-eintragen-in-das-diagramm" class="level2">
-<h2 class="anchored" data-anchor-id="regressionsgerade-eintragen-in-das-diagramm">Regressionsgerade eintragen in das Diagramm</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(mariokart2, </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> <span class="st">"wheels"</span>, </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> <span class="st">"total_pr"</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">add =</span> <span class="st">"reg.line"</span>)  <span class="co"># Dieser Schalter malt die Regr.gerade in das Diagramm</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="lm-mario1_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
 <section id="regressionsgerade-berechnen" class="level2">
 <h2 class="anchored" data-anchor-id="regressionsgerade-berechnen">Regressionsgerade berechnen</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lm_mariokart <span class="ot">&lt;-</span> <span class="fu">lm</span>(total_pr <span class="sc">~</span> wheels, <span class="at">data =</span> mariokart2)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>lm_mariokart</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lm_mariokart <span class="ot">&lt;-</span> <span class="fu">lm</span>(total_pr <span class="sc">~</span> ship_pr, <span class="at">data =</span> mariokart) <span class="co"># "lm" wie *l*lineares *M*odell, also eine Gerade.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>lm_mariokart</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-lm(formula = total_pr ~ wheels, data = mariokart2)
+lm(formula = total_pr ~ ship_pr, data = mariokart)
 
 Coefficients:
-(Intercept)       wheels  
-     37.502        8.643  </code></pre>
+(Intercept)      ship_pr  
+     36.246        4.337  </code></pre>
 </div>
 </div>
-<p>“lm” wie <em>l</em>lineares <em>M</em>odell, also eine Gerade.</p>
 </section>
 <section id="vorhersagen" class="level2">
 <h2 class="anchored" data-anchor-id="vorhersagen">Vorhersagen</h2>
 <p>Vorhersagen funktionieren mit dem Befehl <code>predict</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>neues_spiel <span class="ot">&lt;-</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">wheels =</span> <span class="dv">2</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>neues_spiel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>neue_spiele <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">ship_pr =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>neue_spiele</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  wheels
-1      2</code></pre>
+<pre><code># A tibble: 3 × 1
+  ship_pr
+    &lt;dbl&gt;
+1       1
+2       2
+3       3</code></pre>
+</div>
+</div>
+<p>Anstelle von <code>tibble</code> können Sie auch <code>data.frame</code> verwenden.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>vorhersagen <span class="ot">&lt;-</span> <span class="fu">predict</span>(lm_mariokart, neue_spiele)  <span class="co"># predicte mir den Verkaufspreis</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>vorhersagen</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2        3 
+40.58276 44.91998 49.25720 </code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm_mariokart, neues_spiel)  <span class="co"># predicte mir den Verkaufspreis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>loesung <span class="ot">&lt;-</span> <span class="fu">mean</span>(vorhersagen)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>loesung</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       1 
-54.78743 </code></pre>
+<pre><code>[1] 44.91998</code></pre>
 </div>
 </div>
+<p>Die <em>Lösung</em> lautet: 44.9199833.</p>
 <hr>
 <p>Categories:</p>
 <ul>
