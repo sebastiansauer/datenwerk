@@ -1,0 +1,150 @@
+---
+exname: lm-mario1
+extype: num
+exsolution: 54.787
+exshuffle: no
+expoints: 1
+categories:
+- R
+- lm
+- predict
+- num
+date: '2023-05-15'
+slug: lm-mario1
+title: lm-mario1
+
+---
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Sagen Sie den Verkaufspreis vorher für ein Spiel mit 2 Lenkrädern!
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+
+```{r}
+mariokart <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv")
+
+library(tidyverse)
+library(easystats)
+```
+
+
+## Bild der Daten
+
+
+```{r}
+library(ggpubr)  # einmalig vorab installieren, nicht vergessen
+
+ggscatter(mariokart, x = "wheels", y = "total_pr")
+```
+
+Oder mit `DataExplorer` visualisieren:
+
+```{r}
+library(DataExplorer)
+
+plot_scatterplot(mariokart, by = "total_pr")  # "by" ist Y-Achse
+```
+
+
+## Extremwerte entfernen
+
+```{r}
+mariokart2 <- 
+  mariokart %>% 
+  filter(total_pr < 100)  # alle Spiele teuerer als 100€ entfernen
+
+ggscatter(mariokart2, x = "wheels", y = "total_pr")
+```
+
+## Regressionsgerade eintragen in das Diagramm
+
+
+```{r}
+ggscatter(mariokart2, 
+          x = "wheels", 
+          y = "total_pr",
+          add = "reg.line")  # Dieser Schalter malt die Regr.gerade in das Diagramm
+```
+
+
+
+## Regressionsgerade berechnen
+
+
+```{r}
+lm_mariokart <- lm(total_pr ~ wheels, data = mariokart2)
+lm_mariokart
+```
+
+
+"lm" wie *l*lineares *M*odell, also eine Gerade.
+
+
+## Vorhersagen
+
+Vorhersagen funktionieren mit dem Befehl `predict`.
+
+```{r}
+neues_spiel <-
+  data.frame(
+    wheels = 2
+  )
+
+neues_spiel
+```
+
+
+```{r}
+predict(lm_mariokart, neues_spiel)  # predicte mir den Verkaufspreis
+```
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- R
+- lm
+- predict
+- num
+
