@@ -146,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="quarto-title column-body">
       <h1 class="title">purrr-map04</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">r</div>
+                <div class="quarto-category">R</div>
                 <div class="quarto-category">map</div>
                 <div class="quarto-category">tidyverse</div>
               </div>
@@ -178,19 +178,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-✔ ggplot2 3.3.6      ✔ purrr   0.3.5 
-✔ tibble  3.1.8      ✔ dplyr   1.0.10
-✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-✔ readr   2.1.3      ✔ forcats 0.5.2 
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()</code></pre>
-</div>
-</div>
 <section id="exercise" class="level1">
 <h1>Exercise</h1>
 <p>Importieren Sie das Grundatzprogramm der Partei AfD (in der aktuellsten Version). Tokenisieren Sie nach Seiten. Dann verschachteln Sie die Spalte, in denen der Text der Seite steht, zu einer Listenspalte. Schließlich zählen Sie die Anzahl der Wörter pro Seite und berichten gängige deskriptive Statistiken dazu.</p>
@@ -198,16 +185,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.1     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.1     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+</div>
 <p>Text aus PDF-Dateien kann man mit dem Paket <a href="https://docs.ropensci.org/pdftools/"><code>pdftools</code></a> einlesen:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pdftools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Using poppler version 22.02.0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"/Users/sebastiansaueruser/Google Drive/Literatur/_Div/Politik/afd-grundsatzprogramm-2022.pdf"</span></span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"~/Literatur/_Div/Politik/afd-grundsatzprogramm-2022.pdf"</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">text =</span> <span class="fu">pdf_text</span>(d_path),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">page =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">text =</span> <span class="fu">pdf_text</span>(d_path))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Zu Seiten tokenisieren brauchen wir nicht; das Datenmaterial ist bereits nach Seiten organisiert.</p>
 <p>Jetzt “verschachteln” (to nest) wir die Spalte mit dem Text:</p>
@@ -218,15 +219,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-   page data            
-  &lt;int&gt; &lt;list&gt;          
-1     1 &lt;tibble [1 × 1]&gt;
-2     2 &lt;tibble [1 × 1]&gt;
-3     3 &lt;tibble [1 × 1]&gt;
-4     4 &lt;tibble [1 × 1]&gt;
-5     5 &lt;tibble [1 × 1]&gt;
-6     6 &lt;tibble [1 × 1]&gt;</code></pre>
+<pre><code># A tibble: 1 × 1
+  data             
+  &lt;list&gt;           
+1 &lt;tibble [96 × 1]&gt;</code></pre>
 </div>
 </div>
 <p>Dann zählen wir die Wörter pro Seite:</p>
@@ -237,43 +233,58 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 3
-   page data             word_count_per_page
-  &lt;int&gt; &lt;list&gt;           &lt;list&gt;             
-1     1 &lt;tibble [1 × 1]&gt; &lt;int [1]&gt;          
-2     2 &lt;tibble [1 × 1]&gt; &lt;int [1]&gt;          
-3     3 &lt;tibble [1 × 1]&gt; &lt;int [1]&gt;          
-4     4 &lt;tibble [1 × 1]&gt; &lt;int [1]&gt;          
-5     5 &lt;tibble [1 × 1]&gt; &lt;int [1]&gt;          
-6     6 &lt;tibble [1 × 1]&gt; &lt;int [1]&gt;          </code></pre>
+<pre><code># A tibble: 1 × 2
+  data              word_count_per_page
+  &lt;list&gt;            &lt;list&gt;             
+1 &lt;tibble [96 × 1]&gt; &lt;int [96]&gt;         </code></pre>
 </div>
 </div>
 <p>Wie sieht eine Zelle aus <code>data</code> aus?</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>data[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 1
-  text                                                                          
-  &lt;chr&gt;                                                                         
-1 "PROGRAMM FÜR\nDEUTSCHLAND.\nDas Grundsatzprogramm der Alternative für Deutsc…</code></pre>
+<pre><code># A tibble: 96 × 1
+   text                                                                         
+   &lt;chr&gt;                                                                        
+ 1 "PROGRAMM FÜR\nDEUTSCHLAND.\nDas Grundsatzprogramm der Alternative für Deuts…
+ 2 "2   Programm für Deutschland | Inhalt\n\n\n\n\n    Präambel\t\t\t\t\t\t    …
+ 3 "3   Programm für Deutschland | Inhalt\n\n\n\n\n    7 | Kultur, Sprache und …
+ 4 "4   Programm für Deutschland | Inhalt\n\n\n\n\n    11 | Finanzen und Steuer…
+ 5 "Präambel.\n"                                                                
+ 6 "6   Programm für Deutschland | Präambel\n\n\n\n\n    MUT ZU DEUTSCHLAND.   …
+ 7 "KAPITEL 1\n\n\n\n\nDemokratie und\nGrundwerte\n"                            
+ 8 "8   Programm für Deutschland | Demokratie und Grundwerte\n\n\n\n\n    DEMOK…
+ 9 "9   Programm für Deutschland | Demokratie und Grundwerte\n\n\n\n\n    1.1 V…
+10 "10   Programm für Deutschland | Demokratie und Grundwerte\n\n\n\n\n     ble…
+# ℹ 86 more rows</code></pre>
 </div>
 </div>
 <p>Wie sieht eine Zelle aus <code>word_count_per_page</code> aus?</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>data[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 1
-  text                                                                          
-  &lt;chr&gt;                                                                         
-1 "PROGRAMM FÜR\nDEUTSCHLAND.\nDas Grundsatzprogramm der Alternative für Deutsc…</code></pre>
+<pre><code># A tibble: 96 × 1
+   text                                                                         
+   &lt;chr&gt;                                                                        
+ 1 "PROGRAMM FÜR\nDEUTSCHLAND.\nDas Grundsatzprogramm der Alternative für Deuts…
+ 2 "2   Programm für Deutschland | Inhalt\n\n\n\n\n    Präambel\t\t\t\t\t\t    …
+ 3 "3   Programm für Deutschland | Inhalt\n\n\n\n\n    7 | Kultur, Sprache und …
+ 4 "4   Programm für Deutschland | Inhalt\n\n\n\n\n    11 | Finanzen und Steuer…
+ 5 "Präambel.\n"                                                                
+ 6 "6   Programm für Deutschland | Präambel\n\n\n\n\n    MUT ZU DEUTSCHLAND.   …
+ 7 "KAPITEL 1\n\n\n\n\nDemokratie und\nGrundwerte\n"                            
+ 8 "8   Programm für Deutschland | Demokratie und Grundwerte\n\n\n\n\n    DEMOK…
+ 9 "9   Programm für Deutschland | Demokratie und Grundwerte\n\n\n\n\n    1.1 V…
+10 "10   Programm für Deutschland | Demokratie und Grundwerte\n\n\n\n\n     ble…
+# ℹ 86 more rows</code></pre>
 </div>
 </div>
 <p>Ah! Darin steckt nur eine einzelne Zahl!</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>data[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">str</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>tibble [1 × 1] (S3: tbl_df/tbl/data.frame)
- $ text: chr "PROGRAMM FÜR\nDEUTSCHLAND.\nDas Grundsatzprogramm der Alternative für Deutschland.\n"</code></pre>
+<pre><code>tibble [96 × 1] (S3: tbl_df/tbl/data.frame)
+ $ text: chr [1:96] "PROGRAMM FÜR\nDEUTSCHLAND.\nDas Grundsatzprogramm der Alternative für Deutschland.\n" "2   Programm für Deutschland | Inhalt\n\n\n\n\n    Präambel\t\t\t\t\t\t                                        "| __truncated__ "3   Programm für Deutschland | Inhalt\n\n\n\n\n    7 | Kultur, Sprache und Identität\t\t\t\t                   "| __truncated__ "4   Programm für Deutschland | Inhalt\n\n\n\n\n    11 | Finanzen und Steuern\t\t\t\t\t                         "| __truncated__ ...</code></pre>
 </div>
 </div>
 <p>Das heißt, wir können vereinfachen, entschacheln:</p>
@@ -284,15 +295,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 3
-   page data             word_count_per_page
-  &lt;int&gt; &lt;list&gt;                         &lt;int&gt;
-1     1 &lt;tibble [1 × 1]&gt;                   9
-2     2 &lt;tibble [1 × 1]&gt;                 410
-3     3 &lt;tibble [1 × 1]&gt;                 516
-4     4 &lt;tibble [1 × 1]&gt;                 297
-5     5 &lt;tibble [1 × 1]&gt;                   1
-6     6 &lt;tibble [1 × 1]&gt;                 414</code></pre>
+<pre><code># A tibble: 6 × 2
+  data              word_count_per_page
+  &lt;list&gt;                          &lt;int&gt;
+1 &lt;tibble [96 × 1]&gt;                   9
+2 &lt;tibble [96 × 1]&gt;                 410
+3 &lt;tibble [96 × 1]&gt;                 516
+4 &lt;tibble [96 × 1]&gt;                 297
+5 &lt;tibble [96 × 1]&gt;                   1
+6 &lt;tibble [96 × 1]&gt;                 414</code></pre>
 </div>
 </div>
 <p>Visualisierung:</p>
@@ -310,12 +321,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code># Attaching packages: easystats 0.5.2 (red = needs update)
-✖ insight     0.18.5   ✖ datawizard  0.6.2 
-✔ bayestestR  0.13.0   ✔ performance 0.10.0
-✔ parameters  0.19.0   ✖ effectsize  0.8.1 
-✔ modelbased  0.8.5    ✔ correlation 0.8.3 
-✔ see         0.7.3    ✔ report      0.5.5 
+<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
+✖ bayestestR  0.13.0   ✔ correlation 0.8.4 
+✔ datawizard  0.7.1    ✔ effectsize  0.8.3 
+✔ insight     0.19.1   ✔ modelbased  0.8.6 
+✖ performance 0.10.2   ✖ parameters  0.20.3
+✔ report      0.5.7    ✔ see         0.7.5 
 
 Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
 </div>
@@ -329,7 +340,7 @@ Restart the R-Session and update packages in red with `easystats::easystats_upda
 <hr>
 <p>Categories:</p>
 <ul>
-<li>r</li>
+<li>R</li>
 <li>map</li>
 <li>tidyverse</li>
 </ul>

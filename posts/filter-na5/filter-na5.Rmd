@@ -1,0 +1,110 @@
+---
+exname: filter-na5
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- eda
+- na
+- string
+date: '2023-05-14'
+slug: filter-na5
+title: filter-na5
+
+---
+
+
+
+
+
+
+
+
+# Aufgabe
+
+Zählen Sie fehlende Werte im Datensatz `penguins` *zeilenweise*.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(tidyverse)
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+nrow(d)
+```
+
+
+## Weg 1
+
+```{r}
+apply(d, 1, function(x) sum(is.na(x)))
+```
+
+## Weg 2
+
+```{r}
+d_na_only <- 
+  d %>% 
+  rowwise() %>% 
+  mutate(na_n = sum(is.na(cur_data()))) %>% 
+  ungroup()
+
+d_na_only %>% 
+  pull(na_n)
+```
+
+
+## Weg 3
+
+
+```{r}
+d_na_only <- 
+  d %>% 
+  mutate(na_n = rowSums(is.na(.)))
+ 
+
+d_na_only %>% 
+  pull(na_n)
+```
+# Weg 4
+
+Der folgende Weg funktioniert nur, wenn alle Variablen vom Typ `numeric` sind.
+
+
+
+
+```{r error=TRUE}
+d %>% 
+  rowwise() %>% 
+  mutate(na_n = sum(is.na(c_across(everything()))))
+```
+
+
+
+
+---
+
+Categories: 
+
+- 2023
+- eda
+- na
+- string
+
