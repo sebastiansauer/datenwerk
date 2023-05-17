@@ -1,0 +1,132 @@
+---
+extype: string
+exsolution: r sol
+exname: titanic_casestudy
+expoints: 5
+date: '2023-05-17'
+slug: titanic_casestudy
+title: titanic_casestudy
+categories: string
+
+---
+
+
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+library(mosaic)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+Fallstudie
+
+Eine Analystin untersucht die Daten zum Titanic-Unglück.
+
+
+```{r ex-setup, message=FALSE}
+library(tidyverse)
+library(mosaic)
+data(titanic_train, package = "titanic")
+```
+
+Zunächst berechnet Sie die Gesamt-Überlebensrate:
+
+```{r}
+tally(Survived ~ 1, data = titanic_train, format = "percent")
+```
+
+
+Danach überprüft sie, ob sich die Geschlechter hinsichtlich der Überlebensrate unterscheiden.
+
+```{r}
+mosaicplot(Sex ~ Survived, data = titanic_train)
+```
+
+
+
+Als dritten Schritt versucht Sie, die Überlebensrate auf Basis mehrerer Variablen vorherzusagen, dazu verwendet Sie ein lineares (Logit-)Modell.
+
+```{r}
+lm_titanic1 <- glm(Survived ~ Sex + Age + Fare, 
+                   data = titanic_train, family = "binomial")
+
+summary(lm_titanic1)
+```
+
+a) Interpretieren Sie das Ergebnis des Mosaicplots!
+b) Kann man (fundiert) auf Basis dieses Modells sagen, dass das Geschlecht eine Ursache des Überlebens ist? Begründen Sie!
+c) Welche Variablen eignen sich (laut diesem Modell), um Überleben vorherzusagen?
+d) Welche Variable ist die wichtigste (laut diesem Modell)?
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+**Interpretieren Sie das Ergebnis des Mosaicplots!**
+
+- Frauen haben eine deutlich höhere Überlebensrate als Männer.
+- Es gibt deutlich mehr Männer als Frauen.
+
+
+
+**Kann man (fundiert) auf Basis dieses Modells sagen, dass das Geschlecht eine Ursache des Überlebens ist? Begründen Sie!**
+
+- Nein.
+- Zwar ist Geschlecht mit Überlebens korreliert (bzw. die beiden Variablen sind abhängig), aber das heißt noch nicht (zwingend), dass es eine kausale Beziehung ist. So wie "Störche" und "Babies" nur "scheinkorreliert" sind, könnte hier ebenfalls eine Scheinkorrelation vorliegen.
+
+
+**Welche Variablen eignen sich (laut diesem Modell), um Überleben vorherzusagen?**
+
+- Zu diesem Zweck wird mitunter die Signifikanz der Regressiongewichte $\beta$ herangezogen.
+- Hier sind `sex` und `fare` signifikant.
+
+
+
+**Welche Variable ist die wichtigste (laut diesem Modell)?**
+
+- Zu diesem Zweck kann der t-Wert herangezogen werden. 
+- Für `sexMale` ist dieser Wert (im Modell) am größten.
+
+
+```{r}
+sol <- "s. text"
+```
+
+
+
+---
+
+Categories: 
+
+string
+

@@ -1,0 +1,207 @@
+---
+extype: string
+exsolution: r sol
+exname: nyc_casestudy
+expoints: 25
+categories:
+- ds1
+- tidymodels
+- statlearning
+- string
+date: '2023-05-17'
+slug: nyc_casestudy
+title: nyc_casestudy
+
+---
+
+
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+library(mosaic)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "")
+```
+
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Fallstudie 
+
+
+Eine Analystin untersucht Verspätungen der New Yorker Flüge. Sie gibt folgenden Code ein und erhält unten stehendes Ergebnis.
+
+
+```{r ex-setup, message=FALSE}
+library(sjmisc)
+library(tidyverse)
+library(caret)
+data(flights, package = "nycflights13")
+
+my_crossval <- trainControl(method = "cv",
+                            number = 5,
+                            allowParallel = TRUE,
+                            verboseIter = FALSE)
+
+doMC::registerDoMC(cores = 2)
+
+
+flights2 <- flights %>%
+  select_if(is.numeric) %>% 
+  drop_na() %>% 
+  select(-c(year, dep_delay)) %>% 
+  std(suffix = "")  
+
+n_uebung <- round(.8 * nrow(flights2), digits = 0)
+
+uebung_index <- sample(1:nrow(flights2), size = n_uebung)
+
+uebung_df <- filter(flights2, row_number() %in% uebung_index)
+test_df <- filter(flights2, !(row_number() %in% uebung_index))
+
+lm_fit1 <- train(arr_delay ~ .,
+                 data = uebung_df,
+                 method = "lm",
+                 trControl = my_crossval)
+
+summary(lm_fit1)
+```
+
+
+Im Folgenden untersucht sie die prädiktive Güte am Testdatensatz.
+
+```{r}
+lm1_pred <- predict(lm_fit1, newdata = test_df)
+
+lm1_pred_fit <- postResample(pred = lm1_pred, obs = test_df$arr_delay)
+lm1_pred_fit
+```
+
+Schließlich berechnet sie noch ein Random-Forest-Modell. Um Zeit zu sparen, verringert sie den Datensatz in dieser ersten Analyse.
+
+```{r cache = TRUE}
+rf_grid <- data.frame(
+  .mtry = c(4, 5, 6, 7),
+  .splitrule = "variance",
+  .min.node.size = 5)
+
+uebung_df_small <- sample_n(uebung_df, size = 1000)
+
+rf_fit1 <- train(arr_delay ~ .,
+                 data = uebung_df_small,
+                 method = "ranger",
+                 trControl = my_crossval)
+```
+
+
+Auch hier lässt sie sich wieder die Gütekoeffizienten ausgeben.
+
+```{r}
+rf1_pred <- predict(rf_fit1, newdata = test_df)
+rf1_pred_fit <- postResample(pred = rf1_pred, obs = test_df$arr_delay)
+rf1_pred_fit
+```
+
+
+```{r questions, include = FALSE}
+predictors <- names(flights2)[names(flights) != "arr_delay"]
+col <- sample(predictors, 1)
+```
+
+
+a) Interpretieren Sie die Koeffizienten des Prädiktors `r col` des Modells `lm1` (s. Spalten `Estimate` bis `Pr(>|t|)`)!
+b) Welcher Prädiktor des Modells `lm1` ist am wichtigsten? Begründen Sie Ihre Antwort!
+c) Interpretieren Sie die Ausgabe des Objekts `lm1_pred_fit`!
+d) Welche Gefahren bzw. Probleme können damit verbunden sein, dass die Analystin die Stichprobe auf $n=1000$ verkleinert?
+e) Vergleichen Sie die Gütekoeffizienten der beiden Modelle im Test-Datensatz!
+f) Diskutieren Sie einen (möglichen) Grund für die Unterschiede in den Gütekriterien zwischen den beiden Modellen!
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+**Interpretieren Sie die Koeffizienten des Prädiktors `r col` des Modells `lm1`!**
+
+- Estimate: Punktschätzer des Einflussgewichts
+- Std. Err: Standardfehler, ein Koeffizient zur Beurteilung der (Un-)Genauigkeit des Punktschätzers
+- t value: Estimate geteilt durch Std. Error, Signal-Noise-Ratio, z-Wert
+- Pr: p-Wert
+
+**Welcher Prädiktor des Modells `lm1` ist am wichtigsten? Begründen Sie Ihre Antwort!**
+
+- Eine Möglichkeit zur Bestimmung der Prädiktorenrelevanz besteht darin, den Prädiktor mit höchstem Absolutwert in der Spalte `t value` heranzuziehen. 
+- In diesem Fall ist das `dep_time`.
+
+**Interpretieren Sie die Ausgabe des Objekts `lm1_pred_fit`!**
+
+- Es werden drei Gütekriterien berichtet: R-Quadrat, MSE und MAE. MSE gibt den mittleren Quadratfehler der vorhersage an; MAE den mittleren Absolutfehler.
+- Je höher $R^2$ und je geringer MAE bzw. MSE sind, desto besser ist das Modell.
+
+
+**Welche Gefahren bzw. Probleme können damit verbunden sein, dass die Analystin die Stichprobe auf $n=1000$ verkleinert?**
+
+- Kleinere Stichproben schätzen die Population ungenauer.
+- Durch die Stichprobenziehung könnten sich die Verteilungen verändern, was wiederum einen Einfluss auf die Vorhersagen haben kann.
+
+**Vergleichen Sie die Gütekoeffizienten der beiden Modelle im Test-Datensatz!**
+
+- Das Random-Forest-Modell hat deutlich besser abgeschnitten als das lineare Modell.
+
+
+**Diskutieren Sie einen (möglichen) Grund für die Unterschiede in den Gütekriterien zwischen den beiden Modellen!**
+
+- Ein lineares Modell wird dort gute Vorhersagen leisten, wo seine Voraussetzungen erfüllt sind. Eine wichtige Vorausssetzung sind lineare Beziehungen der Prädiktoren zum Kriterium. 
+- Hier könnte der Fall vorliegen, dass die Beziehungen nicht linear sind, so dass ein Modell - wie das Random-Forest-Modell - das nicht auf lineare Beziehungen abzielt, bessere Vorhersagen treffen kann.
+
+
+
+
+
+```{r}
+sol <- "s. text"
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- statlearning
+- string
+

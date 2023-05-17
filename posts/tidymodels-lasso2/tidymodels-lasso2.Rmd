@@ -1,0 +1,149 @@
+---
+exname: tidymodels-lasso2
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- lasso
+- lm
+- simple
+- string
+date: '2023-05-17'
+slug: tidymodels-lasso2
+title: tidymodels-lasso2
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Schreiben Sie eine minimale Analyse für ein Vorhersagemodell mit dem *Lasso*.
+
+Hinweise:
+
+- Verzichten Sie auf Tuning der Penalisierung; setzen Sie den Wert auf 0.1
+- Verzichten Sie auf die Unterteilung von Train- und Test-Set.
+- Verzichten Sie auf Kreuzvalidierung.
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+- Verwenden Sie den Datensatz `penguins`.
+- Modellformel: `body_mass_g ~ .`
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+# 2023-05-14
+
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+
+# drop rows with NA in outcome variable:
+d <-
+  d %>% 
+  drop_na(body_mass_g)
+
+set.seed(42)
+d_split <- initial_split(d)
+# d_train <- training(d_split)
+# d_test <- testing(d_split)
+
+
+# model:
+mod_lasso <-
+  linear_reg(mode = "regression",
+             penalty = 0.1,
+             mixture = 1,
+             engine = "glmnet")
+
+# cv:
+# set.seed(42)
+# rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec1_plain <- 
+  recipe(body_mass_g ~  ., data = d) %>% 
+  update_role("...1", new_role = "id") %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_impute_bag(all_predictors())
+
+
+# check:
+d_train_baked <- 
+  prep(rec1_plain) %>% bake(new_data = NULL)
+
+na_n <- sum(is.na(d_train_baked))
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod_lasso) %>% 
+  add_recipe(rec1_plain)
+
+
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  fit(data = d)
+toc()
+
+# best candidate:
+wf1_fit
+
+
+
+# Modellgüte:
+
+predict(wf1_fit, new_data = d) %>% 
+  bind_cols(d %>% select(body_mass_g)) %>% 
+  rmse(truth = body_mass_g,
+       estimate = .pred)
+```
+
+Man beachte: Für regulierte Modelle sind Zentrierung und Skalierung nötig.
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- lasso
+- lm
+- simple
+- string
+

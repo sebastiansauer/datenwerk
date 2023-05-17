@@ -1,0 +1,119 @@
+---
+exname: gini-loss
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- vis
+- statlearning
+- tree
+- string
+date: '2023-05-17'
+slug: gini-plot
+title: gini-plot
+
+---
+
+
+
+
+
+# Aufgabe
+
+
+Visualisieren Sie die Gini-Funktion!
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+granularity <- .1
+x1 = seq(from = 0, to = 1, by = granularity)
+x2 = seq(from = 1, to = 0, by = -granularity)
+#x2 <- 1 - x1
+  
+d <- expand_grid(x1, x2)
+```
+
+
+Gini-Loss:
+
+```{r}
+gini_loss <- function(x1, x2) {1 - (x1^2 + x2^2)}
+```
+
+
+Funktion berechnen:
+
+
+```{r}
+d2 <-
+  d %>% 
+  rowwise() %>% 
+  mutate(y = gini_loss(x1, x2))
+```
+
+
+```{r}
+# d2 <-
+#   outer(x1, x3, FUN = gini_loss) %>% 
+#   as_tibble() %>% 
+#   pivot_longer(cols = everything())
+```
+
+
+```{r}
+# d <-
+#   d %>% 
+#   mutate(
+#     x3 = 1 - x1,
+#     y = 1 - (x1^2 + x3^2))
+```
+
+
+```{r}
+d2 %>% 
+  ggplot(aes(x1, x2, fill = y)) +
+  geom_tile() +
+  scale_x_continuous(limits = c(-2, 2)) +
+  scale_y_continuous(limits = c(-2, 2))
+```
+
+
+
+So sieht der Funktionsgraph in [Geogebra](https://www.geogebra.org/3d/cvvp922e) aus.
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- 2023
+- vis
+- statlearning
+- tree
+- string
+

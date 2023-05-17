@@ -1,0 +1,224 @@
+---
+extype: string
+exsolution: NA
+exname: predictioncontest1
+expoints: 1
+tags:
+- prediction
+- tidymodels
+categories:
+- R
+- ds1
+- sose22
+- string
+date: '2023-05-17'
+slug: predictioncontest1
+title: predictioncontest1
+
+---
+
+
+Question
+
+# Aufgabe
+
+
+Erstellen Sie eine Analyse, die einem typischen Vorhersageprojekt entspricht!
+
+Nutzen Sie den Datensatz `penguins`!
+
+Sagen Sie die Variable `body_mass_g` vorher.
+
+Hinweise:
+
+- Halten Sie die Analyse einfach.
+- Teilen Sie Test- vs. Train-Set hälftig auf.
+- Teilen Sie Analysis vs. Assessment-Set 3:1 auf.
+- Den Datensatz `penguins` können Sie entweder aus dem Paket `palmerpenguins` beziehen oder z.B. von [hier](https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv) via `read_csv()` importieren.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Pakete laden:
+
+```{r}
+library(tidymodels)
+library(tidyverse)
+library(easystats)
+data("penguins", package = "palmerpenguins")
+```
+
+
+
+Man erinnere sich, dass ein R-Paket erst (einmalig) installiert sein muss,
+bevor Sie darauf zugreifen können, etwa um Daten - wie den Datensatz `penguins` - 
+daraus zu beziehen.
+
+
+
+Zeilen mischen und Train- vs. Testset aufteilen:
+
+```{r}
+penguins2 <-
+  penguins %>% 
+  sample_n(size = nrow(.))
+
+d_train <- penguins2 %>% slice(1:(344/2))
+d_test <- penguins2 %>% slice(173:nrow(penguins))
+```
+
+
+
+Das Trainset weiter aufteilen:
+
+```{r}
+d_split <- initial_split(d_train)
+
+d_analysis <- training(d_split)
+d_assessment <- testing(d_split)
+
+```
+
+
+Rezept definieren:
+
+```{r}
+rec1 <-
+  recipe(body_mass_g ~ ., data = d_analysis) %>% 
+  step_impute_knn(all_predictors()) %>% 
+  step_normalize(all_numeric(), -all_outcomes())
+```
+
+
+Rezept prüfen:
+
+
+```{r}
+d_analysis_baked <- 
+rec1 %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+
+describe_distribution(d_analysis_baked)
+```
+
+
+
+Workflow und CV definieren:
+
+```{r}
+m1 <- 
+  linear_reg()
+
+wf1 <-
+  workflow() %>% 
+  add_recipe(rec1) %>% 
+  add_model(m1)
+
+cv_scheme <- vfold_cv(d_analysis, v = 2)
+```
+
+
+
+Fitten (hier kein Tuning):
+
+```{r}
+fit1 <-
+  wf1 %>% 
+  tune_grid(resamples = cv_scheme)
+
+```
+
+
+Finalisieren:
+
+```{r}
+show_best(fit1)
+
+wf1_final <-
+  wf1 %>% 
+  finalize_workflow(show_best(fit1))
+
+
+wf1_final
+```
+
+
+Modellgüte:
+
+```{r}
+fit1_final <-
+  wf1_final %>% 
+  last_fit(d_split)
+
+
+collect_metrics(fit1_final)
+
+
+
+fit1_train <-
+  wf1_final %>% 
+  fit(d_train)
+
+
+fit1_test <-
+  fit1_train %>% 
+  predict(d_test)
+
+head(fit1_test)
+```
+
+
+
+
+Vgl <https://workflows.tidymodels.org/reference/predict-workflow.html>
+
+
+Submitten:
+
+```{r}
+subm_df <-
+  d_test %>% 
+  mutate(id = 173:344) %>% 
+  bind_cols(fit1_test) %>% 
+  select(id, .pred) %>% 
+  rename(pred = .pred)
+```
+
+
+
+Und als CSV-Datei speichern:
+
+```{r eval = FALSE}
+#write_csv(subm_df, file = "submission_blabla.csv")
+```
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- R
+- ds1
+- sose22
+- string
+

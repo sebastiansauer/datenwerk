@@ -1,0 +1,317 @@
+---
+exname: tidymodels1
+extype: schoice
+exsolution: 100000
+exshuffle: 5
+exoints: 1
+categories:
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- schoice
+date: '2023-05-17'
+slug: tidymodels1
+title: tidymodels1
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(testthat)
+library(glue)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold",
+                      cache = TRUE)
+```
+
+
+```{r suess, include=FALSE}
+prof_set <- c("Süß", "Salzig", "Bitter", "S.")
+prof <- sample(prof_set, 1)
+```
+
+
+
+
+# Aufgabe
+
+Prof. `r prof` übt sich im statistischen Lernen. Dazu will er das Überleben im Titanic-Unglück Vorhersagen; es handelt sich um eine klassische Aufgabe im statistischen Lernen. Betrachten Sie dazu den folgenden R-Code sowie die Kommentare dazu. Wählen Sie die am besten passende Aussage.
+
+
+Zuerst lädt er die nötigen R-Pakete:
+
+```{r echo = TRUE}
+library(tidyverse)  # data wrangling
+library(tidymodels)  # modelling
+library(broom)  # tidy model output
+library(parallel)  # multiple cores -- *nix only, d.h. Mac und Linux
+```
+
+
+Dann initialisiert er die Anzahl der Prozessoren auf seinem Computer:
+
+```{r}
+cores <- parallel::detectCores()
+cores
+```
+
+
+Daten importieren und aufbereiten:
+
+
+```{r}
+data_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre"
+traindata_path_url  <- "/main/data/titanic/train.csv"
+testdata_path_url <- "/main/data/titanic/test.csv"
+
+traindata_url <- paste0(data_path, traindata_path_url)
+testdata_url <- paste0(data_path, testdata_path_url)
+
+
+# import the data:
+train_raw <- read_csv(traindata_url)
+test <- read_csv(testdata_url)
+  
+# drop unused variables:
+train <-
+  train_raw %>% 
+  select(-c(Name, Cabin, Ticket))
+
+# convert string to factors:
+train2 <- 
+  train %>% 
+  mutate(across(where(is.character), as.factor))
+  
+# convert numeric outcome to nominal, to indicate classification:
+train2 <- 
+  train2 %>% 
+  mutate(Survived = as.factor(Survived))
+```
+
+
+
+
+
+Vorverarbeitung des Datensatzes macht er via ein `recipe` aus `tidymodels`: 
+
+
+```{r}
+titanic_recipe <- 
+  
+  # define model formula:
+  recipe(Survived ~ ., data = train2) %>%
+  
+  # Use "ID" etc as ID, not as predictor:
+  update_role(PassengerId, new_role = "ID") %>% 
+  
+  # impute missing values:
+  step_knnimpute(all_predictors(), neighbors = 3)
+```
+
+
+Dann definiert ein ein Modell:
+
+
+```{r}
+rf_mod2 <- 
+  rand_forest(mtry = tune(), # tune mtry
+              min_n = tune(), # tune minimal n per node
+              trees = 1000) %>%  # set number of trees to 1000
+  set_engine("ranger", 
+             num.threads = cores) %>% 
+  set_mode("classification")
+```
+
+
+... und ein Kreuzvalidierungsschema:
+
+
+```{r}
+train_cv <- vfold_cv(train2, 
+                     v = 10,
+                     repeats = 1, 
+                     strata = "Survived")
+```
+
+
+
+Aus der Hilfe zu `vfold_cv`: 
+
+
+---
+
+**V-Fold Cross-Validation**
+
+*Description*
+
+V-fold cross-validation randomly splits the data into V groups of roughly equal size (called "folds"). A resample of the analysis data consisted of V-1 of the folds while the assessment set contains the final fold. In basic V-fold cross-validation (i.e. no repeats), the number of resamples is equal to V.
+
+*Usage*
+
+`vfold_cv(data, v = 10, repeats = 1, strata = NULL, breaks = 4, ...)`
+
+*Arguments*
+
+`data` A data frame.
+
+`v` The number of partitions of the data set.
+
+`repeats` The number of times to repeat the V-fold partitioning.
+
+`strata` A variable that is used to conduct stratified sampling to create the folds. This could be a single character value or a variable name that corresponds to a variable that exists in the data frame.
+
+`breaks` A single number giving the number of bins desired to stratify a numeric stratification variable.
+
+`...` Not currently used.
+
+*Details*
+
+The strata argument causes the random sampling to be conducted within the stratification variable. This can help ensure that the number of data points in the analysis data is equivalent to the proportions in the original data set. (Strata below 10% of the total are pooled together.) When more than one repeat is requested, the basic V-fold cross-validation is conducted each time. For example, if three repeats are used with v = 10, there are a total of 30 splits which as three groups of 10 that are generated separately.
+
+
+---
+
+
+So entsteht dieser Workflow:
+
+
+```{r}
+titanic_rf_wf2 <-
+  workflow() %>% 
+  add_model(rf_mod2) %>% 
+  add_recipe(titanic_recipe)
+```
+
+
+
+Jetzt: Fit the grid!
+
+
+
+```{r eval = FALSE}
+set.seed(42)
+
+n_candidates <- 2
+
+rf_res2 <- 
+  titanic_rf_wf2 %>% 
+  tune_grid(resamples = train_cv,
+            grid = n_candidates,  # test 25 different tyining parameter values
+            control = control_grid(save_pred = TRUE),
+            metrics = metric_set(roc_auc))
+```
+
+Mit dem Parameter `grid` kann man die Anzahl der zu berechnenden Kandidaten-Modelle festlegen.
+
+Für gute Vorhersagen bieten sich hohe Werte an; das 
+kostet aber Rechenzeit.
+
+
+Aus den Resampling-Kandidaten wählt er nun das beste aus:
+
+```{r}
+rf_best2 <- 
+  rf_res2 %>% 
+  select_best(metric = "roc_auc")
+rf_best2
+```
+
+
+Das beste Kandidatenmodell nutzt er nun, um den ganzen Train-Datensatz zu "fitten":
+
+
+```{r}
+# write best parameter values to the workflow:
+rf_final_wf2 <- 
+  titanic_rf_wf2 %>% 
+  finalize_workflow(rf_best2)
+
+# fit the model:
+rf_final_model2 <- 
+rf_final_wf2 %>% 
+  fit(train2)
+```
+
+
+Zum Abschluss speichert er die Vorhersagen, die er dann bei Kaggle einreichen will:
+
+```{r}
+rf2_preds <- 
+  predict(rf_final_model2, new_data = test)  # compute prediction on test set
+```
+
+Ein letzter Blick auf die Verteilung der vorhergesagten Werte:
+
+```{r}
+count(rf2_preds, .pred_class)
+```
+
+
+Auf Basis dieser Analyse: Wählen Sie am besten passende Aussage!
+
+Answerlist
+----------
+* Es wurden `r n_candidates` Kandidaten von Tuningparameterwerten in die Analyse einbezogen.
+* Es wurde kein Parameter-Tuning durchgeführt.
+* Die Metrik $AUC$ sollte *nicht* für Klassifikationsmodelle verwendet werden.
+* Es wurde eine 10-fache Kreuzvalidierung (ohne Wiederholungen) verwendet.
+* Die Anzahl der Bäume im Random Forest wurde hier *nicht* ins Parametertuning einbezogen; allerdings wäre es sinnvoll (und üblich), dies zu tun.
+* der Parameter `mtry` wurde hier *nicht* ins Parametertuning einbezogen.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- schoice
+

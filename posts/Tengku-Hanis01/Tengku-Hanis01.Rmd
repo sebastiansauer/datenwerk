@@ -1,0 +1,308 @@
+---
+extype: string
+exsolution: NA
+exname: tengku01
+expoints: 1
+categories:
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- trees
+- speed
+- string
+date: '2023-05-17'
+slug: Tengku-Hanis01
+title: Tengku-Hanis01
+
+---
+
+
+
+
+
+
+# Aufgabe
+
+Bearbeiten Sie [diese Fallstudie von Tengku Hanis](https://tengkuhanis.netlify.app/post/hyperparameter-tuning-in-tidymodels/)!
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Die folgende Lösung basiert auf der oben angegebenen Fallstudie.
+
+
+Pakete laden:
+
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(finetune)
+```
+
+Daten importieren:
+
+```{r}
+data(income, package = "kernlab")
+```
+
+
+Datensatz vereinfachen:
+
+
+```{r}
+set.seed(2021)
+income2 <- 
+  income %>% 
+  filter(INCOME == "[75.000-" | INCOME == "[50.000-75.000)") %>% 
+  slice_sample(n = 600) %>% 
+  mutate(INCOME = fct_drop(INCOME), 
+         INCOME = fct_recode(INCOME, 
+                             rich = "[75.000-",
+                             less_rich = "[50.000-75.000)"), 
+         INCOME = factor(INCOME, ordered = F)) %>% 
+  mutate(across(-INCOME, fct_drop))
+```
+
+
+Check:
+
+```{r}
+DataExplorer::plot_missing(income)
+```
+
+
+`{DataExplorer}` sieht nach einem nützlichen Paket aus. Check it out [hier](https://cran.r-project.org/web/packages/DataExplorer/vignettes/dataexplorer-intro.html)!
+
+
+
+Daten aufteilen ("Spending our data budget"):
+
+```{r}
+set.seed(2021)
+dat_index <- initial_split(income2, strata = INCOME)
+dat_train <- training(dat_index)
+dat_test <- testing(dat_index)
+```
+
+Kreuzvalidierung:
+
+```{r}
+set.seed(2021)
+dat_cv <- vfold_cv(dat_train, v = 10, repeats = 1, strata = INCOME)
+```
+
+
+
+
+Rezept:
+
+```{r}
+dat_rec <- 
+  recipe(INCOME ~ ., data = dat_train) %>% 
+  step_impute_mode(all_predictors()) %>% 
+  step_ordinalscore(AGE, EDUCATION, AREA, HOUSEHOLD.SIZE, UNDER18)
+
+```
+
+
+
+Als Modell (im engeren Sinne) nutzen wir ein Random-Forest-Modell:
+
+```{r rf-mod-def}
+rf_mod <- 
+  rand_forest(mtry = tune(),
+              trees = tune(),
+              min_n = tune()) %>% 
+  set_mode("classification") %>% 
+  set_engine("ranger")
+
+
+```
+
+
+Wie man sieht, geben wir 3 Tuningparameter an.
+
+
+Modell und Rezept zum Workflow zusammenfassen:
+
+```{r wf}
+rf_wf <- 
+  workflow() %>% 
+  add_recipe(dat_rec) %>% 
+  add_model(rf_mod)
+```
+
+
+
+
+Tuning Grids definieren:
+
+Wichtig ist, dass wir genau die Parameter angeben im Grid, die wir auch zum Tunen getaggt haben.
+Das kann man händisch erledigen:
+
+```{r grids}
+# Regular grid:
+reg_grid <- grid_regular(mtry(c(1, 13)), 
+                         trees(), 
+                         min_n(), 
+                         levels = 3)
+
+# Random grid mit 100 Kandidaten:
+rand_grid <- grid_random(mtry(c(1, 13)), 
+                         trees(), 
+                         min_n(), 
+                         size = 100)
+```
+
+
+
+
+Wir speichern die Vorhersagen aller Folds im Train-Sample,
+um die Modellgüte im Train- bzw. Validierungssample anschauen zu können:
+
+
+```{r}
+ctrl <- control_grid(save_pred = T,
+                     extract = extract_model)
+measure <- metric_set(roc_auc)
+```
+
+Außerdem haben wir als Gütemaß `roc_auc` definiert.
+
+In der Fallstudie wurde noch `extract = extract_model` bei `control_grid()` ergänzt. 
+Das lassen wir der Einfachheit halber mal weg.
+
+
+Parallelisieren auf mehreren Kernen,
+um Rechenzeit zu sparen:
+
+```{r}
+library(doParallel)
+
+# Create a cluster object and then register: 
+cl <- makePSOCKcluster(4)
+registerDoParallel(cl)
+```
+
+
+Wie viele CPUs hat mein Computer? 
+
+```{r}
+detectCores(logical = FALSE)
+```
+
+
+
+Jetzt geht's ab: Tuning und Fitting!
+
+Hier das "reguläre Gitter" an Tuningkandidaten:
+
+```{r tune-grid}
+set.seed(2021)
+tune_regular <- 
+  rf_wf %>% 
+  tune_grid(
+    resamples = dat_cv, 
+    grid = reg_grid,         
+    control = ctrl, 
+    metrics = measure)
+
+stopCluster(cl)
+```
+
+
+
+Die Modellgüte im Vergleich zwischen den Tuning-Kandidaten kann man sich schön ausgeben lassen:
+
+```{r}
+autoplot(tune_regular)
+```
+
+Geht aber nur, wenn man oben gesagt hat, dass man die Predictions speichern möchte.
+
+Welche Kandidatin war am besten:
+
+```{r}
+show_best(tune_regular)
+```
+
+
+So kann man sich die beste Kandidatin anschauen:
+
+```{r}
+show_best(tune_regular) %>% 
+  arrange(-mean) %>% 
+  slice(1)
+```
+
+
+Aber man kann sich auch von Tidymodels einfach die beste Kandidatin sagen lassen:
+
+```{r}
+best_rf <-
+  select_best(tune_regular, "roc_auc")
+```
+
+
+Auf dieser Basis können wir jetzt den
+Workflow finalisieren, also die Tuningparameter einfüllen:
+
+```{r}
+final_wf <- 
+  rf_wf %>% 
+  finalize_workflow(best_rf)
+final_wf
+```
+
+
+Und mit diesen Werten den ganzen Train-Datensatz fitten:
+
+```{r}
+test_fit <- 
+  final_wf %>%
+  last_fit(dat_index) 
+```
+
+
+Wie gut ist das jetzt?
+
+```{r}
+test_fit %>%
+  collect_metrics()
+```
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- trees
+- speed
+- string
+

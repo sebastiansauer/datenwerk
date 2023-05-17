@@ -1,0 +1,224 @@
+---
+exname: tidymodels2
+extype: string
+exsolution: NA
+categories:
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- error
+- string
+date: '2023-05-17'
+slug: tidymodels2
+title: tidymodels2
+
+---
+
+
+
+
+
+
+
+# Aufgabe
+
+Ein merkwürdiger Fehler bzw. eine merkwürdige Fehlermeldung in Tidymodels -
+das untersuchen wir hier genauer und versuchen das Phänomen zu erklären.
+
+
+
+
+*Aufgabe*
+
+Erläutern Sie die Ursachen des Fehlers!
+Schalten Sie den Fehler an und ab,
+um zu zeigen,
+dass Sie Ihn verstehen.
+
+
+
+
+# Startup
+
+```{r message=FALSE}
+library(tidyverse)
+library(tidymodels)
+```
+
+
+
+# Data import
+
+```{r}
+data("mtcars")
+
+d_train <- mtcars %>% slice_head(n = 20)
+d_test <- mtcars %>% slice(21:n())
+```
+
+
+
+
+# Recipe
+
+```{r}
+preds_chosen <- c("hp", "disp", "am")
+```
+
+
+
+
+```{r}
+rec1 <- 
+  recipe( ~ ., data = d_train) %>% 
+  update_role(all_predictors(), new_role = "id") %>% 
+  update_role(all_of(preds_chosen), new_role = "predictor") %>% 
+  update_role(mpg, new_role = "outcome")
+rec1
+```
+
+
+
+```{r}
+d_train_baked <-
+  rec1 %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+
+glimpse(d_train_baked)
+```
+
+
+
+
+
+# Model 1
+
+```{r}
+model_lm <- linear_reg()
+```
+
+
+# Workflow 1
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_model(model_lm) %>% 
+  add_recipe(rec1)
+```
+
+
+
+
+#  Fit
+
+
+```{r}
+lm_fit1 <-
+  wf1 %>% 
+  fit(d_train)
+```
+
+
+
+
+
+
+```{r error=TRUE}
+preds <-
+  lm_fit1 %>% 
+  predict(d_test)
+
+head(preds)
+```
+
+
+Aus Gründen der Reproduzierbarkeit bietet es sich an, eine `SessionInfo` anzugeben:
+
+
+```{r}
+sessionInfo()
+```
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Definiert man das Rezept so:
+
+```{r}
+rec2 <- recipe(mpg ~ hp + disp + am, data = d_train)
+```
+
+Dann läuft `predict()` brav durch.
+
+
+Auch dieser Code funktioniert:
+
+
+```{r}
+rec3 <- 
+  recipe(mpg ~ ., data = d_train) %>% 
+  update_role(all_predictors(), new_role = "id") %>% 
+  update_role(all_of(preds_chosen), new_role = "predictor") %>% 
+  update_role(mpg, new_role = "outcome")
+
+```
+
+
+
+Das Problem von `rec1` scheint darin zu legen,
+dass die *Rollen* der Variablen nicht richtig gelöscht werden,
+was `predict()` verwirrt:
+
+
+
+
+```{r}
+rec1 <- 
+  recipe(mpg ~ ., data = d_train) %>% 
+  update_role(all_predictors(), new_role = "id") %>% 
+  update_role(all_of(preds_chosen), new_role = "predictor") %>% 
+  update_role(mpg, new_role = "outcome")
+rec1
+```
+
+
+Daher läuft das Rezept `rec3` durch,
+wenn man zunächst alle Prädiktoren in ID-Variablen umwandelt: Damit
+sind alle Rollen wieder sauber.
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- error
+- string
+
