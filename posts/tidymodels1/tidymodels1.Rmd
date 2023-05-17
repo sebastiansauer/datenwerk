@@ -10,6 +10,7 @@ categories:
 - prediction
 - yacsda
 - statlearning
+- dyn
 - schoice
 date: '2023-05-17'
 slug: tidymodels1
@@ -60,24 +61,25 @@ library(tidyverse)  # data wrangling
 library(tidymodels)  # modelling
 library(broom)  # tidy model output
 library(parallel)  # multiple cores -- *nix only, d.h. Mac und Linux
+library(finetune)  # tune race anova
 ```
 
 
 Dann initialisiert er die Anzahl der Prozessoren auf seinem Computer:
 
 ```{r}
-cores <- parallel::detectCores()
+cores <- parallel::detectCores(logical = FALSE)
 cores
 ```
 
 
-Daten importieren und aufbereiten:
+Daten importieren:
 
 
 ```{r}
 data_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre"
-traindata_path_url  <- "/main/data/titanic/train.csv"
-testdata_path_url <- "/main/data/titanic/test.csv"
+traindata_path_url  <- "/main/data/titanic/titanic_train.csv"
+testdata_path_url <- "/main/data/titanic/titanic_test.csv"
 
 traindata_url <- paste0(data_path, traindata_path_url)
 testdata_url <- paste0(data_path, testdata_path_url)
@@ -86,7 +88,12 @@ testdata_url <- paste0(data_path, testdata_path_url)
 # import the data:
 train_raw <- read_csv(traindata_url)
 test <- read_csv(testdata_url)
-  
+```
+
+
+Und aufbereiten:
+
+```{r}
 # drop unused variables:
 train <-
   train_raw %>% 
@@ -104,6 +111,12 @@ train2 <-
 ```
 
 
+Gibt es fehlende Werte in der AV?
+
+```{r}
+sum(is.na(train2$Survived))
+```
+
 
 
 
@@ -119,9 +132,24 @@ titanic_recipe <-
   # Use "ID" etc as ID, not as predictor:
   update_role(PassengerId, new_role = "ID") %>% 
   
-  # impute missing values:
-  step_knnimpute(all_predictors(), neighbors = 3)
+   # impute missing values:
+  step_impute_bag(all_predictors()) %>% 
+  
+  # convert to dummy variables:
+  step_dummy(all_nominal_predictors())
+  
+ 
 ```
+
+
+Check no missings:
+
+```{r}
+titanic_train_baked <- titanic_recipe %>% prep() %>% bake(new_data = NULL)
+
+sum(is.na(titanic_train_baked))
+```
+
 
 
 Dann definiert ein ein Modell:
@@ -203,17 +231,18 @@ Jetzt: Fit the grid!
 
 
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 set.seed(42)
 
 n_candidates <- 2
 
 rf_res2 <- 
   titanic_rf_wf2 %>% 
-  tune_grid(resamples = train_cv,
-            grid = n_candidates,  # test 25 different tyining parameter values
-            control = control_grid(save_pred = TRUE),
-            metrics = metric_set(roc_auc))
+  tune_race_anova(
+    resamples = train_cv,
+    grid = n_candidates,  # test 25 different tuning parameter values
+    #control = control_grid(save_pred = TRUE),
+    metrics = metric_set(roc_auc))
 ```
 
 Mit dem Parameter `grid` kann man die Anzahl der zu berechnenden Kandidaten-Modelle festlegen.
@@ -313,5 +342,6 @@ Categories:
 - prediction
 - yacsda
 - statlearning
+- dyn
 - schoice
 

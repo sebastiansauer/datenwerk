@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-05-03">
+<meta name="dcterms.date" content="2023-05-17">
 
 <title>datenwerk - bike04</title>
 <style>
@@ -146,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="quarto-title column-body">
       <h1 class="title">bike04</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">stat-learning</div>
+                <div class="quarto-category">statlearning</div>
                 <div class="quarto-category">tidymodels</div>
                 <div class="quarto-category">num</div>
               </div>
@@ -160,7 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">May 3, 2023</p>
+        <p class="date">May 17, 2023</p>
       </div>
     </div>
     
@@ -185,7 +185,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Sie können die Daten von der <a href="https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset#">Webseite der UCI</a> herunterladen.</p>
 <p>Wir beziehen uns auf den Datensatz <code>day</code>.</p>
 <p>Berechnen Sie einen Entscheidungsbaum mit der Anzahl der aktuell vermieteten Räder als AV und der aktuellen Temperatur als UV!</p>
-<p>Tunen Sie alle Paramter; lassen Sie sich 100 Tuningparameter vorschlagen.</p>
+<p>Tunen Sie alle Paramter; lassen Sie sich 20 Tuningparameter vorschlagen.</p>
 <p>Geben Sie den MSE an!</p>
 <p><a href="https://datenwerk.netlify.app/Hinweise.html">Hinweise</a></p>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
@@ -252,50 +252,59 @@ $ cnt        &lt;int&gt; 985, 801, 1349, 1562, 1600, 1606, 1510, 959, 822, 1321,
 </section>
 <section id="tuning-grid" class="level2">
 <h2 class="anchored" data-anchor-id="tuning-grid">Tuning grid</h2>
-<div class="cell" data-hash="bike04_cache/html/unnamed-chunk-7_a892202d18f5e5635c78e8ba0b5bff1c">
+<div class="cell" data-hash="bike04_cache/html/unnamed-chunk-7_8689ae59731921fafc2aa3d037884ff3">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_latin_hypercube</span>(<span class="fu">cost_complexity</span>(), </span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>               <span class="fu">tree_depth</span>(),</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>               <span class="fu">min_n</span>(),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">100</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">20</span>)</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>grid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 100 × 3
+<pre><code># A tibble: 20 × 3
    cost_complexity tree_depth min_n
              &lt;dbl&gt;      &lt;int&gt; &lt;int&gt;
- 1        1.37e- 8          6    14
- 2        5.37e- 7         14    23
- 3        3.14e- 9          6     9
- 4        1.34e- 5          9     7
- 5        4.68e-10         12    19
- 6        1.45e- 6         15    31
- 7        2.05e- 9          8    13
- 8        1.09e- 7         13    15
- 9        6.23e- 6         15    39
-10        2.19e-10         10    30
-# ℹ 90 more rows</code></pre>
+ 1        1.09e- 7          8    13
+ 2        9.98e- 9         14    32
+ 3        1.72e- 5          8    38
+ 4        6.73e- 5         11     9
+ 5        5.01e- 6         13    20
+ 6        1.60e- 2          5    18
+ 7        4.08e- 9         12     4
+ 8        3.49e- 3          2     8
+ 9        3.72e-10          9    27
+10        3.14e- 7         11    21
+11        3.92e- 2          3    30
+12        8.08e- 5          6    26
+13        1.04e- 6         14    33
+14        1.17e-10          1    36
+15        9.35e-10          4    16
+16        3.05e- 4          7    15
+17        1.80e- 6          6    23
+18        8.38e- 4          3     5
+19        8.01e- 3         13    11
+20        3.46e- 8         10    39</code></pre>
 </div>
 </div>
 <p>Alternativ:</p>
-<div class="cell" data-hash="bike04_cache/html/unnamed-chunk-8_e9156d0b2752b75f874a2a646ed7ccd7">
+<div class="cell" data-hash="bike04_cache/html/unnamed-chunk-8_58dac3e7ad454a5ad3e5439de9eda797">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_latin_hypercube</span>(<span class="fu">extract_parameter_set_dials</span>(m1), <span class="at">size =</span> <span class="dv">100</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_latin_hypercube</span>(<span class="fu">extract_parameter_set_dials</span>(m1), <span class="at">size =</span> <span class="dv">50</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>grid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 100 × 3
+<pre><code># A tibble: 50 × 3
    cost_complexity tree_depth min_n
              &lt;dbl&gt;      &lt;int&gt; &lt;int&gt;
- 1        4.64e- 5         14     5
- 2        4.41e- 2         11    31
- 3        2.99e- 7          4    16
- 4        3.14e- 6         10    29
- 5        2.99e-10         14    28
- 6        3.61e- 3         10    34
- 7        9.97e- 8          3    10
- 8        1.43e- 2          2     6
- 9        2.12e- 2         10     5
-10        9.77e- 4         13    26
-# ℹ 90 more rows</code></pre>
+ 1   0.000390               6    21
+ 2   0.0000000863           8    15
+ 3   0.000576              12    37
+ 4   0.0000000469           2    31
+ 5   0.0000000283           5    19
+ 6   0.00000000207          4     5
+ 7   0.000000614            2    23
+ 8   0.00000000952         14    13
+ 9   0.00000413            11     7
+10   0.0000472              7    12
+# ℹ 40 more rows</code></pre>
 </div>
 </div>
 </section>
@@ -402,7 +411,7 @@ $ cnt        &lt;int&gt; 985, 801, 1349, 1562, 1600, 1606, 1510, 959, 822, 1321,
 <hr>
 <p>Categories:</p>
 <ul>
-<li>stat-learning</li>
+<li>statlearning</li>
 <li>tidymodels</li>
 <li>num</li>
 </ul>

@@ -1,7 +1,7 @@
 ---
-exname: tidymodels-ames-04
+exname: tidymodels-ames-05
 extype: num
-exsolution: r fmt(sol)
+exsolution: r exams::fmt(sol)
 exshuffle: no
 extol: 1
 expoints: 1
@@ -89,6 +89,18 @@ data(ames)
 
 
 
+
+AV loggen:
+
+```{r}
+ames <-
+  ames %>% 
+  mutate(Sale_Price = log(Sale_Price, base = 10))
+```
+
+
+
+
 Datensatz aufteilen:
 
 
@@ -105,7 +117,7 @@ Workflow:
 ```{r}
 ames_rec <-
   recipe(Sale_Price ~ ., data = ames_train) %>%
-  step_log(Sale_Price, base = 10) %>%
+  # step_log(Sale_Price, base = 10) %>%   No!
   step_other(Neighborhood, threshold = .1)  %>%
   step_dummy(all_nominal()) %>%
   step_zv(all_predictors()) 
@@ -144,8 +156,8 @@ ames_grid_search <-
     knn_model2,
     ames_rec,
     resamples = ames_folds,
-    control_options = control_grid(save_workflow = TRUE),
-    grid = 2,  # 2 Tuningparameterwerte
+    control = control_grid(save_workflow = TRUE),
+    grid = 2,  # 2 Tuningparameterwerte, hier nur zum Zeit sparen
   )
 toc()
 ames_grid_search
@@ -163,30 +175,35 @@ autoplot(ames_grid_search)
 Fitte besten Modellkandidaten (Paket `tune` >= V1.1.0 benötigt):
 
 ```{r}
-out <- fit_best(ames_grid_search)
+fit1_final <- fit_best(ames_grid_search)
 ```
 
+
+Vorhersagen:
 
 
 ```{r}
-fit1_last %>% collect_predictions() %>% 
-  head()
+preds <-
+  predict(fit1_final, ames_test)
 ```
-
 
 Modellgüte im Test-Sample:
 
 ```{r}
-fit1_last %>% collect_metrics()
-```
+fit1_metrics <-
+  preds %>% 
+  bind_cols(ames_test %>% select(Sale_Price)) %>% 
+  rsq(truth = Sale_Price, estimate = .pred)
 
+fit1_metrics
+```
 
 
 R-Quadrat:
 
 
 ```{r}
-sol <- 0.517
+sol <- fit1_metrics %>% pull(.estimate)
 sol
 ```
 
