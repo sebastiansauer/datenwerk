@@ -1,0 +1,121 @@
+---
+exname: targets-multiple-data-files
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- projectmgt
+- targets
+- repro
+- string
+date: '2023-05-23'
+slug: targets-multiple-data-files
+title: targets-multiple-data-files
+
+---
+
+
+
+
+# Aufgabe
+
+Schreiben Sie eine `targets` Pipeline, die einen Ordner mit Datendateien beobachtet und sich aktualisiert, wenn neue Daten dazukommt. 
+Die Pipeline soll die Datendateien importieren und zu einer Tabelle zusammenfügen und schließlich die Zeilen zählen.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+Die folgende Lösung ist stark inspiriert von [diesem SO-Post](https://stackoverflow.com/questions/69652540/how-should-i-use-targets-when-i-have-multiple-data-files).
+
+
+Wir scheiben eine `_targets.R` Datei mit folgendem Inhalt.
+
+
+Zuerst das Setup:
+
+
+```{r}
+library(targets)
+library(tidyverse)
+library(tarchetypes)  # für tar_files()
+```
+
+
+Dann definieren wir Konstanten; hier den Pfad:
+
+```{r}
+path <- list()
+path$data <- "data/"
+```
+
+Aus Gründen der Ordnungsfreude haben wir eine Liste erstellt, in der dann alle möglichen Pfade abgelegt werden können.
+
+Schließlich definieren wir die Pipeline. Hier spielt die Musik:
+
+```{r}
+list(
+  tar_files(data_paths, path$data %>% list.files(full.names = TRUE, pattern = "csv")),  # Liste der Daten-Dateien
+  tar_target(data_proc, data_paths %>% read_csv(),  # Einlesen
+             pattern = map(data_paths)),  # Über alle Elemente von data_paths iterieren, also über alle Datendateien
+  tar_target(n_row, nrow(data_proc))  # Zeilen zählen
+)
+```
+
+Mit `pattern = map(data_paths)` iterieren wir nicht nur über alle Elemente von `data_path`,
+sondern fügen die Elemente auch zu einer Tabelle zusammen.
+
+
+Hier ist die ganze Syntax noch einmal:
+
+
+```{r}
+# _targets.R file
+
+library(targets)
+library(tidyverse)
+library(tarchetypes)
+
+
+path <- list()
+path$data <- "data/"
+
+
+list(
+  tar_files(data_paths, path$data %>% list.files(full.names = TRUE, pattern = "csv")),
+  tar_target(data_proc, data_paths %>% read_csv(),
+             pattern = map(data_paths)),
+  tar_target(n_row, nrow(data_proc))
+)
+
+
+
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- projectmgt
+- targets
+- repro
+- string
+
