@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-05-22">
+<meta name="dcterms.date" content="2023-05-23">
 
 <title>datenwerk - count-lexicon</title>
 <style>
@@ -160,7 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">May 22, 2023</p>
+        <p class="date">May 23, 2023</p>
       </div>
     </div>
     
@@ -191,7 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Hinweise:</p>
 <ul>
 <li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
-<li>Nutzen Sie die Funktion <code>count_lexicon</code> aus <code>{{prada}}</code>.</li>
+<li>Nutzen Sie die Funktion <code>count_lexicon</code> aus <code>{{prada}}</code>. Das Paket können Sie <a href="https://github.com/sebastiansauer/prada">hier</a> herunterladen/installieren.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
@@ -203,11 +203,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_int</span>(my_string,  </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">count_lexicon</span>(my_string, my_lexicon))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">count_lexicon</span>(.x, my_lexicon))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2 2</code></pre>
+<pre><code>[1] 1 1</code></pre>
 </div>
 </div>
+<p>So können Sie sich den Quellcode einer Funktion, z.B. <code>count_lexicon()</code> anschauen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>count_lexicon</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>function(txt, lexicon){
+  # convert strings to lower letters:
+  txt &lt;- tolower(txt)
+  lexicon &lt;- tolower(lexicon)
+
+  # build regex query:
+  lexicon_regex &lt;- paste0("^", lexicon, "$", collapse = "|")
+
+  # split string into words:
+  string_in_words &lt;- unlist(stringr::str_split(txt, pattern = stringr::boundary("word")))
+
+  # search:
+  pattern_detected_in_string_count &lt;- sum(stringr::str_detect(string_in_words, pattern = lexicon_regex))
+
+  # return:
+  return(pattern_detected_in_string_count)
+}
+&lt;bytecode: 0x7fc57e3e9cb0&gt;
+&lt;environment: namespace:prada&gt;</code></pre>
+</div>
+</div>
+<p>In dem Paket gibt es noch zwei Varianten für diese Funktion, die auf einem Join aufbauen.</p>
 <hr>
 <p>Categories:</p>
 <ul>

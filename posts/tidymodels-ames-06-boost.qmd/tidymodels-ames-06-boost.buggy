@@ -1,0 +1,313 @@
+---
+exname: tidymodels-ames-06-boost
+extype: num
+exsolution: r exams::fmt(sol)
+exshuffle: no
+draft: true
+extol: 1
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- speed
+- trees
+- num
+date: '2023-05-25'
+slug: tidymodels-ames-06-boost.qmd
+title: tidymodels-ames-06-boost.qmd
+
+---
+
+
+
+<!-- Don't touch this exercise unless you really need to, -->
+<!-- because rcomputing takes ages.-->
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+
+```
+
+
+
+
+
+
+# Aufgabe
+
+Berechnen Sie ein XGB-Modell mit tidymodels und zwar anhand des `ames` Datensatzes.
+
+Modellgleichung: `Sale_Price ~ ., data = ames_train`.
+
+
+
+Gesucht ist R-Quadrat als Maß für die Modellgüte im *TEST-Sample*.
+
+
+
+*Hinweise*:
+
+- Fixieren Sie die Zufallszahlen auf den Startwert 42.
+- Denken Sie daran, die nominal skalierten Variablen in Dummy-Variablen umzurechnen.
+- Denken Sie daran, dass kNN gleich skalierte Prädiktoren benötigt.
+- Nutzen Sie eine v=5,r=1 CV.
+- Nutzen Sie eine ANOVA zur Grid Search
+- Verzichten Sie auf weitere Schritte der Vorverarbeitung.
+- Boosting kann rechenintensiv sein.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Setup:
+
+```{r}
+library(tidymodels)
+library(tictoc)  # Rechenzeit messen, optional
+library(finetune)  # tune race anova
+data(ames)
+```
+
+
+
+
+
+
+Datensatz aufteilen:
+
+
+```{r}
+set.seed(42)
+data_split <- initial_split(ames, strata = "Sale_Price")
+ames_train <- training(data_split)
+ames_test <- testing(data_split)
+```
+
+
+Workflow:
+
+```{r}
+ames_rec <-
+  recipe(Sale_Price ~ ., data = ames_train) %>%
+  # step_log(Sale_Price, base = 10) %>%   No!
+  step_other(Neighborhood, threshold = .1)  %>%
+  step_dummy(all_nominal()) %>%
+  step_zv(all_predictors()) %>% 
+  step_impute_bag(all_predictors())
+
+mod_boost <-
+  boost_tree(
+    mode = "regression",
+    mtry = tune(),  # Wir tunen "mtry"
+    trees = tune()  
+  ) 
+
+ames_wflow2 <-
+  workflow() %>%
+  add_recipe(ames_rec) %>%
+  add_model(mod_boost)
+
+ames_wflow2
+```
+
+
+CV:
+
+```{r}
+set.seed(42)
+ames_folds <- vfold_cv(ames_train, strata = "Sale_Price", v = 5)
+ames_folds
+```
+
+
+
+Tunegrid:
+
+
+```{r}
+my_grid <-
+  grid_latin_hypercube(
+    mtry(range = c(1,9)),
+    trees(range = c(1e1, 1e3)),
+    size = 5
+  )
+```
+
+
+Tunen:
+
+Wir nutzen, mit dem Paket `doParallel` mehrere Kerne, um Rechenzeit zu sparen.
+Bei einem Anova-Grid-Tuning muss man allerdings dann allen Kernen die benötigten Pakete für die Analyse (d.h. Tidymodels) mitteilen, via `control_race`:
+
+
+```{r ames-grid-search}
+ames_grid_search_file <- "/Users/sebastiansaueruser/github-repos/datenwerk/posts/tidymodels-ames-06-boost.qmd/ames_grid_search.rds"
+if (file.exists(ames_grid_search_file)) {
+  readRDS(ames_grid_search_file)
+} else {
+  doParallel::registerDoParallel()  # mehrere Kerne parallel nutzen, um Rechenzeit zu sparen
+  tic()
+  ames_grid_search <-
+    tune_race_anova(
+      ames_wflow2,
+      resamples = ames_folds,
+      control = control_race(save_workflow = FALSE,
+                             save_pred = TRUE,
+                             pkgs = c("tidymodels"),
+                             verbose = TRUE),
+      grid = my_grid
+    )
+  toc()
+}
+ames_grid_search
+```
+
+
+Da das Fitten recht lange dauert (bei mir `4350.548 sec elapsed`), bietet es sich an, 
+dass Objekt `ames_grid_search` zu speichern.
+
+```{r}
+#saveRDS(ames_grid_search, file = "ames_grid_search.rds")
+```
+
+
+Aber Vorsicht: Lädt man das Objekt von der Festplatte, muss man sicher sein, dass es noch aktuell ist.
+Besser sind Verfahren, die diese Prüfung automatisch durchführen.
+
+Gibt man nicht an, wie das Grid definiert sein soll,
+wird im Standard ein `grid_latin_hypercube` gewählt.
+Für jeden Tuningparameter gibt es eine Funktion, die die Extremwerte der Tuningparameter bestimmt.
+Die Abstände zwischen den Tuningparameter werden dann im Abhängigkeit der Art des Grids gewählt.
+Meist geschieht das so, dass die Abstände zwischen den Parameterwerten möglichst gleichmäßig ist.
+
+
+Modellgüte im Train-Samples über die Tuningparameter hinweg:
+
+
+```{r}
+autoplot(ames_grid_search)
+```
+
+Hat man die Vorhersagen gespeichert (`save_predictions = TRUE`) gespeichert, 
+kann man sich das Wirken der Werte der Tuningparameter genauer anschauen.
+
+
+```{r plot-collect-preds}
+#| eval: false
+ames_grid_search %>% 
+  collect_predictions() %>% 
+  group_by(id)  %>%  # group by fold
+  ggplot(aes(x = .pred, y = Sale_Price, color = id)) +
+  facet_grid(mtry ~ trees) +
+  geom_point(alpha = .5)
+```
+
+Tja, lässt sich nicht so viel erkennen. Die Anzahl der Tuningparameterwerte war vielleicht einfach zu klein.
+
+Schauen wir uns noch das Ergebnis der ANOVA-Grid-Search an:
+
+
+```{r}
+plot_race(ames_grid_search)
+```
+
+Wie man sieht wurden einige Hyperparameter-Werte frühzeitig als nicht gewinnbringend eingespart.
+
+
+Welcher Modellkandidat schnitt am besten ab?
+
+```{r}
+show_best(ames_grid_search)
+```
+
+Mit diesen Werten finalisieren wir den Workflow (`ames_wflow2`):
+
+```{r}
+wf_final <- ames_wflow2 %>% finalize_workflow(select_best(ames_grid_search))
+```
+
+Und fitten das ganze Train-Sample:
+
+```{r fit-final}
+tic()
+fit_final <-
+  wf_final %>% 
+  last_fit(data_split)
+toc()
+```
+
+
+```{r}
+saveRDS(fit_final, "fit_final.rds")
+```
+
+
+Modellgüte im Test-Sample:
+
+```{r}
+collect_metrics(fit_final)
+```
+
+*Antwort*: Die Lösung lautet:
+
+```{r}
+sol <- collect_metrics(fit_final) %>% 
+  pull(.estimate) %>% 
+  pluck(2)
+
+sol  
+```
+
+*Antwort*: Die Lösung lautet `r round(sol, 2)`
+
+```{r}
+#| code-fold: true
+sessioninfo::session_info()
+```
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- speed
+- trees
+- num
+
