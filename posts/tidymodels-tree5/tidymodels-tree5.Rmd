@@ -1,5 +1,5 @@
 ---
-exname: tidymodels-tree4
+exname: tidymodels-tree5
 expoints: 1
 extype: string
 exsolution: NA
@@ -10,8 +10,8 @@ categories:
 - speed
 - string
 date: '2023-05-31'
-slug: tidymodels-tree4
-title: tidymodels-tree4
+slug: tidymodels-tree5
+title: tidymodels-tree5
 
 ---
 
@@ -26,7 +26,7 @@ title: tidymodels-tree4
 
 Berechnen Sie folgendes einfache Modell:
 
-1. Entscheidungsbaum
+1. Random Forest mit `trees=50`
 
 
 Modellformel: `body_mass_g ~ .` (Datensatz `palmerpenguins::penguins`)
@@ -75,12 +75,12 @@ set.seed(42)
 
 
 
-Entfernen wir Fälle ohne y-Wert:
+Entfernen wir Fälle mit fehlenden Werten:
 
 ```{r}
 d <-
   penguins %>% 
-  drop_na(body_mass_g)
+  drop_na()
 ```
 
 
@@ -99,11 +99,10 @@ d_test <- testing(d_split)
 
 
 ```{r}
-mod_tree <-
-  decision_tree(mode = "regression",
-                cost_complexity = tune(),
-                tree_depth = tune(),
-                min_n = tune())
+mod_rf <-
+  rand_forest(mode = "regression",
+              mtry = tune())
+mod_rf
 ```
 
 
@@ -113,9 +112,24 @@ mod_tree <-
 
 ```{r}
 rec_plain <- 
-  recipe(body_mass_g ~ ., data = d_train)
+  recipe(body_mass_g ~ ., data = d_train) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_impute_knn(all_predictors())
 ```
 
+
+```{r}
+d_train_baked <-
+  bake(prep(rec_plain, d_train), new_data = NULL)
+
+head(d_train_baked)
+```
+
+Keine fehlenden Werte mehr?
+
+```{r}
+sum(is.na(d_train_baked))
+```
 
 
 ## Resampling
@@ -129,42 +143,26 @@ rsmpl <- vfold_cv(d_train)
 ## Workflows
 
 ```{r}
-wf_tree <-
+wf_rf <-
   workflow() %>%  
   add_recipe(rec_plain) %>% 
-  add_model(mod_tree)
+  add_model(mod_rf)
+
+wf_rf
 ```
 
 
 
-
-
-## Tuning-Grid
-
-Tuninggrid:
-
-```{r}
-tune_grid <- grid_regular(extract_parameter_set_dials(mod_tree), levels = 5)
-```
-
-
-*Hinweis*: Andere Arten von Tuning-Grids sind sinnvoller,
-hier ist nur zum Vergleich mit anderen Aufgaben diese Form des Tuning-Grids gewählt.
-
-Die Zeilen im Tuninggrid zeigen uns, für wie viele Modellparameter ein Modell berechnet wird.
-Natürlich üblicherweise jedes Modell mit Resampling.
-Da kommt in Summe ein mitunter sehr große Menge an Modellberechnungen zusammen.
 
 
 ## Ohne Speed-up
 
-```{r}
+```{r tunegrid}
 tic()
-fit_tree <-
-  tune_grid(object = wf_tree,
-            grid = tune_grid,
-            metrics = metric_set(rmse),
-            resamples = rsmpl)
+fit_rf <-
+  tune_grid(
+    object = wf_rf,
+    resamples = rsmpl)
 toc()
 ```
 
@@ -178,14 +176,10 @@ Die angegebene Rechenzeit bezieht sich auf einen 4-Kerne-MacBook Pro (2020).
 
 ```{r speed1}
 tic()
-fit_tree2 <-
-  tune_race_anova(object = wf_tree,
-            grid = tune_grid,
-            metrics = metric_set(rmse),
-            control = control_race(verbose = FALSE,
-                                   pkgs = c("tidymodels"),
-                                   save_pred = TRUE),
-            resamples = rsmpl)
+fit_rf2 <-
+  tune_race_anova(
+    object = wf_rf,
+    resamples = rsmpl)
 toc()
 ```
 
@@ -201,8 +195,7 @@ doParallel::registerDoParallel()
 tic()
 fit_tree2 <-
   tune_race_anova(
-    object = wf_tree,
-    grid = tune_grid,
+    object = wf_rf,
     metrics = metric_set(rmse),
     control = control_race(verbose = FALSE,
                            pkgs = c("tidymodels"),
@@ -224,8 +217,7 @@ doParallel::registerDoParallel()
 
 tic()
 fit_tree2 <-
-  tune_grid(object = wf_tree,
-            grid = tune_grid,
+  tune_grid(object = wf_rf,
             metrics = metric_set(rmse),
             control = control_grid(verbose = FALSE,
                                    save_pred = TRUE),
@@ -237,10 +229,7 @@ toc()
 ## Fazit
 
 Mit Speed-up ist schneller also ohne.
-Hier haben wir einen Entscheidungsbaum berechnet, der ist nicht so sehr parallelisierbar. 
-Bei einem "Wald-Modell", wie Random Forests, sollte der Vorteil der Parallisierung viel deutlich sein.
-
-
+Ein Random-Forest ist ein Modelltyp, der von Parallelisierung gut profitiert.
 
 
 

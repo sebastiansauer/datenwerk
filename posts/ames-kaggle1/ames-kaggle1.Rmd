@@ -1,0 +1,112 @@
+---
+exname: ames-kaggle1
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- regression
+- ames
+- kaggle
+- string
+date: '2023-06-01'
+slug: ames-kaggle1
+title: ames-kaggle1
+
+---
+
+
+
+
+# Aufgabe
+
+Berechnen Sie ein einfaches lineare Modell für die [Ames House Price Kaggle Competition](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques/data).
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+## Pakete starten
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+```
+
+
+## Daten importieren
+
+```{r}
+d_train_path_online <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/ames-kaggle/train.csv"
+d_test_path_online <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/ames-kaggle/test.csv"
+d_train <- read_csv(d_train_path_online)
+d_test <- read_csv(d_test_path_online)
+```
+
+
+## Model definieren
+
+
+```{r}
+m1 <- lm(SalePrice ~ OverallQual, data = d_train)
+```
+
+
+## Neue Daten vorhersagen
+
+
+```{r}
+m1_pred <- predict(m1, newdata = d_test)
+```
+
+
+
+## Daten einreichen
+
+
+```{r}
+d_subm <-
+  d_test %>% 
+  select(Id) %>% 
+  mutate(SalePrice = m1_pred)
+
+head(d_subm)
+```
+
+
+```{r eval = FALSE}
+write_csv(d_subm, file = "einreichen-kaggle-modell1-yeah.csv")
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- ames
+- kaggle
+- string
+
