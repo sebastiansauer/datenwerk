@@ -1,0 +1,160 @@
+---
+exname: step-dummy
+extype: schoice
+exsolution: 8
+exshuffle: no
+categories:
+- tidymodels
+- statlearning
+- schoice
+date: '2023-06-04'
+slug: step-dummy
+title: step-dummy
+
+---
+
+
+
+
+
+
+
+# Aufgabe
+
+Viele Lernalgorithmen können nicht mit nominalen Variablen umgehen;
+daher muss man sie dummifizieren, um sie einer Verarbeitung zugänglich zu machen.
+In Tidymodels gibt es dafür `step_dummy()`.
+
+Aber bezieht `step_dummy()` nur Variablen vom Typ `factor` ein oder auch Variablen vom Typ `character`? Oder vielleicht weder noch? 
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+Answerlist
+----------
+* Nur Variablen vom Typ `factor`
+* Nur Variablen vom Typ `character`
+* Sowohl Variablen vom Typ `factor` als auch vom Typ `character`
+* Weder Variablen vom Typ `factor` noch vom Typ `character`
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Setup
+
+```{r message=FALSE}
+library(tidymodels)
+```
+
+
+
+
+Daten:
+
+```{r}
+d <-
+  data.frame(
+    y = c(1,2,3,4,5),
+    x = c("A", "B", "B", "C", "A")
+  )
+
+str(d)
+```
+
+## Rezept 1
+
+Rezept 1, mit Variable vom Typ `character`:
+
+
+
+```{r}
+rec <-
+  recipe(y ~ x, data = d) %>% 
+  step_dummy(x)
+
+d_baked <- rec %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+
+str(d_baked)
+```
+
+
+## Rezept 2
+
+
+Rezept 2, mit Variable vom Typ `factor`:
+
+
+
+Daten:
+
+```{r}
+d2 <-
+  data.frame(
+    y = c(1,2,3,4,5),
+    x = factor(c("A", "B", "B", "C", "A"))
+  )
+
+str(d2)
+```
+
+
+
+
+
+
+
+
+```{r}
+rec2 <-
+  recipe(y ~ x, data = d2) %>% 
+  step_dummy(x)
+
+d_baked2 <- rec2 %>% 
+  prep() %>% 
+  bake(new_data = NULL)
+
+str(d_baked2)
+```
+
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Falsch
+* Wahr. `step_dummy` transformiert beide Arten von Variablen
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- schoice
+

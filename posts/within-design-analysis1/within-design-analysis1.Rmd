@@ -1,0 +1,219 @@
+---
+exname: within-design-analysis1
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- regression
+- within-design
+- researchdesign
+- fopro
+- string
+date: '2023-06-04'
+slug: within-design-analysis1
+title: within-design-analysis1
+
+---
+
+
+
+
+# Aufgabe
+
+Analysieren Sie die Veränderung in einem längsschnittlichen Experiment (Within-Design).
+
+Im Zuge des Experiments durchliefen alle $n$ Versuchspersonen 3 Bedingungen.
+Entsprechend liegen für jede Versuchsperson 3 Messungen vor (y1, y2, y3).
+Anders gesagt gab es drei Messzeitpunkte (t1, t2, t3),
+zu denen die abhängige Variable (y) jeweils gemessen wurde
+Die Messung bestand bei jeder Bedingung aus 10 Items,
+wobei die Wahrscheinlichkeit, ein Item zu lösen zwischen den Bedingungen unterschiedlich war.
+
+Prüfen Sie die folgende Hypothesen:
+
+1. $y_{t2} - y_{t1} > 0$
+2. $y_{t3} - y_{t2} > 0$
+
+
+Gehen Sie von folgenden (hier einfach simulierten) Daten aus:
+
+
+```{r}
+n <- 40  # Anzahl Versuchspersonen
+n_items <- 10  # Anzahl Items pro Messung von y
+prob <- c(.5, .7, .9)  # Lösungswahrscheinlichkeit pro Messzeitpunkt (t1, t2, t3)
+```
+
+
+```{r}
+library(tidyverse)
+set.seed(42)
+d <-
+  tibble(id = 1:n,
+         y1 = rbinom(n = n, size = n_items, prob = prob[1]),
+         y2 = rbinom(n = n, size = n_items, prob = prob[2]),
+         y3 = rbinom(n = n, size = n_items, prob = prob[3])
+         )
+head(d)
+```
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Pakete starten
+
+```{r message=FALSE}
+library(tidyverse)
+library(rstanarm)
+library(easystats)
+```
+
+## Daten aufbereiten
+
+Um die Daten (besser) analysieren zu können, formen wir sie ins "lange Format" um.
+
+```{r}
+d_long <-
+  d %>% 
+  pivot_longer(cols = c(y1, y2, y3), names_to = "time", values_to = "y")
+```
+
+
+## Daten zusammenfassen
+
+```{r}
+d_long %>% 
+  group_by(time) %>% 
+  summarise(y_mean = mean(y),
+            y_sd = sd(y)) %>% 
+  mutate(delta = y_mean - lag(y_mean))
+```
+
+## Daten visualisieren
+
+```{r}
+d_long %>% 
+  ggplot(aes(x = time, y = y)) +
+  geom_jitter(width = .1) +
+  stat_summary(fun.y = mean, geom = "point", color = "red", size = 3) +
+  stat_summary(fun.y = mean, geom = "line", color = "red", linewidth = 1, group = 1) 
+```
+
+Man sieht, dass der Wert von Y steigt von t1 zu t2 und genauso von t2 zu t3.
+
+## Daten transformieren
+
+Man kann auch die Veränderung (das "delta") zwischen den Messzeitpunkten berechnen,
+um dann zu prüfen, ob dieses delta dann positiv ist.
+
+```{r}
+d2 <-
+  d %>% 
+  mutate(t2mt1 = y2 - y1,  # t2 *m*inus t1
+         t3mt2 = y3 - y2,  # t3 minus t2
+         t3mt1 = y3 - y1)  # t3 mind t1, die Gesamtveränderung von "Anfang" zu "Ende"
+```
+
+
+
+```{r}
+d2_long <- 
+  d2 %>% 
+  pivot_longer(cols = c(t2mt1, t3mt2, t3mt1), names_to = "time", values_to = "delta")
+```
+
+## Daten zusammenfassen
+
+
+```{r}
+d2_long %>% 
+  group_by(time) %>% 
+  summarise(delta_mean = mean(delta),
+            delta_sd = sd(delta)) %>% 
+  mutate(delta2 = delta_mean - lag(delta_mean))
+```
+
+Wie man sieht, ist das Delta t2mt1 positiv, im Mittelwert steigt also y. 
+Gleiches gilt für t3mt2 und t3mt1.
+
+
+```{r}
+d2_long %>% 
+  filter(time != "t3mt1") %>% 
+  ggplot(aes(x = time, y = delta)) +
+  geom_jitter(width = .1) +
+  stat_summary(fun.y = mean, geom = "point", color = "red", size = 3) +
+  stat_summary(fun.y = mean, geom = "line", color = "red", linewidth = 1, group = 1) 
+```
+
+Die Veränderungen von t1 zu t2 (t2mt1) sind ähnlich zu denen von t2 zu t3 (t3mt2).
+
+
+## Modell t2mt1
+
+Das entsprechende Regressionsmodell für t2mt2 liefert einfach den Mittelwert des Deltas.
+
+```{r}
+m1_t2mt1 <- lm(t2mt1 ~ 1, data = d2)
+coef(m1_t2mt1)
+```
+
+
+Ein Bayes-Modell hat den Vorteil, dass es uns einfach zu interpretierende Inferenzstatistik gibt.
+
+```{r}
+m1_bayes <- stan_glm(t2mt1 ~ 1, data = d2, refresh = 0)
+coef(m1_bayes)
+```
+
+```{r}
+parameters(m1_bayes)
+```
+Mit einer Wahrscheinlichkeit von 100% ist das Delta positiv (laut `m1_bayes`).
+Das kann man aus dem Koeffizienten `pd` ablesen (probability of direction).
+
+
+## m_t3mt2
+
+
+
+
+```{r}
+m_t3mt2_bayes <- stan_glm(t3mt2 ~ 1, data = d2, refresh = 0)
+parameters(m_t3mt2_bayes)
+```
+
+Auch hier ist das Modell sehr meinungsstark: Mit einer Wahrscheinlichkeit von 100% ist der Koeffizient (Veränderung von t2 zu t3) positiv.
+
+
+
+---
+
+Categories: 
+
+- regression
+- within-design
+- researchdesign
+- fopro
+- string
+
