@@ -1,0 +1,129 @@
+---
+exname: ausreisser1
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- eda
+- datawrangling
+- tidyverse
+- ausreisser
+- string
+date: '2023-06-27'
+slug: ausreisser1
+title: ausreisser1
+
+---
+
+
+
+
+# Aufgabe
+
+Entfernen Sie alle Ausreißer im Datensatz `mariokart`!
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Definieren Sie "Ausreißer" als Werte, die mehr als 3SD vom Mittelwert entfernt sind.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Setup
+
+```{r echo = FALSE}
+library(tidyverse)
+library(DataExplorer)  # Data vis.
+library(easystats)  # Stats made easy
+data(mariokart, package = "openintro")
+```
+
+## Überblick 
+
+Wir verschaffen uns einen Überblick über die Verteilungen:
+
+```{r}
+plot_histogram(mariokart)
+```
+
+
+
+Wie man sieht gibt es einige Ausreißer, z.B. bei `ship_pr` und `total_pr`.
+
+
+## Daten aufbereiten mit z-Transformation
+
+
+```{r}
+mariokart2 <-
+  mariokart %>% 
+  select(-id) %>% 
+  mutate(across(
+    .cols = where(is.numeric),
+    .fns = ~ as.numeric(standardize(.x))))
+```
+
+
+Leider gibt `standardize` kein vernünftiges numerisches Objekt zurück,
+so dass wir mit `as.numeric` die Daten noch zur Räson rufen müssen.
+
+
+Wie man sieht, ändert sich die Verteilungsform *nicht*  durch die z-Transformation (oder durch irgendeine lineare Transformation):
+
+```{r}
+plot_histogram(mariokart2)
+```
+
+## Extremwerte durch MW ersetzen
+
+
+```{r}
+mariokart3 <-
+  mariokart2 %>% 
+  mutate(across(
+    .cols = where(is.numeric),
+    .fns = ~ case_when(abs(.x) <= 3 ~ .x,
+                       abs(.x) > 3 ~ mean(.x))
+  ))
+```
+
+
+
+
+```{r}
+plot_histogram(mariokart3)
+```
+
+
+Jetzt sind die Daten deutlich weniger extrem.
+
+
+
+
+---
+
+Categories: 
+
+- eda
+- datawrangling
+- tidyverse
+- ausreisser
+- string
+
