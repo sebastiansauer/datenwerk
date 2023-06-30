@@ -1,0 +1,202 @@
+---
+exname: kausal28
+expoints: 1
+extype: schoice
+exsolution: r mchoice2string(sol_df$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal24
+title: kausal24
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+library(exams)
+library(teachertools)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = FALSE,
+                      #dpi = 72,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+
+```{r echo = TRUE}
+library(dagitty)
+library(ggdag)
+library(ggplot2)
+```
+
+
+
+
+
+Gegeben sei der DAG (Graph) `g` (s. u.). Der DAG verfügt über mehrere Variablen, 
+die als Knoten im Graph dargestellt sind.
+
+
+
+
+```{r dag-def, echo = TRUE}
+g <-
+  dagify(
+    y ~ z + m,
+    m ~ x + z,
+    exposure = "x",
+    outcome = "y"
+  )
+```
+
+Hier ist die Definition des DAGs:
+
+```{r}
+cat(g)
+```
+
+
+Und so sieht er aus:
+
+```{r echo = TRUE}
+ggdag(g) + theme_dag_blank()
+```
+
+
+*Welche minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt von der UV zur AV zu identifizieren?*
+
+
+UV: x
+
+AV: y
+
+
+
+*Hinweise*: 
+
+- Mengen sind mittels geschweifter Klammern gekennzeichnet, z.B. `{x8, x9}` meint die Menge mit den zwei Elementen `x8` und `x9`.
+- Die leere Menge `{ }` bedeutet, dass keine Variable kontrolliert werden muss, um den kausalen Effekt zu identifizieren.
+- Alle Variablen werden als gemessen vorausgesetzt.
+- Es ist möglich, dass es keine Lösung gibt, dass es also keine Adjustierungsmenge gibt, um den kausalen Effekt zu identifizieren. Wenn dies der Fall sein sollte, wählen Sie "keine Lösung".
+
+
+```{r echo = FALSE}
+exposure_var <- "x"
+outcome_var <- "y"
+```
+
+
+
+
+Answerlist
+----------
+
+
+* {m}
+* {z}
+* {m, z}
+* { }
+* keine Lösung
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Folgende minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt der UV auf die AV zu identifizieren: *leere Menge*.
+
+`z` muss nicht kontrolliert werden, da der Pfad `x->my<-z->y` wegen des Colliders bereits geschlossen ist.
+Es bleibt nur ein Pfad über und der ist kausal: `x->m->y`.
+
+```{r}
+ggdag_adjustment_set(g)
+```
+
+
+*Erläuterung*:
+
+```{r}
+is_dseparated <- dseparated(g, X = exposure_var, Y = outcome_var)
+is_dconnected <- dconnected(g, X = exposure_var, Y = outcome_var)
+```
+
+
+UV und AV sind `r ifelse(is_dconnected==FALSE, "nicht", "")` (durch mindestens einen offenen Pfad) verbunden ("d-connected").
+
+
+Folgende Unabhängigkeitsbeziehungen (`_||_`) werden durch den DAG definiert:
+```{r}
+impliedConditionalIndependencies(g)
+```
+
+UV und AV werden durch folgende Pfade verbunden:
+
+```{r}
+g_paths <- paths(g,
+      from = exposure_var,
+      to = outcome_var)
+
+g_paths
+```
+
+
+Offenen Pfade sind der/die Pfad/e, die in der obigen Ausgabe unter `$open` mit `TRUE` gekennzeichnet sind.
+
+
+
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Falsch
+* Falsch
+* Richtig
+* Falsch
+
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

@@ -1,5 +1,5 @@
 ---
-exname: kausal21
+exname: kausal28
 expoints: 1
 extype: schoice
 exsolution: r mchoice2string(sol_df$is_correct, single = TRUE)
@@ -7,9 +7,10 @@ exshuffle: no
 categories:
 - dag
 - causal
-date: '2022-12-19'
-slug: kausal21
-title: kausal21
+- schoice
+date: '2023-06-30'
+slug: kausal28
+title: kausal28
 
 ---
 
@@ -41,7 +42,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-# Exercise
+# Aufgabe
 
 
 
@@ -50,26 +51,10 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 ```{r dag-examples}
-#dag with one adjustment set with one element: x3->x5
+#large dag with one very large adjustment set
+# iv: 7, dv: 8
 
-dag1 <- "
-dag {
-x1
-x2
-x3
-x4
-x5
-x1 -> x2
-x2 -> x3
-x2 -> x5
-x3 -> x5
-x4 -> x5
-}
-"
-
-# dag with one empty adjustment set, ie., already identified: x3->x5
-
-dag2 <-
+dag1 <- 
   "
 dag {
 x1
@@ -79,87 +64,49 @@ x4
 x5
 x6
 x7
+x8
 x1 -> x3
+x1 -> x4
+x1 -> x5
+x1 -> x6
 x1 -> x7
+x1 -> x8
+x2 -> x3
 x2 -> x4
 x2 -> x5
 x2 -> x6
 x2 -> x7
+x2 -> x8
 x3 -> x4
-x3 -> x6
-x3 -> x7
-x4 -> x5
-x4 -> x6
-x5 -> x6
-x6 -> x7
-}
-"
-
-# dag with two solutions each with 1 element/node: x3->x5
-
-dag3 <-
-  "
-dag {
-x1
-x2
-x3
-x4
-x5
-x6
-x7
-x1 -> x2
-x1 -> x3
-x1 -> x6
-x2 -> x5
-x3 -> x6
-x3 -> x7
-x4 -> x7
-x5 -> x7
-x6 -> x7
-}
-"
-
-
-# dag WITHOUT any solution, a haunted dag: x6->x5
-
-dag4 <-
-  "
-dag {
-x1
-x2
-x3
-x4
-x5
-x6
-x1 -> x2
-x1 -> x3
-x1 -> x4
-x1 -> x5
-x2 -> x3
-x2 -> x4
-x2 -> x5
-x2 -> x6
 x3 -> x5
 x3 -> x6
+x3 -> x7
+x3 -> x8
 x4 -> x5
 x4 -> x6
+x4 -> x7
+x4 -> x8
 x5 -> x6
+x5 -> x7
+x5 -> x8
+x6 -> x7
+x6 -> x8
+x7 -> x8
 }
-"
-#plot(dag4)
 
+"
 ```
 
 
 
 
 ```{r create-dag}
-exposure_var <- "x3"
-outcome_var <- "x5"
+exposure_var <- "x7"
+outcome_var <- "x8"
 
-dag_size <- 7
+dag_size <- 8
 
-g <- dag2
+g <- dag1
 
 # compute minimal adjustment set:
 adj <- adjustmentSets(g, 
@@ -195,6 +142,14 @@ AV: `r outcome_var`.
 
 
 ```{r build-solution, include=FALSE}
+
+get_dag_size <- function(dag){
+  str_extract_all(dag, pattern = "\\d") %>% unlist() %>% max()
+}
+
+
+dag_size <- get_dag_size(g)
+
 sol_df <- 
   build_adj_set_answers(
   dag_def = g,
@@ -207,6 +162,8 @@ sol_df <-
 #ggdag(g, stylized = TRUE) + theme_dag()
 graphLayout(g) %>% plot()
 ```
+
+
 
 
 
@@ -230,7 +187,7 @@ answerlist(sol_df$sol,
 </br>
 </br>
 
-# Solution
+# Lösung
 
 Folgende minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt der UV auf die AV zu identifizieren: ``r sol_df$sol[sol_df$is_correct == TRUE]``.
 
@@ -253,7 +210,6 @@ UV und AV sind `r ifelse(is_dconnected==FALSE, "nicht", "")` (durch mindestens e
 
 
 Folgende Unabhängigkeitsbeziehungen (`_||_`) werden durch den DAG definiert:
-
 ```{r}
 impliedConditionalIndependencies(g)
 ```
@@ -275,9 +231,8 @@ Offenen Pfade sind der/die Pfad/e, die in der obigen Ausgabe unter `$open` mit `
 Der DAG ist wie folgt definiert:
 
 ```{r, comment = ""}
-cat(g)
+g
 ```
-
 
 
 
@@ -299,4 +254,5 @@ Categories:
 
 - dag
 - causal
+- schoice
 
