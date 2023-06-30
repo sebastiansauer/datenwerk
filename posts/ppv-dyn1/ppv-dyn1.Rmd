@@ -1,0 +1,120 @@
+---
+exname: ppv-dyn1
+extype: num
+exsolution: r exams::fmt(sol)
+exshuffle: no
+expoints: 1
+categories:
+- bayes
+- ppv
+- regression
+- num
+date: '2023-06-27'
+slug: ppv-dyn1
+title: ppv-dyn1
+
+---
+
+
+
+
+
+
+
+
+# Aufgabe
+
+Berechnen Sie folgendes Modell (Datensatz `mtcars`):
+
+
+`mpg ~ hp`
+
+Geben Sie die Breite eines 50%-ETI an für eine Beobachtung mit einem z-Wert von 0 im Prädiktor!
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+
+```{r message=FALSE}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+```
+
+```{r}
+mtcars2 <-
+  mtcars %>% 
+  mutate(hp = standardize(hp))
+```
+
+
+
+
+## Modell
+
+```{r}
+m1 <- stan_glm(mpg ~ hp, data = mtcars, seed = 42, refresh = 0)
+coef(m1)
+r2(m1)
+```
+
+Oder mit z-standardisierten Werten:
+
+```{r}
+m2 <- stan_glm(mpg ~ hp, data = mtcars2, seed = 42, refresh = 0)
+coef(m2)
+r2(m2)
+```
+
+## PPV
+
+
+```{r}
+m2_ppv <- estimate_prediction(m2, data = tibble(hp = 0), ci = 0.5)
+m2_ppv
+```
+Visualisierung:
+
+```{r}
+plot(estimate_prediction(m2))
+```
+
+
+Man beachte, dass die PPV mit *mehr* Ungewissheit behaftet ist, als die Post-Verteilung.
+
+```{r}
+plot(estimate_relation(m2))
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- ppv
+- regression
+- num
+
