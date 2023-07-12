@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.247">
+<meta name="generator" content="quarto-1.3.433">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-12-09">
+<meta name="dcterms.date" content="2023-07-12">
 
 <title>datenwerk - penguins-stan-01</title>
 <style>
@@ -90,10 +90,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
@@ -149,6 +151,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                                 <div class="quarto-categories">
                 <div class="quarto-category">bayes</div>
                 <div class="quarto-category">regression</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -160,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 9, 2022</p>
+        <p class="date">July 12, 2023</p>
       </div>
     </div>
     
@@ -178,8 +181,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
 <p>Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen. In dieser Aufgabe untersuchen wir in dem Zusammenhang den Zusammenhang von <em>Schnabellänge</em> (als UV) und Körpergewicht (als AV).</p>
 <p><em>Wie groß ist der statistische Einfluss der UV auf die AV?</em></p>
 <ol type="a">
@@ -196,11 +199,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Verwenden Sie Methoden der Bayes-Statistik und die Software Stan.</li>
 <li>Fixieren Sie die Zufallszahlen auf den Startwert 42!</li>
 <li>Sie können den Datensatz z.B. <a href="https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv">hier</a> beziehen oder über das R-Paket <code>palmerpenguins</code>.</li>
+<li>Geben Sie keine Prozentzahlen, sondern stets Anteile an.</li>
+<li>Beachten Sie die <a href="https://datenwerk.netlify.app/hinweise">übrigen Hinweise</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
 <p>Zentrieren ist eigentlich immer nützlich, aber hier streng genommen nicht unbedingt nötig. Der Hauptgrund ist, dass Stan für uns den Prior für den Intercept festlegt, und zwar auf Basis der Daten, wir uns also nicht um die komische Frage zu kümmern brauchen, welchen Prior wir für den unzentrierten Achsenabschnitt vergeben wollten: Wie schwer sind Pinguins der Schnabellänge Null? Mit zentrierten Prädiktoren ist die Frage nach dem Prior viel einfacher zu beantworten: Wie schwer ist ein Pinguin mit mittelgroßem Schnabel?</p>
 <p>Setup:</p>
 <div class="cell">
@@ -214,7 +219,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Alternativ könnten Sie den Datensatz als CSV-Datei importieren:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>penguins <span class="ot">&lt;-</span> <span class="fu">data_read</span>(d_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>penguins <span class="ot">&lt;-</span> <span class="fu">data_read</span>(d_path)  <span class="co"># oder z.B. mit read_csv </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Ein Blick in die Daten zur Kontrolle, ob das Importieren richtig funktioniert hat:</p>
 <div class="cell">
@@ -239,7 +244,7 @@ $ year              &lt;int&gt; 2007, 2007, 2007, 2007, 2007, 2007, 2007, 2007, 
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(body_mass_g <span class="sc">~</span>  bill_length_mm,  <span class="co"># Regressionsgleichung</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> penguins, <span class="co">#  Daten</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">seed =</span> <span class="dv">42</span>,  <span class="co"># Repro.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">seed =</span> <span class="dv">42</span>,  <span class="co"># Reproduzierbarkeit</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># nicht so viel Output</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
@@ -268,10 +273,11 @@ Uncertainty intervals (highest-density) and p-values (two-tailed)
 <ol start="3" type="a">
 <li>Breite des Intervalls</li>
 </ol>
+<p>Dazu liest man die Intervallgrenzen (<code>90% CI</code>) in der richtigen Zeile ab (Tabelle <code>parameters</code>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fl">98.11</span>  <span class="sc">-</span> <span class="fl">77.15</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a> <span class="fl">97.70</span>  <span class="sc">-</span> <span class="fl">76.24</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 20.96</code></pre>
+<pre><code>[1] 21.46</code></pre>
 </div>
 </div>
 <p>Einheit: mm</p>
@@ -292,11 +298,12 @@ Uncertainty intervals (highest-density) and p-values (two-tailed)
 1 TRUE                  4000</code></pre>
 </div>
 </div>
-<p>Also: 100% oder 1.</p>
+<p>Also: 100% oder 1 (4000 von 4000 Stichproben finden dieses Ergebnis in unserem Modell).</p>
 <p>Man kann diesen Wert aus der Tabelle oben (Ausgabe von <code>parameters()</code>) einfach in der Spalte <code>pd</code> ablesen. <code>pd</code> steht für <em>probability of direction</em>, s. <a href="https://easystats.github.io/blog/posts/bayestestr_pd/">Details hier</a>.</p>
 <p>Oder so, ist auch einfach:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">p_direction</span>(m1) <span class="co"># aus Paket easystats</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pd_m1 <span class="ot">&lt;-</span> <span class="fu">p_direction</span>(m1) <span class="co"># aus Paket easystats</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>pd_m1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Probability of Direction
 
@@ -306,12 +313,10 @@ Parameter      |     pd
 bill_length_mm |   100%</code></pre>
 </div>
 </div>
-<p>Und plotten ist meist hilfreich:</p>
+<p>Und plotten ist meist hilfreich: <code>plot(pd_m1)</code>.</p>
+<p>Man kann sich auch ein “Dashboard” mit allen Ergebnissen des Modells ausgeben lassen:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">p_direction</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="penguins-stan-01_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">model_dashboard</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ol start="5" type="a">
 <li>Nur Adelie:</li>
@@ -338,7 +343,7 @@ bill_length_mm |   100%</code></pre>
 <p>Modell berechnen:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(body_mass_g <span class="sc">~</span>  bill_length_mm,  <span class="co"># Regressionsgleichung</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> penguins, <span class="co">#  Daten</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> penguins_adelie, <span class="co">#  Daten</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">seed =</span> <span class="dv">42</span>,  <span class="co"># Repro.</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># nicht so viel Output</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -348,8 +353,8 @@ bill_length_mm |   100%</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Parameter      | Median |            95% CI |     pd |  Rhat |     ESS |                       Prior
 ----------------------------------------------------------------------------------------------------
-(Intercept)    | 356.57 | [-192.35, 924.99] | 89.92% | 1.000 | 3249.00 | Normal (4201.75 +- 2004.89)
-bill_length_mm |  87.45 | [  74.76,  99.91] |   100% | 1.000 | 3216.00 |     Normal (0.00 +- 367.22)</code></pre>
+(Intercept)    |  15.91 | [-865.68, 948.08] | 51.45% | 1.000 | 3825.00 | Normal (3700.66 +- 1146.42)
+bill_length_mm |  95.01 | [  70.92, 117.66] |   100% | 1.000 | 3876.00 |     Normal (0.00 +- 430.43)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
@@ -364,14 +369,14 @@ Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
 
 Parameter      |         95% HDI
 --------------------------------
-bill_length_mm | [75.22, 100.30]</code></pre>
+bill_length_mm | [71.86, 118.09]</code></pre>
 </div>
 </div>
 <p>S. auch Tabelle oben.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fl">99.15</span> <span class="sc">-</span> <span class="fl">74.46</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fl">118.09</span> <span class="sc">-</span> <span class="fl">71.86</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 24.69</code></pre>
+<pre><code>[1] 46.23</code></pre>
 </div>
 </div>
 <ol start="6" type="a">
@@ -391,6 +396,7 @@ bill_length_mm | [75.22, 100.30]</code></pre>
 <ul>
 <li>bayes</li>
 <li>regression</li>
+<li>string</li>
 </ul>
 
 
