@@ -6549,6 +6549,27 @@
     "href": "posts/modellguete-testset/modellguete-testset.html",
     "title": "modellguete-testset",
     "section": "",
-    "text": "Aufgabe\nBerechnen Sie die Modellgüte (RMSE) im Test-Sample.\nGehen Sie von folgenden Annahmen aus.\n\nDieses Test-Sample\nAV: count\nDieses Train-Sample\nGehen Sie als Vorhersage vom Mittelwert der AV im Train-Sample aus (für alle Beobachtungen im Test-Sample).\n\nHinweise:\n\nHier finden Sie ein Data-Dictionary.\nOrientieren Sie sich im Übrigen an den allgemeinen Hinweisen des Datenwerks.\n\n         \n\n\nLösung\n\n\nSetup\n\nlibrary(tidymodels)\n\n── Attaching packages ────────────────────────────────────── tidymodels 1.1.0 ──\n\n\n✔ broom        1.0.5     ✔ recipes      1.0.6\n✔ dials        1.2.0     ✔ rsample      1.1.1\n✔ dplyr        1.1.2     ✔ tibble       3.2.1\n✔ ggplot2      3.4.2     ✔ tidyr        1.3.0\n✔ infer        1.0.4     ✔ tune         1.1.1\n✔ modeldata    1.1.0     ✔ workflows    1.1.3\n✔ parsnip      1.1.0     ✔ workflowsets 1.0.1\n✔ purrr        1.0.1     ✔ yardstick    1.2.0\n\n\n── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──\n✖ purrr::discard() masks scales::discard()\n✖ dplyr::filter()  masks stats::filter()\n✖ dplyr::lag()     masks stats::lag()\n✖ recipes::step()  masks stats::step()\n• Use tidymodels_prefer() to resolve common conflicts.\n\n\n\nd_train &lt;- read.csv(\"https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_train.csv\")\nd_test &lt;- read.csv(\"https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_control.csv\")\n\n\n\nMittelwert der AV im Train-Sample berechnen\n\nmean_count_train_sample &lt;- \n  d_train |&gt; \n  summarise(count_avg = mean(count))\n\nmean_count_train_sample\n\n  count_avg\n1  703.7913\n\n\n\nd_test &lt;-\n  d_test |&gt; \n  mutate(pred = 704)\n\nAnstelle von 704 könnten Sie auch Ihre eigenen Vorhersagen Ihrer Modelle einsetzen, etwa:\n\nd_test &lt;-\n  d_test |&gt; \n  mutate(pred = meine_vorhersagen)\n\n\n\nModellgüte im Test-Sample berechnen\n\nd_test |&gt; \n  rmse(truth = count,\n       estimate = pred)\n\n# A tibble: 1 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rmse    standard        646.\n\n\n\nCategories:\n\nregression\nmodelling\nperformance\nrmse\nstring"
+    "text": "Berechnen Sie die Modellgüte (RMSE) im Test-Sample.\nGehen Sie von folgenden Annahmen aus.\n\nDieses Test-Sample\nAV: count\nDieses Train-Sample\nGehen Sie als Vorhersage vom Mittelwert der AV im Train-Sample aus (für alle Beobachtungen im Test-Sample).\n\nHinweise:\n\nHier finden Sie ein Data-Dictionary.\nOrientieren Sie sich im Übrigen an den allgemeinen Hinweisen des Datenwerks."
+  },
+  {
+    "objectID": "posts/modellguete-testset/modellguete-testset.html#setup",
+    "href": "posts/modellguete-testset/modellguete-testset.html#setup",
+    "title": "modellguete-testset",
+    "section": "Setup",
+    "text": "Setup\n\nlibrary(tidymodels)\n\n\nd_train &lt;- read.csv(\"https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_train.csv\")\nd_test &lt;- read.csv(\"https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_control.csv\")"
+  },
+  {
+    "objectID": "posts/modellguete-testset/modellguete-testset.html#mittelwert-der-av-im-train-sample-berechnen",
+    "href": "posts/modellguete-testset/modellguete-testset.html#mittelwert-der-av-im-train-sample-berechnen",
+    "title": "modellguete-testset",
+    "section": "Mittelwert der AV im Train-Sample berechnen",
+    "text": "Mittelwert der AV im Train-Sample berechnen\n\nmean_count_train_sample &lt;- \n  d_train |&gt; \n  summarise(count_avg = mean(count))\n\nmean_count_train_sample\n\n  count_avg\n1  703.7913\n\n\n\nd_test &lt;-\n  d_test |&gt; \n  mutate(pred = 704)\n\nAnstelle von 704 könnten Sie auch Ihre eigenen Vorhersagen Ihrer Modelle einsetzen, etwa:\n\nd_test &lt;-\n  d_test |&gt; \n  mutate(pred = meine_vorhersagen)"
+  },
+  {
+    "objectID": "posts/modellguete-testset/modellguete-testset.html#modellgüte-im-test-sample-berechnen",
+    "href": "posts/modellguete-testset/modellguete-testset.html#modellgüte-im-test-sample-berechnen",
+    "title": "modellguete-testset",
+    "section": "Modellgüte im Test-Sample berechnen",
+    "text": "Modellgüte im Test-Sample berechnen\n\nd_test |&gt; \n  rmse(truth = count,\n       estimate = pred)\n\n# A tibble: 1 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rmse    standard        646.\n\n\nFür R-Quadrat geht das analog:\n\nd_test |&gt; \n  rsq(truth = count,\n       estimate = pred)\n\nWarning: A correlation computation is required, but `estimate` is constant and\nhas 0 standard deviation, resulting in a divide by 0 error. `NA` will be\nreturned.\n\n\n# A tibble: 1 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rsq     standard          NA\n\n\nLeider ist das R-Quadrat in diesem Fall (per Definition) Null: Der Mittelwert als Vorhersagewert ist was “R-Quadrat gleich Null” meint.\n(Darüber hinaus wird das R-Quadrat hier auf Basis der Korrelation berechnet, und wir haben einen konstanten Wert bei pred).\n\nCategories:\n\nregression\nmodelling\nperformance\nrmse\nstring"
   }
 ]
