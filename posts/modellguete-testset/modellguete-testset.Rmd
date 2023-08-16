@@ -1,0 +1,117 @@
+---
+exname: modellgute-testset
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- regression
+- modelling
+- performance
+- rmse
+- string
+date: '2023-08-17'
+slug: modellguete-testset
+title: modellguete-testset
+
+---
+
+
+
+
+# Aufgabe
+
+Berechnen Sie die Modellgüte (RMSE) im Test-Sample.
+
+Gehen Sie von folgenden Annahmen aus.
+
+- [Dieses Test-Sample](https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_control.csv)
+- AV: `count`
+- [Dieses Train-Sample](https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_train.csv)
+- Gehen Sie als Vorhersage vom Mittelwert der AV im *Train-Sample* aus (für alle Beobachtungen im Test-Sample).
+
+
+*Hinweise*:
+
+- [Hier](https://github.com/sebastiansauer/yacsda-bikerental/blob/main/data/bike-share-data-dict.md) finden Sie ein Data-Dictionary.
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+# Setup
+
+```{r}
+library(tidymodels)
+```
+
+
+```{r}
+d_train <- read.csv("https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_train.csv")
+d_test <- read.csv("https://raw.githubusercontent.com/sebastiansauer/yacsda-bikerental/main/data/bikeshare_control.csv")
+```
+
+
+
+# Mittelwert der AV im Train-Sample berechnen
+
+```{r}
+mean_count_train_sample <- 
+  d_train |> 
+  summarise(count_avg = mean(count))
+
+mean_count_train_sample
+```
+
+```{r}
+d_test <-
+  d_test |> 
+  mutate(pred = 704)
+```
+
+
+Anstelle von `704` könnten Sie auch Ihre eigenen Vorhersagen Ihrer Modelle einsetzen, etwa:
+
+
+```{r eval = FALSE}
+d_test <-
+  d_test |> 
+  mutate(pred = meine_vorhersagen)
+```
+
+
+# Modellgüte im Test-Sample berechnen
+
+```{r}
+d_test |> 
+  rmse(truth = count,
+       estimate = pred)
+```
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- modelling
+- performance
+- rmse
+- string
+
