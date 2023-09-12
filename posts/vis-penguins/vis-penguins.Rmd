@@ -1,0 +1,368 @@
+---
+exname: vis-penguins
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- vis
+- yacsda
+- ggquick
+- penguins
+- string
+date: '2023-09-12'
+slug: vis-penguins
+title: vis-penguins
+
+---
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      out.width = "100%",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+# Aufgabe
+
+
+In dieser Fallstudie (YACSDA: Yet another Case Study on Data Analysis) untersuchen wir den Datensatz `penguins`.
+
+Sie können den Datensatz so beziehen:
+
+```{r}
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+data("penguins")
+d <- penguins 
+```
+
+
+Oder so:
+
+```{r eval=FALSE}
+d <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")
+```
+
+
+Ein Codebook finden Sie [hier](https://vincentarelbundock.github.io/Rdatasets/doc/palmerpenguins/penguins.html).
+
+
+Die Forschungsfrage lautet:
+
+Was ist der Einfluss der Spezies und der Schnabellänge auf das Körpergewicht?
+
+- Abhängige Variable (metrisch), `y`: Körpergewicht
+- Unabhängige Variable 1 (nominal), `x1`: Spezies
+- Unabhängige Variable 2 (metrisch), `x2`: Schnabellänge
+
+
+Visualisieren Sie dazu folgende Aspekte der Forschungsfrage!
+
+# Aufgaben
+
+1. Visualisieren Sie die Verteilung von `y` auf zwei verschiedene Arten.
+2. Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.
+2. Visualisieren Sie die Verteilung von `x1` und `x2`.
+3. Visualisieren Sie die Verteilung von `y` bedingt auf `x1`.
+4. Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.
+5. Visualisieren Sie den Zusammenhang von `y` und `x2`.
+6. Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird.
+6. Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu.
+7. Fügen Sie dem Diagramm zum Zusammenhang von `y` und `x2` eine Regressionsgerade hinzu.
+8. Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade.
+9. Gruppieren Sie das letzte Diagramm nach `x1`.
+10. Dichotomisieren Sie `y` und zählen Sie die Häufigkeiten. *Achtung*: Dichotomisieren wird von einigen Statistikern mit Exkommunikation bestraft. Proceed at your own risk.
+11. Gruppieren Sie das letzte Diagramm nach den Stufen von `x1`.
+12. Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden.
+
+
+
+
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+# Pakete starten
+
+```{r echo = FALSE}
+library(tidyverse) 
+library(easystats)
+library(ggpubr)
+library(ggstatsplot)
+```
+
+
+# Los geht's 
+
+Zur einfacheren Verarbeitung nenne ich die Variablen um:
+
+## Umbenennen
+
+```{r}
+d <-
+  d |> 
+  rename(y = body_mass_g, x1 = species, x2 = bill_length_mm)
+```
+
+
+
+## Visualisieren Sie die Verteilung von `y` auf zwei verschiedene Arten.
+
+Das R-Paket `ggpubr` erstellt schöne Diagramme (basierend auf `ggplot`) auf einfache Art.
+Nehmen wir ein Dichtediagramm; die Variable `y` soll auf der X-Achse stehen:
+
+```{r}
+ggdensity(d, x = "y")
+```
+
+Beachten Sie, dass die Variable in Anführungsstriche gesetzt werden muss: `x = "y"`.
+
+Oder ein Histogramm:
+
+```{r}
+gghistogram(d, x = "y")
+```
+
+
+## Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.
+
+Um Diagramme mit Statistiken anzureichen, bietet sich das Paket `ggstatsplot` an:
+
+```{r}
+gghistostats(d, x = y)
+```
+
+Beachten Sie, dass die Variable *nicht* in Anführungsstriche gesetzt werden darf: `x = y`.
+
+
+## Visualisieren Sie die Verteilung von `x1` und `x2`.
+
+### `x1`
+
+```{r}
+d_counted <- 
+  d |> 
+  count(x1) 
+```
+
+
+```{r}
+ggbarplot(data = d_counted, y = "n", x = "x1", label = TRUE)
+```
+
+
+### `x2`
+
+
+```{r}
+gghistostats(d, x = x2)
+```
+
+## Visualisieren Sie die Verteilung von `y` bedingt auf `x1`
+
+
+```{r}
+gghistogram(d, x = "y", fill = "x1")
+```
+
+
+Oder so:
+
+
+```{r}
+gghistogram(d, x = "y", facet.by = "x1")
+```
+
+
+## Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu
+
+
+```{r}
+grouped_gghistostats(d, x = y, grouping.var = x1)
+```
+
+
+## Visualisieren Sie den Zusammenhang von `y` und `x2`
+
+```{r}
+ggscatter(d, x = "x2", y = "y")
+```
+
+
+## Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird
+
+Es gibt mehrere Wege, das Diagramm übersichtlicher zu machen.
+Logarithmieren ist ein Weg.
+
+```{r}
+d |> 
+  mutate(x2 = log(x2)) |> 
+  ggscatter(x = "x2", y = "y")
+```
+
+
+Synonym könnten wir schreiben:
+
+
+```{r}
+d_logged <- 
+  d |> 
+  mutate(x2 = log(x2))
+  
+
+ggscatter(d_logged, x = "x2", y = "y")
+```
+
+
+## Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu
+
+
+```{r}
+ggscatterstats(d_logged, x = x2, y = y)
+```
+
+
+
+## Fügen Sie dem Diagramm zum Zusammenhang von `y` und `x2` eine Regressionsgerade hinzu
+
+
+```{r}
+ggscatter(d_logged, x = "x2", y = "y", add = "reg.line", 
+             add.params = list(color = "blue"))
+```
+
+
+## Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade
+
+
+```{r}
+ggscatter(d_logged, x = "x2", y = "y", add = "loess", 
+             add.params = list(color = "blue"))
+```
+
+
+## Gruppieren Sie das letzte Diagramm nach `x1`
+
+```{r}
+ggscatter(d_logged, x = "x2", y = "y", add = "loess", 
+             add.params = list(color = "blue"),
+          facet.by = "x1")
+```
+
+
+##  Dichotomisieren Sie `y` und zählen Sie die Häufigkeiten
+
+
+Nehmen wir einen Mediansplit, um zu dichotomisieren.
+
+```{r}
+d <-
+  d |> 
+  mutate(y_dicho = ifelse(y > median(y), "high", "low"))
+```
+
+
+
+```{r}
+d |> 
+  count(y_dicho) |> 
+  ggbarplot(x = "y_dicho", y = "n")
+```
+
+
+Gleich viele! Das sollte nicht verwundern.
+
+
+## Gruppieren Sie das letzte Diagramm nach den Stufen von `x1`
+
+
+
+```{r}
+d_count <- 
+d |> 
+  count(y_dicho, x1) 
+
+d_count
+```
+
+```{r}
+ggbarplot(d_count, x = "y_dicho", y = "n", facet.by = "x1", label = TRUE)
+```
+
+
+## Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden
+
+
+```{r}
+d_count <-
+  d_count |> 
+  mutate(prop = n / sum(n)) |> 
+  mutate(prop = round(prop, 2))
+
+d_count
+```
+
+Check:
+
+```{r}
+d_count |> 
+  summarise(sum(prop))
+```
+
+Gut! Die Anteile summieren sich zu ca. 1 (100 Prozent).
+
+
+```{r}
+ggbarplot(d_count, x = "y_dicho", y = "prop", facet.by = "x1", label = TRUE)
+```
+
+
+Man beachten, dass sich die Anteile auf das "Gesamt-N" beziehen.
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- vis
+- yacsda
+- ggquick
+- penguins
+- string
+
