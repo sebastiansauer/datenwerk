@@ -1,0 +1,146 @@
+---
+exname: postvert-vis-zwielicht
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- vis
+- bayes
+- post
+- string
+date: '2023-09-19'
+slug: postvert-vis-zwielicht
+title: postvert-vis-zwielicht
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+Lesen Sie [diesen Abschnitt](https://start-bayes.netlify.app/0700-ppv#der-zwielichte-dozent-stichproben-vert.-vs.-post-vert.).
+
+Bauen Sie daraufhin die dort gezeigte [Abbildung der Post-Verteilung](https://start-bayes.netlify.app/0700-ppv#fig-post-zwielicht) nach.
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+Pakete starten:
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+
+Post-Verteilung erstellen:
+
+```{r echo = FALSE}
+d_zwielicht <-
+  tibble(
+    p_grid = seq( from=0 , to=1 , length.out=100),
+    prior = 1,  # Priori-Gewichte
+    likelihood = dbinom(8, size = 10, prob=p_grid) ,
+    unstandardisierte_posterior = likelihood * prior ,
+    posterior = unstandardisierte_posterior / sum(unstandardisierte_posterior))
+```
+
+Stichproben ziehen aus der Posteriori-Verteilung:
+
+```{r}
+samples_zwielicht <- 
+  tibble(
+    gewinnchance_muenze = sample(
+      d_zwielicht$p_grid , 
+      prob=d_zwielicht$posterior, 
+      size=1e4, 
+      replace=TRUE)) %>% 
+  mutate(
+    id = row_number())
+```
+
+
+Verteilung visualisieren, z.B. mit `ggpubr`:
+
+
+```{r}
+gghistogram(samples_zwielicht,
+            x = "gewinnchance_muenze",
+            title = "Posteriori-Verteilung für p",
+            subtitle = "Priori: Gleichverteilung; Daten: 9 von 10 Treffern, binomialverteilt",
+            xlab = "p (Gewinchance der Münze)",
+            fill = "grey60") +
+  geom_vline(xintercept = 0.5)
+```
+
+
+Oder mit purem `ggplot`: 
+
+```{r}
+p_samples_zwielicht <- 
+samples_zwielicht %>% 
+  ggplot() +
+  aes(x = gewinnchance_muenze) +
+  geom_histogram(fill = "grey60", bins = 20) +
+  #geom_vline(xintercept = 0.9) +
+  #geom_label(x = 0.8, y= 0, label = "Emp. Ergebnis") +
+  labs(title = "Posteriori-Verteilung für p",
+       subtitle = "Priori: Gleichverteilung; Daten: 9 von 10 Treffern, binomialverteilt",
+       caption = "Das Dreieck zeigt die Wskt. eines Treffers bei einer fairen Münze",
+       x = "Gewinnchance der Münze") +
+  annotate("point", x = .5, y = 0, size = 5, color = "grey40", shape = 17)
+
+p_samples_zwielicht
+```
+
+
+Es reicht i.d.R. vollkommen, wenn Sie eine der beiden Möglichkeiten beherrschen.
+
+Tipp: Fragen Sie ChatGPT and Friends nach dem R-Code.
+
+
+
+---
+
+Categories: 
+
+- 2023
+- vis
+- bayes
+- post
+- string
+
