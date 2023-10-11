@@ -1,0 +1,210 @@
+---
+exname: Bed-Wskt1
+extype: num
+exsolution: r exams::fmt(sol)
+extol: 0.03
+expoints: 1
+categories:
+- probability
+- bayes
+- num
+date: '2023-10-11'
+slug: Bed-Wskt1
+title: Bed-Wskt1
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(mosaic)
+library(knitr)
+library(kableExtra)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE)
+```
+
+
+
+
+
+
+# Aufgabe
+
+```{r defs, include=FALSE}
+profs_set <- c("Süß", "Salzig", "Bitter", "Süß-Sauer", "Bitter-Süß", "Wörzig", "Zartbitter")
+
+prof_name <- sample(profs_set, 1)
+
+n_set <- c(42, 50, 60, 70, 80, 90, 100)
+n <- sample(n_set, 1)
+
+erfolgsquote_weniglerner_set <- c(0.3, 0.35, 0.4, 0.45, 0.5)
+erfolgsquote_weniglerner <- sample(erfolgsquote_weniglerner_set, 1)
+zusatzerfolg_viellerner_set <- c(0.2, 0.25, 0.3, 0.35, 0.4)
+zusatzerfolg_viellerner <- sample(zusatzerfolg_viellerner_set, 1)
+erfolgsquote_viellerner <- erfolgsquote_weniglerner + zusatzerfolg_viellerner
+
+# This is NOT what is asked for, that's the probability in the population:
+unterschied_erfolgsquote <- erfolgsquote_viellerner - erfolgsquote_weniglerner
+
+anteil_weniglerner_set <- c(.3, .4, .5, .6)
+anteil_weniglerner <- sample(anteil_weniglerner_set, 1)
+
+
+n_weniglerner <- floor(n * anteil_weniglerner)
+n_viellerner <- n - n_weniglerner
+
+Klausurergebnis <- c("Bestehen", "Durchfallen")
+
+Klausurergebnis_selected <- sample(Klausurergebnis, 1)
+Lerntypen <- c("Viellerner", "Weniglerner")
+Lerntyp_selected <- sample(Lerntypen, 1)
+```
+
+
+
+
+Prof. `r prof_name` untersucht eine seiner Lieblingsfragen: Wie viel bringt das Lernen auf eine Klausur? Dabei konzentriert er sich auf das Fach Statistik (es gefällt ihm gut). In einer aktuellen Untersuchung hat er $n=`r n`$ Studierende untersucht (s. Tabelle und Diagramm) und jeweils erfasst, ob die Person die Klausur bestanden (b) hat oder durchgefallen (d) ist. Dabei hat er zwei Gruppen unterschieden: Die "Viel-Lerner" (VL) und die "Wenig-Lerner" (WL). 
+
+Berechnen Sie die folgende *bedingte Wahrscheinlichkeit*: p(`r Klausurergebnis_selected`|`r Lerntyp_selected`).
+
+*Beispiel*: Wenn Sie ausrechnen, dass die Wahrscheinlichkeit bei 42 Prozentpunkten liegt, so geben Sie ein: `0,42` bzw. `0.42` (das Dezimalzeichen ist abhängig von Ihren Spracheinstellungen).
+
+*Hinweise*: 
+
+- Geben Sie *nur eine Zahl* ein (ohne Prozentzeichen o.Ä.), z.B. `0,42`. 
+- Andere Angaben können u.U. nicht gewertet werden. 
+- Runden Sie auf zwei Dezimalstellen.
+- Achten Sie darauf, das *korrekte Dezimaltrennzeichen* einzugeben; auf Geräten mit deutscher Spracheinstellung ist dies oft ein Komma.
+
+
+
+```{r compute-d}
+d <-
+  tibble(Lerntyp = c(rep("Weniglerner", times = n_weniglerner),
+                     rep("Viellerner", times = n_viellerner))) %>% 
+  mutate(Lerntyp = factor(Lerntyp)) %>% 
+  mutate(Erfolg_p = case_when(
+    Lerntyp == "Weniglerner" ~ erfolgsquote_viellerner,
+    Lerntyp == "Viellerner" ~ erfolgsquote_viellerner,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Klausurergebnis = map_chr(.x = Erfolg_p,
+                                   .f = ~(sample(Klausurergebnis,
+                                                 size = 1,
+                                                 prob = c(.x, 1-.x)))))
+
+
+```
+
+
+
+```{r plot-bars, results = "hold"}
+
+ggplot(d) +
+  aes(x = Lerntyp, fill = factor(Klausurergebnis)) +
+  geom_bar() +
+  labs(fill = "")
+```
+
+
+
+```{r print-tab, results = "asis"}
+mosaic::tally(Klausurergebnis ~ Lerntyp, data = d) %>% 
+  kbl(caption = "Ergebnisse der Studie") %>% 
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+
+```{r compute-cond-prob, echo =FALSE}
+# THIS is what is asked for.
+
+
+prob_conditional <- d %>% 
+  count(Lerntyp, Klausurergebnis) %>% 
+  group_by(Lerntyp) %>% 
+  mutate(n_group = sum(n)) %>% 
+  ungroup() %>% 
+  mutate(prop_conditional_group = n/n_group) %>% 
+  mutate(N_gesamt = sum(n))
+
+
+sol <-
+  prob_conditional %>% 
+  filter(Lerntyp == Lerntyp_selected, 
+         Klausurergebnis == Klausurergebnis_selected) %>% 
+  pull(prop_conditional_group) %>% 
+  round(2)
+
+```
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+```{r print-tab2}
+prob_conditional %>% 
+  filter(Lerntyp == Lerntyp_selected, 
+         Klausurergebnis == Klausurergebnis_selected) %>% 
+  gt()
+```
+
+
+```{r figures-for-sol}
+n <- 
+ prob_conditional %>% 
+  filter(Lerntyp == Lerntyp_selected, 
+         Klausurergebnis == Klausurergebnis_selected) |> 
+  pull(n)
+
+
+n_group <- 
+  prob_conditional %>% 
+  filter(Lerntyp == Lerntyp_selected, 
+         Klausurergebnis == Klausurergebnis_selected) |> 
+  pull(n_group)
+```
+
+
+
+*Antwort*: Der gesuchte Wert liegt bei $`r n` / `r n_group` =  `r sol`$.
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- num
+

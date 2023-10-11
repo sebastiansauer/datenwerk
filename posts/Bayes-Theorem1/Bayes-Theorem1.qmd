@@ -1,15 +1,15 @@
 ---
 extype: num
 exsolution: r sol
-exname: Krebs1
+exname: Bayes-Theorem1
 expoints: 1
 categories:
 - bayes
 - probability
 - num
 date: '2023-10-11'
-slug: Krebs1
-title: Krebs1
+slug: Bayes-Theorem1
+title: Bayes-Theorem1
 
 ---
 
@@ -39,9 +39,9 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 ```{r}
-Pr_Tpos_geg_Kpos <- .9  # Wskt für Test positiv geg. Krebs ist positiv (tatsächlich Krebs)
-Pr_Tpos_geg_Kneg <- .1
-Pr_Kpos <- .01
+Pr_Tpos_geg_Kpos <- (sample(085:99, size = 1) / 100 ) %>% round(2)
+Pr_Tpos_geg_Kneg <- (sample(1:10, size = 1) / 100) %>% round(2)
+Pr_Kpos <- (sample(01:10, size = 1) / 1000) %>% round(3)
 ```
 
 
@@ -78,41 +78,19 @@ dass ein Patient tatsächlich Krebs hat, wenn der Test positiv ist, also Krebs d
 
 # Lösung
 
-Hier kann man Bayes Theorem anwenden:
 
-$Pr(K|T) = \frac{Pr(T|K) \cdot Pr(K)}{Pr(T)}$.
 
 ```{r echo = TRUE}
 zaehler_bayes <- Pr_Tpos_geg_Kpos * Pr_Kpos
-zaehler_bayes
-Pr_T <- (zaehler_bayes + (1-Pr_Kpos) * Pr_Tpos_geg_Kneg)
-Pr_T
+Pr_Tpos <- (zaehler_bayes + (1-Pr_Kpos) * Pr_Tpos_geg_Kneg)
 
-sol <- Pr_Kpos_geg_Tpos <- zaehler_bayes / Pr_T 
+sol <- Pr_Kpos_geg_Tpos <- zaehler_bayes / Pr_Tpos 
 sol <- round(sol, 2)
 sol
 ```
 
 
 Die Lösung beträgt also: ``r sol``.
-
-
-Hier ist ein Baumdiagramm zur Visualisierung:
-
-
-```{mermaid}
-flowchart LR
-  S[1000 Personen] --> K[Krebs: 10]
-  S --> NK[Nicht-Krebs: 990]
-  K --> T[Test positiv: 9]
-  NK --> NT[Nicht Test positiv: 1]
-  NK --> TNK[Test positiv: 99]
-  NK --> NTNK[Nicht Test positiv: 891]
-```
-
-
-
-
 
 
 

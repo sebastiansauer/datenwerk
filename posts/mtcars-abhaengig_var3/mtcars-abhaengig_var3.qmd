@@ -1,0 +1,287 @@
+---
+extype: num
+exsolution: r sol
+exname: mtcars-abhaengig_var3
+extol: 0.03
+expoints: 1
+categories:
+- dyn
+- probability
+- num
+date: '2023-10-11'
+slug: mtcars-abhaengig_var3
+title: mtcars-abhaengig_var3
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+library(assertthat)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      echo = FALSE,
+                      warning = FALSE,
+                      #out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+```{r init-data-var}
+d_name <- "mtcars"
+data(list = d_name)
+av <- "mpg"
+vars <- names(eval(parse(text = d_name))) 
+preds <- setdiff(vars, av)
+
+ 
+pred_chosen_nr <- sample(1:length(preds), 1)
+pred_chosen <- preds[pred_chosen_nr]
+
+
+# d is the abstracted name of the dataset:
+d <- eval(parse(text = d_name))
+
+d <- as_tibble(d)
+```
+
+
+
+
+
+
+# Aufgabe
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren. Er ist unter dieser [Quelle](`r d_path`) erhältlich: `r d_path`.
+
+Der Datensatz ist z.B. als CSV-Datei [von dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/csv/datasetsv) abrufbar.
+
+Hilfe zum Datensatz ist via `help("name_des_datensatzes")` oder [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/doc/datasets) abrufbar.
+
+
+
+
+
+
+Ob die Variable ``r pred_chosen`` (UV; Ereignis $A$) und *Spritverbrauch* (`mpg`; AV; Ereignis $B$) wohl voneinander abhängig sind? 
+Was meinen Sie? Was ist Ihre Einschätzung dazu? 
+Vermutlich haben Sie ein (wenn vielleicht auch implizites) Vorab-Wissen zu dieser Frage. 
+Lassen wir dieses Vorab-Wissen aber einmal außen vor und schauen uns rein Daten dazu an. 
+Vereinfachen wir die Frage etwas,
+indem wir beide Variablen am Mittelwert aufteilen:
+Wenn eine Beobachtung (d.h. ein Auto) einen Wert in der jeweiligen Variablen höchstens 
+so groß wie der Mittelwert der Variable aufweist,
+geben wir der Beobachtung der Wert `0`, ansonsten den Wert `1`.
+
+Die resultierenden binären Variablen nennen wir `av_high` bzw. `uv_high` (im schönsten Denglisch).
+
+
+
+```{r compute-binary-vars}
+# split by mean:
+d2 <-
+  d %>% 
+  select(mpg, all_of(pred_chosen)) %>% 
+  mutate(av_high = case_when(
+    mpg <= mean(mpg) ~ 0,
+    mpg > mean(mpg) ~ 1
+  )) %>% 
+  select(-mpg) 
+
+
+# split at mean:
+d2[1] <- ifelse(d[[pred_chosen]] < mean(d[[pred_chosen]]), 0, 1)
+names(d2)[1] <- "uv_high"
+
+# abstracted variables names:
+pred_binary_name <- names(d2)[1]
+av_binary_name <- names(d2)[2]
+```
+
+
+
+```{r results = 'hide'}
+assert_that(length(unique(d2$av_high)) == 2, msg = "Two unique values needed for DV!")
+assert_that(length(unique(d2$uv_high)) == 2, msg = "Two unique values needed for IV!")
+```
+
+
+
+*Berechnen Sie:* $Pr(\neg \text{uvhigh} \, | \,  \text{avhigh})$
+
+
+*Hinweise*:
+
+
+
+- Das "Ellbogen-Zeichen" $\neg$ kennzeichnet eine logische Negierung (das Gegenteil).
+- Die angegebene Wahrscheinlichkeit ist eine bedingte Wahrscheinlichkeit.
+- [Weitere Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Dieser Prädiktor wurde als UV bestimmt:
+
+```{r}
+pred_chosen
+```
+
+
+Schauen wir zuerst mal in den Datensatz: 
+
+```{r echo = TRUE}
+d %>% 
+  select(mpg, one_of(pred_chosen)) %>% 
+  slice_head(n = 5)
+```
+
+
+Dann berechnen wir die binären Variablen:
+
+```{r ref.label="compute-binary-vars", echo = TRUE, eval = FALSE}
+```
+
+
+
+Dann filtern wir die gesuchten Wahrscheinlichkeiten bzw. Anteile der AV:
+```{r echo = TRUE}
+d3 <-
+  d2 %>% 
+  filter(av_high == 1)
+
+av_high_sum <- nrow(d3)
+av_high_sum
+```
+
+Es gibt also `r av_high_sum` Autos, die den oben gesuchten "hinteren Teil"
+der Bedingung erfüllen (`av_high = TRUE)`.
+
+Filtern wir als nächstes nach dem "vorderen Teil" der gesuchten Wahrscheinlichkeit 
+(was das gleiche ist wie ein Anteil in diesem Fall):
+
+```{r echo = TRUE}
+d3a <- 
+  d3 %>% 
+  count(uv_high) 
+
+```
+
+
+```{r}
+# Hier müssen wir NUR für die Musterlösung noch einige Randfälle im Blick behalten.
+# Für die Lösung der AUFGABE ist das NICHT nötig.
+if (min(d3$uv_high) == 1 & max(d3$uv_high) == 1) d3a <- d3a %>% bind_rows(tibble(uv_high = 0, n = 0))
+if (min(d3$uv_high) == 0 & max(d3$uv_high) == 0) d3a <- d3a %>% bind_rows(tibble(uv_high = 1, n = 1))
+```
+
+
+
+```{r results='hide'}
+assert_that(length(unique(d3a$uv_high)) == 2, msg = "Two different values for IV given DV needed!")
+```
+
+
+Betrachten wir die nach `av_high = TRUE` gefilterte Häufigkeitstabelle:
+
+```{r}
+gt(d3a)
+```
+
+
+
+
+Und dann zählen wir die relativen Häufigkeiten der UV,
+und zwar für `uv_high == FALSE`:
+
+
+```{r echo = TRUE}
+prop_not_uv_high_cond_av_high <- 
+  d3a %>% 
+  mutate(prop = n / av_high_sum) %>% 
+  filter(uv_high == 0) %>% 
+  pull(prop)
+
+
+
+sol <- prop_not_uv_high_cond_av_high
+sol
+```
+
+
+```{r results='hide'}
+assert_that(0 <= sol, msg = "sol lt zero!")
+assert_that(1 >= sol, msg = "sol gt one!")
+is.scalar(sol)
+is.numeric(sol)
+```
+
+
+Der gesuchte Wert beträgt also ``r sol``. 
+
+Visualisieren wir noch die bedingten Wahrscheinlichkeiten, 
+so könnte man die gesuchten Anteile einfach abzählen:
+
+```{r echo = TRUE}
+d2 %>% 
+  mutate(across(everything(), factor)) %>%  # factor() brauchn wir nur für die Farbfüllung
+  ggplot() +
+  aes_string(x = av_binary_name, fill = pred_binary_name) +
+  geom_bar() +
+  scale_y_continuous(breaks = 1:100) +
+  scale_x_discrete(drop = FALSE)  # zeigt Kategorien ohne Daten in der Legende an.
+```
+
+
+Sieht man in dem Diagramm nur eine Farbe (anstelle von zweien), 
+so heißt das, dass es nur eine Gruppe gibt (und nicht zwei).
+Die Häufigkeit der nicht vorhandenen Gruppe ist demnach Null.
+
+Am besten, Sie führen den letzten Code Schritt für Schritt aus und 
+schauen sich jeweils das Ergebnis an, das hilft beim Verstehen.
+
+Alternativ kann man sich die Häufigkeiten auch so ausgeben lassen:
+
+```{r}
+library(mosaic)
+tally(~ uv_high | av_high, 
+      data = d2, 
+      format = "proportion")
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- dyn
+- probability
+- num
+
