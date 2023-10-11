@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-10-11">
 
-<title>datenwerk - DAG-Graph</title>
+<title>datenwerk - Bus1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -145,12 +111,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">DAG-Graph</h1>
+      <h1 class="title">Bus1</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">fopro</div>
-                <div class="quarto-category">researchdesign</div>
-                <div class="quarto-category">causal</div>
-                <div class="quarto-category">string</div>
+                <div class="quarto-category">probability</div>
+                <div class="quarto-category">bayes</div>
+                <div class="quarto-category">num</div>
               </div>
                   </div>
   </div>
@@ -182,63 +147,233 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Für ein Forschungsprojekt hat ein Forschungsteam die Frage getestet, ob Personen, die einen animierten Graphen zu Auswirkungen von Stress gesehen haben danach eine höhere Motivation haben, ihr Stresspensum anzugehen, als Personen, die einen statischen Graph gesehen haben. Dazu wurde jeweils in einem Fragebogen die Veränderungsbereitschaft auf das Stressniveau angepasst abgefragt, dann den jeweiligen Graphen gezeigt und danach dieselben Fragen wie davor nochmals gestellt. Die Personen wurden randomisiert den beiden Bedingungen (statisch vs.&nbsp;animiert) zugeordnet. Es handelt sich um ein Between-Group-Design.</p>
-<p>Zur Auswertung wurde nun zu jeder der Fragen zur Veränderungsbereitschaft die Mittelwerte der Vor-sehen-des-Graphen-Gruppe von der Nach-sehen-des-Graphen-Gruppe abgezogen und diese Werte dann verglichen von dem animierten und dem statischen Graphen. Dabei konnte der gewünschten Effekt deutlich erkannt werden, hypothesenkonform.</p>
-<p>Zeichnen Sie den DAG für dieses Studiendesign</p>
+<p>Die folgende Aufgabe basiert auf S. 110 von Bourier, G. (2018). Wahrscheinlichkeitsrechnung und schließende Statistik: Praxisorientierte Einführung — Mit Aufgaben und Lösungen. Springer Fachmedien. https://doi.org/10.1007/978-3-658-07481-4</p>
+<p>An einer Bushaltestelle verkehren zwei Linien. Linie A hält im 10-Minuten-Takt, Linie B im 20-Minuten-Takt, der um fünf Minuten zeitversetzt ist zu Linie A.</p>
+<p>Wie groß ist die Wahrscheinlichkeit, dass eine Person, die zu einem zufälligen Zeitpunkt an der Haltestelle ankommt, zwischen 3 und 6 Minuten warten muss? Simulieren Sie die Wahrscheinlichkeitsverteilung anhand von Stichprobenziehungen!</p>
 <p>Hinweise:</p>
 <ul>
-<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
+<li>Beide Linien sind stets pünktlich.</li>
+<li>Es treten keine sonstigen Störungen auf.</li>
+<li>Ziehen Sie 1e04 Stichproben.</li>
+<li>Runden Sie auf zwei Dezimalstellen.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
+<p>Vergegenwärtigen wir uns die Ereignisse (“Bus A kommt” und “Bus B kommt”) in den ersten 20 Minuten - danach wiederholt es sich.</p>
+<p>Dabei vereinbaren wir, dass <code>Minute=1</code> bedeutet zwischen 0 und 1 einer Minute zu warten, etc.</p>
+<p>Ergänzen wir noch das Ereignis “Bus A oder Bus B kommt”:</p>
+<p>Der vertikale Balken <code>|</code> ist in R der Operator für das logische Oder.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'ggdag'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:stats':
-
-    filter</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>my_dag <span class="ot">&lt;-</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dagitty</span>(<span class="st">"dag{g -&gt; mot; u -&gt; mot}"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy_dagitty</span>(my_dag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A DAG with 3 nodes and 2 edges
-#
-# A tibble: 3 × 8
-  name       x     y direction to      xend  yend circular
-  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;     &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;lgl&gt;   
-1 g     -0.352  1.93 -&gt;        mot    0.776  1.71 FALSE   
-2 mot    0.776  1.71 &lt;NA&gt;      &lt;NA&gt;  NA     NA    FALSE   
-3 u      1.90   1.49 -&gt;        mot    0.776  1.71 FALSE   </code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggdag</span>(my_dag) <span class="sc">+</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dag</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="DAG-Graph_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Minute</th>
+<th style="text-align: right;">Linie_A</th>
+<th style="text-align: right;">Linie_B</th>
+<th style="text-align: right;">Bus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-<p>Die AV ist mit <code>mot</code> bezeichnet; die UV mit <code>g</code> (wie Gruppe). <code>u</code> steht für sonstige Einflüsse auf die AV.</p>
+<p>Spaßeshalber ergänzen wir noch die nächsten 20 Minuten:</p>
+<p>Das plotten wir mal.</p>
+<p>Zum Plotten macht es Sinn, den Datensatz lang zu pivotieren:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  Minute Linie   Bus_kommt
+   &lt;int&gt; &lt;chr&gt;       &lt;int&gt;
+1      1 Linie_A         0
+2      1 Linie_B         0
+3      1 Bus             0
+4      2 Linie_A         0
+5      2 Linie_B         0
+6      2 Bus             0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="unnamed-chunk-6-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Jetzt ziehen wir Stichproben, damit wir zählen können, wie häufig der Bus kommt bei einer bestimmten Ankunftszeit einer Person an der Haltestelle.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  Minute Linie_A Linie_B   Bus
+   &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;int&gt;
+1     19       0       0     0
+2     12       0       0     0
+3      1       0       0     0
+4      5       0       1     1
+5     16       0       0     0
+6     19       0       0     0</code></pre>
+</div>
+</div>
+<p>Schauen wir uns mal die Stichproben als Histogramm an:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 20 × 3
+   Minute   Bus     n
+    &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1      1     0   486
+ 2      2     0   495
+ 3      3     0   516
+ 4      4     0   507
+ 5      5     1   522
+ 6      6     0   496
+ 7      7     0   517
+ 8      8     0   513
+ 9      9     0   491
+10     10     1   503
+11     11     0   513
+12     12     0   510
+13     13     0   494
+14     14     0   449
+15     15     0   497
+16     16     0   483
+17     17     0   505
+18     18     0   512
+19     19     0   496
+20     20     1   495</code></pre>
+</div>
+</div>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>fopro</li>
-<li>researchdesign</li>
-<li>causal</li>
-<li>string</li>
+<li>probability</li>
+<li>bayes</li>
+<li>num</li>
 </ul>
 
 
