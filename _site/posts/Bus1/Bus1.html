@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -302,9 +336,24 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 <p>Spaßeshalber ergänzen wir noch die nächsten 20 Minuten:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Minute =</span> <span class="dv">21</span><span class="sc">:</span><span class="dv">40</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Das plotten wir mal.</p>
 <p>Zum Plotten macht es Sinn, den Datensatz lang zu pivotieren:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d3_long <span class="ot">&lt;-</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  d3  <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> Linie_A<span class="sc">:</span>Bus, <span class="at">names_to =</span> <span class="st">"Linie"</span>, <span class="at">values_to =</span> <span class="st">"Bus_kommt"</span>) </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d3_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   Minute Linie   Bus_kommt
@@ -328,44 +377,51 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <p>Jetzt ziehen wir Stichproben, damit wir zählen können, wie häufig der Bus kommt bei einer bestimmten Ankunftszeit einer Person an der Haltestelle.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>stipros <span class="ot">&lt;-</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="fl">1e4</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(stipros)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
   Minute Linie_A Linie_B   Bus
    &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;int&gt;
-1     19       0       0     0
-2     12       0       0     0
+1      8       0       0     0
+2     15       0       0     0
 3      1       0       0     0
-4      5       0       1     1
-5     16       0       0     0
-6     19       0       0     0</code></pre>
+4      2       0       0     0
+5     11       0       0     0
+6     13       0       0     0</code></pre>
 </div>
 </div>
 <p>Schauen wir uns mal die Stichproben als Histogramm an:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stipros <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Minute, Bus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 20 × 3
    Minute   Bus     n
     &lt;int&gt; &lt;int&gt; &lt;int&gt;
- 1      1     0   486
- 2      2     0   495
- 3      3     0   516
- 4      4     0   507
- 5      5     1   522
- 6      6     0   496
- 7      7     0   517
- 8      8     0   513
- 9      9     0   491
-10     10     1   503
-11     11     0   513
-12     12     0   510
-13     13     0   494
-14     14     0   449
-15     15     0   497
-16     16     0   483
-17     17     0   505
-18     18     0   512
-19     19     0   496
-20     20     1   495</code></pre>
+ 1      1     0   507
+ 2      2     0   506
+ 3      3     0   472
+ 4      4     0   502
+ 5      5     1   531
+ 6      6     0   497
+ 7      7     0   535
+ 8      8     0   482
+ 9      9     0   474
+10     10     1   496
+11     11     0   494
+12     12     0   503
+13     13     0   493
+14     14     0   509
+15     15     0   499
+16     16     0   493
+17     17     0   523
+18     18     0   499
+19     19     0   484
+20     20     1   501</code></pre>
 </div>
 </div>
 <hr>

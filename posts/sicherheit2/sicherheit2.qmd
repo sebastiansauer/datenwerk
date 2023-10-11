@@ -1,5 +1,5 @@
 ---
-exname: wuerfel06
+exname: sicherheit2
 extype: num
 exsolution: r exams::fmt(sol)
 exshuffle: no
@@ -10,8 +10,8 @@ categories:
 - probability
 - num
 date: '2023-10-11'
-slug: wuerfel06
-title: wuerfel06
+slug: sicherheit2
+title: sicherheit2
 
 ---
 
@@ -41,7 +41,11 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 # Aufgabe
 
-Was ist die Wahrscheinlichkeit, bei 10 Wiederholungen des Werfens zweier Würfel mindestens einen Sechserpasch zu werfen?
+Ein Betreiber eines komplexen technischen Geräts versucht, Sie zu beruhigen.
+Die Wahrscheinlichkeit eines Ausfalls (Ereignis $A$) betrage nur 0.001.
+Allerdings pro Komponente des Geräts. 
+Das Gerät besteht aus $k=10^3$ Komponenten.
+Unterstellen Sie Unabhängigkeit der Komponenten.
 
 
 Hinweise:
@@ -68,42 +72,33 @@ Hinweise:
 
 # Lösung
 
-Sei $A_i$ das Ereignis "Sechserpach" in der $i$-ten Wiederholung.
+Den Ausfall der Komponente $i$ bezeichnen wir als $A_i$ und entsprechend $Pr(A_i) = 0.001$.
 
-Es gilt: $Pr(A_i) = 1/36$.
+$Pr(\neg A_i) = 1- Pr(A_i)$
 
-Nennen wir $A$ "keinen Sechserpasch in jeder Wiederholung",
-wir suchen die Wahrscheinlichkeit von A.
 
-"Mindestens einen Sechserpasch" - Das Gegenteil davon ist "keinen Sechserpasch$.
-
-$Pr(\neg A_i) = 35/36$.
-
-Nennen wir $X$ eine Zufallsvariable, die die Anzahl der Sechserpasche zählt.
-
-Die Wiederholungen sind voneinander unabhängig, 
-es gilt also 
-
-$Pr(X=0) = Pr(\neg A) = \left(\frac{35}{36} \right)^{10}$
 
 ```{r}
-Pr_kein_Secherpasch <- (35/36)^10
-Pr_kein_Secherpasch
+Pr_Ai <- 0.001
+Pr_negAi <- 1 - Pr_Ai
+Pr_negAi
 ```
 
 
-
-Das Gegenteil (Komplement) von $\neg A$, also $A$ ist das gesuchte Ereignis.
+Die Wahrscheinlichkeit, dass keine der Komponenten ausfällt, ist dann über den Multiplikationssatzu bestimmen:
 
 ```{r}
-Pr_A <- 1 - Pr_kein_Secherpasch
-Pr_A
+k <- 10^3
+Pr_negA <- Pr_negAi^k
+Pr_negA
 ```
+
+
 
 
 ```{r}
 #| echo: false
-sol <- Pr_A
+sol <- Pr_negA
 ```
 
 

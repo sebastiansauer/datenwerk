@@ -1,5 +1,5 @@
 ---
-exname: wuerfel06
+exname: Klausuren-bestehen
 extype: num
 exsolution: r exams::fmt(sol)
 exshuffle: no
@@ -10,8 +10,8 @@ categories:
 - probability
 - num
 date: '2023-10-11'
-slug: wuerfel06
-title: wuerfel06
+slug: Klausuren-bestehen
+title: Klausuren-bestehen
 
 ---
 
@@ -41,7 +41,11 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 # Aufgabe
 
-Was ist die Wahrscheinlichkeit, bei 10 Wiederholungen des Werfens zweier Würfel mindestens einen Sechserpasch zu werfen?
+Eine Studentin hat zwei Klausuren, $A$ und $B$ geschrieben.
+Sie schätzt ihre Chancen zu bestehen auf 35% bzw. auf 60%.
+Unterstellen Sie Unabhängigkeit der Ereignisse.
+
+*Aufgabe*: Wie groß ist die Chance, mindestens eine der beiden Klausuren zu bestehen?
 
 
 Hinweise:
@@ -68,42 +72,44 @@ Hinweise:
 
 # Lösung
 
-Sei $A_i$ das Ereignis "Sechserpach" in der $i$-ten Wiederholung.
-
-Es gilt: $Pr(A_i) = 1/36$.
-
-Nennen wir $A$ "keinen Sechserpasch in jeder Wiederholung",
-wir suchen die Wahrscheinlichkeit von A.
-
-"Mindestens einen Sechserpasch" - Das Gegenteil davon ist "keinen Sechserpasch$.
-
-$Pr(\neg A_i) = 35/36$.
-
-Nennen wir $X$ eine Zufallsvariable, die die Anzahl der Sechserpasche zählt.
-
-Die Wiederholungen sind voneinander unabhängig, 
-es gilt also 
-
-$Pr(X=0) = Pr(\neg A) = \left(\frac{35}{36} \right)^{10}$
-
 ```{r}
-Pr_kein_Secherpasch <- (35/36)^10
-Pr_kein_Secherpasch
+Pr_A <- .35
+Pr_B <- .6
 ```
 
 
+Die Wahrscheinlichkeit, beide Klausuren zu bestehen: 
 
-Das Gegenteil (Komplement) von $\neg A$, also $A$ ist das gesuchte Ereignis.
 
 ```{r}
-Pr_A <- 1 - Pr_kein_Secherpasch
-Pr_A
+Pr_AB <- Pr_A * Pr_B
+Pr_AB
+```
+
+
+Die Wahrscheinlichkeit, durch beide Klausuren durchzurasseln nennen wir `Pr_negA_negB`:
+
+```{r}
+Pr_NA <- 1 - Pr_A
+Pr_NB <- 1 - Pr_B
+
+Pr_negA_negB <- Pr_NA * Pr_NB
+Pr_negA_negB
+```
+
+Das Gegenteil von `Pr_negA_negB` ist, mindestens eine Klausur zu bestehen:
+
+
+
+```{r}
+Pr_mind1_bestanden <- 1 - Pr_negA_negB
+Pr_mind1_bestanden
 ```
 
 
 ```{r}
 #| echo: false
-sol <- Pr_A
+sol <- Pr_mind1_bestanden
 ```
 
 
