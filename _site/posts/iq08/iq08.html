@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-11-23">
+<meta name="dcterms.date" content="2023-10-14">
 
 <title>datenwerk - iq08</title>
 <style>
@@ -152,6 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                 <div class="quarto-category">probability</div>
                 <div class="quarto-category">simulation</div>
                 <div class="quarto-category">normal-distribution</div>
+                <div class="quarto-category">num</div>
               </div>
                   </div>
   </div>
@@ -163,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 23, 2022</p>
+        <p class="date">October 14, 2023</p>
       </div>
     </div>
     
@@ -181,9 +182,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
-<p>An einer Elite-Hochschule wird man nur zugelassen, wenn man entweder schön oder schlau ist.</p>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
+<p>An einer Elite-Hochschule wird man nur zugelassen, wenn man sowohl schön als auch schlau ist.</p>
 <p>“Schön” sei definiert als eine SD-Einheit über dem mittleren Aussehen, unter der Annahme, dass Aussehen normalverteilt ist.</p>
 <p>“Schlau” sei definiert als eine SD-Einheit über dem mittleren Wert, unter der Annahme, dass die Variable normalverteilt ist.</p>
 <p><em>Wie hoch ist die Wahrscheinlichkeit, an dieser Elite-Uni zugelassen zu werden?</em></p>
@@ -195,11 +196,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).</li>
 <li>Simulieren Sie <span class="math inline">\(n=10^4\)</span> Stichproben.</li>
 <li>Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten).</li>
+<li><a href="https://start-bayes.netlify.app/pruefung#bearbeitungshinweise">Weitere Hinweise</a></li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
 <p>Die Wahrscheinlichkeit für “schön”, <span class="math inline">\(S1\)</span> ist gleich der Wahrscheinlichkeit für “Schlau”, <span class="math inline">\(S2\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -219,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(schoenheit <span class="sc">&gt;</span> <span class="dv">1</span>, schlauheit <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(schoenheit <span class="sc">&gt;</span> <span class="dv">1</span>, schlauheit <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span>  <span class="co"># Das Komma wird als logisches UND interpretiert</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n))</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>d2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -234,7 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Wieder nehmen wir den Anteil her und bezeichnen ihn als Wahrscheinlichkeit. Das ist eine schöne Sache dieser Simulationsmethoden: Es vereinfacht die Angelegenheit, denn mit Häufigkeiten lässt sich einfacher hantieren als mit Wahrscheinlichkeiten. Und die Anteile erfüllen die Kolmogorov-Axiome, wir können also beruhigt rechnen. Falls Sie also vor Sorge um die Reinheit der Mathematik nicht schlafen konnten, kann ich Sie beruhigen :-)</p>
-<p>Die Lösung lautet also 0.024.</p>
+<p><strong>Antwort</strong>: <em>Die Lösung lautet also 0.024.</em></p>
 <p>Interessant ist es vielleicht, die Gesamtpopulation zu visualisieren:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
@@ -252,12 +254,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>Wäre die Aufnahmeregel, dass es reichte, entweder schön oder schlau (beides ist auch ok) zu sein, wäre der Anteil an zugelassenen Personen größer:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(schoenheit <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">|</span> schlauheit <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span>  <span class="co"># der horizontale Balken steht für das logische ODER.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>d3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  `schoenheit &gt; 1 | schlauheit &gt; 1`     n  prop
+  &lt;lgl&gt;                             &lt;int&gt; &lt;dbl&gt;
+1 FALSE                              7082 0.708
+2 TRUE                               2918 0.292</code></pre>
+</div>
+</div>
 <hr>
 <p>Categories:</p>
 <ul>
 <li>probability</li>
 <li>simulation</li>
 <li>normal-distribution</li>
+<li>num</li>
 </ul>
 
 

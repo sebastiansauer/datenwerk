@@ -1,0 +1,178 @@
+---
+exname: iq07
+extype: num
+exsolution: r solution
+exshuffle: no
+extol: 0.03
+expoints: 1
+categories:
+- probability
+- simulation
+- normal-distribution
+- num
+date: '2023-10-14'
+slug: iq07
+title: iq07
+
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+Intelligenz wird häufig mittels einem *IQ-Test* ermittelt.
+
+In einer Population gebe es zwei Subgruppen, für die gilt:
+
+$IQ_1 \sim N(85, 15)$
+$IQ_2 \sim N(115, 15)$
+
+*Wie groß ist die Wahrscheinlichkeit, dass eine zufällig gezogene Person einen IQ-Wert von mind. 115 Punkten hat?*
+
+
+Hinweise:
+
+- Nutzen Sie Simulationsmethoden.
+- Gehen Sie von folgender IQ-Verteilung aus: $IQ \sim N(100,15)$
+- Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
+- Simulieren Sie $n=10^3$ Stichproben pro Subpopulation.
+- Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+library(tidyverse)
+```
+
+Wir simulieren die Daten; Subpopulation 1:
+
+```{r}
+set.seed(42)
+
+d1 <- tibble(
+  id = 1:10^3,
+  iq = rnorm(n = 10^3, mean = 85, sd = 15))
+```
+
+
+Subpopulation 2:
+
+```{r}
+set.seed(42)
+
+d2 <- tibble(
+  id = 1:10^3,
+  iq = rnorm(n = 10^3, mean = 115, sd = 15))
+```
+
+
+Dann kombinieren wir die Daten zu einer Tabelle:
+
+```{r}
+d <-
+  d1 %>% 
+  bind_rows(d2)
+```
+
+
+Dann filtern wir wie in der Angabe gefragt:
+
+
+
+```{r}
+solution_d <-
+  d %>% 
+  count(iq > 115) %>% 
+  mutate(prop = n / sum(n))
+
+solution_d
+```
+
+
+
+
+
+```{r echo= FALSE}
+solution <- 
+  solution_d %>% 
+  pull(prop) %>% 
+  magrittr::extract(2)
+```
+
+
+Die Lösung lautet also `r solution`.
+
+Wenn Sie die Zufallszahlen mit `set.seed` fixiert haben,
+sollten Sie den exakt gleichen Wert gefunden haben.
+
+Interessant ist es vielleicht, die Gesamtpopulation zu visualisieren:
+
+
+```{r}
+ggplot(d) +
+  aes(x = iq) +
+  geom_density()
+```
+
+
+Im Vergleich dazu eine Normalverteilung mit MW=100 und SD=15:
+
+```{r echo = FALSE}
+ggplot(d) +
+  aes(x = iq) +
+  geom_density() +
+  stat_function(fun = dnorm, args = list(mean = 100, sd= 15), 
+                color = "red")
+```
+
+
+Wir sehen, dass unsere Population über eine (deutlich) höhere Streuung verfügt:
+
+```{r}
+d %>% 
+  summarise(sd(iq))
+```
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- simulation
+- normal-distribution
+- num
+

@@ -1,0 +1,117 @@
+---
+exname: iq05
+extype: num
+exsolution: 145
+exshuffle: no
+extol: 2
+expoints: 1
+categories:
+- probability
+- simulation
+- normal-distribution
+- num
+date: '2023-10-14'
+slug: iq05
+title: iq05
+
+---
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+Intelligenz wird häufig mittels einem *IQ-Test* ermittelt.
+
+*Wie intelligent muss man sein, um zu den schlauesten Promill der Bevölkerung zu gehören?*
+
+
+
+Hinweise:
+
+- Nutzen Sie Simulationsmethoden.
+- Gehen Sie von folgender IQ-Verteilung aus: $IQ \sim N(100,15)$
+- Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
+- Simulieren Sie $n=10^5$ Stichproben.
+- Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+library(tidyverse)
+```
+
+Wir simulieren die Daten:
+
+```{r}
+set.seed(42)
+d <- tibble(
+  id = 1:10^5,
+  iq = rnorm(n = 10^5, mean = 100, sd= 15))
+```
+
+
+Wir filtern die schlauesten 0,1 Prozent:
+
+
+
+```{r}
+d %>% 
+  summarise(iq_top_0komma1_prozent = quantile(iq, prob = .999))
+```
+
+Man muss *mindestens* über einen IQ von ca. 145 verfügen.
+
+Achtung: Das sind immer Zahlen als der "kleinen Welt" des Modells.
+Sollten unsere Annahmen nicht stimmen (normalverteilt mit MW 100 und SD 15),
+dann stimmt natürlich unser Ergebnis auch nicht.
+
+*Ob* unsere Annahmen stimmen, kann der Computer nicht sagen.
+Das ist weiterhin Menschenjob.
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- simulation
+- normal-distribution
+- num
+

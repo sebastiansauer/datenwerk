@@ -1,0 +1,165 @@
+---
+extype: num
+exsolution: r R10
+exclozetype: num
+exname: alphafehlerinflation
+extol: 0.02
+categories:
+- probability
+- R
+- inference
+- num
+date: '2023-10-14'
+slug: alphafehler-inflation3
+title: alphafehler-inflation3
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+```
+
+
+
+
+
+# Aufgabe
+
+Eine Klettererin verwendet ein Seil, dass eine Sicherheit von $r=.99$ hat: 
+mit einer Wahrscheinlichkeit von 1% reißt das Seil.
+Jetzt knüpft sie mehrere dieser Seile (hintereinander, Seil an Seil) zusammen zu einem "Gesamtseil".
+Wie groß ist die Gefahr, dass das „Gesamtseil“ reist? 
+
+
+Hinweise:
+
+- Etwaige (physikalisch plausible) Verringerung der Zugfestigkeit durch (Seilbiegung aufgrund der) Knoten ist zu vernachlässigen.
+
+
+
+* Sie knüpft 10 zusammen
+
+
+  
+  
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Sei $R$ die Wahrscheinlichkeit, dass das Gesamtseil hält (nicht reißt).
+$1-R$ ist dann die Wahrscheinlichkeit des Gegenereignisses: das Gesamtseil reißt.
+  
+Allgemein ist $R$ bei k Tests gleich r hoch k: $R=r^k$.
+
+Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.
+
+
+```{r echo = TRUE}
+r <- .99
+R10 <- r^10  %>% round(2)
+```
+
+Die Antwort (Gesamtsicherheit) lauten also:
+
+```{r}
+R10
+```
+
+
+
+# Vertiefung
+
+Betrachten wir abschließend aus Neugier die Wahrscheinlichkeit,
+dass die Klettererin abstürzt ($1-R$) als Funktion der Anzahl der Seie.
+
+Diese Überlegung ist etwas weiterführender und nicht ganz so zentral,
+aber ziemlich interessant.
+
+
+Definieren wir die Parameter:
+
+```{r echo = TRUE}
+anz_seile <- 1:20  # von 1 bis max 20 Seile
+r <- c(.9, .95, .99, .999)  # verschiedene Seil-Sicherheiten
+```
+
+
+Jetzt erstellen wir einen Tabelle, die alle `anz_seile * r` Werte kombiniert:
+
+```{r}
+d <- 
+  expand_grid(anz_seile, r)
+
+head(d)
+```
+
+
+Jetzt berechnen wir für jede Kombination die Gesamtsicherheit `R` sowie die Wahrscheinlichkeit, dass das Seil reißt, $1-R$:
+
+
+```{r}
+d <-
+  d %>% 
+  mutate(R = r^anz_seile,
+         seil_reisst_prob = 1 - R)
+```
+
+
+Und plotten das Ganze:
+
+
+```{r}
+d %>% 
+  ggplot(aes(x = anz_seile,
+             y = seil_reisst_prob,
+             color = factor(r))) +
+  geom_line()
+```
+
+
+Hat ein Seil eine Sicherheit von 90%, dann will man nicht dranhängen, wenn 20 Seile zusammengeknotet sind!
+
+
+
+Die Antwort lautet: 
+
+
+* $R_{10}= r^{10} = `r R10`$
+
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- R
+- inference
+- num
+
