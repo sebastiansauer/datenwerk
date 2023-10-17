@@ -1,0 +1,176 @@
+---
+extype: string
+exsolution: r regression_formel
+exname: adjustieren2_var1
+expoints: 1
+categories:
+- lm
+- regression
+- bayes
+- adjust
+- string
+date: '2023-10-17'
+slug: adjustieren2_var1
+title: adjustieren2_var1
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE)
+```
+
+
+
+
+
+# Aufgabe
+
+
+Betrachten Sie folgendes Modell, das den Zusammenhang des Preises (`price`) 
+und dem Gewicht (`carat`) von Diamanten untersucht (Datensatz `diamonds`).
+
+```{r}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+diamonds <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv")
+```
+
+
+
+Aber zuerst zentrieren wir den metrischen Prädiktor `carat`, 
+um den Achsenabschnitt besser interpretieren zu können. 
+
+```{r}
+diamonds <-
+  diamonds %>% 
+  mutate(carat_z = carat - mean(carat, na.rm = TRUE))
+```
+
+Dann berechnen wir ein (bayesianisches) Regressionsmodell, 
+wobei wir auf die Standardwerte der Prior zurückgreifen.
+
+```{r}
+library(rstanarm)
+lm1 <- stan_glm(price ~ carat_z, data = diamonds,
+                refresh = 0)
+parameters(lm1)
+```
+
+
+
+Zur Verdeutlichung ein Diagramm zum Modell:
+
+```{r}
+diamonds %>% 
+  ggplot() +
+  aes(x = carat_z, y = price) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+
+Oder so:
+
+```{r}
+estimate_relation(lm1) |> plot()
+```
+
+
+
+*Aufgabe*:
+
+Geben Sie eine Regressionsformel an, die `lm1` ergänzt, so dass die Schliffart (`cut`) des Diamanten kontrolliert (adjustiert) wird. 
+Anders gesagt: Das Modell soll die mittleren Preise für jede der fünf Schliffarten angeben. 
+
+
+
+
+
+
+
+
+*Hinweis*: 
+
+- Geben Sie nur die Regressionsformel an. 
+- Lassen Sie zwischen Termen der Regressionsformel jeweils ein Leerzeichen Abstand.
+- Beziehen Sie sich auf das Modell bzw. die Angaben oben.
+- Es gibt (laut Datensatz) folgende Schliffarten (und zwar in der folgenden Reihenfolge):
+
+```{r}
+diamonds %>% 
+  distinct(cut)
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r echo = FALSE}
+regression_formel <- "price ~ carat_z + cut"
+```
+
+
+
+Die richtige Antwort lautet: `price ~ carat_z + cut` 
+
+Das Modell könnten wir so berechnen:
+
+```{r}
+lm2 <- stan_glm(price ~ carat_z + cut, data = diamonds,
+                refresh = 0)  # verhindert einen Haufen unnötigen Output
+parameters(lm2)
+```
+
+
+Oder auch so, mit der klassischen Regression:
+
+
+
+```{r}
+lm(price ~ carat_z + cut, data = diamonds)
+```
+
+
+Das führt zu ähnlichen Ergebnissen.
+
+
+Man könnte hier noch einen Interaktionseffekt ergänzen.
+
+
+
+---
+
+Categories: 
+
+- lm
+- regression
+- bayes
+- adjust
+- string
+

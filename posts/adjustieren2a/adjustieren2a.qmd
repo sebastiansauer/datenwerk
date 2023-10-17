@@ -1,0 +1,147 @@
+---
+extype: string
+exsolution: ~
+exname: adjustieren2a
+expoints: 1
+categories:
+- regression
+- '2023'
+- string
+date: '2023-10-17'
+slug: adjustieren2a
+title: adjustieren2a
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      cache = TRUE)
+```
+
+
+
+
+
+# Aufgabe
+
+
+Betrachten Sie folgendes Modell, das den Zusammenhang des Preises (`price`) 
+und dem Gewicht (`carat`) von Diamanten untersucht (Datensatz `diamonds`).
+
+```{r}
+library(tidyverse)
+library(easystats)
+diamonds <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv")
+```
+
+
+
+Aber zuerst zentrieren wir den metrischen Prädiktor `carat`, 
+um den Achsenabschnitt besser interpretieren zu können. 
+
+```{r}
+diamonds <-
+  diamonds %>% 
+  mutate(carat_z = carat - mean(carat, na.rm = TRUE))
+```
+
+Dann berechnen wir ein (bayesianisches) Regressionsmodell, 
+wobei wir auf die Standardwerte der Prior zurückgreifen.
+
+```{r message=FALSE}
+lm1 <- lm(price ~ carat_z, data = diamonds)
+parameters(lm1)
+```
+
+
+
+
+Zur Verdeutlichung ein Diagramm zum Modell:
+
+```{r}
+estimate_relation(lm1) |> plot()
+```
+
+*Aufgaben:*
+
+a) Was kostet in Diamant mittlerer Größe laut Modell `lm1`? Runden Sie auf eine Dezimale. Geben Sie nur eine Zahl ein.
+
+
+b) Geben Sie eine Regressionsformel an, die `lm1` ergänzt, so dass die Schliffart (`cut`) des Diamanten kontrolliert (adjustiert) wird. Anders gesagt: Das Modell soll die mittleren Preise für jede der fünf Schliffarten angeben. Geben Sie nur die Regressionsformel an. Lassen Sie zwischen Termen jeweils ein Leerzeichen Abstand.
+
+
+
+
+
+*Hinweis*: Es gibt (laut Datensatz) folgende Schliffarten (und zwar in der folgenden Reihenfolge):
+
+```{r}
+diamonds %>% 
+  distinct(cut)
+```
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r echo = FALSE}
+regression_formel <- "price ~ carat_z + cut"
+```
+
+
+a) Unser Modell `lm1` schätzt den Preis eines Diamanten mittlerer Größe auf etwa `3932.5` (was immer auch die Einheiten sind, Dollar vermutlich).
+
+b) `price ~ carat_z + cut` 
+
+Dieses zweite Modell könnten wir so berechnen:
+
+```{r message=FALSE}
+lm2 <- lm(price ~ carat_z + cut, data = diamonds)
+parameters(lm2)
+```
+
+
+
+
+
+
+Man könnte hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat,
+dass es einen gibt.
+
+
+
+
+
+---
+
+Categories: 
+
+- regression
+- '2023'
+- string
+

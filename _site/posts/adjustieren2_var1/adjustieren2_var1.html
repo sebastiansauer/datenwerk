@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-10-11">
+<meta name="dcterms.date" content="2023-10-17">
 
-<title>datenwerk - tidymodels-ames-05</title>
+<title>datenwerk - adjustieren2_var1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -145,14 +145,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">tidymodels-ames-05</h1>
+      <h1 class="title">adjustieren2_var1</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">ds1</div>
-                <div class="quarto-category">tidymodels</div>
-                <div class="quarto-category">prediction</div>
-                <div class="quarto-category">yacsda</div>
-                <div class="quarto-category">statlearning</div>
-                <div class="quarto-category">num</div>
+                <div class="quarto-category">lm</div>
+                <div class="quarto-category">regression</div>
+                <div class="quarto-category">bayes</div>
+                <div class="quarto-category">adjust</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -164,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 11, 2023</p>
+        <p class="date">October 17, 2023</p>
       </div>
     </div>
     
@@ -184,174 +183,189 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Berechnen Sie ein knn-Modell mit tidymodels und zwar anhand des <code>ames</code> Datensatzes.</p>
-<p>Modellgleichung: <code>log(Sale_Price) ~ ., data = ames_train</code>.</p>
-<p>Gesucht ist R-Quadrat als Maß für die Modellgüte im <em>TEST-Sample</em>.</p>
-<p><em>Hinweise</em>:</p>
-<ul>
-<li>Fixieren Sie die Zufallszahlen auf den Startwert 42.</li>
-<li>Denken Sie daran, die nominal skalierten Variablen in Dummy-Variablen umzurechnen.</li>
-<li>Denken Sie daran, dass kNN gleich skalierte Prädiktoren benötigt.</li>
-<li>Nutzen Sie eine v=10,r=1 CV.</li>
-<li>Verzichten Sie auf weitere Schritte der Vorverarbeitung.</li>
-</ul>
-<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
-</section>
-<section id="lösung" class="level1">
-<h1>Lösung</h1>
-<p>Setup:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-1_e970ddc13cc3d31a21bdcd054870bfda">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)  <span class="co"># Rechenzeit messen, optional</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(ames)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Betrachten Sie folgendes Modell, das den Zusammenhang des Preises (<code>price</code>) und dem Gewicht (<code>carat</code>) von Diamanten untersucht (Datensatz <code>diamonds</code>).</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-1_d35d1cb5d7c84b416dc0ee66cf5c97d7">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
+✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
+✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
+✖ insight     0.19.5   ✔ modelbased  0.8.6 
+✔ performance 0.10.5   ✔ parameters  0.21.2
+✔ report      0.5.7    ✔ see         0.8.0 
+
+Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
 </div>
-<p>AV loggen:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-2_3f9c8beb002ff8f9ff46087eb5b33086">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ames <span class="ot">&lt;-</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  ames <span class="sc">%&gt;%</span> </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Sale_Price =</span> <span class="fu">log</span>(Sale_Price, <span class="at">base =</span> <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Rcpp</code></pre>
 </div>
-<p>Datensatz aufteilen:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-3_36fada4449a24c32f253b08cb421f573">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(ames, <span class="at">strata =</span> <span class="st">"Sale_Price"</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ames_train <span class="ot">&lt;-</span> <span class="fu">training</span>(data_split)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ames_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(data_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>This is rstanarm version 2.21.4</code></pre>
 </div>
-<p>Workflow:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-4_d8e3747c81a19e15131f03f7736da3d3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ames_rec <span class="ot">&lt;-</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Sale_Price <span class="sc">~</span> ., <span class="at">data =</span> ames_train) <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># step_log(Sale_Price, base = 10) %&gt;%   No!</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_other</span>(Neighborhood, <span class="at">threshold =</span> .<span class="dv">1</span>)  <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>()) </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>knn_model2 <span class="ot">&lt;-</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nearest_neighbor</span>(</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mode =</span> <span class="st">"regression"</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbors =</span> <span class="fu">tune</span>()  <span class="co"># Wir tunen "neighbors"</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  ) </span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ames_wflow2 <span class="ot">&lt;-</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(ames_rec) <span class="sc">%&gt;%</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(knn_model2)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>ames_wflow2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>- See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>- Default priors may change, so it's safest to specify priors, even if equivalent to the defaults.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>- For execution on a local, multicore CPU with excess RAM we recommend calling</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  options(mc.cores = parallel::detectCores())</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rstanarm'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:parameters':
+
+    compare_models</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 53940 Columns: 11</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (3): cut, color, clarity
+dbl (8): rownames, carat, depth, table, price, x, y, z
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>Aber zuerst zentrieren wir den metrischen Prädiktor <code>carat</code>, um den Achsenabschnitt besser interpretieren zu können.</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-2_d4d8a9c43b852a2cc0c4a4f0f7afba95">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">carat_z =</span> carat <span class="sc">-</span> <span class="fu">mean</span>(carat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dann berechnen wir ein (bayesianisches) Regressionsmodell, wobei wir auf die Standardwerte der Prior zurückgreifen.</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-3_5678d6b34c6045a56b667f18f2312608">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(price <span class="sc">~</span> carat_z, <span class="at">data =</span> diamonds,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
-Preprocessor: Recipe
-Model: nearest_neighbor()
-
-── Preprocessor ────────────────────────────────────────────────────────────────
-3 Recipe Steps
-
-• step_other()
-• step_dummy()
-• step_zv()
-
-── Model ───────────────────────────────────────────────────────────────────────
-K-Nearest Neighbor Model Specification (regression)
-
-Main Arguments:
-  neighbors = tune()
-
-Computational engine: kknn </code></pre>
+<pre><code>Parameter   |  Median |             95% CI |   pd |  Rhat |     ESS |                       Prior
+-------------------------------------------------------------------------------------------------
+(Intercept) | 3932.79 | [3919.82, 3946.11] | 100% | 1.004 | 1354.00 | Normal (3932.80 +- 9973.60)
+carat_z     | 7756.27 | [7728.25, 7784.89] | 100% | 1.000 | 4587.00 |   Normal (0.00 +- 21040.85)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a MCMC distribution approximation.</code></pre>
 </div>
 </div>
-<p>CV:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-5_11b6ded05694e957e167fe2a042b3103">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ames_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(ames_train, <span class="at">strata =</span> <span class="st">"Sale_Price"</span>, <span class="at">v =</span> <span class="dv">2</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ames_folds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>#  2-fold cross-validation using stratification 
-# A tibble: 2 × 2
-  splits              id   
-  &lt;list&gt;              &lt;chr&gt;
-1 &lt;split [1098/1099]&gt; Fold1
-2 &lt;split [1099/1098]&gt; Fold2</code></pre>
+<p>Zur Verdeutlichung ein Diagramm zum Modell:</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-4_328caff6e5ba775545b4f680c2580194">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> carat_z, <span class="at">y =</span> price) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
-</div>
-<p>Tunen:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-6_9653e19f31ba816cb3fa96e76c074582">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ames_grid_search <span class="ot">&lt;-</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    knn_model2,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    ames_rec,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> ames_folds,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">control =</span> <span class="fu">control_grid</span>(<span class="at">save_workflow =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">grid =</span> <span class="dv">2</span>,  <span class="co"># 2 Tuningparameterwerte, hier nur zum Zeit sparen</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>3.418 sec elapsed</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ames_grid_search</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># Tuning results
-# 2-fold cross-validation using stratification 
-# A tibble: 2 × 4
-  splits              id    .metrics         .notes          
-  &lt;list&gt;              &lt;chr&gt; &lt;list&gt;           &lt;list&gt;          
-1 &lt;split [1098/1099]&gt; Fold1 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;
-2 &lt;split [1099/1098]&gt; Fold2 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
-</div>
-</div>
-<p>Modellgüte im Train-Samples über die Tuningparameter hinweg:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-7_6b91f5e7b583e271bf757fcaa159a83c">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(ames_grid_search)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="unnamed-chunk-7-1.png" class="img-fluid figure-img" width="384"></p>
+<p><img src="unnamed-chunk-4-1.png" class="img-fluid figure-img" width="384"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Fitte besten Modellkandidaten (Paket <code>tune</code> &gt;= V1.1.0 benötigt):</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-8_a4a38925b07cb49da8ee13155fbc4b29">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fit1_final <span class="ot">&lt;-</span> <span class="fu">fit_best</span>(ames_grid_search)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Oder so:</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-5_69226d6dc33ddf0b002df8b82da82bbd">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_relation</span>(lm1) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="unnamed-chunk-5-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
 </div>
-<p>Vorhersagen:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-9_11527962e564b424ab922be113fdf166">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit1_final, ames_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Modellgüte im Test-Sample:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-10_b99616840fc814837dc2f0426edf63f0">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fit1_metrics <span class="ot">&lt;-</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  preds <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(ames_test <span class="sc">%&gt;%</span> <span class="fu">select</span>(Sale_Price)) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rsq</span>(<span class="at">truth =</span> Sale_Price, <span class="at">estimate =</span> .pred)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>fit1_metrics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><em>Aufgabe</em>:</p>
+<p>Geben Sie eine Regressionsformel an, die <code>lm1</code> ergänzt, so dass die Schliffart (<code>cut</code>) des Diamanten kontrolliert (adjustiert) wird. Anders gesagt: Das Modell soll die mittleren Preise für jede der fünf Schliffarten angeben.</p>
+<p><em>Hinweis</em>:</p>
+<ul>
+<li>Geben Sie nur die Regressionsformel an.</li>
+<li>Lassen Sie zwischen Termen der Regressionsformel jeweils ein Leerzeichen Abstand.</li>
+<li>Beziehen Sie sich auf das Modell bzw. die Angaben oben.</li>
+<li>Es gibt (laut Datensatz) folgende Schliffarten (und zwar in der folgenden Reihenfolge):</li>
+</ul>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-6_e06c86473361cf20038bea78c1636a85">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(cut)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  .metric .estimator .estimate
-  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rsq     standard       0.739</code></pre>
+<pre><code># A tibble: 5 × 1
+  cut      
+  &lt;chr&gt;    
+1 Ideal    
+2 Premium  
+3 Good     
+4 Very Good
+5 Fair     </code></pre>
 </div>
 </div>
-<p>R-Quadrat:</p>
-<div class="cell" data-hash="tidymodels-ames-05_cache/html/unnamed-chunk-11_884f4bd611332183ce49ca33b1acb73c">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sol <span class="ot">&lt;-</span> fit1_metrics <span class="sc">%&gt;%</span> <span class="fu">pull</span>(.estimate)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>sol</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</section>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
+<p>Die richtige Antwort lautet: <code>price ~ carat_z + cut</code></p>
+<p>Das Modell könnten wir so berechnen:</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-8_849a057a07317d8af10cc0f0c1c3f2fa">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># verhindert einen Haufen unnötigen Output</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.739015</code></pre>
+<pre><code>Parameter    |  Median |             95% CI |   pd |  Rhat |     ESS |                       Prior
+--------------------------------------------------------------------------------------------------
+(Intercept)  | 2405.56 | [2331.82, 2478.65] | 100% | 1.000 | 1661.00 | Normal (3932.80 +- 9973.60)
+carat_z      | 7871.14 | [7844.20, 7897.79] | 100% | 0.999 | 4163.00 |   Normal (0.00 +- 21040.85)
+cutGood      | 1120.77 | [1034.52, 1203.06] | 100% | 1.000 | 1922.00 |   Normal (0.00 +- 34685.38)
+cutIdeal     | 1800.36 | [1723.59, 1876.77] | 100% | 1.000 | 1712.00 |   Normal (0.00 +- 20362.28)
+cutPremium   | 1437.96 | [1360.85, 1515.70] | 100% | 1.000 | 1727.00 |   Normal (0.00 +- 22862.49)
+cutVery Good | 1509.29 | [1431.31, 1586.47] | 100% | 1.000 | 1702.00 |   Normal (0.00 +- 23922.15)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a MCMC distribution approximation.</code></pre>
 </div>
 </div>
+<p>Oder auch so, mit der klassischen Regression:</p>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-9_0097098d7820c885c38469bb8f2276cc">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = price ~ carat_z + cut, data = diamonds)
+
+Coefficients:
+ (Intercept)       carat_z       cutGood      cutIdeal    cutPremium  
+        2405          7871          1120          1801          1439  
+cutVery Good  
+        1510  </code></pre>
+</div>
+</div>
+<p>Das führt zu ähnlichen Ergebnissen.</p>
+<p>Man könnte hier noch einen Interaktionseffekt ergänzen.</p>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>ds1</li>
-<li>tidymodels</li>
-<li>prediction</li>
-<li>yacsda</li>
-<li>statlearning</li>
-<li>num</li>
+<li>lm</li>
+<li>regression</li>
+<li>bayes</li>
+<li>adjust</li>
+<li>string</li>
 </ul>
 
 

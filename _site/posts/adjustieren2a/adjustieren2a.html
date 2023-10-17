@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-10-11">
+<meta name="dcterms.date" content="2023-10-17">
 
-<title>datenwerk - repro1-sessioninfo</title>
+<title>datenwerk - adjustieren2a</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -111,10 +145,10 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">repro1-sessioninfo</h1>
+      <h1 class="title">adjustieren2a</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">R</div>
-                <div class="quarto-category">repro</div>
+                <div class="quarto-category">regression</div>
+                <div class="quarto-category">2023</div>
                 <div class="quarto-category">string</div>
               </div>
                   </div>
@@ -127,7 +161,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 11, 2023</p>
+        <p class="date">October 17, 2023</p>
       </div>
     </div>
     
@@ -147,50 +181,111 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Sie analysieren fröhlich, bestens gelaunt geradezu, in Ruhe einige Daten. Läuft super. Plötzlich: Oh nein! Eine Fehlermeldung! Das darf nicht wahr sein!</p>
-<p>Sicherlich ein Bug in R oder in RStudio oder in einem R-Paket…</p>
-<p>Sie fragen jemanden um Hilfe und jemand antwort mit der Frage, ob Sie den die aktuelle Version von R/RStudio/einem R-Paket hätten.</p>
-<p>Tja, gute Frage … Woher weiß man das eigentlich?</p>
-<p>Hinweise:</p>
-<ul>
-<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
-</ul>
+<p>Betrachten Sie folgendes Modell, das den Zusammenhang des Preises (<code>price</code>) und dem Gewicht (<code>carat</code>) von Diamanten untersucht (Datensatz <code>diamonds</code>).</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-1_a3cf7ef6d3a1175cc7548969d66e9739">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
+✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
+✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
+✖ insight     0.19.5   ✔ modelbased  0.8.6 
+✔ performance 0.10.5   ✔ parameters  0.21.2
+✔ report      0.5.7    ✔ see         0.8.0 
+
+Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 53940 Columns: 11</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (3): cut, color, clarity
+dbl (8): rownames, carat, depth, table, price, x, y, z
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>Aber zuerst zentrieren wir den metrischen Prädiktor <code>carat</code>, um den Achsenabschnitt besser interpretieren zu können.</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-2_ca7ec02b01a6d3c6cf52715fc03c98f5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">carat_z =</span> carat <span class="sc">-</span> <span class="fu">mean</span>(carat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dann berechnen wir ein (bayesianisches) Regressionsmodell, wobei wir auf die Standardwerte der Prior zurückgreifen.</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-3_ee5763f112edbec7be5feb3ed54dfedb">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> carat_z, <span class="at">data =</span> diamonds)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |    SE |             95% CI | t(53938) |      p
+--------------------------------------------------------------------------
+(Intercept) |     3932.80 |  6.67 | [3919.73, 3945.87] |   589.83 | &lt; .001
+carat z     |     7756.43 | 14.07 | [7728.86, 7784.00] |   551.41 | &lt; .001</code></pre>
+</div>
+</div>
+<p>Zur Verdeutlichung ein Diagramm zum Modell:</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-4_134aa00e9af4899c8f638a9be8d3713d">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_relation</span>(lm1) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="unnamed-chunk-4-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Aufgaben:</em></p>
+<ol type="a">
+<li><p>Was kostet in Diamant mittlerer Größe laut Modell <code>lm1</code>? Runden Sie auf eine Dezimale. Geben Sie nur eine Zahl ein.</p></li>
+<li><p>Geben Sie eine Regressionsformel an, die <code>lm1</code> ergänzt, so dass die Schliffart (<code>cut</code>) des Diamanten kontrolliert (adjustiert) wird. Anders gesagt: Das Modell soll die mittleren Preise für jede der fünf Schliffarten angeben. Geben Sie nur die Regressionsformel an. Lassen Sie zwischen Termen jeweils ein Leerzeichen Abstand.</p></li>
+</ol>
+<p><em>Hinweis</em>: Es gibt (laut Datensatz) folgende Schliffarten (und zwar in der folgenden Reihenfolge):</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-5_d4a73327070d6028c11193b923948e9d">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(cut)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 1
+  cut      
+  &lt;chr&gt;    
+1 Ideal    
+2 Premium  
+3 Good     
+4 Very Good
+5 Fair     </code></pre>
+</div>
+</div>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
-<p>Mit dem Befehl <code>sessionInfo</code> bekommen Sie einen Überblick über die Versionen der aktuell gestarteten R-Pakete sowie von R. Die Version von RStudio ist zumeist nicht wichtig, da RStudio keinen R-Code ausführt.</p>
-<div class="cell">
+<ol type="a">
+<li><p>Unser Modell <code>lm1</code> schätzt den Preis eines Diamanten mittlerer Größe auf etwa <code>3932.5</code> (was immer auch die Einheiten sind, Dollar vermutlich).</p></li>
+<li><p><code>price ~ carat_z + cut</code></p></li>
+</ol>
+<p>Dieses zweite Modell könnten wir so berechnen:</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-7_cbc370e051a8d3a5c5aa7e584e21c3d9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>R version 4.2.1 (2022-06-23)
-Platform: x86_64-apple-darwin17.0 (64-bit)
-Running under: macOS Big Sur ... 10.16
-
-Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
-
-locale:
-[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
-
-other attached packages:
-[1] colorout_1.2-2
-
-loaded via a namespace (and not attached):
- [1] htmlwidgets_1.6.2 compiler_4.2.1    fastmap_1.1.1     cli_3.6.1        
- [5] tools_4.2.1       htmltools_0.5.6   rstudioapi_0.15.0 yaml_2.3.7       
- [9] rmarkdown_2.25    knitr_1.44        jsonlite_1.8.7    xfun_0.40        
-[13] digest_0.6.33     rlang_1.1.1       evaluate_0.21    </code></pre>
+<pre><code>Parameter       | Coefficient |    SE |             95% CI | t(53934) |      p
+------------------------------------------------------------------------------
+(Intercept)     |     2405.18 | 37.83 | [2331.04, 2479.32] |    63.58 | &lt; .001
+carat z         |     7871.08 | 13.98 | [7843.68, 7898.48] |   563.04 | &lt; .001
+cut [Good]      |     1120.33 | 43.50 | [1035.07, 1205.59] |    25.76 | &lt; .001
+cut [Ideal]     |     1800.92 | 39.34 | [1723.81, 1878.04] |    45.77 | &lt; .001
+cut [Premium]   |     1439.08 | 39.87 | [1360.94, 1517.21] |    36.10 | &lt; .001
+cut [Very Good] |     1510.14 | 40.24 | [1431.26, 1589.01] |    37.53 | &lt; .001</code></pre>
 </div>
 </div>
+<p>Man könnte hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat, dass es einen gibt.</p>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>R</li>
-<li>repro</li>
+<li>regression</li>
+<li>‘2023’</li>
 <li>string</li>
 </ul>
 

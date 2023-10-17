@@ -1,0 +1,153 @@
+---
+extype: string
+exsolution: NA
+exname: adjustieren1a
+expoints: 1
+categories:
+- regression
+- '2023'
+- string
+date: '2023-10-17'
+slug: adjustieren1a
+title: adjustieren1a
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      cache = TRUE)
+```
+
+
+
+
+
+# Aufgabe
+
+
+
+Betrachten Sie folgendes Modell, das den Zusammenhang von PS-Zahl und Spritverbrauch untersucht (Datensatz `mtcars`).
+
+
+Aber zuerst zentrieren wir den metrischen Prädiktor `hp`, um den Achsenabschnitt besser interpretieren zu können. 
+
+```{r}
+library(tidyverse)
+library(easystats)
+data(mtcars)
+
+mtcars <-
+  mtcars %>% 
+  mutate(hp_z = hp - mean(hp))
+```
+
+
+```{r}
+lm1 <- lm(mpg ~ hp_z, data = mtcars)
+parameters(lm1)
+```
+
+
+Jetzt können wir aus dem Achsenabschnitt (Intercept) herauslesen, dass ein Auto mit `hp_z = 0` - also mit mittlerer PS-Zahl - vielleicht gut 20 Meilen weit mit einer Gallone Sprit kommt.
+
+Zur Verdeutlichung ein Diagramm zum Modell:
+
+```{r}
+estimate_relation(lm1) |> plot()
+```
+
+
+
+
+Adjustieren Sie im Modell die PS-Zahl um die Art des Schaltgetriebes (`am`), so dass das neue Modell den statistischen Effekt (nicht notwendig auch kausal) der PS-Zahl bereinigt bzw. unabhängig von der Art des Schaltgetriebes widerspiegelt!
+
+Hinweise:
+
+- `am=0` ist ein Auto mit Automatikgetriebe.
+- Wir gehen davon aus, dass der Regressionseffekt gleich stark ist auf allen (beiden) Stufen von `am`. M.a.W.: Es liegt kein Interaktionseffekt vor.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+```{r}
+lm2 <- lm(mpg ~ hp_z + am, data = mtcars)
+parameters(lm2)
+```
+
+
+
+
+Die Spalte `Coefficient` gibt den mittleren geschätzten Wert für den jeweiligen Koeffizienten an,
+also den Schätzwert zum Koeffizienten.
+
+Die Koeffizienten zeigen, dass der Achsenabschnitt für Autos mit Automatikgetriebe um etwa 5 Meilen geringer ist als für Autos mit manueller Schaltung: Ein durchschnittliches Auto mit manueller Schaltung kommt also etwa 5 Meilen weiter als ein Auto mit Automatikschaltung, glaubt unser Modell.
+
+
+```{r}
+estimate_relation(lm2) |> plot()
+```
+
+
+`am` wird als numerische Variable erkannt.
+
+Das können wir so ändern:
+
+```{r}
+mtcars <- 
+  mtcars |> 
+  mutate(am = factor(am))
+```
+
+
+
+```{r}
+lm3 <- lm(mpg ~ hp_z + am, data = mtcars)
+parameters(lm3)
+```
+
+
+Die Koeffizienten bleiben gleich.
+
+
+Aber im Diagramm wird `am` jetzt als Faktor-Variable erkannt, was Sinn macht:
+
+
+```{r}
+estimate_relation(lm3) |> plot()
+```
+
+Man könnte hier noch einen Interaktionseffekt ergänzen.
+
+
+
+---
+
+Categories: 
+
+- regression
+- '2023'
+- string
+
