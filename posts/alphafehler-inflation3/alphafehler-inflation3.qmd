@@ -2,14 +2,14 @@
 extype: num
 exsolution: r R10
 exclozetype: num
-exname: alphafehlerinflation
+exname: alphafehler-inflation3
 extol: 0.02
 categories:
 - probability
 - R
 - inference
 - num
-date: '2023-10-17'
+date: '2023-10-20'
 slug: alphafehler-inflation3
 title: alphafehler-inflation3
 
@@ -48,9 +48,9 @@ Hinweise:
 
 - Etwaige (physikalisch plausible) Verringerung der Zugfestigkeit durch (Seilbiegung aufgrund der) Knoten ist zu vernachlässigen.
 
+- Sie knüpft 10 Seile zusammen.
 
-
-* Sie knüpft 10 zusammen
+- Beachten Sie die [sonstigen Hinweise auf dem Datenwerk](https://datenwerk.netlify.app/hinweise).
 
 
   
@@ -72,20 +72,26 @@ Hinweise:
 Sei $R$ die Wahrscheinlichkeit, dass das Gesamtseil hält (nicht reißt).
 $1-R$ ist dann die Wahrscheinlichkeit des Gegenereignisses: das Gesamtseil reißt.
   
-Allgemein ist $R$ bei k Tests gleich r hoch k: $R=r^k$.
-
-Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.
+Allgemein ist $R$ bei $k$ Tests (Seilen) gleich $r$ hoch $k$: $R=r^k$.
+(Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.)
 
 
 ```{r echo = TRUE}
-r <- .99
-R10 <- r^10  %>% round(2)
+r <- .99  #  Reißfestigkeit des einfaches Seils
+R10 <- r^10  %>% round(2)  # Reißfestigkeit des 10-fachen Seils
 ```
 
-Die Antwort (Gesamtsicherheit) lauten also:
+Die Gesamtsicherheit lauten also:
 
 ```{r}
 R10
+```
+
+Die Antwort (`solution`) ist aber $1-R$:
+
+```{r}
+solution <- 1-R10
+solution
 ```
 
 
@@ -127,8 +133,29 @@ d <-
          seil_reisst_prob = 1 - R)
 ```
 
+plotten das Ganze mit dem Paket `ggpubr`: 
 
-Und plotten das Ganze:
+
+
+
+```{r}
+library(ggpubr)
+d <-
+  d |> 
+  mutate(r_fctr = factor(r))  # um "r" zum Gruppieren zu verwenden, sollte es eine nominale Variable sein, daher wandeln wir mit "factor" in eine nominale Variable um.
+
+ggline(d,
+       x = "anz_seile",
+       y = "seil_reisst_prob",
+       color = "r_fctr",
+       linetype = "r_fctr",
+       group = "r_fctr") +
+  labs(color = "Reißfestigkeit",
+       linetype = "Reißfestigkeit")
+```
+
+
+Oder mit `ggplot` plotten:
 
 
 ```{r}
@@ -136,9 +163,9 @@ d %>%
   ggplot(aes(x = anz_seile,
              y = seil_reisst_prob,
              color = factor(r))) +
-  geom_line()
+  geom_line() +
+  labs(color = "Reißfestigkeit")
 ```
-
 
 Hat ein Seil eine Sicherheit von 90%, dann will man nicht dranhängen, wenn 20 Seile zusammengeknotet sind!
 
@@ -147,7 +174,7 @@ Hat ein Seil eine Sicherheit von 90%, dann will man nicht dranhängen, wenn 20 S
 Die Antwort lautet: 
 
 
-* $R_{10}= r^{10} = `r R10`$
+* $R_{10}= 1-r^{10} = 1 - `r R10` = `r solution`$
 
 
 

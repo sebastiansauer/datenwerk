@@ -1,14 +1,14 @@
 ---
 extype: string
 exsolution: r paste0(R2,R5,R10,R20)
-exname: alphafehlerinflation4
+exname: alphafehler-inflation4
 extol: 0.02
 categories:
 - probability
 - R
 - inference
 - string
-date: '2023-10-17'
+date: '2023-10-20'
 slug: alphafehler-inflation4
 title: alphafehler-inflation4
 
@@ -75,8 +75,7 @@ Sei $R$ die Wahrscheinlichkeit, dass das Gesamtseil hält (nicht reißt).
 $1-R$ ist dann die Wahrscheinlichkeit des Gegenereignisses: das Gesamtseil reißt.
   
 Allgemein ist $R$ bei k Tests gleich r hoch k: $R=r^k$.
-
-Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.
+(Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.)
 
 
 ```{r echo = TRUE}
@@ -87,13 +86,23 @@ R10 <- r^10  %>% round(2)
 R20 <- r^20  %>% round(2)
 ```
 
-Die Antworten (Gesamtsicherheiten) lauten also:
+Die Gesamtsicherheiten lauten also:
 
 ```{r}
 R2
 R5
 R10
 R20
+```
+
+
+Die Seilriss-Gefahr ist dann:
+
+```{r}
+1 - R2
+1 - R5
+1 - R10
+1 - R20
 ```
 
 
@@ -136,7 +145,29 @@ d <-
 ```
 
 
-Und plotten das Ganze:
+Und plotten das Ganze mit dem Paket `ggpubr`: 
+
+
+
+
+```{r}
+library(ggpubr)
+d <-
+  d |> 
+  mutate(r_fctr = factor(r))  # um "r" zum Gruppieren zu verwenden, sollte es eine nominale Variable sein, daher wandeln wir mit "factor" in eine nominale Variable um.
+
+ggline(d,
+       x = "anz_seile",
+       y = "seil_reisst_prob",
+       color = "r_fctr",
+       linetype = "r_fctr",
+       group = "r_fctr") +
+  labs(color = "Reißfestigkeit",
+       linetype = "Reißfestigkeit")
+```
+
+
+Oder mit `ggplot` plotten:
 
 
 ```{r}
@@ -144,7 +175,8 @@ d %>%
   ggplot(aes(x = anz_seile,
              y = seil_reisst_prob,
              color = factor(r))) +
-  geom_line()
+  geom_line() +
+  labs(color = "Reißfestigkeit")
 ```
 
 

@@ -11,7 +11,7 @@ categories:
 - normal-distribution
 - exam-22
 - num
-date: '2023-10-17'
+date: '2023-10-20'
 slug: iq01
 title: iq01
 
@@ -52,7 +52,7 @@ Hinweise:
 - Gehen Sie von folgender IQ-Verteilung aus: $IQ \sim N(100,15)$.
 - Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).
 - Simulieren Sie $n=10^3$ Stichproben.
-- Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)
+- Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten).
 - Wir wollen hier keine Post-Verteilung berechnen, sondern lediglich Werte simulieren.
 - Geben Sie keine Prozentzahlen, sondern stets Anteile an.
 
@@ -79,10 +79,12 @@ library(tidyverse)
 Wir simulieren die Daten:
 
 ```{r}
-set.seed(42)
+set.seed(42)  # Reproduzierbarkeit
 d <- tibble(
-  id = 1:10^3,
-  iq = rnorm(n = 10^3, mean = 100, sd= 15))
+  id = 1:10^3,  # Der Doppelpunkt heißt "bis", also "von 1 bis 10 hoch 3". Diese Spalte ist nicht so wichtig.
+  iq = rnorm(n = 10^3, mean = 100, sd = 15))
+
+head(d)  # Die ersten paar Zeilen
 ```
 
 
@@ -96,13 +98,22 @@ d %>%
 
 Ca. 20 von 1000 Personen erfüllen diese Bedingung (IQ >= 130).
 
-Lösung: Die gesuchte Wahrscheinlichkeit beträgt ca. 2% bzw. 0.02
+Genau genommen: 
+
+```{r}
+21/1000
+```
+
+
+Lösung: Die gesuchte Wahrscheinlichkeit beträgt ca. 2% bzw. 0.02.
+
+
 
 ```{r echo = FALSE}
 sol <- d %>% 
   filter(iq >= 130) %>% 
   nrow() / 1000
-sol
+sol <- round(sol, 2)
 ```
 
 

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-10-17">
+<meta name="dcterms.date" content="2023-10-20">
 
 <title>datenwerk - alphafehler-inflation3</title>
 <style>
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 17, 2023</p>
+        <p class="date">October 20, 2023</p>
       </div>
     </div>
     
@@ -188,24 +188,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Hinweise:</p>
 <ul>
 <li><p>Etwaige (physikalisch plausible) Verringerung der Zugfestigkeit durch (Seilbiegung aufgrund der) Knoten ist zu vernachlässigen.</p></li>
-<li><p>Sie knüpft 10 zusammen</p></li>
+<li><p>Sie knüpft 10 Seile zusammen.</p></li>
+<li><p>Beachten Sie die <a href="https://datenwerk.netlify.app/hinweise">sonstigen Hinweise auf dem Datenwerk</a>.</p></li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
 <p>Sei <span class="math inline">\(R\)</span> die Wahrscheinlichkeit, dass das Gesamtseil hält (nicht reißt). <span class="math inline">\(1-R\)</span> ist dann die Wahrscheinlichkeit des Gegenereignisses: das Gesamtseil reißt.</p>
-<p>Allgemein ist <span class="math inline">\(R\)</span> bei k Tests gleich r hoch k: <span class="math inline">\(R=r^k\)</span>.</p>
-<p>Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.</p>
+<p>Allgemein ist <span class="math inline">\(R\)</span> bei <span class="math inline">\(k\)</span> Tests (Seilen) gleich <span class="math inline">\(r\)</span> hoch <span class="math inline">\(k\)</span>: <span class="math inline">\(R=r^k\)</span>. (Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> .<span class="dv">99</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>R10 <span class="ot">&lt;-</span> r<span class="sc">^</span><span class="dv">10</span>  <span class="sc">%&gt;%</span> <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> .<span class="dv">99</span>  <span class="co">#  Reißfestigkeit des einfaches Seils</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>R10 <span class="ot">&lt;-</span> r<span class="sc">^</span><span class="dv">10</span>  <span class="sc">%&gt;%</span> <span class="fu">round</span>(<span class="dv">2</span>)  <span class="co"># Reißfestigkeit des 10-fachen Seils</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Die Antwort (Gesamtsicherheit) lauten also:</p>
+<p>Die Gesamtsicherheit lauten also:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>R10</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9</code></pre>
+</div>
+</div>
+<p>Die Antwort (<code>solution</code>) ist aber <span class="math inline">\(1-R\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span>R10</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>solution</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1</code></pre>
 </div>
 </div>
 </section>
@@ -215,15 +223,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Diese Überlegung ist etwas weiterführender und nicht ganz so zentral, aber ziemlich interessant.</p>
 <p>Definieren wir die Parameter:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>anz_seile <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>  <span class="co"># von 1 bis max 20 Seile</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">9</span>, .<span class="dv">95</span>, .<span class="dv">99</span>, .<span class="dv">999</span>)  <span class="co"># verschiedene Seil-Sicherheiten</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>anz_seile <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>  <span class="co"># von 1 bis max 20 Seile</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">9</span>, .<span class="dv">95</span>, .<span class="dv">99</span>, .<span class="dv">999</span>)  <span class="co"># verschiedene Seil-Sicherheiten</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Jetzt erstellen wir einen Tabelle, die alle <code>anz_seile * r</code> Werte kombiniert:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(anz_seile, r)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(anz_seile, r)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 2
   anz_seile     r
@@ -238,22 +246,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Jetzt berechnen wir für jede Kombination die Gesamtsicherheit <code>R</code> sowie die Wahrscheinlichkeit, dass das Seil reißt, <span class="math inline">\(1-R\)</span>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">R =</span> r<span class="sc">^</span>anz_seile,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">seil_reisst_prob =</span> <span class="dv">1</span> <span class="sc">-</span> R)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">R =</span> r<span class="sc">^</span>anz_seile,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">seil_reisst_prob =</span> <span class="dv">1</span> <span class="sc">-</span> R)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Und plotten das Ganze:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> anz_seile,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> seil_reisst_prob,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">factor</span>(r))) <span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> anz_seile,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> seil_reisst_prob,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">factor</span>(r))) <span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="unnamed-chunk-6-1.png" class="img-fluid figure-img" width="384"></p>
+<p><img src="unnamed-chunk-7-1.png" class="img-fluid figure-img" width="384"></p>
 </figure>
 </div>
 </div>
@@ -261,7 +269,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Hat ein Seil eine Sicherheit von 90%, dann will man nicht dranhängen, wenn 20 Seile zusammengeknotet sind!</p>
 <p>Die Antwort lautet:</p>
 <ul>
-<li><span class="math inline">\(R_{10}= r^{10} = 0.9\)</span></li>
+<li><span class="math inline">\(R_{10}= 1-r^{10} = 1 - 0.9 = 0.1\)</span></li>
 </ul>
 <hr>
 <p>Categories:</p>
