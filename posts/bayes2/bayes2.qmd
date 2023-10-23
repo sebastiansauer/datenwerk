@@ -1,0 +1,154 @@
+---
+exname: bayes2
+extype: num
+exsolution: r exams::fmt(sol)
+exshuffle: no
+extol: 0.02
+expoints: 1
+categories:
+- R
+- bayes
+- probability
+- num
+date: '2023-10-23'
+slug: bayes2
+title: bayes2
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS TRUE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+Wir haben eine Münze $n=10$ Mal geworfen. Unsere Daten ($D$) sind: 8 Mal lag "Kopf" oben. 
+Gegeben dieser Datenlage, wie hoch ist die Wahrscheinlichkeit für das Ereignis $F$ (Falschspieler-Münze), dass die Münze also gezinkt ist auf $p=.8$? 
+Apriori sind wir indifferent, ob die Münze gezinkt ist oder nicht ($\neg F$, also $p=.5$). 
+Der Einfachheit halber gehen wir davon aus, dass es nur zwei Zustände für die Münze geben kann, gezinkt ($F$) oder nicht gezinkt ($\neg F$).
+
+*Aufgabe*: Berechnen Sie die Wahrscheinlichkeit, dass die Münze gezinkt ist ($F$), gegeben der Datenlage $D$!
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Gesucht ist die Wahrscheinlichkeit, dass die Münze gezinkt ist, gegeben der beobachteten Daten: $Pr(F|D)$.
+
+```{r}
+p1 = .8
+p2 = .5
+n = 10
+k = 8
+```
+
+
+Es gilt:
+
+$Pr(F|D) = \frac{L \times Priori}{Evidenz} = \frac{Pr(D|F) Pr(F)}{Pr(D)} =  \frac{Pr(D|F) Pr(F)}{Pr(D|F)Pr(F)  + {Pr(D|\neg F)Pr(\neg F)}}$
+
+Die Likelihood, L, berechnet sich so:
+
+```{r}
+L <- dbinom(x = k, size = n, prob = p1)
+L
+```
+
+Der Zähler des Bruchs (unstand. Post) berechnet sich so:
+
+```{r}
+Post_unstand <- L * 1/2
+Post_unstand
+```
+
+
+
+
+Likelihood für die Daten, wenn die Münze nicht gezinkt ist:
+
+```{r}
+L2 <- dbinom(x = k, size = n, prob = p2)
+L2
+```
+
+Die unstand. Post-Wahrscheinlichkeit für die Hypothese, dass die Münze nicht gezinkt ist, gegeben der Daten:
+
+```{r}
+Post_unstand2 <- L2 * 1/2
+Post_unstand2
+```
+
+Die Evidenz, E, berechnet sich als Summe aller unstand. Post-Wahrscheinlichkeiten (also über alle möglichen Hypothesen, d.h. $F$ und $\neg F$, also $L$ plus $L_2$):
+
+
+```{r}
+E <- Post_unstand + Post_unstand2
+E
+```
+
+
+
+Die standardisierte Post-Wahrscheinlichkeit ist also die unstand. Post-Wahrscheinlichkeit geteilt durch die Evidenz:
+
+```{r}
+Post_std <- Post_unstand / E
+Post_std
+```
+
+
+
+```{r}
+#| echo: false
+
+sol <- Post_std |> round(2)
+```
+
+
+*Antwort*: Die Lösung beträgt ``r sol``.
+
+
+
+
+---
+
+Categories: 
+
+- R
+- bayes
+- probability
+- num
+

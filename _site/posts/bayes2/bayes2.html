@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-10-20">
+<meta name="dcterms.date" content="2023-10-23">
 
-<title>datenwerk - alphafehler-inflation3</title>
+<title>datenwerk - bayes2</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -147,11 +147,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">alphafehler-inflation3</h1>
+      <h1 class="title">bayes2</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">probability</div>
                 <div class="quarto-category">R</div>
-                <div class="quarto-category">inference</div>
+                <div class="quarto-category">bayes</div>
+                <div class="quarto-category">probability</div>
                 <div class="quarto-category">num</div>
               </div>
                   </div>
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 20, 2023</p>
+        <p class="date">October 23, 2023</p>
       </div>
     </div>
     
@@ -184,123 +184,80 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Eine Klettererin verwendet ein Seil, dass eine Sicherheit von <span class="math inline">\(r=.99\)</span> hat: mit einer Wahrscheinlichkeit von 1% reißt das Seil. Jetzt knüpft sie mehrere dieser Seile (hintereinander, Seil an Seil) zusammen zu einem “Gesamtseil”. Wie groß ist die Gefahr, dass das „Gesamtseil“ reist?</p>
+<p>Wir haben eine Münze <span class="math inline">\(n=10\)</span> Mal geworfen. Unsere Daten (<span class="math inline">\(D\)</span>) sind: 8 Mal lag “Kopf” oben. Gegeben dieser Datenlage, wie hoch ist die Wahrscheinlichkeit für das Ereignis <span class="math inline">\(F\)</span> (Falschspieler-Münze), dass die Münze also gezinkt ist auf <span class="math inline">\(p=.8\)</span>? Apriori sind wir indifferent, ob die Münze gezinkt ist oder nicht (<span class="math inline">\(\neg F\)</span>, also <span class="math inline">\(p=.5\)</span>). Der Einfachheit halber gehen wir davon aus, dass es nur zwei Zustände für die Münze geben kann, gezinkt (<span class="math inline">\(F\)</span>) oder nicht gezinkt (<span class="math inline">\(\neg F\)</span>).</p>
+<p><em>Aufgabe</em>: Berechnen Sie die Wahrscheinlichkeit, dass die Münze gezinkt ist (<span class="math inline">\(F\)</span>), gegeben der Datenlage <span class="math inline">\(D\)</span>!</p>
 <p>Hinweise:</p>
 <ul>
-<li><p>Etwaige (physikalisch plausible) Verringerung der Zugfestigkeit durch (Seilbiegung aufgrund der) Knoten ist zu vernachlässigen.</p></li>
-<li><p>Sie knüpft 10 Seile zusammen.</p></li>
-<li><p>Beachten Sie die <a href="https://datenwerk.netlify.app/hinweise">sonstigen Hinweise auf dem Datenwerk</a>.</p></li>
+<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
-<p>Sei <span class="math inline">\(R\)</span> die Wahrscheinlichkeit, dass das Gesamtseil hält (nicht reißt). <span class="math inline">\(1-R\)</span> ist dann die Wahrscheinlichkeit des Gegenereignisses: das Gesamtseil reißt.</p>
-<p>Allgemein ist <span class="math inline">\(R\)</span> bei <span class="math inline">\(k\)</span> Tests (Seilen) gleich <span class="math inline">\(r\)</span> hoch <span class="math inline">\(k\)</span>: <span class="math inline">\(R=r^k\)</span>. (Das Aufaddieren der Fehlalarm-Wahrscheinlichkeit bezeichnet man als Alphafehler-Inflation.)</p>
+<p>Gesucht ist die Wahrscheinlichkeit, dass die Münze gezinkt ist, gegeben der beobachteten Daten: <span class="math inline">\(Pr(F|D)\)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> .<span class="dv">99</span>  <span class="co">#  Reißfestigkeit des einfaches Seils</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>R10 <span class="ot">&lt;-</span> r<span class="sc">^</span><span class="dv">10</span>  <span class="sc">%&gt;%</span> <span class="fu">round</span>(<span class="dv">2</span>)  <span class="co"># Reißfestigkeit des 10-fachen Seils</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span> .<span class="dv">8</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span> .<span class="dv">5</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>k <span class="ot">=</span> <span class="dv">8</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Die Gesamtsicherheit lauten also:</p>
+<p>Es gilt:</p>
+<p><span class="math inline">\(Pr(F|D) = \frac{L \times Priori}{Evidenz} = \frac{Pr(D|F) Pr(F)}{Pr(D)} = \frac{Pr(D|F) Pr(F)}{Pr(D|F)Pr(F) + {Pr(D|\neg F)Pr(\neg F)}}\)</span></p>
+<p>Die Likelihood, L, berechnet sich so:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>R10</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(<span class="at">x =</span> k, <span class="at">size =</span> n, <span class="at">prob =</span> p1)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9</code></pre>
+<pre><code>[1] 0.3019899</code></pre>
 </div>
 </div>
-<p>Die Antwort (<code>solution</code>) ist aber <span class="math inline">\(1-R\)</span>:</p>
+<p>Der Zähler des Bruchs (unstand. Post) berechnet sich so:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span>R10</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>solution</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Post_unstand <span class="ot">&lt;-</span> L <span class="sc">*</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Post_unstand</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.1</code></pre>
+<pre><code>[1] 0.1509949</code></pre>
 </div>
 </div>
-</section>
-<section id="vertiefung" class="level1">
-<h1>Vertiefung</h1>
-<p>Betrachten wir abschließend aus Neugier die Wahrscheinlichkeit, dass die Klettererin abstürzt (<span class="math inline">\(1-R\)</span>) als Funktion der Anzahl der Seie.</p>
-<p>Diese Überlegung ist etwas weiterführender und nicht ganz so zentral, aber ziemlich interessant.</p>
-<p>Definieren wir die Parameter:</p>
+<p>Likelihood für die Daten, wenn die Münze nicht gezinkt ist:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>anz_seile <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>  <span class="co"># von 1 bis max 20 Seile</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">9</span>, .<span class="dv">95</span>, .<span class="dv">99</span>, .<span class="dv">999</span>)  <span class="co"># verschiedene Seil-Sicherheiten</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Jetzt erstellen wir einen Tabelle, die alle <code>anz_seile * r</code> Werte kombiniert:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(anz_seile, r)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>L2 <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(<span class="at">x =</span> k, <span class="at">size =</span> n, <span class="at">prob =</span> p2)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>L2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-  anz_seile     r
-      &lt;int&gt; &lt;dbl&gt;
-1         1 0.9  
-2         1 0.95 
-3         1 0.99 
-4         1 0.999
-5         2 0.9  
-6         2 0.95 </code></pre>
+<pre><code>[1] 0.04394531</code></pre>
 </div>
 </div>
-<p>Jetzt berechnen wir für jede Kombination die Gesamtsicherheit <code>R</code> sowie die Wahrscheinlichkeit, dass das Seil reißt, <span class="math inline">\(1-R\)</span>:</p>
+<p>Die unstand. Post-Wahrscheinlichkeit für die Hypothese, dass die Münze nicht gezinkt ist, gegeben der Daten:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">R =</span> r<span class="sc">^</span>anz_seile,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">seil_reisst_prob =</span> <span class="dv">1</span> <span class="sc">-</span> R)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Post_unstand2 <span class="ot">&lt;-</span> L2 <span class="sc">*</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Post_unstand2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.02197266</code></pre>
 </div>
-<p>plotten das Ganze mit dem Paket <code>ggpubr</code>:</p>
+</div>
+<p>Die Evidenz, E, berechnet sich als Summe aller unstand. Post-Wahrscheinlichkeiten (also über alle möglichen Hypothesen, d.h. <span class="math inline">\(F\)</span> und <span class="math inline">\(\neg F\)</span>, also <span class="math inline">\(L\)</span> plus <span class="math inline">\(L_2\)</span>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">r_fctr =</span> <span class="fu">factor</span>(r))  <span class="co"># um "r" zum Gruppieren zu verwenden, sollte es eine nominale Variable sein, daher wandeln wir mit "factor" in eine nominale Variable um.</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggline</span>(d,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"anz_seile"</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"seil_reisst_prob"</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"r_fctr"</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">linetype =</span> <span class="st">"r_fctr"</span>,</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">group =</span> <span class="st">"r_fctr"</span>) <span class="sc">+</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Reißfestigkeit"</span>,</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">linetype =</span> <span class="st">"Reißfestigkeit"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="unnamed-chunk-7-1.png" class="img-fluid figure-img" width="384"></p>
-</figure>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>E <span class="ot">&lt;-</span> Post_unstand <span class="sc">+</span> Post_unstand2</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>E</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1729676</code></pre>
 </div>
 </div>
-</div>
-<p>Oder mit <code>ggplot</code> plotten:</p>
+<p>Die standardisierte Post-Wahrscheinlichkeit ist also die unstand. Post-Wahrscheinlichkeit geteilt durch die Evidenz:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> anz_seile,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> seil_reisst_prob,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">factor</span>(r))) <span class="sc">+</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Reißfestigkeit"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="unnamed-chunk-8-1.png" class="img-fluid figure-img" width="384"></p>
-</figure>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Post_std <span class="ot">&lt;-</span> Post_unstand <span class="sc">/</span> E</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Post_std</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8729666</code></pre>
 </div>
 </div>
-</div>
-<p>Hat ein Seil eine Sicherheit von 90%, dann will man nicht dranhängen, wenn 20 Seile zusammengeknotet sind!</p>
-<p>Die Antwort lautet:</p>
-<ul>
-<li><span class="math inline">\(R_{10}= 1-r^{10} = 1 - 0.9 = 0.1\)</span></li>
-</ul>
+<p><em>Antwort</em>: Die Lösung beträgt <code>0.87</code>.</p>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>probability</li>
 <li>R</li>
-<li>inference</li>
+<li>bayes</li>
+<li>probability</li>
 <li>num</li>
 </ul>
 
