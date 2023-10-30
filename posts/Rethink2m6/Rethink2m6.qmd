@@ -1,0 +1,108 @@
+---
+extype: string
+exsolution: NA
+exname: rethink2m6
+expoints: 1
+categories:
+- probability
+- bayes
+- bayes-grid
+- rethink-chap2
+- string
+date: '2023-10-30'
+slug: Rethink2m6
+title: Rethink2m6
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
+
+
+2M6. Imagine that black ink is heavy, and so cards with black sides are heavier than cards with white sides. As a result, it’s less likely that a card with black sides is pulled from the bag. So again assume there are three cards: B/B, B/W, and W/W. After experimenting a number of times, you conclude that for every way to pull the B/B card from the bag, there are 2 ways to pull the B/W card and 3 ways to pull the W/W card. Again suppose that a card is pulled and a black side appears face up. Show that the probability the other side is black is now 0.5. Use the counting method, as before.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
+
+Wanted is the probability that the *second* side of the card is black (*2b*), *given* one side is already identified as black (*1b*): $Pr(2b|1b)$.
+
+
+Bayes-Box to the rescue:
+
+```{r echo = FALSE}
+d <-
+  tibble::tribble(
+  ~Hyp, ~Prior,
+  "bb",     1L, 
+  "bw",     2L,   
+  "ww",     3L, 
+  ) %>% 
+  mutate(Likelihood = c(2,1,0),
+         unstand_post = Prior*Likelihood,
+         std_post = unstand_post / sum(unstand_post))
+```
+
+
+Whenever the probability of all paths (in a tree diagram) is the same, we do not need to write down the probability of the path for the likelihood. It is enough to write the number of paths.
+
+```{r echo = FALSE}
+d %>% 
+  gt::gt()
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- bayes-grid
+- rethink-chap2
+- string
+

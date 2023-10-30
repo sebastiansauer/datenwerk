@@ -1,0 +1,149 @@
+---
+extype: string
+exsolution: NA
+exname: rethink2m4
+expoints: 1
+categories:
+- probability
+- bayes
+- bayes-grid
+- rethink-chap2
+- string
+date: '2023-10-30'
+slug: Rethink2m4
+title: Rethink2m4
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+library(nomnoml)
+```
+
+
+```{r global-knitr-options, include=FALSE, eval = TRUE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      echo = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = FALSE)
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
+
+
+2M4. Suppose you have a deck with only three cards. Each card has only two sides, and each side is either black or white. One card has two black sides. The second card has one black and one white side. The third card has two white sides. Now suppose all three cards are placed in a bag and shuffled. Someone reaches into the bag and pulls out a card and places it flat on a table. A black side is shown facing up, but you don’t know the color of the side facing down. Show that the probability that the other side is also black is 2/3. Use the counting method (Section 2 of the chapter) to approach this problem. This means counting up the ways that each card could produce the observed data (a black side faceing up on the table).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Let's firmly remember that our data is a *b*lack side is facing up.
+
+We have three cards in the deck, giving us three hypothesises. 
+Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
+
+Wanted is the probability that both sides are black (*bb*), given one side is black (*1b*): $Pr(bb|1b)$.
+
+Let's count the ways how the data - one black side - can come up in each conjecture (hypothesis), *bb*, *bw*, *ww*. Let's denote "first side black" as *1b*" and "second side black" as *2b* (and similarly for white).
+
+Hypothesis *bb* has 2 valid paths:
+
+```{nomnoml, out.width = "30%"}
+[<start>st] -> [1b: valid]
+[<start>st] -> [2b: valid]
+
+```
+
+
+That is, if the card is black on both sides, there are two ways to get a black side.
+
+Hypothesis *bw* has 1 valid path:
+
+```{nomnoml, out.width = "30%"}
+[<start>st] -> [1b: valid]
+[<start>st] -> [1w: invalid]
+```
+
+Given that we have observed a black side already, the other side must be white -- assuming the card is *bw*.
+
+
+Hypothesis *ww* has 0 valid path:
+
+```{nomnoml, out.width = "30%"}
+[<start>st] -> [1w: invalid]
+[<start>st] -> [2w: invalid]
+```
+
+The Bayes-Box nicely summarizes these data:
+
+```{r echo = FALSE}
+d <-
+  tibble::tribble(
+  ~Hyp, ~Prior,
+  "bb",     1, 
+  "bw",     1,   
+  "ww",     1, 
+  ) %>% 
+  mutate(
+    Likelihood = c(2,1,0),
+    unstand_post = Prior*Likelihood,
+    std_post = unstand_post / sum(unstand_post))
+
+```
+
+
+```{r echo = FALSE, eval=TRUE}
+d %>% 
+  gt() %>% 
+  fmt_number(columns = 5)
+
+```
+
+
+The important piece is that there are *two* ways that a all-black card (*bb*) can show a black side, since ist has two black sides.
+
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- bayes-grid
+- rethink-chap2
+- string
+

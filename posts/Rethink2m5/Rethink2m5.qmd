@@ -1,0 +1,141 @@
+---
+extype: string
+exsolution: NA
+exname: rethink2m5
+expoints: 1
+categories:
+- probability
+- bayes
+- bayes-grid
+- rethink-chap2
+- string
+date: '2023-10-30'
+slug: Rethink2m5
+title: Rethink2m5
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
+
+
+2M5. Now suppose there are four cards: B/B, B/W, W/W, and another B/B. Again suppose a card is drawn from the bag and a black side appears face up. Again calculate the probability that the other side is black.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+The only difference to the question 2M4 is that we now have two *bb* cards, rendering the *prior* plausibility for balck twice as high. The rest is the same as in 2M4.
+
+Let's label the cards *bb* (black on both sides), *bw* (black on one, white on the other), and *ww* (both sides are white), respectively.
+
+Wanted is the probability that the *second* side of the card is black (*2b*), *given* one side is already identified as black (*1b*): $Pr(2b|1b)$.
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+d <-
+  tibble::tribble(
+  ~Hyp, ~Prior,
+  "bb",     2, 
+  "bw",     1,   
+  "ww",     1, 
+  ) %>% 
+  mutate(Likelihood = c(2,1,0),
+         unstand_post = Prior*Likelihood,
+         std_post = unstand_post / sum(unstand_post))
+
+```
+
+```{r echo = FALSE}
+d %>% 
+  gt() %>% 
+  fmt_number(columns = 5)
+```
+
+Tables like this are sometimes called "Bayes Box" or "Bayes Grid".
+
+
+Alternatively, we can write out the two black cards not in one, but in two rows, so that each black card gets it own row.
+
+
+
+```{r echo = FALSE}
+d2 <-
+  tibble::tribble(
+  ~Hyp, ~Prior,
+  "bb",     1, 
+  "bb",     1,
+  "bw",     1,   
+  "ww",     1, 
+  ) %>% 
+  mutate(Likelihood = c(2, 2, 1, 0),
+         unstand_post = Prior*Likelihood,
+         std_post = unstand_post / sum(unstand_post))
+
+```
+
+```{r echo = FALSE}
+d2 %>% 
+  gt() %>% 
+  fmt_number(columns = 5)
+```
+
+
+The second Bayes Box yields the same probability as the first, which is reassuring. 
+However, it feels a bit akward (at least to me) to write down the same hypothesis twice.
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- bayes-grid
+- rethink-chap2
+- string
+

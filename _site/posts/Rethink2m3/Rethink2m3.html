@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-10-30">
 
-<title>datenwerk - bayes2</title>
+<title>datenwerk - Rethink2m3</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -94,6 +94,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="../../site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<script src="../../site_libs/d3-3.3.8/d3.min.js"></script>
+<script src="../../site_libs/dagre-0.4.0/dagre-d3.min.js"></script>
+<link href="../../site_libs/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet">
+<script src="../../site_libs/mermaid-0.3.0/dist/mermaid.slim.min.js"></script>
+<link href="../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="../../site_libs/chromatography-0.1/chromatography.js"></script>
+<script src="../../site_libs/DiagrammeR-binding-1.0.10/DiagrammeR.js"></script>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -147,12 +155,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">bayes2</h1>
+      <h1 class="title">Rethink2m3</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">R</div>
-                <div class="quarto-category">bayes</div>
                 <div class="quarto-category">probability</div>
-                <div class="quarto-category">num</div>
+                <div class="quarto-category">bayes</div>
+                <div class="quarto-category">rethink-chap2</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -184,81 +192,98 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Wir haben eine Münze <span class="math inline">\(n=10\)</span> Mal geworfen. Unsere Daten (<span class="math inline">\(D\)</span>) sind: 8 Mal lag “Kopf” oben. Gegeben dieser Datenlage, wie hoch ist die Wahrscheinlichkeit für das Ereignis <span class="math inline">\(F\)</span> (Falschspieler-Münze), dass die Münze also gezinkt ist auf <span class="math inline">\(p=.8\)</span>? Apriori sind wir indifferent, ob die Münze gezinkt ist oder nicht (<span class="math inline">\(\neg F\)</span>, also <span class="math inline">\(p=.5\)</span>). Der Einfachheit halber gehen wir davon aus, dass es nur zwei Zustände für die Münze geben kann, gezinkt (<span class="math inline">\(F\)</span>) oder nicht gezinkt (<span class="math inline">\(\neg F\)</span>).</p>
-<p><em>Aufgabe</em>: Berechnen Sie die Wahrscheinlichkeit, dass die Münze gezinkt ist (<span class="math inline">\(F\)</span>), gegeben der Datenlage <span class="math inline">\(D\)</span>!</p>
-<p>Hinweise:</p>
-<ul>
-<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
-</ul>
+<p>This question is taken from McElreath, R. (2020). <em>Statistical rethinking: A Bayesian course with examples in R and Stan</em> (2. Ed.). Taylor and Francis, CRC Press.</p>
+<p>2M3. Suppose there are two globes, one for Earth and one for Mars. The Earth globe is 70% covered in water. The Mars globe is 100% land. Further suppose that one of these globes—you don’t know which—was tossed in the air and produced a “land” observatiion. Assume that each globe was equally likely to be tossed. Show that the posterior probability that the globe was the Earth, conditional on seeing “land” (Pr(Earth|land)), is 0.23.</p>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
-<p>Gesucht ist die Wahrscheinlichkeit, dass die Münze gezinkt ist, gegeben der beobachteten Daten: <span class="math inline">\(Pr(F|D)\)</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span> .<span class="dv">8</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span> .<span class="dv">5</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">10</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>k <span class="ot">=</span> <span class="dv">8</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Es gilt:</p>
-<p><span class="math inline">\(Pr(F|D) = \frac{L \times Priori}{Evidenz} = \frac{Pr(D|F) Pr(F)}{Pr(D)} = \frac{Pr(D|F) Pr(F)}{Pr(D|F)Pr(F) + {Pr(D|\neg F)Pr(\neg F)}}\)</span></p>
-<p>Die Likelihood, L, berechnet sich so:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(<span class="at">x =</span> k, <span class="at">size =</span> n, <span class="at">prob =</span> p1)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Man kann die Aufgabe entweder mit einer Bayes-Box lösen oder durch die Formel des Bayes’ Theorem.</p>
+</section>
+<section id="bayes-box" class="level1">
+<h1>Bayes-Box</h1>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Hyp</th>
+<th>Prior</th>
+<th>L</th>
+<th>Po-unstand</th>
+<th>Po-stand</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>E</td>
+<td>1</td>
+<td>.3</td>
+<td>.3</td>
+<td>3/13</td>
+</tr>
+<tr class="even">
+<td>M</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>10/13</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bayes-theorem" class="level1">
+<h1>Bayes-Theorem</h1>
+<p>Zur Erinnerung:</p>
+<p><span class="math display">\[\begin{aligned}
+Pr(A) &amp;= Pr(A \cap B) + Pr(A \cap B^C)  \qquad \text{| totale Wskt, bei disjunkten Ereignissen}\\
+Pr(A \cap B) &amp;= Pr(A|B) \cdot Pr(B)\\
+Pr(A \cap B^C) &amp;= Pr(A|B^C) \cdot Pr(B^C)
+\end{aligned}\]</span></p>
+<p>Wobei <span class="math inline">\(A^C\)</span> das komlementäre Ereignis zu <span class="math inline">\(A\)</span> meint.</p>
+<p>The solution is taken from <a href="https://sr2-solutions.wjakethompson.com/bayesian-inference.html">this source</a>.</p>
+<div class="cell" data-hash="Rethink2m3_cache/html/unnamed-chunk-1_69361458b940eb2640ba51ec8184077b">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of land, given Earth:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>p_le <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of land, given Mars:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p_lm <span class="ot">&lt;-</span> <span class="fl">1.0</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of Earth:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>p_e <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># prob. of Mars:</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>p_m <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of land:</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># totale Wahrscheinlichkeit für Land</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>p_l <span class="ot">&lt;-</span> (p_e <span class="sc">*</span> p_le) <span class="sc">+</span> (p_m <span class="sc">*</span> p_lm)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>p_l</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.3019899</code></pre>
+<pre><code>[1] 0.65</code></pre>
 </div>
 </div>
-<p>Der Zähler des Bruchs (unstand. Post) berechnet sich so:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Post_unstand <span class="ot">&lt;-</span> L <span class="sc">*</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Post_unstand</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Dann gilt also:</p>
+<div class="cell" data-hash="Rethink2m3_cache/html/unnamed-chunk-2_f3a9161edcbfd6b05b5a39ead98a8b39">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of Earth, given land (using Bayes' Theorem):</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>p_el <span class="ot">&lt;-</span> (p_le <span class="sc">*</span> p_e) <span class="sc">/</span> p_l</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>p_el</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.1509949</code></pre>
+<pre><code>[1] 0.2307692</code></pre>
 </div>
 </div>
-<p>Likelihood für die Daten, wenn die Münze nicht gezinkt ist:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>L2 <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(<span class="at">x =</span> k, <span class="at">size =</span> n, <span class="at">prob =</span> p2)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>L2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.04394531</code></pre>
+<p>Einfacher als die Rechnung ist vielleicht ein Baumdiagramm:</p>
+<div class="cell" data-hash="Rethink2m3_cache/html/unnamed-chunk-3_1a263439f5fca08a2cc1494de6b549d0">
+<div class="cell-output-display">
+<div class="DiagrammeR html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-5de8419ba273288e833f" style="width:100%;height:237.312px;"></div>
+<script type="application/json" data-for="htmlwidget-5de8419ba273288e833f">{"x":{"diagram":"graph LR\n  A[Start] -->|1/2|B[Erde]\n  A -->|1/2|C[Mars]\n  B -->|7/10|D[Wasser geg. Erde]\n  B -->|3/10|E[Land geg. Erde]\n  D --- H[Fazit: 7/20]\n  E --- I[Fazit: 3/20]\n  C -->|1|F[Land geg. Mars]\n  C -->|0|G[Wasser geg. Mars]\n  F --- J[Fazit: 1/2]\n  G --- K[Fazit: 0]"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
-<p>Die unstand. Post-Wahrscheinlichkeit für die Hypothese, dass die Münze nicht gezinkt ist, gegeben der Daten:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Post_unstand2 <span class="ot">&lt;-</span> L2 <span class="sc">*</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Post_unstand2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.02197266</code></pre>
-</div>
-</div>
-<p>Die Evidenz, E, berechnet sich als Summe aller unstand. Post-Wahrscheinlichkeiten (also über alle möglichen Hypothesen, d.h. <span class="math inline">\(F\)</span> und <span class="math inline">\(\neg F\)</span>, also <span class="math inline">\(L\)</span> plus <span class="math inline">\(L_2\)</span>):</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>E <span class="ot">&lt;-</span> Post_unstand <span class="sc">+</span> Post_unstand2</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>E</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.1729676</code></pre>
-</div>
-</div>
-<p>Die standardisierte Post-Wahrscheinlichkeit ist also die unstand. Post-Wahrscheinlichkeit geteilt durch die Evidenz:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Post_std <span class="ot">&lt;-</span> Post_unstand <span class="sc">/</span> E</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Post_std</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.8729666</code></pre>
-</div>
-</div>
-<p><em>Antwort</em>: Die Lösung beträgt <code>0.87</code>.</p>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>R</li>
-<li>bayes</li>
 <li>probability</li>
-<li>num</li>
+<li>bayes</li>
+<li>rethink-chap2</li>
+<li>string</li>
 </ul>
 
 
