@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-10-17">
+<meta name="dcterms.date" content="2023-11-01">
 
 <title>datenwerk - adjustieren2a</title>
 <style>
@@ -161,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 17, 2023</p>
+        <p class="date">November 1, 2023</p>
       </div>
     </div>
     
@@ -215,7 +215,7 @@ dbl (8): rownames, carat, depth, table, price, x, y, z
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  diamonds <span class="sc">%&gt;%</span> </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">carat_z =</span> carat <span class="sc">-</span> <span class="fu">mean</span>(carat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Dann berechnen wir ein (bayesianisches) Regressionsmodell, wobei wir auf die Standardwerte der Prior zurückgreifen.</p>
+<p>Dann berechnen wir ein (nicht-bayesianisches, sondern frequentistisches) Regressionsmodell:</p>
 <div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-3_ee5763f112edbec7be5feb3ed54dfedb">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> carat_z, <span class="at">data =</span> diamonds)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -262,13 +262,51 @@ carat z     |     7756.43 | 14.07 | [7728.86, 7784.00] |   551.41 | &lt; .001</c
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
 <ol type="a">
-<li><p>Unser Modell <code>lm1</code> schätzt den Preis eines Diamanten mittlerer Größe auf etwa <code>3932.5</code> (was immer auch die Einheiten sind, Dollar vermutlich).</p></li>
-<li><p><code>price ~ carat_z + cut</code></p></li>
+<li>Unser Modell <code>lm1</code> schätzt den Preis eines Diamanten mittlerer Größe auf etwa <code>3932.5</code> (was immer auch die Einheiten sind, Dollar vermutlich). Da der Prädiktor <code>carat_z</code> zentriert ist, entspricht ein Wert von <code>0</code> dem Mittelwert der ursprünglichen Verteilung, <code>carat</code>. Der Y-Wert, wenn X=0, wird vom Intercept angegeben.</li>
+</ol>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-7_fade6374d21bb884932537be33066c6a">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |    SE |             95% CI | t(53938) |      p
+--------------------------------------------------------------------------
+(Intercept) |     3932.80 |  6.67 | [3919.73, 3945.87] |   589.83 | &lt; .001
+carat z     |     7756.43 | 14.07 | [7728.86, 7784.00] |   551.41 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<p>Oder so:</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-8_f6a128d81b44d767a945c64acaf3af9a">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)     carat_z 
+   3932.800    7756.426 </code></pre>
+</div>
+</div>
+<p><em>Alternativ</em> können wir uns mit <code>predict</code> für jeden beliebigen Wert des Prädiktors die Vorhersage des Modells ausgeben lassen.</p>
+<p>Wir definieren eine (hier sehr kurze) Tabelle mit Prädiktorwerten, für die wir die Vorhersage laut <code>lm1</code> wissen möchten:</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-9_d751f0077d3496d646fbfa8292db3e3b">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>neue_daten <span class="ot">&lt;-</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">carat_z =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dann weisen wir unseren Lieblingsroboter an, auf Basis von <code>lm1</code> eine Vorhersage (prediction) für <code>neue_daten</code> zu erstellen.</p>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-10_7cf245cde9de08c21e5f3b16941542d1">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm1, <span class="at">newdata =</span> neue_daten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     1 
+3932.8 </code></pre>
+</div>
+</div>
+<ol start="2" type="a">
+<li><code>price ~ carat_z + cut</code></li>
 </ol>
 <p>Dieses zweite Modell könnten wir so berechnen:</p>
-<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-7_cbc370e051a8d3a5c5aa7e584e21c3d9">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2a_cache/html/unnamed-chunk-11_8ba8a5624f106673c0948e17a88a5acc">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Parameter       | Coefficient |    SE |             95% CI | t(53934) |      p
 ------------------------------------------------------------------------------
@@ -280,7 +318,7 @@ cut [Premium]   |     1439.08 | 39.87 | [1360.94, 1517.21] |    36.10 | &lt; .00
 cut [Very Good] |     1510.14 | 40.24 | [1431.26, 1589.01] |    37.53 | &lt; .001</code></pre>
 </div>
 </div>
-<p>Man könnte hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat, dass es einen gibt.</p>
+<p>Man <em>könnte</em> hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat, dass es einen gibt.</p>
 <hr>
 <p>Categories:</p>
 <ul>

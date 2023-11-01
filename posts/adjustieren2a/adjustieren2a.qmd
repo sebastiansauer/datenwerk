@@ -7,7 +7,7 @@ categories:
 - regression
 - '2023'
 - string
-date: '2023-10-17'
+date: '2023-11-01'
 slug: adjustieren2a
 title: adjustieren2a
 
@@ -58,8 +58,7 @@ diamonds <-
   mutate(carat_z = carat - mean(carat, na.rm = TRUE))
 ```
 
-Dann berechnen wir ein (bayesianisches) Regressionsmodell, 
-wobei wir auf die Standardwerte der Prior zurückgreifen.
+Dann berechnen wir ein (nicht-bayesianisches, sondern frequentistisches) Regressionsmodell:
 
 ```{r message=FALSE}
 lm1 <- lm(price ~ carat_z, data = diamonds)
@@ -115,6 +114,37 @@ regression_formel <- "price ~ carat_z + cut"
 
 
 a) Unser Modell `lm1` schätzt den Preis eines Diamanten mittlerer Größe auf etwa `3932.5` (was immer auch die Einheiten sind, Dollar vermutlich).
+Da der Prädiktor `carat_z` zentriert ist, entspricht ein Wert von `0` dem Mittelwert der ursprünglichen Verteilung, `carat`. Der Y-Wert, wenn X=0, wird vom Intercept angegeben.
+
+```{r}
+parameters(lm1)
+```
+
+
+Oder so:
+
+```{r}
+coef(lm1)
+```
+
+
+*Alternativ* können wir uns mit `predict` für jeden beliebigen Wert des Prädiktors die Vorhersage des Modells ausgeben lassen.
+
+Wir definieren eine (hier sehr kurze) Tabelle mit Prädiktorwerten, für die wir die Vorhersage laut `lm1` wissen möchten:
+
+```{r}
+neue_daten <-
+  tibble(carat_z = 0)
+```
+
+
+Dann weisen wir unseren Lieblingsroboter an, auf Basis von `lm1` eine Vorhersage (prediction) für `neue_daten` zu erstellen. 
+
+```{r}
+predict(lm1, newdata = neue_daten)
+```
+
+
 
 b) `price ~ carat_z + cut` 
 
@@ -130,7 +160,7 @@ parameters(lm2)
 
 
 
-Man könnte hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat,
+Man *könnte* hier noch einen Interaktionseffekt ergänzen, wenn man Grund zur Annahme hat,
 dass es einen gibt.
 
 
