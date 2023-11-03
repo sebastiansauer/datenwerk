@@ -1,0 +1,297 @@
+---
+exname: count-words01
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- tidymodels
+- count
+- string
+date: '2023-11-03'
+slug: count-words01
+title: count-words01
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+Zählen sie die Wörter eines Textes. Verwenden Sie verschiedene Verfahren.
+Untersuchen Sie die Rechenzeit, die die jeweiligen Verfahren benötigen.
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+d_train <- read_csv("https://raw.githubusercontent.com/sebastiansauer/pradadata/master/data-raw/germeval_train.csv")
+d_test <- read_csv("https://raw.githubusercontent.com/sebastiansauer/pradadata/master/data-raw/germeval_test.csv")
+```
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+# Setup
+
+```{r}
+options(paged.print = FALSE,
+        pillar.print_max = 15, 
+        pillar.print_min = 10)
+```
+
+
+
+
+```{r setup}
+library(tidyverse)
+library(tictoc)
+#library(tokenizers)
+#library(qdap)
+```
+
+
+Teststring:
+
+```{r}
+test_text <-
+  tibble(id = 1:4,
+         text = c("Abbau ist jetzt", "Test heute", "Abbruch morgen", "Abmachung lore ipsum"),
+         valence = c(-1, 0, -1, +1))
+
+test_text
+```
+
+
+Daten importieren:
+
+```{r}
+data(germeval_train, package = "pradadata")
+```
+
+
+
+# Wörter zählen im Test-Datensatz
+
+
+
+## `stringr::str_count`
+
+
+
+```{r}
+test_text$text |> 
+  map_int(str_count, "\\w+")
+```
+
+Oder so:
+
+```{r}
+test_text$text |> 
+  map_int(str_count, boundary("word"))
+```
+
+
+Die Funktion `map` ist nicht nötig:
+
+```{r}
+str_count(test_text$text, boundary("word"))
+```
+
+
+Als neue Spalte in der Tabelle:
+
+```{r}
+test_text |> 
+  mutate(n_words = str_count(text, boundary("word")))
+```
+
+
+
+
+## `tokenizers::count_words`
+
+
+
+
+```{r tokenizers}
+tokenizers::count_words(test_text$text)
+```
+
+```{r tokenizers-mutate}
+test_text |> 
+  mutate(n_words = tokenizers::count_words(text))
+```
+
+
+
+## `qdap:wc`
+
+
+```{r qdap}
+qdap::wc(test_text$text)
+```
+
+
+
+# Germeval-Datensatz
+
+
+
+
+
+## `stringr::str_count`
+
+
+
+```{r}
+tic()
+method1 <- germeval_train$text |> 
+  map_int(str_count, "\\w+")
+toc()
+
+method1 |> str()
+```
+
+```{r}
+print(method1, max = 20)
+```
+
+
+Oder so:
+
+```{r}
+tic()
+method2 <- germeval_train$text |> 
+  map_int(str_count, boundary("word"))
+toc()
+```
+
+
+```{r}
+head(method2)
+```
+
+
+Die Funktion `map` ist nicht nötig:
+
+```{r}
+tic()
+method3 <- str_count(germeval_train$text, boundary("word"))
+toc()
+```
+
+
+```{r}
+method3 |> head()
+```
+
+
+
+Dann geht es auch viel schneller.
+
+Als neue Spalte in der Tabelle:
+
+```{r}
+tic()
+method4 <- 
+germeval_train |> 
+  mutate(n_words = str_count(text, boundary("word")))
+toc()
+```
+
+
+```{r}
+str(method4)
+method4 |> head()
+```
+
+
+## `tokenizers::count_words`
+
+
+
+
+```{r tok-count-words1}
+tic()
+method5 <- tokenizers::count_words(germeval_train$text)
+toc()
+
+head(method5)
+```
+
+```{r tok-count-words2}
+tic()
+method6 <-
+germeval_train |> 
+  mutate(n_words = tokenizers::count_words(text))
+toc()
+
+method6 |> head()
+```
+
+
+
+## `qdap::wc`
+
+
+```{r wc1}
+tic()
+method7 <- qdap::wc(germeval_train$text)
+toc()
+
+method7 |> head()
+```
+
+Deutlich langsamer als mit `tokenizers`.
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- tidymodels
+- count
+- string
+

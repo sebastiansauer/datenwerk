@@ -1,0 +1,141 @@
+---
+exname: count-lexicon
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- nlp
+- regex
+- string
+date: '2023-11-03'
+slug: count-lexicon
+title: count-lexicon
+
+---
+
+
+
+
+# Aufgabe
+
+Gegeben eines (mehrelementigen) Strings, `my_string`, und eines Lexicons, `my_lexicon`, zählen Sie, wie häufig sich ein Wort aus dem Lexikon in einem Element des Strings wiederfindet.
+
+
+
+```{r}
+my_string <-
+  c("Heute ist ein schöner Tag", "Was geht in dieser Woche?")
+
+
+my_lexicon <- c("Tag", "Woche", "Jahr")
+```
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie die Funktion `count_lexicon` aus `{{prada}}`. Das Paket können Sie [hier](https://github.com/sebastiansauer/prada) herunterladen/installieren.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+library(tidyverse)
+```
+
+
+# Paket `prada`
+
+Eine Möglichkeit ist es, die Funktion `count_lexion` aus dem Paket [`prada`](https://rdrr.io/github/sebastiansauer/prada/) zu nutzen.
+
+Man kann es so installieren: `remotes::install_github("sebastiansauer/prada")`.
+
+```{r error=TRUE}
+library(prada)
+```
+
+
+```{r error=TRUE}
+map_int(my_string,  
+        ~ count_lexicon(.x, my_lexicon))
+```
+
+
+So können Sie sich den Quellcode einer Funktion, z.B. `count_lexicon()` anschauen:
+
+```{r error =TRUE}
+count_lexicon
+```
+
+
+In dem Paket gibt es noch zwei Varianten für diese Funktion, die auf einem Join aufbauen.
+
+
+
+# Selbstgestrickt
+
+Hier ist eine zweite Variante ohne besondere Pakete (außer `stringr`).
+
+
+Wir definieren eine entsprechende Funktion:
+
+```{r}
+# Funktion, um die Anzahl der Übereinstimmungen eines Lexikons in einem String zu zählen
+count_lexicon_matches <- function(string, lexicon) {
+  # Verketten Sie die Wörter im Lexikon mit dem |-Operator, um ein reguläres Ausdrucksmuster zu erstellen
+  lexicon_pattern <- paste(lexicon, collapse = "|")
+  # Verwenden Sie str_count, um die Anzahl der Übereinstimmungen zu zählen
+  matches <- str_count(string, lexicon_pattern)
+  return(matches)
+}
+```
+
+
+Wir zählen  die Übereinstimmungen in jedem Element des Strings:
+
+```{r}
+matches_per_element <- sapply(my_string, count_lexicon_matches, lexicon = my_lexicon)
+
+# Ergebnis ausgeben:
+print(matches_per_element)
+```
+
+
+Anstelle von `sapply` kann man das tidyverse-Pendant, `map` nutzen:
+
+
+```{r error=TRUE}
+map_int(my_string,  
+        ~ count_lexicon_matches(.x, my_lexicon))
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- nlp
+- regex
+- string
+

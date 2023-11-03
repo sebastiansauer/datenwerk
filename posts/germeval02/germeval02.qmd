@@ -1,0 +1,337 @@
+---
+exname: germeval02
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- textmining
+- tidymodels
+- string
+date: '2023-11-03'
+slug: germeval02
+title: germeval02
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+Führen Sie eine Sentiment-Analyse durch. Verwenden Sie verschiedene Verfahren.
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+# Setup
+
+```{r setup-libs}
+library(tidyverse)
+library(tidytext)
+library(tictoc)  # Zeitmessung
+library(syuzhet)  # Sentimentanalyse
+```
+
+
+
+
+# Daten
+
+Nutzen Sie diesen Text-Datensatz, bevor Sie den größeren `germeval`-Datensatz verwenden:
+
+
+```{r}
+text <- c("Abbau, Abbruch ist jetzt", "Test heute", "Abbruch morgen perfekt", "Abmachung lore ipsum", "boese ja", "böse nein", "hallo ?! hallo.", "gut schlecht")
+
+n_emo <- c(2, 0, 2, 1, 1, 1, 0, 2)
+
+test_text <-
+  tibble(id = 1:length(text),
+             text = text,
+             n_emo = n_emo)
+
+test_text
+```
+
+
+
+Wörterbücher laden:
+
+```{r}
+data(sentiws, package = "pradadata")
+#data(schimpfwoerter, package = "pradadata")
+
+sentiws$word <- tolower(sentiws$word)  # wichtig!
+```
+
+
+GermEval-Datensatz:
+
+```{r}
+data(germeval_train, package = "pradadata")
+germeval_train <- as_tibble(germeval_train)  # schöneres Print am Bildschirm
+```
+
+
+
+# Sentimentanalyse im Test-Datensatz
+
+
+
+
+## Sentimentanalyse mit Regex
+
+Die Funktion `count_lexicon` stammt aus `{prada}`.
+
+Tipp: Mit `?count_lexicon` sehen Sie den Quelltext (jeder Funktion).
+
+
+```{r}
+test_text  |> 
+  mutate(n_emowords = map_int(text, prada::count_lexicon, sentiws$word))
+```
+
+
+```{r count-lexicon-germeval}
+#| cache: true
+tic()
+germeval_train |> 
+  mutate(n_emowords = map_int(text, ~ prada::count_lexicon(.x, sentiws$word))) |> 
+  head()
+toc()
+```
+
+
+Puh! *Viel* zu langsam. 
+
+
+## Sentimentanalyse mit `unnest_tokens`
+
+Probieren wir es mit `unnest_tokens`:
+
+
+Jaa,... aber die Strings *ohne Treffer* werden ignoriert.
+
+
+```{r}
+test_text |> 
+  unnest_tokens(word, text) |> 
+  right_join(sentiws |> select(word)) |> 
+  count(id)
+```
+
+
+Probieren wir es so:
+
+
+```{r}
+#' Count words in a lexicon
+#' 
+#' Counts how many of the words of the character vector `text` are
+#' found in a lexicon `lex` 
+#' `text` is transformed via tolower.
+#'
+#' @param text corpus, character vector
+#'
+#' @return number of hits per element of the corpus
+#' @export
+#'
+#' @examples
+#' count_lex(my_text, my_lex)
+count_lex <- function(text) {
+  
+  stopifnot(class(text) == "character")
+  
+  doc <- tibble(text = tolower(text),
+                id = 1:length(text))
+  
+  doc1 <- 
+    doc |> 
+    tidytext::unnest_tokens(word, text) |> 
+    dplyr::inner_join(sentiws |> dplyr::select(word), by = "word") |> 
+    count(id)
+  
+  doc2 <-
+    doc1 |> 
+    dplyr::full_join(doc |> select(id), by = "id")
+  
+  doc2$n <- ifelse(is.na(doc2$n), 0,doc2$n)
+  
+  doc2 <- doc2 |> dplyr::arrange(id)
+  
+  doc2 |> pull(n)
+}
+```
+
+
+Mit dem Paket [`box`](https://klmr.me/box/) kann man Funktionen, die nicht in Paketen stehen, importieren.
+
+```{r}
+count_lex(test_text$text)
+```
+
+
+Als neue Spalte im Datensatz:
+
+
+```{r}
+test_text |> 
+  mutate(n_emowords = count_lex(text))
+```
+
+
+
+## Sentimentanalyse mit `{syuzhet}`
+
+
+### Mit dem Lexicon `nrc`
+
+```{r}
+get_nrc_sentiment(test_text$text, language = "german")
+```
+
+Tja, nicht so viele Treffer ...
+
+In der Zusammenfassung:
+
+```{r}
+get_nrc_values(text, language = "german")
+```
+
+Tja, leider keine Treffer. Merkwürdig.
+
+
+```{r}
+get_sentiment(text,
+              method = "nrc",
+              language = "german")
+```
+
+Naja, ok.
+
+### Mit einem eigenen Lexikon
+
+
+[Beispiel vom Autor des Pakets](https://cran.r-project.org/web/packages/syuzhet/vignettes/syuzhet-vignette.html):
+
+```{r}
+my_text <- "I love when I see something beautiful.  I hate it when ugly feelings creep into my head."
+char_v <- get_sentences(my_text)
+method <- "custom"
+custom_lexicon <- data.frame(word=c("love", "hate", "beautiful", "ugly"), value=c(1,-1,1, -1))
+my_custom_values <- get_sentiment(char_v, method = method, lexicon = custom_lexicon)
+my_custom_values
+```
+
+
+
+```{r}
+get_sentiment(text,
+              method = "custom",
+              lexicon = sentiws)
+```
+
+
+
+# Sentimentanalyse im GermEval-Datensatz
+
+## Test
+
+```{r}
+tic()
+sentiments <-
+  get_sentiment(germeval_train$text,
+              method = "custom",
+              lexicon = sentiws)
+toc()
+```
+
+```{r}
+length(sentiments)
+head(sentiments)
+```
+
+
+Die Geschwindigkeit scheint deutlich besser zu sein, als bei den Regex-Ansätzen.
+
+
+## Als Spalte in die Tabelle
+
+
+```{r}
+tic()
+d <-
+  germeval_train |> 
+  mutate(n_emo = get_sentiment(germeval_train$text,
+              method = "custom",
+              lexicon = sentiws))
+toc()
+
+head(d)
+```
+
+
+
+
+
+# Fazit
+
+[syuzhet](https://github.com/mjockers/syuzhet) bietet den besten Ansatz unterm Strich (von den hier vorgestellten Methoden) für eine Sentimentanalyse in deutscher Sprache.
+
+Insgesamt ist die relativ Sentimentanalyse rechenintensiv.
+
+
+
+---
+
+Categories: 
+
+- 2023
+- textmining
+- tidymodels
+- string
+

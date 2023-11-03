@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-11-23">
+<meta name="dcterms.date" content="2023-11-03">
 
-<title>datenwerk - iq02</title>
+<title>datenwerk - regex01</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -95,8 +61,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -147,11 +111,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">iq02</h1>
+      <h1 class="title">regex01</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">probability</div>
-                <div class="quarto-category">simulation</div>
-                <div class="quarto-category">normal-distribution</div>
+                <div class="quarto-category">textmining</div>
+                <div class="quarto-category">regex</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -163,7 +127,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 23, 2022</p>
+        <p class="date">November 3, 2023</p>
       </div>
     </div>
     
@@ -181,55 +145,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
-<p>Intelligenz wird häufig mittels einem <em>IQ-Test</em> ermittelt.</p>
-<p><em>Wie groß ist die Wahrscheinlichkeit, dass die nächste Person, die Sie treffen, mindestens zwei Streuungseinheiten über dem Mittelwert liegt?</em></p>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
+<p>Erstellen Sie einen Vektor mit den Namen aller CSV-Dateien eines beliebigen Ordners Ihres Computers.</p>
 <p>Hinweise:</p>
 <ul>
-<li>Nutzen Sie Simulationsmethoden.</li>
-<li>Gehen Sie von folgender IQ-Verteilung aus: <span class="math inline">\(IQ \sim N(100,15)\)</span></li>
-<li>Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).</li>
-<li>Simulieren Sie <span class="math inline">\(n=10^3\)</span> Stichproben.</li>
-<li>Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)</li>
-<li>Wir wollen hier keine Post-Verteilung berechnen, sondern lediglich Werte simulieren.</li>
+<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
+<p>Einen Order auswählen:</p>
+<p>Dateien als Strings einlesen:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Wir simulieren die Daten:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">iq =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>, <span class="at">mean =</span> <span class="dv">100</span>, <span class="at">sd=</span> <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Da <span class="math inline">\(\sigma=15\)</span>, filtern wir ab 130:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(iq <span class="sc">&gt;=</span> <span class="dv">130</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 2
-  `iq &gt;= 130`     n
-  &lt;lgl&gt;       &lt;int&gt;
-1 FALSE         979
-2 TRUE           21</code></pre>
+<pre><code>character(0)</code></pre>
 </div>
 </div>
-<p>Die Wahrscheinlichkeit beträgt ca. 2%.</p>
-<p>Ja, diese Aufgaben ist faktisch identische zur Aufgabe <a href="https://datenwerk.netlify.app/posts/iq01/iq01.html">iq01</a>. Darum ging es: Sie sollen erkennen, dass ein IQ-Wert von 130 das gleiche ist wie MW+2sd.</p>
-<p>Übrigens: “Wie viele SD-Einheiten liegt der Wert von Beobachtung <span class="math inline">\(i\)</span> über dem Mittelwert, <span class="math inline">\(\bar{X}\)</span> ?” ist die Frage, die der z-Wert beantwortet:</p>
-<p><span class="math inline">\(z_i = \frac{x_i - \bar{X}}{sd(x)}\)</span></p>
+<p>Dateien als Strings einlesen:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>character(0)</code></pre>
+</div>
+</div>
+<p>Nur CSV-Dateien einlesen:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>character(0)</code></pre>
+</div>
+</div>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>probability</li>
-<li>simulation</li>
-<li>normal-distribution</li>
+<li>textmining</li>
+<li>regex</li>
+<li>string</li>
 </ul>
 
 

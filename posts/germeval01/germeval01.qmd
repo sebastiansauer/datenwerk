@@ -1,0 +1,149 @@
+---
+exname: germeval01
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- textmining
+- datawrangling
+- string
+date: '2023-11-03'
+slug: germeval01
+title: germeval01
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+options(max.print = 10)
+options(rstudio.help.showDataPreview = FALSE)
+```
+
+
+
+# Aufgabe
+
+Extrahieren Sie typisches Text-Features aus einem Text. 
+
+Nutzen Sie das Paket [`textfeatures`](https://github.com/cran/textfeatures/tree/master).
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+library(easystats)
+data("germeval_train", package = "pradadata")
+```
+
+Nutzen Sie diesen Text-Datensatz, bevor Sie den größeren `germeval`-Datensatz verwenden:
+
+
+# Daten
+
+Teststring:
+
+```{r}
+text <- c("Abbau, Abbruch ist jetzt", 
+          "Test   🧑‍🎓 😄 heute!!", 
+          "Abbruch #morgen #perfekt", 
+          "Abmachung... LORE IPSUM", 
+          "boese ja", "böse nein", 
+          "hallo ?! www.google.de", 
+          "gut schlecht I am you are he she it is")
+
+n_emo <- c(2, 0, 2, 1, 1, 1, 0, 2)
+
+test_text <-
+  data.frame(id = 1:length(text),
+         text = text,
+         n_emo = n_emo)
+
+test_text
+```
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Das Paket `textfeatures` ist aktuelle nicht auf CRAN, aber über Github zu bekommen (oder im CRAN-Archiv).
+
+```{r}
+library(tidyverse)
+library(tictoc)
+library(textfeatures)
+```
+
+
+# Test 1
+
+Hier ein [Test vom Autor des Pakets](https://textfeatures.mikewk.com/):
+
+```{r}
+x <- c(
+  "this is A!\t sEntence https://github.com about #rstats @github",
+  "and another sentence here", "THe following list:\n- one\n- two\n- three\nOkay!?!"
+)
+
+## get text features
+textfeatures::textfeatures(x, verbose = FALSE)
+```
+
+
+# Test 2
+
+
+```{r}
+textfeatures::textfeatures(test_text$text,
+                           sentiment = FALSE,
+                           word_dims = FALSE)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- 2023
+- textmining
+- datawrangling
+- string
+

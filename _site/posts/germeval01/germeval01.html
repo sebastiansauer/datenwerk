@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-11-23">
+<meta name="dcterms.date" content="2023-11-03">
 
-<title>datenwerk - iq02</title>
+<title>datenwerk - germeval01</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -95,8 +95,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -147,11 +145,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">iq02</h1>
+      <h1 class="title">germeval01</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">probability</div>
-                <div class="quarto-category">simulation</div>
-                <div class="quarto-category">normal-distribution</div>
+                <div class="quarto-category">2023</div>
+                <div class="quarto-category">textmining</div>
+                <div class="quarto-category">datawrangling</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -163,7 +162,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 23, 2022</p>
+        <p class="date">November 3, 2023</p>
       </div>
     </div>
     
@@ -181,55 +180,132 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
-<p>Intelligenz wird häufig mittels einem <em>IQ-Test</em> ermittelt.</p>
-<p><em>Wie groß ist die Wahrscheinlichkeit, dass die nächste Person, die Sie treffen, mindestens zwei Streuungseinheiten über dem Mittelwert liegt?</em></p>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
+<p>Extrahieren Sie typisches Text-Features aus einem Text.</p>
+<p>Nutzen Sie das Paket <a href="https://github.com/cran/textfeatures/tree/master"><code>textfeatures</code></a>.</p>
+<p>Nutzen Sie die <a href="https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML">GermEval-2018-Daten</a>.</p>
+<p>Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),</p>
+<p>Die Daten sind auch über das R-Paket <a href="https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master">PradaData</a> zu beziehen.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_train"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nutzen Sie diesen Text-Datensatz, bevor Sie den größeren <code>germeval</code>-Datensatz verwenden:</p>
+</section>
+<section id="daten" class="level1">
+<h1>Daten</h1>
+<p>Teststring:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Abbau, Abbruch ist jetzt"</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Test   🧑‍🎓 😄 heute!!"</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Abbruch #morgen #perfekt"</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Abmachung... LORE IPSUM"</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>          <span class="st">"boese ja"</span>, <span class="st">"böse nein"</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>          <span class="st">"hallo ?! www.google.de"</span>, </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"gut schlecht I am you are he she it is"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>n_emo <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>test_text <span class="ot">&lt;-</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">text =</span> text,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_emo =</span> n_emo)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>test_text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id                     text n_emo
+1  1 Abbau, Abbruch ist jetzt     2
+2  2   Test   🧑‍🎓 😄 heute!!     0
+3  3 Abbruch #morgen #perfekt     2
+ [ reached 'max' / getOption("max.print") -- omitted 5 rows ]</code></pre>
+</div>
+</div>
 <p>Hinweise:</p>
 <ul>
-<li>Nutzen Sie Simulationsmethoden.</li>
-<li>Gehen Sie von folgender IQ-Verteilung aus: <span class="math inline">\(IQ \sim N(100,15)\)</span></li>
-<li>Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).</li>
-<li>Simulieren Sie <span class="math inline">\(n=10^3\)</span> Stichproben.</li>
-<li>Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)</li>
-<li>Wir wollen hier keine Post-Verteilung berechnen, sondern lediglich Werte simulieren.</li>
+<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
+<p>Das Paket <code>textfeatures</code> ist aktuelle nicht auf CRAN, aber über Github zu bekommen (oder im CRAN-Archiv).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(textfeatures)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Wir simulieren die Daten:</p>
+</section>
+<section id="test-1" class="level1">
+<h1>Test 1</h1>
+<p>Hier ein <a href="https://textfeatures.mikewk.com/">Test vom Autor des Pakets</a>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">iq =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>, <span class="at">mean =</span> <span class="dv">100</span>, <span class="at">sd=</span> <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Da <span class="math inline">\(\sigma=15\)</span>, filtern wir ab 130:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(iq <span class="sc">&gt;=</span> <span class="dv">130</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"this is A!</span><span class="sc">\t</span><span class="st"> sEntence https://github.com about #rstats @github"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"and another sentence here"</span>, <span class="st">"THe following list:</span><span class="sc">\n</span><span class="st">- one</span><span class="sc">\n</span><span class="st">- two</span><span class="sc">\n</span><span class="st">- three</span><span class="sc">\n</span><span class="st">Okay!?!"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="do">## get text features</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>textfeatures<span class="sc">::</span><span class="fu">textfeatures</span>(x, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 2
-  `iq &gt;= 130`     n
-  &lt;lgl&gt;       &lt;int&gt;
-1 FALSE         979
-2 TRUE           21</code></pre>
+<pre><code># A tibble: 3 × 36
+  n_urls n_uq_urls n_hashtags n_uq_hashtags n_mentions n_uq_mentions n_chars
+   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;   &lt;dbl&gt;
+1  1.15      1.15       1.15          1.15       1.15          1.15    0.243
+2 -0.577    -0.577     -0.577        -0.577     -0.577        -0.577  -1.10 
+3 -0.577    -0.577     -0.577        -0.577     -0.577        -0.577   0.856
+# ℹ 29 more variables: n_uq_chars &lt;dbl&gt;, n_commas &lt;dbl&gt;, n_digits &lt;dbl&gt;,
+#   n_exclaims &lt;dbl&gt;, n_extraspaces &lt;dbl&gt;, n_lowers &lt;dbl&gt;, n_lowersp &lt;dbl&gt;,
+#   n_periods &lt;dbl&gt;, n_words &lt;dbl&gt;, n_uq_words &lt;dbl&gt;, n_caps &lt;dbl&gt;,
+#   n_nonasciis &lt;dbl&gt;, n_puncts &lt;dbl&gt;, n_capsp &lt;dbl&gt;, n_charsperword &lt;dbl&gt;,
+#   sent_afinn &lt;dbl&gt;, sent_bing &lt;dbl&gt;, sent_syuzhet &lt;dbl&gt;, sent_vader &lt;dbl&gt;,
+#   n_polite &lt;dbl&gt;, n_first_person &lt;dbl&gt;, n_first_personp &lt;dbl&gt;,
+#   n_second_person &lt;dbl&gt;, n_second_personp &lt;dbl&gt;, n_third_person &lt;dbl&gt;, …</code></pre>
 </div>
 </div>
-<p>Die Wahrscheinlichkeit beträgt ca. 2%.</p>
-<p>Ja, diese Aufgaben ist faktisch identische zur Aufgabe <a href="https://datenwerk.netlify.app/posts/iq01/iq01.html">iq01</a>. Darum ging es: Sie sollen erkennen, dass ein IQ-Wert von 130 das gleiche ist wie MW+2sd.</p>
-<p>Übrigens: “Wie viele SD-Einheiten liegt der Wert von Beobachtung <span class="math inline">\(i\)</span> über dem Mittelwert, <span class="math inline">\(\bar{X}\)</span> ?” ist die Frage, die der z-Wert beantwortet:</p>
-<p><span class="math inline">\(z_i = \frac{x_i - \bar{X}}{sd(x)}\)</span></p>
+</section>
+<section id="test-2" class="level1">
+<h1>Test 2</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>textfeatures<span class="sc">::</span><span class="fu">textfeatures</span>(test_text<span class="sc">$</span>text,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">sentiment =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">word_dims =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[32m↪[39m [38;5;244mCounting features in text...[39m
+[32m↪[39m [38;5;244mParts of speech...[39m
+[32m↪[39m [38;5;244mWord dimensions started[39m
+[32m↪[39m [38;5;244mNormalizing data[39m
+[32m✔[39m Job's done!</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 29
+  n_urls n_uq_urls n_hashtags n_uq_hashtags n_mentions n_uq_mentions n_chars
+   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;   &lt;dbl&gt;
+1      0         0     -0.354        -0.354          0             0  0.532 
+2      0         0     -0.354        -0.354          0             0  0.0800
+3      0         0      2.47          2.47           0             0  0.589 
+4      0         0     -0.354        -0.354          0             0  0.532 
+5      0         0     -0.354        -0.354          0             0 -1.86  
+6      0         0     -0.354        -0.354          0             0 -1.25  
+7      0         0     -0.354        -0.354          0             0  0.471 
+8      0         0     -0.354        -0.354          0             0  0.910 
+# ℹ 22 more variables: n_uq_chars &lt;dbl&gt;, n_commas &lt;dbl&gt;, n_digits &lt;dbl&gt;,
+#   n_exclaims &lt;dbl&gt;, n_extraspaces &lt;dbl&gt;, n_lowers &lt;dbl&gt;, n_lowersp &lt;dbl&gt;,
+#   n_periods &lt;dbl&gt;, n_words &lt;dbl&gt;, n_uq_words &lt;dbl&gt;, n_caps &lt;dbl&gt;,
+#   n_nonasciis &lt;dbl&gt;, n_puncts &lt;dbl&gt;, n_capsp &lt;dbl&gt;, n_charsperword &lt;dbl&gt;,
+#   n_first_person &lt;dbl&gt;, n_first_personp &lt;dbl&gt;, n_second_person &lt;dbl&gt;,
+#   n_second_personp &lt;dbl&gt;, n_third_person &lt;dbl&gt;, n_tobe &lt;dbl&gt;,
+#   n_prepositions &lt;dbl&gt;</code></pre>
+</div>
+</div>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>probability</li>
-<li>simulation</li>
-<li>normal-distribution</li>
+<li>2023</li>
+<li>textmining</li>
+<li>datawrangling</li>
+<li>string</li>
 </ul>
 
 
