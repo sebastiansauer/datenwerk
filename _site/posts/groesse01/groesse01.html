@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -174,9 +208,22 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pradadata)  <span class="co"># für den Datensatz `wo_men`</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(prada)  <span class="co"># für bayesbox, alternativ mit `source`</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Daten importieren:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(wo_men)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Mittelwert in der Stichprobe:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>wo_men <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">height_avg =</span> <span class="fu">mean</span>(height, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">height_sd =</span> <span class="fu">sd</span>(height, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   sex   height_avg height_sd
@@ -189,18 +236,26 @@ ul.task-list li input[type="checkbox"] {
 <p>Zur Berechnung der Likelihoods <em>diskretisieren</em> wir die stetige Variable <code>height</code> in Stufen von jeweils 1cm, der Einfachheit halber.</p>
 <p>Die Wahrscheinlichkeit für das 1cm-Intervall um unserem Stichprobenergebnis herem (182.5cm bis 183.5cm), bei z.B. einem Mittelwert von 180cm und einer SD von 10cm, entspricht dann dieser Differenz:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>obere_grenze <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="at">q =</span> <span class="dv">183</span> <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">mean =</span> <span class="dv">180</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>untere_grenze <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="at">q =</span> <span class="dv">183</span> <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">mean =</span> <span class="dv">180</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>obere_grenze</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.6368307</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>untere_grenze</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.5987063</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>obere_grenze <span class="sc">-</span> untere_grenze</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.03812433</code></pre>
 </div>
 </div>
 <p>Visualisieren wir uns kurz dieses Intervall.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mosaic)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xpnorm</span>(<span class="at">q =</span> <span class="fu">c</span>(<span class="fl">182.5</span>, <span class="fl">183.5</span>), <span class="at">mean =</span> <span class="dv">180</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.5987063 0.6368307</code></pre>
 </div>
@@ -209,15 +264,25 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 <p>Als nächstes legen wir die Werte für unsere Bayes-Box fest.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>norm_mean <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">150</span>, <span class="at">to =</span> <span class="dv">200</span>, <span class="at">by =</span> <span class="dv">1</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>norm_sd <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="dv">20</span>, <span class="at">by =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Jetzt bauen wir unsere Bayes-Box.</p>
 <p>Wenn wir die Wahrscheinlichkeiten der Parameter für alle Kombinationen aus 51 Mittelwerten und 20 SD-Werten prüfen wollen, wird die Tabelle ganz schön lang:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>anzahl_kombinationen <span class="ot">&lt;-</span> <span class="fu">length</span>(norm_mean) <span class="sc">*</span> <span class="fu">length</span>(norm_sd)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>anzahl_kombinationen</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1020</code></pre>
 </div>
 </div>
 <p>Mit <code>expand_grid</code> kann man sich eine Tabelle erstellen lassen, die alle Kombinationen zweier Variablen aufschreibt:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>bayes_box <span class="ot">&lt;-</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(norm_mean, norm_sd)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bayes_box)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 2
   norm_mean norm_sd
@@ -232,8 +297,21 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <p>Das sind unsere Parameterwerte: Jede Kombination eines Mittelwerts und einer Streuung ist eine Hypothese. Insgesamt haben wir also 1020 Parameterwerte.</p>
 <p>So, bauen wir die Bayes-Box weiter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="fl">183.5</span>, <span class="at">mean =</span> bayes_box<span class="sc">$</span>norm_mean, <span class="at">sd =</span> bayes_box<span class="sc">$</span>norm_sd)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>bayes_box2 <span class="ot">&lt;-</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  bayes_box <span class="sc">|&gt;</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hyp =</span> <span class="dv">1</span><span class="sc">:</span>anzahl_kombinationen,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">lik =</span> L,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">post_unstand =</span> hyp <span class="sc">*</span> lik,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">post_std =</span> post_unstand <span class="sc">/</span> <span class="fu">sum</span>(post_unstand))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Schauen wir uns die Post-Verteilung einmal an:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggline</span>(bayes_box2,</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"hyp"</span>,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"post_std"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-10-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>
 </div>
@@ -242,6 +320,13 @@ ul.task-list li input[type="checkbox"] {
 <p>Die Antwort ist, dass für einen bestimmten Mittelwert jeweils 10 verschiedene SD-Werte zugeordnet sind. Und jeder SD-Wert (für einen MW-Wert) hat eine andere Post-Wahrscheinlichkeit!</p>
 <p>Was wir machen können, ist die beiden Parameter MW und SD einzeln aufzuschlüsseln, aber gemeinsam zu betrachten:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>bayes_box2 <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> norm_sd,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> norm_mean,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> post_std) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-11-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>
 </div>
