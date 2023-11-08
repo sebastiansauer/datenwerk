@@ -1,0 +1,117 @@
+---
+extype: string
+exsolution: NA
+exname: rethink3m1
+expoints: 1
+categories:
+- bayes
+- ppv
+- probability
+- string
+date: '2023-11-08'
+slug: ReThink3m1
+title: ReThink3m1
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "50%",
+                      cache = FALSE)
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Nehmen wir an, wir haben 8 (Wasser-)"Treffer" ($W=8$) bei 15 Würfen ($N=15$) erhalten (wieder im Globusversuch). Gehen Sie wieder von einer "flachen", also gleichverteilten, Priori-Verteilung aus.
+
+Berechnen Sie die Posteriori-Verteilung und visualisieren Sie sie. Nutzen Sie die Gittermethode.
+
+*Quelle*: McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Aufl.). Taylor and Francis, CRC Press.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r post-vert-p}
+p_grid <- seq(from = 0, to = 1, length.out = 100)
+prior <- rep(1, 100)
+likelihood <- dbinom(8, size = 15, prob = p_grid)
+post_unstand <- likelihood * prior
+posterior <- post_unstand / sum(post_unstand)
+
+d <- tibble(p = p_grid, posterior = posterior)
+```
+
+Jetzt visualisieren; mit `ggplot2`: 
+
+```{r}
+library(tidyverse)
+ d %>%
+  ggplot(aes(x = p, y = posterior)) +
+ # geom_point() +
+  geom_line() +
+  labs(x = "Anteil Wasser (p)", y = "Posterior Density")
+```
+
+Oder mit `ggpubr`:
+
+
+```{r}
+library(ggpubr)
+
+ggline(d, x = "p", y = "posterior",
+       plot_type = "l")
+```
+
+
+
+[Quelle](https://sr2-solutions.wjakethompson.com/bayesian-inference.html#chapter-3)
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- ppv
+- probability
+- string
+

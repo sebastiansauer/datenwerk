@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-10-17">
+<meta name="dcterms.date" content="2023-11-08">
 
 <title>datenwerk - adjustieren2_var1</title>
 <style>
@@ -169,7 +169,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 17, 2023</p>
+        <p class="date">November 8, 2023</p>
       </div>
     </div>
     
@@ -191,53 +191,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
 <p>Betrachten Sie folgendes Modell, das den Zusammenhang des Preises (<code>price</code>) und dem Gewicht (<code>carat</code>) von Diamanten untersucht (Datensatz <code>diamonds</code>).</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-1_d35d1cb5d7c84b416dc0ee66cf5c97d7">
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-1_6a5f88d1d264058d082e42f43ca207ae">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
-✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
-✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
-✖ insight     0.19.5   ✔ modelbased  0.8.6 
-✔ performance 0.10.5   ✔ parameters  0.21.2
-✔ report      0.5.7    ✔ see         0.8.0 
-
-Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: Rcpp</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>This is rstanarm version 2.21.4</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>- See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>- Default priors may change, so it's safest to specify priors, even if equivalent to the defaults.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>- For execution on a local, multicore CPU with excess RAM we recommend calling</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>  options(mc.cores = parallel::detectCores())</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'rstanarm'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:parameters':
-
-    compare_models</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2/diamonds.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 53940 Columns: 11</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Column specification ────────────────────────────────────────────────────────
+<pre><code>Rows: 53940 Columns: 11
+── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
 chr (3): cut, color, clarity
 dbl (8): rownames, carat, depth, table, price, x, y, z
@@ -247,22 +208,22 @@ dbl (8): rownames, carat, depth, table, price, x, y, z
 </div>
 </div>
 <p>Aber zuerst zentrieren wir den metrischen Prädiktor <code>carat</code>, um den Achsenabschnitt besser interpretieren zu können.</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-2_d4d8a9c43b852a2cc0c4a4f0f7afba95">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="ot">&lt;-</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  diamonds <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">carat_z =</span> carat <span class="sc">-</span> <span class="fu">mean</span>(carat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-2_808572fb96976f5610fee95ed5e455c1">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>diamonds2 <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">carat_z =</span> carat <span class="sc">-</span> <span class="fu">mean</span>(carat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Dann berechnen wir ein (bayesianisches) Regressionsmodell, wobei wir auf die Standardwerte der Prior zurückgreifen.</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-3_5678d6b34c6045a56b667f18f2312608">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(price <span class="sc">~</span> carat_z, <span class="at">data =</span> diamonds,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-3_c643f067e3c66b980209ae9f71989900">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(price <span class="sc">~</span> carat_z, <span class="at">data =</span> diamonds2,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Parameter   |  Median |             95% CI |   pd |  Rhat |     ESS |                       Prior
 -------------------------------------------------------------------------------------------------
-(Intercept) | 3932.79 | [3919.82, 3946.11] | 100% | 1.004 | 1354.00 | Normal (3932.80 +- 9973.60)
-carat_z     | 7756.27 | [7728.25, 7784.89] | 100% | 1.000 | 4587.00 |   Normal (0.00 +- 21040.85)</code></pre>
+(Intercept) | 3932.64 | [3919.83, 3945.55] | 100% | 1.004 | 1178.00 | Normal (3932.80 +- 9973.60)
+carat_z     | 7755.90 | [7727.59, 7783.52] | 100% | 1.000 | 4716.00 |   Normal (0.00 +- 21040.85)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
@@ -271,12 +232,12 @@ Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
 </div>
 </div>
 <p>Zur Verdeutlichung ein Diagramm zum Modell:</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-4_328caff6e5ba775545b4f680c2580194">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> carat_z, <span class="at">y =</span> price) <span class="sc">+</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-4_6ed1a135a8df56d10eeda363bb2f17e7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>diamonds2 <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> carat_z, <span class="at">y =</span> price) <span class="sc">+</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
@@ -285,8 +246,8 @@ Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
 </div>
 </div>
 <p>Oder so:</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-5_69226d6dc33ddf0b002df8b82da82bbd">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_relation</span>(lm1) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-5_3d5742c5aceebedd3ce2cef5754231d5">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_relation</span>(lm1) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-5-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>
 </div>
@@ -300,9 +261,9 @@ Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
 <li>Beziehen Sie sich auf das Modell bzw. die Angaben oben.</li>
 <li>Es gibt (laut Datensatz) folgende Schliffarten (und zwar in der folgenden Reihenfolge):</li>
 </ul>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-6_e06c86473361cf20038bea78c1636a85">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(cut)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-6_2fb0f4a403f74fa3bc8b912deaae9c3a">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(cut)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 1
   cut      
@@ -320,19 +281,19 @@ Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
 <h1>Lösung</h1>
 <p>Die richtige Antwort lautet: <code>price ~ carat_z + cut</code></p>
 <p>Das Modell könnten wir so berechnen:</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-8_849a057a07317d8af10cc0f0c1c3f2fa">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds,</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># verhindert einen Haufen unnötigen Output</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-8_f3fc30d21f1acedce64cb6cdc5eff5d5">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds2,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># verhindert einen Haufen unnötigen Output</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Parameter    |  Median |             95% CI |   pd |  Rhat |     ESS |                       Prior
 --------------------------------------------------------------------------------------------------
-(Intercept)  | 2405.56 | [2331.82, 2478.65] | 100% | 1.000 | 1661.00 | Normal (3932.80 +- 9973.60)
-carat_z      | 7871.14 | [7844.20, 7897.79] | 100% | 0.999 | 4163.00 |   Normal (0.00 +- 21040.85)
-cutGood      | 1120.77 | [1034.52, 1203.06] | 100% | 1.000 | 1922.00 |   Normal (0.00 +- 34685.38)
-cutIdeal     | 1800.36 | [1723.59, 1876.77] | 100% | 1.000 | 1712.00 |   Normal (0.00 +- 20362.28)
-cutPremium   | 1437.96 | [1360.85, 1515.70] | 100% | 1.000 | 1727.00 |   Normal (0.00 +- 22862.49)
-cutVery Good | 1509.29 | [1431.31, 1586.47] | 100% | 1.000 | 1702.00 |   Normal (0.00 +- 23922.15)</code></pre>
+(Intercept)  | 2401.60 | [2326.67, 2475.70] | 100% | 1.000 | 1022.00 | Normal (3932.80 +- 9973.60)
+carat_z      | 7871.06 | [7844.55, 7898.35] | 100% | 0.999 | 3734.00 |   Normal (0.00 +- 21040.85)
+cutGood      | 1124.68 | [1040.23, 1213.25] | 100% | 1.000 | 1224.00 |   Normal (0.00 +- 34685.38)
+cutIdeal     | 1804.40 | [1726.43, 1883.62] | 100% | 1.000 | 1083.00 |   Normal (0.00 +- 20362.28)
+cutPremium   | 1443.13 | [1365.40, 1520.66] | 100% | 1.000 | 1099.00 |   Normal (0.00 +- 22862.49)
+cutVery Good | 1513.52 | [1435.77, 1594.26] | 100% | 1.000 | 1092.00 |   Normal (0.00 +- 23922.15)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
@@ -341,20 +302,7 @@ Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
 </div>
 </div>
 <p>Oder auch so, mit der klassischen Regression:</p>
-<div class="cell" data-hash="adjustieren2_var1_cache/html/unnamed-chunk-9_0097098d7820c885c38469bb8f2276cc">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(price <span class="sc">~</span> carat_z <span class="sc">+</span> cut, <span class="at">data =</span> diamonds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-lm(formula = price ~ carat_z + cut, data = diamonds)
-
-Coefficients:
- (Intercept)       carat_z       cutGood      cutIdeal    cutPremium  
-        2405          7871          1120          1801          1439  
-cutVery Good  
-        1510  </code></pre>
-</div>
-</div>
+<p>lm(price ~ carat_z + cut, data = diamonds2) gi```</p>
 <p>Das führt zu ähnlichen Ergebnissen.</p>
 <p>Man könnte hier noch einen Interaktionseffekt ergänzen.</p>
 <hr>

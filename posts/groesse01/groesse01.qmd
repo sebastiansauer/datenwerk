@@ -1,0 +1,210 @@
+---
+exname: groesse01
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- bayes
+- bayesbox
+- string
+date: '2023-11-08'
+slug: groesse01
+title: groesse01
+
+---
+
+
+
+<!-- WORK IN PROGRESS -->
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+
+Wir interessieren uns für die typische Körpergröße deutscher Studentis.
+[Hier](https://raw.githubusercontent.com/sebastiansauer/pradadata/master/data-raw/wo_men.csv) findet sich dazu ein Datensatz.
+
+Ausgehend von der Annahme, dass sich die Körpergröße normalverteilt (innerhalb eines Geschlechts) suchen wir die Parameter der Normalverteilung, also Mittelwert und Streuung.
+
+Gehen wir von folgenden Apriori-Wahrscheinlichkeiten für die Parameter der Normalverteilung aus:
+
+- Mittelwert: 150cm bis 200 cm, jeder Wert gleich plausibel, alle anderen Werte unmöglich
+- SD: 1cm bis 20cm, jeder Wert gleich plausibel, alle anderen Werte unmöglich
+
+
+Ja, das sind ziemlich einfältige Annahmen, aber gut, fangen wir damit an.
+
+
+Erstellen Sie eine Bayes-Box!
+
+Hinweise:
+
+
+- Untersuchen Sie den angegebenen Parameterbereich in 1cm-Schritten.
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+```{r}
+library(pradadata)  # für den Datensatz `wo_men`
+library(prada)  # für bayesbox, alternativ mit `source`
+library(tidyverse)
+library(ggpubr)
+```
+
+Daten importieren:
+
+```{r}
+data(wo_men)
+```
+
+
+Mittelwert in der Stichprobe:
+
+```{r}
+wo_men |> 
+  group_by(sex) |> 
+  summarise(height_avg = mean(height, na.rm = TRUE),
+            height_sd = sd(height, na.rm = TRUE))
+```
+
+
+Zur Berechnung der Likelihoods *diskretisieren* wir die stetige Variable `height` in Stufen von jeweils 1cm, der Einfachheit halber.
+
+Die Wahrscheinlichkeit für das 1cm-Intervall um unserem Stichprobenergebnis herem (182.5cm bis 183.5cm), bei z.B. einem Mittelwert von 180cm und einer SD von 10cm, entspricht dann dieser Differenz:
+
+```{r}
+obere_grenze <- pnorm(q = 183 + 0.5, mean = 180, sd = 10)
+untere_grenze <- pnorm(q = 183 - 0.5, mean = 180, sd = 10)
+
+obere_grenze
+untere_grenze
+obere_grenze - untere_grenze
+```
+
+Visualisieren wir uns kurz dieses Intervall.
+
+```{r}
+library(mosaic)
+xpnorm(q = c(182.5, 183.5), mean = 180, sd = 10)
+```
+
+
+Als nächstes legen wir die Werte für unsere Bayes-Box fest.
+
+
+
+```{r}
+norm_mean <- seq(from = 150, to = 200, by = 1)
+norm_sd <- seq(from = 1, to = 20, by = 1)
+```
+
+Jetzt bauen wir unsere Bayes-Box.
+
+Wenn wir die Wahrscheinlichkeiten der Parameter für alle Kombinationen aus `r length(norm_mean)` Mittelwerten und `r length(norm_sd)` SD-Werten prüfen wollen, wird die Tabelle ganz schön lang:
+
+```{r}
+anzahl_kombinationen <- length(norm_mean) * length(norm_sd)
+anzahl_kombinationen
+```
+
+
+Mit `expand_grid` kann man sich eine Tabelle erstellen lassen, die alle Kombinationen zweier Variablen aufschreibt:
+
+
+```{r}
+bayes_box <-
+  expand_grid(norm_mean, norm_sd)
+
+head(bayes_box)
+```
+
+Das sind unsere Parameterwerte: Jede Kombination eines Mittelwerts und einer Streuung ist eine Hypothese. Insgesamt haben wir also `r nrow(bayes_box)` Parameterwerte. 
+
+So, bauen wir die Bayes-Box weiter:
+
+```{r}
+L <- pnorm(183.5, mean = bayes_box$norm_mean, sd = bayes_box$norm_sd)
+
+bayes_box2 <-
+  bayes_box |> 
+  mutate(hyp = 1:anzahl_kombinationen,
+         lik = L,
+         post_unstand = hyp * lik,
+         post_std = post_unstand / sum(post_unstand))
+```
+
+Schauen wir uns die Post-Verteilung einmal an:
+
+```{r}
+ggline(bayes_box2,
+       x = "hyp",
+       y = "post_std")
+```
+
+Ohje! Da stimmt was nicht! 
+Warum sieht die Post-Verteilung so komisch aus?
+
+
+
+Die Antwort ist, dass für einen bestimmten Mittelwert jeweils 10 verschiedene SD-Werte zugeordnet sind. Und jeder SD-Wert (für einen MW-Wert) hat eine andere Post-Wahrscheinlichkeit!
+
+Was wir machen können, ist die beiden Parameter MW und SD einzeln aufzuschlüsseln, aber gemeinsam zu betrachten:
+
+
+```{r}
+bayes_box2 |> 
+  ggplot() +
+  aes(x = norm_sd,
+      y = norm_mean,
+      fill = post_std) +
+  geom_tile() +
+  scale_fill_viridis_c()
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- 2023
+- bayes
+- bayesbox
+- string
+

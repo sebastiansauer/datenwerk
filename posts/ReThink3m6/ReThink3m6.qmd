@@ -1,0 +1,144 @@
+---
+extype: string
+exsolution: NA
+exname: rethink3m6
+draft: true
+expoints: 1
+categories:
+- probability
+- bayes
+- post
+- string
+date: '2023-11-08'
+slug: ReThink3m6
+title: ReThink3m6
+
+---
+
+
+<!-- AUFGABE NOCH UNFERTIG! -->
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(scales)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "50%",
+                      cache = TRUE)
+```
+
+
+
+
+
+*Quelle*: McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Aufl.). Taylor and Francis, CRC Press.
+
+
+
+
+
+# Aufgabe
+
+
+
+Angenommen, Sie möchten den Wasseranteil sehr genau bestimmen. Konkret soll das heißen, Sie möchten das 99%-Perzentilintervall mit einer Breite von nur fünf Prozentpunkten (0.05) im Hinblick auf den Wasseranteil bestimmen. Mit anderen Worten, die Distanz von oberen und unterem Ende des Intervalls soll 0.05 betragen. 
+
+Wie oft müssen Sie dafür den Globus werfen?
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(rethinking)
+library(tidyverse)
+```
+
+
+```{r eval=FALSE}
+single_sim <- function(tosses, prior_type = c("uniform", "step")) {
+  prior_type <- match.arg(prior_type)
+  obs <- rbinom(1, size = tosses, prob = 0.7)
+  
+  p_grid <- seq(from = 0, to = 1, length.out = 1000)
+  prior <- rep(1, 1000)
+  if (prior_type == "step") prior[1:500] <- 0
+  
+  likelihood <- dbinom(obs, size = tosses, prob = p_grid)
+  posterior <- likelihood * prior
+  posterior <- post / sum(posterior)
+  
+  samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+  interval <- PI(samples, prob = 0.99)
+  width <- interval[2] - interval[1]
+}
+
+
+single_cond <- function(tosses, prior_type, reps = 100) {
+  tibble(tosses = tosses,
+         prior_type = prior_type,
+         width = map_dbl(seq_len(reps), ~single_sim(tosses = tosses,
+                                                    prior_type = prior_type)))
+}
+
+simulation <- crossing(tosses = seq(1000, 5000, by = 100),
+                       prior_type = c("uniform", "step")) %>%
+  pmap_dfr(single_cond, reps = 100) %>%
+  group_by(tosses, prior_type) %>%
+  summarize(avg_width = mean(width), .groups = "drop") %>%
+  mutate(prior_type = case_when(prior_type == "uniform" ~ "Uniform Prior",
+                                prior_type == "step" ~ "Step Prior"),
+         prior_type = factor(prior_type, levels = c("Uniform Prior",
+                                                    "Step Prior")))
+
+ggplot(simulation, aes(x = tosses, y = avg_width)) +
+  facet_wrap(~prior_type, nrow = 1) +
+  geom_point() +
+  geom_line() +
+  scale_x_comma() +
+  labs(x = "Tosses", y = "Average Interval Width") +
+  theme(panel.spacing.x = unit(2, "lines"))
+```
+
+
+
+
+[Quelle](https://sr2-solutions.wjakethompson.com/bayesian-inference.html#chapter-3)
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- post
+- string
+

@@ -9,7 +9,7 @@ categories:
 - bayes
 - adjust
 - string
-date: '2023-10-17'
+date: '2023-11-08'
 slug: adjustieren2_var1
 title: adjustieren2_var1
 
@@ -55,7 +55,7 @@ Aber zuerst zentrieren wir den metrischen Prädiktor `carat`,
 um den Achsenabschnitt besser interpretieren zu können. 
 
 ```{r}
-diamonds <-
+diamonds2 <-
   diamonds %>% 
   mutate(carat_z = carat - mean(carat, na.rm = TRUE))
 ```
@@ -65,7 +65,7 @@ wobei wir auf die Standardwerte der Prior zurückgreifen.
 
 ```{r}
 library(rstanarm)
-lm1 <- stan_glm(price ~ carat_z, data = diamonds,
+lm1 <- stan_glm(price ~ carat_z, data = diamonds2,
                 refresh = 0)
 parameters(lm1)
 ```
@@ -75,7 +75,7 @@ parameters(lm1)
 Zur Verdeutlichung ein Diagramm zum Modell:
 
 ```{r}
-diamonds %>% 
+diamonds2 %>% 
   ggplot() +
   aes(x = carat_z, y = price) +
   geom_point() + 
@@ -142,7 +142,7 @@ Die richtige Antwort lautet: `price ~ carat_z + cut`
 Das Modell könnten wir so berechnen:
 
 ```{r}
-lm2 <- stan_glm(price ~ carat_z + cut, data = diamonds,
+lm2 <- stan_glm(price ~ carat_z + cut, data = diamonds2,
                 refresh = 0)  # verhindert einen Haufen unnötigen Output
 parameters(lm2)
 ```
@@ -153,8 +153,8 @@ Oder auch so, mit der klassischen Regression:
 
 
 ```{r}
-lm(price ~ carat_z + cut, data = diamonds)
-```
+lm(price ~ carat_z + cut, data = diamonds2)
+gi```
 
 
 Das führt zu ähnlichen Ergebnissen.

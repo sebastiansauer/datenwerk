@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-11-05">
+<meta name="dcterms.date" content="2023-11-08">
 
 <title>datenwerk - ReThink3m4</title>
 <style>
@@ -158,6 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                 <div class="quarto-category">bayes</div>
                 <div class="quarto-category">ppv</div>
                 <div class="quarto-category">probability</div>
+                <div class="quarto-category">string</div>
               </div>
                   </div>
   </div>
@@ -169,7 +170,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 5, 2022</p>
+        <p class="date">November 8, 2023</p>
       </div>
     </div>
     
@@ -188,8 +189,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
 <p>Nehmen wir an, wir haben 8 (Wasser-)“Treffer” (<span class="math inline">\(W=8\)</span>) bei 15 Würfen (<span class="math inline">\(N=15\)</span>) erhalten (wieder im Globusversuch).</p>
 <p>Berechnen Sie auf Basis dieser Posteriori-Verteilung (8 Treffer bei 15 Würfen) die Wahrscheinlichkeit für 6 Wasser bei 9 Würfen (<span class="math inline">\(W=6, N=9\)</span>).</p>
 <p>Hinweise:</p>
@@ -202,10 +203,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><em>Quelle</em>: McElreath, R. (2020). <em>Statistical rethinking: A Bayesian course with examples in R and Stan</em> (2. Aufl.). Taylor and Francis, CRC Press.</p>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
 <p>Erstellen wir zuerst wieder die Posteriori-Verteilung für den Globusversuch.</p>
-<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-1_22321fc08aa3c674de92958ebbe9ee14">
+<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-1_1097d51802ddb02342e5677d4654f162">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>p_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>( <span class="at">from=</span><span class="dv">0</span> , <span class="at">to=</span><span class="dv">1</span> , <span class="at">length.out=</span><span class="dv">1000</span> )  <span class="co"># Gitterwerte</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">rep</span>( <span class="dv">1</span> , <span class="dv">1000</span> )  <span class="co"># Priori-Gewichte</span></span>
@@ -218,9 +219,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>posterior <span class="ot">&lt;-</span> unstandardisierte_posterior <span class="sc">/</span> <span class="fu">sum</span>(unstandardisierte_posterior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Dann ziehen wir unsere Stichproben daraus:</p>
-<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-2_5e0624afb948edf1ad9584f891cf0250">
+<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-2_2a233c666001b2ba01406e036cfe5f69">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># um die Zufallszahlen festzulegen, damit alle die gleichen Zufallswerte bekommen: </span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>) </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>) </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Stichproben ziehen aus der Posteriori-Verteilung</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> </span>
@@ -228,21 +229,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">p =</span> <span class="fu">sample</span>( p_grid , <span class="at">prob=</span>posterior, <span class="at">size=</span><span class="fl">1e4</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Jetzt erstellen wir die PPV für einen <em>anderen</em> Versuch, nämlich mit 9 Zügen:</p>
-<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-3_445f1ae59a8066431272c2cc5a522d36">
+<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-3_5350ad1c0cabb064e9c9b0340c198eb0">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>PPV <span class="ot">&lt;-</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  samples <span class="sc">%&gt;%</span> </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">anzahl_wasser2 =</span> <span class="fu">rbinom</span>(<span class="fl">1e4</span>, <span class="at">size =</span> <span class="dv">9</span>, <span class="at">prob =</span> p))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Schließlich zählen wir, wie oft 6 Treffer beobachtet werden:</p>
-<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-4_dabc643c2306bc620c3e35f1131987a3">
+<div class="cell" data-hash="ReThink3m4_cache/html/unnamed-chunk-4_a9fe2535891d5aa134f4003232e1a346">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>PPV <span class="sc">%&gt;%</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(anzahl_wasser2 <span class="sc">==</span> <span class="dv">6</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
   `anzahl_wasser2 == 6`     n
   &lt;lgl&gt;                 &lt;int&gt;
-1 FALSE                  8059
-2 TRUE                   1941</code></pre>
+1 FALSE                  7972
+2 TRUE                   2028</code></pre>
 </div>
 </div>
 <p><a href="https://sr2-solutions.wjakethompson.com/bayesian-inference.html#chapter-3">Quelle</a></p>
@@ -252,6 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>bayes</li>
 <li>ppv</li>
 <li>probability</li>
+<li>string</li>
 </ul>
 
 
