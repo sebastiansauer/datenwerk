@@ -191,12 +191,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Exercise</h1>
 <p>Betrachten Sie folgendes Modell, das den Zusammenhang von PS-Zahl und Spritverbrauch untersucht (Datensatz <code>mtcars</code>).</p>
 <p>Aber zuerst zentrieren wir den metrischen Prädiktor <code>hp</code>, um den Achsenabschnitt besser interpretieren zu können.</p>
-<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-1_c4c64794e9982c3fd4721f7b87f8b9be">
+<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-1_33ecaacaf261f3fd1e5d10273fe30917">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="ot">&lt;-</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span> </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hp_z =</span> hp <span class="sc">-</span> <span class="fu">mean</span>(hp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-2_5bed17c346699c7235c0c5b6886d5925">
+<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-2_7cdcee56e1c3148754a366d20168814e">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(mpg <span class="sc">~</span> hp_z, <span class="at">data =</span> mtcars,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)</span>
@@ -209,14 +209,14 @@ hp_z        -0.1    0.0 -0.1  -0.1  -0.1
 sigma        4.0    0.5  3.4   3.9   4.7 </code></pre>
 <p>Jetzt können wir aus dem Achsenabschnitt (Intercept) herauslesen, dass ein Auto mit <code>hp_z = 0</code> - also mit mittlerer PS-Zahl - vielleicht gut 20 Meilen weit mit einer Gallone Sprit kommt.</p>
 <p>Zur Verdeutlichung ein Diagramm zum Modell:</p>
-<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-3_128d97612bbab3818132f2997adf230c">
+<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-3_e6c0f43aeb2566a67622d47eb241bc22">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> hp_z, <span class="at">y =</span> mpg) <span class="sc">+</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula 'y ~ x'</code></pre>
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-3-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>
@@ -232,7 +232,7 @@ sigma        4.0    0.5  3.4   3.9   4.7 </code></pre>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
-<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-4_e2ad00c4d24cb1598d3fdd12f62d45e4">
+<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-4_04eec48ca7e84ef7f98cf6c2db6ce696">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(mpg <span class="sc">~</span> hp_z <span class="sc">+</span> am, <span class="at">data =</span> mtcars,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)</span>
@@ -246,7 +246,7 @@ am           5.3    1.1  3.8   5.3   6.6
 sigma        3.0    0.4  2.5   3.0   3.5 </code></pre>
 <p>Die Spalte <code>mean</code> gibt den mittleren geschätzten Wert für den jeweiligen Koeffizienten an, also den Schätzwert zum Koeffizienten.</p>
 <p>Die Koeffizienten zeigen, dass der Achsenabschnitt für Autos mit Automatikgetriebe um etwa 5 Meilen geringer ist als für Autos mit manueller Schaltung: Ein durchschnittliches Auto mit manueller Schaltung kommt also etwa 5 Meilen weiter als ein Auto mit Automatikschaltung, glaubt unser Modell.</p>
-<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-5_c3696e80828c02eefa88d0b469feb98e">
+<div class="cell" data-hash="adjustieren1_cache/html/unnamed-chunk-5_0ca057aa124efda50e4ad74915e30c82">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> </span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">am =</span> <span class="fu">factor</span>(am)) <span class="sc">%&gt;%</span> </span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
@@ -254,7 +254,7 @@ sigma        3.0    0.4  2.5   3.0   3.5 </code></pre>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula 'y ~ x'</code></pre>
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-5-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>

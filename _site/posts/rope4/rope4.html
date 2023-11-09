@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><em>Forschungsfrage</em>:</p>
 <p>Ist der Unterschied zwischen Männern und Frauen (<code>Dem_gender</code>) im Hinblick zum Zusammenhang von Stress (<code>PSS10_avg</code>, AV) und Neurotizismus (<code>neu</code>, UV) vernachlässigbar klein?</p>
 <p>Den Datensatz können Sie so herunterladen (Achtung, groß):</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-1_ddebd0c96a3500a0d605675588c64379">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-1_55554327d74ff7d6c4282caeeedc0f82">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>osf_d_path <span class="ot">&lt;-</span> <span class="st">"https://osf.io/cjxua/?action=download"</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(osf_d_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -229,13 +229,13 @@ e.g.:
 <section id="solution" class="level1">
 <h1>Solution</h1>
 <p>Pakete laden:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-2_330e5dd262dc670ae87cfacc0dbc3073">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-2_662656743c01fdad78d626533cad9ec3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Relevante Spalten auswählen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-3_ae63a465b6c1f4ec7ed63c005ddb41eb">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-3_fb00fcaacc34e2c14df8d8d3c44686c4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">%&gt;%</span> </span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PSS10_avg, neu, Dem_gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -247,7 +247,7 @@ e.g.:
 <li>Geschlecht</li>
 </ul>
 <p>Deskriptive Statistiken zum Datensatz:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-4_836a5d87617b67470066cfeaabee1272">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-4_b7aa5c9a28f92f6f1b37ced2600d0b6c">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="sc">%&gt;%</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -257,7 +257,7 @@ PSS10_avg | 2.63 | 0.74 | 1.00 | [1.00, 5.00] |     0.21 |    -0.31 | 116097 |  
 neu       | 3.34 | 1.05 | 1.33 | [1.00, 6.00] |     0.07 |    -0.45 | 108367 |     16939</code></pre>
 </div>
 </div>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-5_89d3149d16338354b8a97325abc586b0">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-5_d08e3f16a271c75d59d89d8ae4b8b2c7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="sc">%&gt;%</span> </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Dem_gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -271,7 +271,7 @@ neu       | 3.34 | 1.05 | 1.33 | [1.00, 6.00] |     0.07 |    -0.45 | 108367 |  
 </div>
 </div>
 <p>Datensatz aufbereiten:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-6_378a62f7f7914da11bd8cce68bd083a0">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-6_4f94604ef84a9addba1ec497fcbcaf94">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  d2 <span class="sc">%&gt;%</span> </span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Dem_gender <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>)) <span class="sc">%&gt;%</span> </span>
@@ -280,7 +280,7 @@ neu       | 3.34 | 1.05 | 1.33 | [1.00, 6.00] |     0.07 |    -0.45 | 108367 |  
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Dem_gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Check:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-7_e597f51745f2026b8dbaee842dac67de">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-7_56d921ef079c30a5678d618dd3d16f59">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Female)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -292,7 +292,7 @@ neu       | 3.34 | 1.05 | 1.33 | [1.00, 6.00] |     0.07 |    -0.45 | 108367 |  
 </div>
 </div>
 <p>Check:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-8_88594829e093683bb84c9a0b8f305cf0">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-8_3c9878222e63d9679f6c923587e88e6a">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -304,7 +304,7 @@ Female    | 0.73 | 0.44 | 1.00 | [0.00, 1.00] |    -1.06 |    -0.87 | 106843 |  
 </div>
 </div>
 <p>Modell berechnen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-9_d6ded4af1246ead04fa8697e81041584">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-9_d570ec167869151e2af1dd873bf7f810">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stan_glm</span>(PSS10_avg <span class="sc">~</span> neu <span class="sc">+</span> Female <span class="sc">+</span> PSS10_avg<span class="sc">:</span>Female, </span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">refresh =</span> <span class="dv">0</span>,</span>
@@ -312,15 +312,15 @@ Female    | 0.73 | 0.44 | 1.00 | [0.00, 1.00] |    -1.06 |    -0.87 | 106843 |  
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Modellkoeffizienten auslesen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-10_b5d7bf08f504bff1853ffd159bd6c1a9">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-10_67abcb27f603aa35ffce3866582ceaa8">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     (Intercept)              neu           Female PSS10_avg:Female 
-       2.1203846        0.1115801       -2.2922563        0.9222804 </code></pre>
+       2.1204759        0.1115584       -2.2922985        0.9223024 </code></pre>
 </div>
 </div>
 <p>Posteriori-Verteilung auslesen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-11_ecc375903ed8bb63b644d1e27e97e4f9">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-11_efe26390ff3306f5544c28470bf05729">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Parameter        | Median |         95% CI |   pd |  Rhat |     ESS |                 Prior
@@ -332,14 +332,14 @@ PSS10_avg:Female |   0.92 | [ 0.92,  0.93] | 100% | 1.000 | 2061.00 | Normal (0.
 </div>
 </div>
 <p>Posteriori-Verteilung plotten:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-12_e4c70f385eb3a9502cf749121e7a6eb4">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-12_14c33f76ebddcbd481fa625dca9bc7f0">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-12-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>
 </div>
 </div>
 <p>Rope berechnen:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-13_3a52f784baaf1d2159d554491bf345a5">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-13_cd9bc8260576d83c35a242e2325c62f3">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rope</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Proportion of samples inside the ROPE [-0.07, 0.07]:
@@ -353,7 +353,7 @@ PSS10_avg:Female |      0.00 %</code></pre>
 </div>
 </div>
 <p>Rope visualisieren:</p>
-<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-14_e62b22b6fcb628ffdfa9f092103cd803">
+<div class="cell" data-hash="rope4_cache/html/unnamed-chunk-14_9fea021d791fe3d7e8caf2e5ba62dac8">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">rope</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="unnamed-chunk-14-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>

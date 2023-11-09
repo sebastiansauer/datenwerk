@@ -155,10 +155,10 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="exercise" class="level1">
 <h1>Exercise</h1>
-<p>Gegeben sei der DAG <code>g</code> (s. u.). Der DAG verfügt über <span class="math inline">\(n = 6\)</span> Variablen, die als Knoten im Graph dargestellt sind und mit <span class="math inline">\(x_1, x_2, \ldots x_n\)</span> bezeichnet sind.</p>
+<p>Gegeben sei der DAG <code>g</code> (s. u.). Der DAG verfügt über <span class="math inline">\(n = 7\)</span> Variablen, die als Knoten im Graph dargestellt sind und mit <span class="math inline">\(x_1, x_2, \ldots x_n\)</span> bezeichnet sind.</p>
 <p><em>Welche minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt von der UV zur AV zu identifizieren?</em></p>
-<p>UV: x2.</p>
-<p>AV: x4.</p>
+<p>UV: x6.</p>
+<p>AV: x7.</p>
 <p><em>Hinweise</em>:</p>
 <ul>
 <li>Mengen sind mittels geschweifter Klammern gekennzeichnet, z.B. <code>{x1, x2}</code> meint die Menge mit den zwei Elementen <code>x1</code> und <code>x2</code>.</li>
@@ -175,45 +175,66 @@ ul.task-list li input[type="checkbox"] {
 <section id="answerlist" class="level2">
 <h2 class="anchored" data-anchor-id="answerlist">Answerlist</h2>
 <ul>
-<li>{ x1 }</li>
-<li>{ x1, x2 }</li>
-<li>{ x2, x3 }</li>
-<li>{ x1, x5 }</li>
-<li>{ x2, x6 }</li>
+<li>{ x6 }</li>
+<li>{ x2 , x5 }</li>
+<li>{ x2, x4 }</li>
+<li>{ x4, x5 }</li>
+<li>{ x1, x6 }</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
-<p>Folgende minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt der UV auf die AV zu identifizieren: <code>{ x1 }</code>.</p>
+<p>Folgende minimale Variablenmenge muss kontrolliert werden, um den kausalen Effekt der UV auf die AV zu identifizieren: <code>{ x2 , x5 }</code>.</p>
 <p>Es wird also nach dem <em>minimal adjustment set</em> gefragt. Zu beachten ist, dass es weitere, aber größere Mengen geben kann, die den kausalen Effekt identifizieren, aber gefragt ist nach der minimalen Menge. Außerdem ist es möglich, dass es weitere minimale Adjustierungsmengen gibt, die aber nicht in der Auswahlliste vorkommen.</p>
 <p><em>Erläuterung</em>:</p>
 <p>UV und AV sind (durch mindestens einen offenen Pfad) verbunden (“d-connected”).</p>
 <p>Folgende Unabhängigkeitsbeziehungen (<code>_||_</code>) werden durch den DAG definiert:</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>x1 _||_ x5 | x2
-x2 _||_ x3 | x1
-x2 _||_ x4 | x1
-x3 _||_ x5 | x2
-x3 _||_ x5 | x1
-x3 _||_ x6 | x1
-x4 _||_ x5 | x2
-x4 _||_ x5 | x1
-x4 _||_ x6 | x1</code></pre>
+<pre><code>x1 _||_ x2
+x1 _||_ x4 | x2, x3
+x1 _||_ x5 | x3, x4
+x1 _||_ x5 | x2, x3
+x1 _||_ x6 | x2, x5
+x1 _||_ x6 | x2, x3
+x2 _||_ x5 | x3, x4
+x2 _||_ x7 | x1, x3, x4
+x3 _||_ x6 | x2, x5
+x4 _||_ x6 | x2, x5
+x5 _||_ x7 | x3, x4
+x6 _||_ x7 | x1, x3, x4
+x6 _||_ x7 | x2, x3, x4
+x6 _||_ x7 | x2, x5</code></pre>
 </div>
 </div>
 <p>UV und AV werden durch folgende Pfade verbunden:</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>$paths
-[1] "x2 -&gt; x5 -&gt; x6 &lt;- x1 -&gt; x3 -&gt; x4" "x2 -&gt; x5 -&gt; x6 &lt;- x1 -&gt; x4"      
-[3] "x2 -&gt; x6 &lt;- x1 -&gt; x3 -&gt; x4"       "x2 -&gt; x6 &lt;- x1 -&gt; x4"            
-[5] "x2 &lt;- x1 -&gt; x3 -&gt; x4"             "x2 &lt;- x1 -&gt; x4"                  
+ [1] "x6 &lt;- x2 -&gt; x3 -&gt; x4 -&gt; x7"            
+ [2] "x6 &lt;- x2 -&gt; x3 -&gt; x5 &lt;- x4 -&gt; x7"      
+ [3] "x6 &lt;- x2 -&gt; x3 -&gt; x7"                  
+ [4] "x6 &lt;- x2 -&gt; x3 &lt;- x1 -&gt; x7"            
+ [5] "x6 &lt;- x2 -&gt; x4 -&gt; x5 &lt;- x3 -&gt; x7"      
+ [6] "x6 &lt;- x2 -&gt; x4 -&gt; x5 &lt;- x3 &lt;- x1 -&gt; x7"
+ [7] "x6 &lt;- x2 -&gt; x4 -&gt; x7"                  
+ [8] "x6 &lt;- x2 -&gt; x4 &lt;- x3 -&gt; x7"            
+ [9] "x6 &lt;- x2 -&gt; x4 &lt;- x3 &lt;- x1 -&gt; x7"      
+[10] "x6 &lt;- x5 &lt;- x3 -&gt; x4 -&gt; x7"            
+[11] "x6 &lt;- x5 &lt;- x3 -&gt; x7"                  
+[12] "x6 &lt;- x5 &lt;- x3 &lt;- x1 -&gt; x7"            
+[13] "x6 &lt;- x5 &lt;- x3 &lt;- x2 -&gt; x4 -&gt; x7"      
+[14] "x6 &lt;- x5 &lt;- x4 -&gt; x7"                  
+[15] "x6 &lt;- x5 &lt;- x4 &lt;- x2 -&gt; x3 -&gt; x7"      
+[16] "x6 &lt;- x5 &lt;- x4 &lt;- x2 -&gt; x3 &lt;- x1 -&gt; x7"
+[17] "x6 &lt;- x5 &lt;- x4 &lt;- x3 -&gt; x7"            
+[18] "x6 &lt;- x5 &lt;- x4 &lt;- x3 &lt;- x1 -&gt; x7"      
 
 $open
-[1] FALSE FALSE FALSE FALSE  TRUE  TRUE</code></pre>
+ [1]  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE  TRUE
+[13]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE</code></pre>
 </div>
 </div>
 <p>Offenen Pfade sind der/die Pfad/e, die in der obigen Ausgabe unter <code>$open</code> mit <code>TRUE</code> gekennzeichnet sind.</p>
@@ -227,13 +248,17 @@ x3
 x4
 x5
 x6
-x1 -&gt; x2
+x7
 x1 -&gt; x3
-x1 -&gt; x4
-x1 -&gt; x6
-x2 -&gt; x5
+x1 -&gt; x7
+x2 -&gt; x3
+x2 -&gt; x4
 x2 -&gt; x6
 x3 -&gt; x4
+x3 -&gt; x5
+x3 -&gt; x7
+x4 -&gt; x5
+x4 -&gt; x7
 x5 -&gt; x6
 }</code></pre>
 </div>
@@ -241,8 +266,8 @@ x5 -&gt; x6
 <section id="answerlist-1" class="level2">
 <h2 class="anchored" data-anchor-id="answerlist-1">Answerlist</h2>
 <ul>
-<li>Richtig</li>
 <li>Falsch</li>
+<li>Richtig</li>
 <li>Falsch</li>
 <li>Falsch</li>
 <li>Falsch</li>

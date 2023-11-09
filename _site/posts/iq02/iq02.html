@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-11-23">
+<meta name="dcterms.date" content="2023-11-08">
 
 <title>datenwerk - iq02</title>
 <style>
@@ -158,6 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                 <div class="quarto-category">probability</div>
                 <div class="quarto-category">simulation</div>
                 <div class="quarto-category">normal-distribution</div>
+                <div class="quarto-category">num</div>
               </div>
                   </div>
   </div>
@@ -169,7 +170,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 23, 2022</p>
+        <p class="date">November 8, 2023</p>
       </div>
     </div>
     
@@ -188,37 +189,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
 <p>Intelligenz wird häufig mittels einem <em>IQ-Test</em> ermittelt.</p>
 <p><em>Wie groß ist die Wahrscheinlichkeit, dass die nächste Person, die Sie treffen, mindestens zwei Streuungseinheiten über dem Mittelwert liegt?</em></p>
 <p>Hinweise:</p>
 <ul>
 <li>Nutzen Sie Simulationsmethoden.</li>
-<li>Gehen Sie von folgender IQ-Verteilung aus: <span class="math inline">\(IQ \sim N(100,15)\)</span></li>
+<li>Gehen Sie von folgender IQ-Verteilung aus: <span class="math inline">\(IQ \sim N(100,15)\)</span>.</li>
 <li>Geben Sie Anteile oder Wahrscheinlichkeiten stets mit zwei Dezimalstellen an (sofern nicht anders verlangt).</li>
 <li>Simulieren Sie <span class="math inline">\(n=10^3\)</span> Stichproben.</li>
-<li>Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten)</li>
+<li>Nutzen Sie die Zahl 42 als Startwert für Ihre Zufallszahlen (um die Reproduzierbarkeit zu gewährleisten).</li>
 <li>Wir wollen hier keine Post-Verteilung berechnen, sondern lediglich Werte simulieren.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Wir simulieren die Daten:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Reproduzierbarkeit</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">iq =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>, <span class="at">mean =</span> <span class="dv">100</span>, <span class="at">sd=</span> <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>,  <span class="co"># Der Doppelpunkt heißt "bis", also "von 1 bis 10 hoch 3". Diese Spalte ist nicht so wichtig.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">iq =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">3</span>, <span class="at">mean =</span> <span class="dv">100</span>, <span class="at">sd =</span> <span class="dv">15</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d)  <span class="co"># Die ersten paar Zeilen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+     id    iq
+  &lt;int&gt; &lt;dbl&gt;
+1     1 121. 
+2     2  91.5
+3     3 105. 
+4     4 109. 
+5     5 106. 
+6     6  98.4</code></pre>
 </div>
-<p>Da <span class="math inline">\(\sigma=15\)</span>, filtern wir ab 130:</p>
+</div>
+<p>Da <span class="math inline">\(\sigma=15\)</span>, filtern wir ab 130, da 130 genau 2 SD-Einheiten über dem Mittelwert liegt: <code>130 - 2*15 = 100</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(iq <span class="sc">&gt;=</span> <span class="dv">130</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(iq <span class="sc">&gt;=</span> <span class="dv">130</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
   `iq &gt;= 130`     n
@@ -227,8 +241,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 2 TRUE           21</code></pre>
 </div>
 </div>
+<p><code>21/1000</code> sind ca. 0.02.</p>
 <p>Die Wahrscheinlichkeit beträgt ca. 2%.</p>
-<p>Ja, diese Aufgaben ist faktisch identisch z ur Aufgabe <a href="https://datenwerk.netlify.app/posts/iq01/iq01.html">iq01</a>. Darum ging es: Sie sollen erkennen, dass ein IQ-Wert von 130 das gleiche ist wie MW+2sd.</p>
+<p>Ja, diese Aufgaben ist faktisch identische zur Aufgabe <a href="https://datenwerk.netlify.app/posts/iq01/iq01.html">iq01</a>. Darum ging es: Sie sollen erkennen, dass ein IQ-Wert von 130 das gleiche ist wie MW+2sd.</p>
 <p>Übrigens: “Wie viele SD-Einheiten liegt der Wert von Beobachtung <span class="math inline">\(i\)</span> über dem Mittelwert, <span class="math inline">\(\bar{X}\)</span> ?” ist die Frage, die der z-Wert beantwortet:</p>
 <p><span class="math inline">\(z_i = \frac{x_i - \bar{X}}{sd(x)}\)</span></p>
 <hr>
@@ -237,6 +252,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>probability</li>
 <li>simulation</li>
 <li>normal-distribution</li>
+<li>num</li>
 </ul>
 
 
