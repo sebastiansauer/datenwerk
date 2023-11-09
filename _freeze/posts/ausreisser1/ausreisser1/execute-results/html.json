@@ -1,0 +1,17 @@
+{
+  "hash": "9501b0945d4fce4d42c5db3e49a63cf9",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\nexname: ausreisser1\nexpoints: 1\nextype: string\nexsolution: NA\ncategories:\n- eda\n- datawrangling\n- tidyverse\n- ausreisser\n- string\ndate: '2023-11-08'\nslug: ausreisser1\ntitle: ausreisser1\n\n---\n\n\n\n\n\n# Aufgabe\n\nEntfernen Sie alle Ausreißer im Datensatz `mariokart`!\n\n\nHinweise:\n\n- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).\n- Definieren Sie \"Ausreißer\" als Werte, die mehr als 3SD vom Mittelwert entfernt sind.\n\n\n\n\n\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n\n# Lösung\n\n\n## Setup\n\n\n::: {.cell}\n\n:::\n\n\n## Überblick \n\nWir verschaffen uns einen Überblick über die Verteilungen:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nplot_histogram(mariokart)  # aus Paket `DataExplorer`\n```\n\n::: {.cell-output-display}\n![](ausreisser1_files/figure-html/unnamed-chunk-2-1.png){width=672}\n:::\n:::\n\n\n\n\nWie man sieht gibt es einige Ausreißer, z.B. bei `ship_pr` und `total_pr`.\n\n\n## Daten aufbereiten mit z-Transformation\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nmariokart2 <-\n  mariokart %>% \n  select(-id) %>% \n  mutate(across(  # \"across\" wiederholt die Funktionen \".fns\" über alle Spalten \".cols\"\n    .cols = where(is.numeric),\n    .fns = ~ as.numeric(standardize(.x))))\n```\n:::\n\n\n\nLeider gibt `standardize` kein vernünftiges numerisches Objekt zurück,\nso dass wir mit `as.numeric` die Daten noch zur Räson rufen müssen.\n\n\nWie man sieht, ändert sich die Verteilungsform *nicht*  durch die z-Transformation (oder durch irgendeine lineare Transformation):\n\n\n::: {.cell}\n\n```{.r .cell-code}\nplot_histogram(mariokart2)\n```\n\n::: {.cell-output-display}\n![](ausreisser1_files/figure-html/unnamed-chunk-4-1.png){width=672}\n:::\n:::\n\n\n## Extremwerte durch MW ersetzen\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nmariokart3 <-\n  mariokart2 %>% \n  mutate(across(\n    .cols = where(is.numeric),\n    .fns = ~ case_when(abs(.x) <= 3 ~ .x,\n                       abs(.x) > 3 ~ mean(.x))\n  ))\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplot_histogram(mariokart3)\n```\n\n::: {.cell-output-display}\n![](ausreisser1_files/figure-html/unnamed-chunk-6-1.png){width=672}\n:::\n:::\n\n\n\nJetzt sind die Daten deutlich weniger extrem.\n\n\n\n\n---\n\nCategories: \n\n- eda\n- datawrangling\n- tidyverse\n- ausreisser\n- string\n\n",
+    "supporting": [
+      "ausreisser1_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
