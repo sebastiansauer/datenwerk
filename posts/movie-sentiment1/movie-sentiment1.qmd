@@ -1,0 +1,598 @@
+---
+exname: movie-sentiments1
+extype: schoice
+exsolution: r mchoice2string(syntax_chosen_df$correct, single = TRUE)
+exshuffle: no
+categories:
+- textmining
+- imdb
+- schoice
+date: '2023-11-11'
+slug: movie-sentiment1
+title: movie-sentiment1
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(tidytext)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      cache = FALSE,
+                      fig.show = "hold")
+
+```
+
+
+
+
+
+
+# Aufgabe
+
+Eine typische Aufgabe des Textminings ist die Sentimentanalyse.
+Betrachten wir dazu einen Datensatz des Filmbewertungsportal [IMDB](https://www.imdb.com/). Das Portal veröffentlicht Bewertungen (quantitativ und qualitativ, d.h. als Score oder Bewertung/Review) zu Filmen der Nutzerinnen und Nutzer.
+Der Datensatz kann über [Kaggle](https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews) bezogen werden.
+
+Im Rahmen einer Fallstudie soll eine Sentimentanalyse wie folgt abgearbeitet werden:
+
+1. Daten in R importieren
+2. Relevante Spalten auswählen (die die Reviews der Nutzer enthalten)
+3. Daten in das "Tidytext-Format" überführen
+4. Nicht-Wörter (z.B. Zahlen) entfernen
+5. Stopwörter entfernen
+6. Sentimentanalyse durchführen zur Identifikation der Grundemotionen
+7. Visualisierung der Intensität der Emotionen der 10 häufigsten Wörter (sortierte Balken)
+
+
+
+```{r echo = FALSE}
+path_to_data <- "/Users/sebastiansaueruser/datasets/IMDB-short.csv"
+```
+
+
+
+
+Hinweise:
+
+- Hier ist nur ein Teil des Datensatzes dargestellt (aus Gründen der Einfachheit).
+- Gehen Sie davon aus, dass die Daten unter dem Pfad verfügbar sind, der in dieser Variable gespeichert ist: `path_to_data`. Die relevanten Spalten sind dort schon ausgewählt.
+
+
+Welcher der folgenden R-Syntaxen führt diese Analyse korrekt aus? Wählen Sie die am besten passende Antwort!
+
+
+
+
+```{r syntax1, eval = TRUE}
+library(tidytext)  # 
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('nrc')
+
+wordcount_plot1 <- 
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, "[a-z']+")) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_col()
+```
+
+
+
+
+```{r syntax2, eval = FALSE}
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('afinn')
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(output = word, input = review) %>% 
+  filter(str_detect(word, "[a-z']+")) %>% 
+  left_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort=TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(x = n, y = word)) +
+  geom_col()
+```
+
+
+
+
+```{r syntax3, eval = FALSE}
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('bing')
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, "[a-z']+")) %>% 
+  anti_join(stopwords) %>% 
+  left_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_col()
+```
+
+
+
+```{r syntax4, eval = FALSE}
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('loughran')
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '\\w.')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_col()
+```
+
+
+
+
+```{r syntax5, eval = FALSE}
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments()
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, "[a-z']+")) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_bar()
+```
+
+
+
+
+```{r syntax6, eval = FALSE}
+library(tidyverse)
+library(tidytext)
+
+d <- read_csv(path_to_data)
+emo <- get_sentiments()
+stopwords <- get_stopwords()
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(input = word, output = review) %>% 
+  filter(str_detect(word, "[a-z']+")) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emos) %>% 
+  count(word) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot() +
+  aes(n, word) +
+  geom_bar()
+```
+
+
+
+
+```{r syntax7, eval = FALSE}
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('nrc')
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, "[a-z']+")) %>% 
+  left_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice(n = 10) %>% 
+  ggplot(aes(x = n, y = word)) +
+  geom_bar()
+```
+
+
+
+
+
+```{r syntax8, eval = FALSE}
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('nrc')
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '\\w.')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) %>% 
+  geom_col()
+```
+
+
+
+
+
+
+```{r syntax1a}
+syntax1 <-
+  "
+library(tidytext) 
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('nrc')
+
+wordcount_plot1 <- 
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '[a-z]+')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_col()
+"
+```
+
+```{r syntax2a}
+syntax2 <-
+  "
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('afinn')
+
+wordcount_plot1 <- 
+d %>% 
+  select(review) %>% 
+  unnest_tokens(output = word, input = review) %>% 
+  filter(str_detect(word, '[a-z]+')) %>% 
+  left_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort=TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(x = n, y = word)) +
+  geom_col()
+"
+```
+
+```{r syntax3a}
+syntax3 <-
+  "
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('bing')
+
+wordcount_plot1 <- 
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '[a-z]+')) %>% 
+  anti_join(stopwords) %>% 
+  left_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_col()
+"
+```
+
+```{r syntax4a}
+syntax4 <-
+  "
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('loughran')
+
+wordcount_plot1 <- 
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '\\w.')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_col()
+"
+```
+
+```{r syntax5a}
+syntax5 <-
+  "
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments()
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '[a-z]+')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) +
+  geom_bar()
+"
+```
+
+```{r syntax6a}
+syntax6 <-
+  "
+library(tidyverse)
+library(tidytext)
+
+d <- read_csv(path_to_data)
+emo <- get_sentiments()
+stopwords <- get_stopwords()
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(input = word, output = review) %>% 
+  filter(str_detect(word, '\\w.')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emos) %>% 
+  count(word) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot() +
+  aes(n, word) +
+  geom_bar()
+"
+```
+
+```{r syntax7a}
+syntax7 <-
+  "
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('nrc')
+
+wordcount_plot1 <- 
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '[a-z]+')) %>% 
+  left_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word, sort = TRUE) %>% 
+  slice(n = 10) %>% 
+  ggplot(aes(x = n, y = word)) +
+  geom_bar()
+  "
+```
+
+```{r syntax8a}
+syntax8 <-
+  "
+library(tidytext)
+library(tidyverse)
+
+d <- read_csv(path_to_data)
+
+stopwords <- get_stopwords()
+emo <- get_sentiments('nrc')
+
+d %>% 
+  select(review) %>% 
+  unnest_tokens(word, review) %>% 
+  filter(str_detect(word, '[a-z]+')) %>% 
+  anti_join(stopwords) %>% 
+  inner_join(emo) %>% 
+  count(word) %>% 
+  slice_head(n = 10) %>% 
+  mutate(word = fct_reorder(word, n)) %>% 
+  ggplot(aes(n, word)) %>% 
+  geom_col()
+"
+```
+
+```{r syntax-vector, cache = FALSE}
+
+syntax_v <-
+  c(
+    syntax1, 
+    syntax2,
+    syntax3,
+    syntax4,
+    syntax5,
+    syntax6,
+    syntax7,
+    syntax8
+  )
+
+syntax_wrong <-
+  sample(syntax_v[2:7], 3)
+
+syntax_chosen_df <-
+  tibble(syntax_chosen = c(syntax1, syntax_wrong, "keine der genannten"),
+         correct = c(T, F, F, F, F)) %>% 
+  sample_n(5) %>% 
+  mutate(nr = paste0("Syntax ", LETTERS[1:5]))
+```
+
+
+**Option A** 
+
+```{r}
+cat(syntax_chosen_df$syntax_chosen[1])
+```
+
+
+**Option B** 
+
+```{r}
+cat(syntax_chosen_df$syntax_chosen[2])
+```
+
+
+**Option C** 
+
+```{r}
+cat(syntax_chosen_df$syntax_chosen[3])
+```
+
+**Option D** 
+
+```{r}
+cat(syntax_chosen_df$syntax_chosen[4])
+```
+
+
+**Option E** 
+
+```{r}
+cat(syntax_chosen_df$syntax_chosen[5])
+```
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(syntax_chosen_df$nr, markup = "markdown")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Die richtige Syntax lautet `r syntax_chosen_df$nr[syntax_chosen_df$correct == TRUE]`.
+
+```{r display-correct-option}
+cat(syntax_chosen_df$syntax_chosen[syntax_chosen_df$correct == TRUE])
+```
+
+Das Diagramm sieht dann so aus:
+
+```{r}
+wordcount_plot1
+```
+
+
+
+
+```{r sols, echo = FALSE, results = "asis"}
+answerlist(ifelse(syntax_chosen_df$correct, "Richtig", "Falsch"),
+           markup = "markdown")
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- imdb
+- schoice
+

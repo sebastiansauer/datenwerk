@@ -1,0 +1,214 @@
+---
+exname: germeval04
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- 2023
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- string
+date: '2023-11-11'
+slug: germeval04
+title: germeval04
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+options(max.print = 10)
+options(rstudio.help.showDataPreview = FALSE)
+```
+
+
+
+# Aufgabe
+
+Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+data("germeval_train", package = "pradadata")
+data("germeval_test", package = "pradadata")
+```
+
+Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Tidymodels.
+- Nutzen Sie das `sentiws` Lexikon.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+d_train <-
+  germeval_train |> 
+  select(id, c1, text)
+```
+
+
+```{r}
+library(tictoc)
+library(tidymodels)
+library(syuzhet)
+library(beepr)
+library(textrecipes)
+data("sentiws", package = "pradadata")
+```
+
+
+Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
+
+```{r}
+# model:
+mod1 <-
+  nearest_neighbor(mode = "classification",
+                   neighbors = tune())
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train, v = 5)
+
+
+# recipe:
+rec1 <-
+  recipe(c1 ~ ., data = d_train) |> 
+  update_role(id, new_role = "id")  |> 
+  #update_role(c2, new_role = "ignore") |> 
+  update_role(text, new_role = "ignore") |> 
+  step_mutate(n_emo = get_sentiment(text,  # aus `syuzhet`
+                                    method = "custom",
+                                    lexicon = sentiws))  |>
+  step_textfeature(text)  |> 
+  step_zv()   |> # der vorherige Step erzeugt Features ohne Varianz
+  step_normalize(all_numeric_predictors()) 
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+
+
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  tune_grid(
+    resamples = rsmpl,
+    metrics = metric_set(accuracy, f_meas, roc_auc),
+    control = control_grid(verbose = TRUE))
+toc()
+beep()
+
+```
+
+
+
+
+```{r}
+wf1_fit
+```
+
+## Test-Set-Güte
+
+```{r}
+fit1_best <- select_best(wf1_fit)
+```
+
+```{r}
+wf1_final <- finalize_workflow(wf1, fit1_best)
+wf1_final_fit <- fit(wf1_final, data = d_train)
+```
+
+
+
+Vorhersagen im Test-Set:
+
+```{r}
+tic()
+preds <-
+  predict(wf1_final_fit, new_data = germeval_test)
+toc()
+```
+
+Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
+
+```{r}
+d_test <-
+  germeval_test |> 
+  bind_cols(preds) |> 
+  mutate(c1 = as.factor(c1))
+```
+
+
+
+```{r}
+my_metrics <- metric_set(accuracy, f_meas)
+my_metrics(d_test,
+           truth = c1,
+           estimate = .pred_class)
+```
+
+
+## Fazit
+
+Eine Reihe der Text-Features passen nicht gut auf nicht-englische Texte.
+
+
+
+
+---
+
+Categories: 
+
+- 2023
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- string
+

@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-11-11">
 
-<title>datenwerk - germeval01</title>
+<title>datenwerk - movie-sentiment1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -151,13 +117,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">germeval01</h1>
+      <h1 class="title">movie-sentiment1</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">2023</div>
                 <div class="quarto-category">textmining</div>
-                <div class="quarto-category">datawrangling</div>
-                <div class="quarto-category">germeval</div>
-                <div class="quarto-category">string</div>
+                <div class="quarto-category">imdb</div>
+                <div class="quarto-category">schoice</div>
               </div>
                   </div>
   </div>
@@ -190,134 +154,206 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Extrahieren Sie typisches Text-Features aus einem Text.</p>
-<p>Nutzen Sie das Paket <a href="https://github.com/cran/textfeatures/tree/master"><code>textfeatures</code></a>.</p>
-<p>Nutzen Sie die <a href="https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML">GermEval-2018-Daten</a>.</p>
-<p>Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),</p>
-<p>Die Daten sind auch über das R-Paket <a href="https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master">PradaData</a> zu beziehen.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_train"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Nutzen Sie diesen Text-Datensatz, bevor Sie den größeren <code>germeval</code>-Datensatz verwenden:</p>
-</section>
-<section id="daten" class="level1">
-<h1>Daten</h1>
-<p>Teststring:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Abbau, Abbruch ist jetzt"</span>, </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Test   🧑‍🎓 😄 heute!!"</span>, </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Abbruch #morgen #perfekt"</span>, </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Abmachung... LORE IPSUM"</span>, </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>          <span class="st">"boese ja"</span>, <span class="st">"böse nein"</span>, </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>          <span class="st">"hallo ?! www.google.de"</span>, </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"gut schlecht I am you are he she it is"</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>n_emo <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>test_text <span class="ot">&lt;-</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text),</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">text =</span> text,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_emo =</span> n_emo)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>test_text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  id                     text n_emo
-1  1 Abbau, Abbruch ist jetzt     2
-2  2   Test   🧑‍🎓 😄 heute!!     0
-3  3 Abbruch #morgen #perfekt     2
- [ reached 'max' / getOption("max.print") -- omitted 5 rows ]</code></pre>
-</div>
-</div>
+<p>Eine typische Aufgabe des Textminings ist die Sentimentanalyse. Betrachten wir dazu einen Datensatz des Filmbewertungsportal <a href="https://www.imdb.com/">IMDB</a>. Das Portal veröffentlicht Bewertungen (quantitativ und qualitativ, d.h. als Score oder Bewertung/Review) zu Filmen der Nutzerinnen und Nutzer. Der Datensatz kann über <a href="https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews">Kaggle</a> bezogen werden.</p>
+<p>Im Rahmen einer Fallstudie soll eine Sentimentanalyse wie folgt abgearbeitet werden:</p>
+<ol type="1">
+<li>Daten in R importieren</li>
+<li>Relevante Spalten auswählen (die die Reviews der Nutzer enthalten)</li>
+<li>Daten in das “Tidytext-Format” überführen</li>
+<li>Nicht-Wörter (z.B. Zahlen) entfernen</li>
+<li>Stopwörter entfernen</li>
+<li>Sentimentanalyse durchführen zur Identifikation der Grundemotionen</li>
+<li>Visualisierung der Intensität der Emotionen der 10 häufigsten Wörter (sortierte Balken)</li>
+</ol>
 <p>Hinweise:</p>
 <ul>
-<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
+<li>Hier ist nur ein Teil des Datensatzes dargestellt (aus Gründen der Einfachheit).</li>
+<li>Gehen Sie davon aus, dass die Daten unter dem Pfad verfügbar sind, der in dieser Variable gespeichert ist: <code>path_to_data</code>. Die relevanten Spalten sind dort schon ausgewählt.</li>
+</ul>
+<p>Welcher der folgenden R-Syntaxen führt diese Analyse korrekt aus? Wählen Sie die am besten passende Antwort!</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in inner_join(., emo): Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 18 of `x` matches multiple rows in `y`.
+ℹ Row 11267 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.</code></pre>
+</div>
+</div>
+<p><strong>Option A</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidytext)
+library(tidyverse)
+
+d &lt;- read_csv(path_to_data)
+
+stopwords &lt;- get_stopwords()
+emo &lt;- get_sentiments()
+
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(word, review) %&gt;% 
+  filter(str_detect(word, '[a-z]+')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  inner_join(emo) %&gt;% 
+  count(word) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_bar()</code></pre>
+</div>
+</div>
+<p><strong>Option B</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidytext)
+library(tidyverse)
+
+d &lt;- read_csv(path_to_data)
+
+stopwords &lt;- get_stopwords()
+emo &lt;- get_sentiments('bing')
+
+wordcount_plot1 &lt;- 
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(word, review) %&gt;% 
+  filter(str_detect(word, '[a-z]+')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  left_join(emo) %&gt;% 
+  count(word, sort = TRUE) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_col()</code></pre>
+</div>
+</div>
+<p><strong>Option C</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidytext)
+library(tidyverse)
+
+d &lt;- read_csv(path_to_data)
+
+stopwords &lt;- get_stopwords()
+emo &lt;- get_sentiments('loughran')
+
+wordcount_plot1 &lt;- 
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(word, review) %&gt;% 
+  filter(str_detect(word, '\w.')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  inner_join(emo) %&gt;% 
+  count(word, sort = TRUE) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_col()</code></pre>
+</div>
+</div>
+<p><strong>Option D</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>keine der genannten</code></pre>
+</div>
+</div>
+<p><strong>Option E</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidytext) 
+library(tidyverse)
+
+d &lt;- read_csv(path_to_data)
+
+stopwords &lt;- get_stopwords()
+emo &lt;- get_sentiments('nrc')
+
+wordcount_plot1 &lt;- 
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(word, review) %&gt;% 
+  filter(str_detect(word, '[a-z]+')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  inner_join(emo) %&gt;% 
+  count(word, sort = TRUE) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_col()</code></pre>
+</div>
+</div>
+<section id="answerlist" class="level2">
+<h2 class="anchored" data-anchor-id="answerlist">Answerlist</h2>
+<ul>
+<li>Syntax A</li>
+<li>Syntax B</li>
+<li>Syntax C</li>
+<li>Syntax D</li>
+<li>Syntax E</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
+</section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
-<p>Das Paket <code>textfeatures</code> ist aktuelle nicht auf CRAN, aber über Github zu bekommen (oder im CRAN-Archiv).</p>
+<p>Die richtige Syntax lautet Syntax E.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(textfeatures)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidytext) 
+library(tidyverse)
+
+d &lt;- read_csv(path_to_data)
+
+stopwords &lt;- get_stopwords()
+emo &lt;- get_sentiments('nrc')
+
+wordcount_plot1 &lt;- 
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(word, review) %&gt;% 
+  filter(str_detect(word, '[a-z]+')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  inner_join(emo) %&gt;% 
+  count(word, sort = TRUE) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_col()</code></pre>
 </div>
-</section>
-<section id="test-1" class="level1">
-<h1>Test 1</h1>
-<p>Hier ein <a href="https://textfeatures.mikewk.com/">Test vom Autor des Pakets</a>:</p>
+</div>
+<p>Das Diagramm sieht dann so aus:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"this is A!</span><span class="sc">\t</span><span class="st"> sEntence https://github.com about #rstats @github"</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"and another sentence here"</span>, <span class="st">"THe following list:</span><span class="sc">\n</span><span class="st">- one</span><span class="sc">\n</span><span class="st">- two</span><span class="sc">\n</span><span class="st">- three</span><span class="sc">\n</span><span class="st">Okay!?!"</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="do">## get text features</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>textfeatures<span class="sc">::</span><span class="fu">textfeatures</span>(x, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 36
-  n_urls n_uq_urls n_hashtags n_uq_hashtags n_mentions n_uq_mentions n_chars
-   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;   &lt;dbl&gt;
-1  1.15      1.15       1.15          1.15       1.15          1.15    0.243
-2 -0.577    -0.577     -0.577        -0.577     -0.577        -0.577  -1.10 
-3 -0.577    -0.577     -0.577        -0.577     -0.577        -0.577   0.856
-# ℹ 29 more variables: n_uq_chars &lt;dbl&gt;, n_commas &lt;dbl&gt;, n_digits &lt;dbl&gt;,
-#   n_exclaims &lt;dbl&gt;, n_extraspaces &lt;dbl&gt;, n_lowers &lt;dbl&gt;, n_lowersp &lt;dbl&gt;,
-#   n_periods &lt;dbl&gt;, n_words &lt;dbl&gt;, n_uq_words &lt;dbl&gt;, n_caps &lt;dbl&gt;,
-#   n_nonasciis &lt;dbl&gt;, n_puncts &lt;dbl&gt;, n_capsp &lt;dbl&gt;, n_charsperword &lt;dbl&gt;,
-#   sent_afinn &lt;dbl&gt;, sent_bing &lt;dbl&gt;, sent_syuzhet &lt;dbl&gt;, sent_vader &lt;dbl&gt;,
-#   n_polite &lt;dbl&gt;, n_first_person &lt;dbl&gt;, n_first_personp &lt;dbl&gt;,
-#   n_second_person &lt;dbl&gt;, n_second_personp &lt;dbl&gt;, n_third_person &lt;dbl&gt;, …</code></pre>
+<div class="cell-output-display">
+<p><img src="unnamed-chunk-7-1.png" class="img-fluid" data-fig-pos="H" width="384"></p>
 </div>
 </div>
-</section>
-<section id="test-2" class="level1">
-<h1>Test 2</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>textfeatures<span class="sc">::</span><span class="fu">textfeatures</span>(test_text<span class="sc">$</span>text,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">sentiment =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">word_dims =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[32m↪[39m [38;5;244mCounting features in text...[39m
-[32m↪[39m [38;5;244mParts of speech...[39m
-[32m↪[39m [38;5;244mWord dimensions started[39m
-[32m↪[39m [38;5;244mNormalizing data[39m
-[32m✔[39m Job's done!</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 8 × 29
-  n_urls n_uq_urls n_hashtags n_uq_hashtags n_mentions n_uq_mentions n_chars
-   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;   &lt;dbl&gt;
-1      0         0     -0.354        -0.354          0             0  0.532 
-2      0         0     -0.354        -0.354          0             0  0.0800
-3      0         0      2.47          2.47           0             0  0.589 
-4      0         0     -0.354        -0.354          0             0  0.532 
-5      0         0     -0.354        -0.354          0             0 -1.86  
-6      0         0     -0.354        -0.354          0             0 -1.25  
-7      0         0     -0.354        -0.354          0             0  0.471 
-8      0         0     -0.354        -0.354          0             0  0.910 
-# ℹ 22 more variables: n_uq_chars &lt;dbl&gt;, n_commas &lt;dbl&gt;, n_digits &lt;dbl&gt;,
-#   n_exclaims &lt;dbl&gt;, n_extraspaces &lt;dbl&gt;, n_lowers &lt;dbl&gt;, n_lowersp &lt;dbl&gt;,
-#   n_periods &lt;dbl&gt;, n_words &lt;dbl&gt;, n_uq_words &lt;dbl&gt;, n_caps &lt;dbl&gt;,
-#   n_nonasciis &lt;dbl&gt;, n_puncts &lt;dbl&gt;, n_capsp &lt;dbl&gt;, n_charsperword &lt;dbl&gt;,
-#   n_first_person &lt;dbl&gt;, n_first_personp &lt;dbl&gt;, n_second_person &lt;dbl&gt;,
-#   n_second_personp &lt;dbl&gt;, n_third_person &lt;dbl&gt;, n_tobe &lt;dbl&gt;,
-#   n_prepositions &lt;dbl&gt;</code></pre>
-</div>
-</div>
+<section id="answerlist-1" class="level2">
+<h2 class="anchored" data-anchor-id="answerlist-1">Answerlist</h2>
+<ul>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Richtig</li>
+</ul>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>2023</li>
 <li>textmining</li>
-<li>datawrangling</li>
-<li>germeval</li>
-<li>string</li>
+<li>imdb</li>
+<li>schoice</li>
 </ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
