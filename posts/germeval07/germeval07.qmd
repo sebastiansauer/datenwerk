@@ -1,5 +1,5 @@
 ---
-exname: germeval05
+exname: germeval07
 expoints: 1
 extype: string
 exsolution: NA
@@ -11,9 +11,9 @@ categories:
 - prediction
 - tidymodels
 - string
-date: '2023-11-11'
-slug: germeval05
-title: germeval05
+date: '2023-11-12'
+slug: germeval07
+title: germeval07
 
 ---
 
@@ -39,7 +39,7 @@ options(rstudio.help.showDataPreview = FALSE)
 # Aufgabe
 
 Erstellen Sie ein prädiktives Modell für Textdaten. 
-Nutzen Sie Word-Vektoren für das Feature-Engineering.
+Nutzen Sie Deutsche Word-Vektoren für das Feature-Engineering.
 
 Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -61,6 +61,7 @@ Hinweise:
 
 - Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
 - Nutzen Sie Tidymodels.
+- Nutzen Sie [Wikipedia2Vec](https://wikipedia2vec.github.io/wikipedia2vec/) als Grundlage für die Wordembeddings in deutscher Sprache. Laden Sie die Daten herunter (Achtung: ca. 2.8 GB).
 
 
 
@@ -100,33 +101,32 @@ library(textrecipes)
 Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
 
 
-## Textvektoren importieren
+## Deutsche Textvektoren importieren
 
-```{r}
-library(textdata)
+```{r read-word-embeddings}
+wiki_de_embeds_path <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/dewiki_20180420_100d.txt"
 
-glove_embedding <- embedding_glove6b(
-  dir = "/Users/sebastiansaueruser/datasets",
-  return_path = TRUE,
-  manual_download = TRUE
-)
 
-head(glove_embedding)
+tic()
+wiki_de_embeds <-
+  data.table::fread(file = wiki_de_embeds_path,
+                    sep = " ",
+                    header = FALSE,
+                    showProgress = FALSE)
+toc()
+
+names(wiki_de_embeds)[1] <- "word"
+
+wiki <- as_tibble(wiki_de_embeds)
 ```
 
 
-`glove6b` ist für die englische Sprache vorgekocht. 
-Das macht wenig Sin für einen deutschsprachigen Corpus.
+
 
 ```{r}
 # model:
 mod1 <-
   logistic_reg()
-
-
-# cv:
-set.seed(42)
-rsmpl <- vfold_cv(d_train, v = 5)
 
 
 # recipe:
@@ -137,7 +137,7 @@ rec1 <-
   step_tokenize(text) %>%
   step_stopwords(text, keep = FALSE) %>%
   step_word_embeddings(text,
-                       embeddings = glove_embedding,
+                       embeddings = wiki,
                        aggregation = "mean") |> 
   step_normalize(all_numeric_predictors()) 
 
@@ -148,37 +148,23 @@ wf1 <-
   add_model(mod1) %>% 
   add_recipe(rec1)
 
+```
 
-# tuning:
+
+
+## Tuninig/Fitting
+
+
+```{r tune-fit}
+#| cache: true
 tic()
 wf1_fit <-
   wf1 %>% 
-  fit_resamples(
-    resamples = rsmpl,
-    metrics = metric_set(accuracy, f_meas, roc_auc),
-    control = control_grid(verbose = TRUE))
+  fit(data = d_train)
 toc()
 beep()
 ```
 
-
-
-
-```{r}
-wf1_fit |> collect_metrics()
-```
-
-
-
-
-
-## Fit
-
-```{r}
-fit1 <- 
-  wf1 |> 
-  fit(data = d_train)
-```
 
 
 
@@ -190,7 +176,7 @@ Vorhersagen im Test-Set:
 ```{r predict}
 tic()
 preds <-
-  predict(fit1, new_data = germeval_test)
+  predict(wf1_fit, new_data = germeval_test)
 toc()
 ```
 
@@ -215,7 +201,8 @@ my_metrics(d_test,
 
 ## Fazit
 
-
+`wikipedia2vec` ist für die deutsche Sprache vorgekocht. 
+Das macht Sinn für einen deutschsprachigen Corpus.
 
 ---
 
