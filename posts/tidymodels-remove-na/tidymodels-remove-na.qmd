@@ -1,0 +1,101 @@
+---
+exname: tidymodels-vorlage3
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-11-15'
+slug: tidymodels-remove-na
+title: tidymodels-remove-na
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Erstellen Sie ein Rezept, dass die fehlenden Werte aus dem Datensatz `penguins` entfernt.
+
+Hinweise:
+
+- Verwenden Sie `tidymodels`.
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path)
+
+
+# recipe:
+rec1 <- recipe(body_mass_g ~  ., data = d) |> 
+  step_dummy(all_nominal_predictors()) |> 
+  step_normalize(all_predictors()) |> 
+  step_naomit(all_predictors()) 
+
+```
+
+Als Check: Das gepreppte/bebackene Rezept:
+
+```{r}
+rec1_prepped <- prep(rec1)
+d_train_baked <- bake(rec1_prepped, new_data = NULL)
+```
+
+
+```{r}
+d_train_baked |> 
+  head()
+```
+
+```{r}
+library(easystats)
+describe_distribution(d_train_baked)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

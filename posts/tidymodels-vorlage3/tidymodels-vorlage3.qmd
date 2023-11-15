@@ -1,0 +1,139 @@
+---
+exname: tidymodels-vorlage3
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- template
+- string
+date: '2023-11-15'
+slug: tidymodels-vorlage3
+title: tidymodels-vorlage3
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Schreiben Sie eine prototypische Analyse für ein Vorhersagemodell, das sich als Vorlage für Analysen dieser Art eignet!
+
+Verzichten Sie auf Resampling und Tuning.
+
+Hinweise:
+
+- Berechnen Sie ein Modell
+- Tunen Sie keinen Parameter des Modells
+- Verwenden Sie keine Kreuzvalidierung.
+- Verwenden Sie Standardwerte, wo nicht anders angegeben.
+- Fixieren Sie Zufallszahlen auf den Startwert 42.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+# Setup:
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+library(easystats)   # NAs zählen
+
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read_csv(d_path) |> na.omit()
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+
+# model:
+mod1 <-
+  rand_forest(mode = "regression")
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec1 <- recipe(body_mass_g ~  ., data = d_train) |> 
+  step_unknown(all_nominal_predictors(), new_level = "NA") |> 
+  #step_naomit(all_predictors()) |> 
+  step_dummy(all_nominal_predictors()) |> 
+  step_zv(all_predictors()) |> 
+  step_normalize(all_predictors()) 
+
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+
+
+# tuning:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  last_fit(split = d_split)
+toc()
+
+
+collect_metrics(wf1_fit)
+```
+
+Als Check: Das gepreppte/bebackene Rezept:
+
+```{r}
+rec1_prepped <- prep(rec1)
+d_train_baked <- bake(rec1_prepped, new_data = NULL)
+```
+
+
+```{r}
+d_train_baked |> 
+  head()
+```
+
+```{r}
+describe_distribution(d_train_baked)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- template
+- string
+

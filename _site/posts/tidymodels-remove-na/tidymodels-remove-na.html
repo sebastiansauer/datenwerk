@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-11-15">
 
-<title>datenwerk - Typ-Fehler-R-08-name-clash</title>
+<title>datenwerk - tidymodels-remove-na</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -151,10 +151,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Typ-Fehler-R-08-name-clash</h1>
+      <h1 class="title">tidymodels-remove-na</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">R</div>
-                <div class="quarto-category">error</div>
+                <div class="quarto-category">tidymodels</div>
+                <div class="quarto-category">statlearning</div>
+                <div class="quarto-category">template</div>
                 <div class="quarto-category">string</div>
               </div>
                   </div>
@@ -188,136 +189,141 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>R spuckt eine komische Fehlermeldung aus. Was ist nur los? Hat R einen schlechten Tag?</p>
-<p>Schauen wir uns die Sache näher an:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'MASS'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:dplyr':
-
-    select</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mtcars_small <span class="ot">&lt;-</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hp, am)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in select(., hp, am): unused arguments (hp, am)</code></pre>
-</div>
-</div>
-<p>Oh nein! Fehler!</p>
-<p>Was ist nur los?</p>
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+<p>Erstellen Sie ein Rezept, dass die fehlenden Werte aus dem Datensatz <code>penguins</code> entfernt.</p>
 <p>Hinweise:</p>
 <ul>
-<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
+<li>Verwenden Sie <code>tidymodels</code>.</li>
+<li>Verwenden Sie Standardwerte, wo nicht anders angegeben.</li>
+<li>Fixieren Sie Zufallszahlen auf den Startwert 42.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
-<p>Das Problem ist, dass es in beiden Paketen, <code>{MASS}</code> und <code>{dplyr}</code> (dasjenige Paket im <code>tidyverse</code>, in dem <code>select()</code> wohnt), eine Funktion namens <code>select</code> vorhanden ist.</p>
-<p>Es kommt zu einem “Name Clash”, einer Namenskollision.</p>
-<p>Wenn mehrere Funktion gleichen Namens geladen (“attached”) sind, so “gewinnt” diejenige Funktion, die als <em>letztes</em> geladen wurde, in unserem Fall ist das die Funktion aus <code>{MASS}</code>.</p>
-<p>Es gibt eine Reihe von Lösungen.</p>
-<ol type="1">
-<li>Nur das benötigte Paket starten</li>
-</ol>
-<p>Zuerst “entladen” wir <code>MASS</code>, da wir es nicht benötigen:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">"package:MASS"</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 1.1.1 ──</code></pre>
 </div>
-<p>Alternativ (und einfacher) könnten wir R neu starten: <code>Session &gt; Restart R</code>.</p>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ broom        1.0.5     ✔ recipes      1.0.8
+✔ dials        1.2.0     ✔ rsample      1.2.0
+✔ dplyr        1.1.3     ✔ tibble       3.2.1
+✔ ggplot2      3.4.4     ✔ tidyr        1.3.0
+✔ infer        1.0.5     ✔ tune         1.1.2
+✔ modeldata    1.2.0     ✔ workflows    1.1.3
+✔ parsnip      1.1.1     ✔ workflowsets 1.0.1
+✔ purrr        1.0.2     ✔ yardstick    1.2.0</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ purrr::discard() masks scales::discard()
+✖ dplyr::filter()  masks stats::filter()
+✖ dplyr::lag()     masks stats::lag()
+✖ recipes::step()  masks stats::step()
+• Use suppressPackageStartupMessages() to eliminate package startup messages</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ forcats   1.0.0     ✔ readr     2.1.4
+✔ lubridate 1.9.3     ✔ stringr   1.5.0</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ readr::col_factor() masks scales::col_factor()
+✖ purrr::discard()    masks scales::discard()
+✖ dplyr::filter()     masks stats::filter()
+✖ stringr::fixed()    masks recipes::fixed()
+✖ dplyr::lag()        masks stats::lag()
+✖ readr::spec()       masks yardstick::spec()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)  <span class="co"># Zeitmessung</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Data:</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 344 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (3): species, island, sex
+dbl (6): rownames, bill_length_mm, bill_depth_mm, flipper_length_mm, body_ma...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span> <span class="fu">recipe</span>(body_mass_g <span class="sc">~</span>  ., <span class="at">data =</span> d) <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_predictors</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_naomit</span>(<span class="fu">all_predictors</span>()) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Als Check: Das gepreppte/bebackene Rezept:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#library(MASS)</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> </span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hp, am)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>rec1_prepped <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There are new levels in a factor: NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                     hp am
-Mazda RX4           110  1
-Mazda RX4 Wag       110  1
-Datsun 710           93  1
-Hornet 4 Drive      110  0
-Hornet Sportabout   175  0
-Valiant             105  0
-Duster 360          245  0
-Merc 240D            62  0
-Merc 230             95  0
-Merc 280            123  0
-Merc 280C           123  0
-Merc 450SE          180  0
-Merc 450SL          180  0
-Merc 450SLC         180  0
-Cadillac Fleetwood  205  0
-Lincoln Continental 215  0
-Chrysler Imperial   230  0
-Fiat 128             66  1
-Honda Civic          52  1
-Toyota Corolla       65  1
-Toyota Corona        97  0
-Dodge Challenger    150  0
-AMC Javelin         150  0
-Camaro Z28          245  0
-Pontiac Firebird    175  0
-Fiat X1-9            66  1
-Porsche 914-2        91  1
-Lotus Europa        113  1
-Ford Pantera L      264  1
-Ferrari Dino        175  1
-Maserati Bora       335  1
-Volvo 142E          109  1</code></pre>
+<pre><code># A tibble: 6 × 11
+  rownames bill_length_mm bill_depth_mm flipper_length_mm  year body_mass_g
+     &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
+1    -1.72         -0.883         0.784            -1.42  -1.26        3750
+2    -1.71         -0.810         0.126            -1.06  -1.26        3800
+3    -1.70         -0.663         0.430            -0.421 -1.26        3250
+4    -1.68         -1.32          1.09             -0.563 -1.26        3450
+5    -1.67         -0.847         1.75             -0.776 -1.26        3650
+6    -1.66         -0.920         0.329            -1.42  -1.26        3625
+# ℹ 5 more variables: species_Chinstrap &lt;dbl&gt;, species_Gentoo &lt;dbl&gt;,
+#   island_Dream &lt;dbl&gt;, island_Torgersen &lt;dbl&gt;, sex_male &lt;dbl&gt;</code></pre>
 </div>
 </div>
-<p>Und schon geht’s!</p>
-<ol start="2" type="1">
-<li>Paketnamen vor Funktionsnamen anfügen</li>
-</ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#library(dplyr)</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#library(MASS)</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(hp, am) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(hp <span class="sc">&gt;</span> <span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
+✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
+✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
+✔ insight     0.19.6   ✔ modelbased  0.8.6 
+✔ performance 0.10.8   ✔ parameters  0.21.3
+✔ report      0.5.7    ✖ see         0.8.0 
+
+Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe_distribution</span>(d_train_baked)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                     hp am
-Duster 360          245  0
-Cadillac Fleetwood  205  0
-Lincoln Continental 215  0
-Chrysler Imperial   230  0
-Camaro Z28          245  0
-Ford Pantera L      264  1
-Maserati Bora       335  1</code></pre>
+<pre><code>Variable          |      Mean |     SD |     IQR |              Range | Skewness | Kurtosis |   n | n_Missing
+-------------------------------------------------------------------------------------------------------------
+rownames          |      0.02 |   0.99 |    1.71 |      [-1.72, 1.72] |     0.01 |    -1.19 | 333 |         0
+bill_length_mm    |      0.01 |   1.00 |    1.69 |      [-2.17, 2.87] |     0.05 |    -0.88 | 333 |         0
+bill_depth_mm     |  6.94e-03 |   1.00 |    1.57 |      [-2.05, 2.20] |    -0.15 |    -0.89 | 333 |         0
+flipper_length_mm |  3.68e-03 |   1.00 |    1.64 |      [-2.06, 2.14] |     0.36 |    -0.96 | 333 |         0
+year              |      0.02 |   0.99 |    2.44 |      [-1.26, 1.19] |    -0.08 |    -1.48 | 333 |         0
+body_mass_g       |   4207.06 | 805.22 | 1237.50 | [2700.00, 6300.00] |     0.47 |    -0.73 | 333 |         0
+species_Chinstrap |      0.02 |   1.01 |    0.00 |      [-0.50, 2.01] |     1.47 |     0.17 | 333 |         0
+species_Gentoo    | -6.46e-03 |   1.00 |    2.08 |      [-0.75, 1.33] |     0.60 |    -1.65 | 333 |         0
+island_Dream      |      0.02 |   1.01 |    2.08 |      [-0.75, 1.33] |     0.54 |    -1.71 | 333 |         0
+island_Torgersen  |     -0.03 |   0.97 |    0.00 |      [-0.42, 2.37] |     2.07 |     2.30 | 333 |         0
+sex_male          |  8.40e-17 |   1.00 |    2.00 |      [-1.01, 0.99] |    -0.02 |    -2.01 | 333 |         0</code></pre>
 </div>
 </div>
-<ol start="3" type="1">
-<li>Paket <code>conflicted</code> nutzen</li>
-</ol>
-<p><a href="https://conflicted.r-lib.org/">Hier</a> gibt’s dazu nähere Infos.</p>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>R</li>
-<li>error</li>
+<li>tidymodels</li>
+<li>statlearning</li>
+<li>template</li>
 <li>string</li>
 </ul>
 

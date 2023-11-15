@@ -1,0 +1,131 @@
+---
+exname: Typ-Fehler-R-08-name-clash
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- R
+- error
+- string
+date: '2023-11-15'
+slug: Typ-Fehler-R-08-name-clash
+title: Typ-Fehler-R-08-name-clash
+
+---
+
+
+
+
+# Aufgabe
+
+R spuckt eine komische Fehlermeldung aus.
+Was ist nur los?
+Hat R einen schlechten Tag?
+
+Schauen wir uns die Sache näher an:
+
+
+```{r error=TRUE}
+library(dplyr)
+library(MASS)
+
+mtcars_small <-
+  mtcars %>% 
+  select(hp, am)
+```
+
+Oh nein! Fehler!
+
+Was ist nur los?
+
+
+
+
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Das Problem ist, dass es in beiden Paketen, `{MASS}` und `{dplyr}` (dasjenige Paket im `tidyverse`, in dem `select()` wohnt), eine Funktion namens `select` vorhanden ist.
+
+Es kommt zu einem "Name Clash", einer Namenskollision.
+
+Wenn mehrere Funktion gleichen Namens geladen ("attached") sind, so "gewinnt" diejenige Funktion, die als *letztes* geladen wurde, in unserem Fall ist das die Funktion aus `{MASS}`.
+
+
+Es gibt eine Reihe von Lösungen.
+
+
+1. Nur das benötigte Paket starten
+
+Zuerst "entladen" wir `MASS`, da wir es nicht benötigen:
+
+```{r}
+detach("package:MASS", unload = TRUE)
+```
+
+
+Alternativ (und einfacher) könnten wir R neu starten: `Session > Restart R`. 
+
+
+
+```{r error=TRUE}
+library(dplyr)
+#library(MASS)
+
+mtcars %>% 
+  select(hp, am)
+```
+
+Und schon geht's!
+
+
+2. Paketnamen vor Funktionsnamen anfügen
+
+
+```{r error=TRUE}
+#library(dplyr)
+#library(MASS)
+
+mtcars %>% 
+  dplyr::select(hp, am) %>% 
+  dplyr::filter(hp > 200)
+```
+
+
+3. Paket `conflicted` nutzen
+
+[Hier](https://conflicted.r-lib.org/) gibt's dazu nähere Infos.
+
+
+
+
+
+---
+
+Categories: 
+
+- R
+- error
+- string
+

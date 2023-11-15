@@ -1,0 +1,155 @@
+---
+exname: tidymodels-error1
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- tidymodels
+- statlearning
+- error
+- NA
+- string
+date: '2023-11-15'
+slug: tidymodels-error1
+title: tidymodels-error1
+
+---
+
+
+
+
+# Aufgabe
+
+<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
+
+Die folgende Pipeline hat einen Fehler. Welcher ist das?
+
+
+
+```{r error=TRUE}
+# Setup:
+library(tidymodels)
+
+# Data:
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+d <- read.csv(d_path)
+
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+
+
+# model:
+mod1 <-
+  rand_forest(mode = "regression")
+
+
+# cv:
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+
+
+# recipe:
+rec1 <- recipe(body_mass_g ~  ., data = d_train) |> 
+  #step_unknown(all_nominal_predictors(), new_level = "NA") |> 
+  #step_novel(all_nominal_predictors()) |> 
+  step_naomit(all_predictors()) |> 
+  step_dummy(all_nominal_predictors()) |> 
+  step_nzv(all_predictors()) |> 
+  step_normalize(all_predictors()) 
+
+
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+
+
+# fitting:
+tic()
+wf1_fit <-
+  wf1 %>% 
+  fit(data = d_train)
+toc()
+
+preds <- predict(wf1_fit, new_data = d_test) 
+```
+
+Als Check: Das gepreppte/bebackene Rezept:
+
+```{r}
+rec1_prepped <- prep(rec1)
+d_train_baked <- bake(rec1_prepped, new_data = NULL)
+```
+
+
+```{r}
+d_train_baked |> 
+  head()
+```
+
+```{r}
+d_train_baked |> 
+  map_int(~ sum(is.na(.)))
+```
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Der Fehler liegt darin, dass das Rezept *keine Änderungen an der AV* ausführt.
+In der AV gibt es aber fehlende Werte (`NA`) im Test-Set.
+
+```{r}
+colSums(is.na(d_test))
+```
+
+Einen fehlenden Wert, um genau zu sein. Dieser eine fehlende Wert versalzt uns die Suppe:
+
+```{r}
+d_test_nona <-
+  d_test |> 
+  na.omit()
+```
+
+
+Und schon geht's.
+
+```{r}
+preds <- predict(wf1_fit, new_data = d_test_nona) 
+preds |> 
+  head()
+```
+
+
+[Dieser SO-Post](https://stackoverflow.com/questions/72333419/error-on-running-predict-in-tidymodels-error-in-dplyrselect-cant-su) handelt von einem vergleichbarem Problem.
+
+
+
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- error
+- NA
+- string
+
