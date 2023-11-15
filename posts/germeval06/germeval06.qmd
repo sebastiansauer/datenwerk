@@ -1,17 +1,17 @@
 ---
-exname: germeval06
+exname: germeval06-de-wordvec-resamples
 expoints: 1
 extype: string
 exsolution: NA
 categories:
-- 2023
 - textmining
 - datawrangling
 - germeval
 - prediction
 - tidymodels
+- wordvec
 - string
-date: '2023-11-12'
+date: '2023-11-15'
 slug: germeval06
 title: germeval06
 
@@ -39,7 +39,7 @@ options(rstudio.help.showDataPreview = FALSE)
 # Aufgabe
 
 Erstellen Sie ein prädiktives Modell für Textdaten. 
-Nutzen Sie Deutsche Word-Vektoren für das Feature-Engineering.
+Nutzen Sie *deutsche Word-Vektoren* für das Feature-Engineering.
 
 Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -114,7 +114,6 @@ glove_embedding <- embedding_glove6b(
 head(glove_embedding)
 ```
 
-
 ```{r}
 # model:
 mod1 <-
@@ -145,8 +144,12 @@ wf1 <-
   add_model(mod1) %>% 
   add_recipe(rec1)
 
+```
 
-# tuning:
+
+## Tuning
+
+```{r fit}
 tic()
 wf1_fit <-
   wf1 %>% 
@@ -160,12 +163,15 @@ beep()
 
 
 
-
 ```{r}
 wf1_fit |> collect_metrics()
 ```
 
+Bester Fold:
 
+```{r}
+show_best(wf1_fit)
+```
 
 
 
@@ -193,6 +199,7 @@ preds <-
 toc()
 ```
 
+
 Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
 
 ```{r}
@@ -216,18 +223,24 @@ my_metrics(d_test,
 
 
 
+
 `glove6b` ist für die englische Sprache vorgekocht. 
 Das macht wenig Sinn für einen deutschsprachigen Corpus.
+
+
+
+
+
 
 ---
 
 Categories: 
 
-- 2023
 - textmining
 - datawrangling
 - germeval
 - prediction
 - tidymodels
+- wordvec
 - string
 

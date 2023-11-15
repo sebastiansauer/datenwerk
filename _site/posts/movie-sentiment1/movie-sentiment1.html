@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-11-11">
+<meta name="dcterms.date" content="2023-11-15">
 
 <title>datenwerk - movie-sentiment1</title>
 <style>
@@ -133,7 +133,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 11, 2023</p>
+        <p class="date">November 15, 2023</p>
       </div>
     </div>
     
@@ -190,57 +190,6 @@ library(tidyverse)
 d &lt;- read_csv(path_to_data)
 
 stopwords &lt;- get_stopwords()
-emo &lt;- get_sentiments()
-
-d %&gt;% 
-  select(review) %&gt;% 
-  unnest_tokens(word, review) %&gt;% 
-  filter(str_detect(word, '[a-z]+')) %&gt;% 
-  anti_join(stopwords) %&gt;% 
-  inner_join(emo) %&gt;% 
-  count(word) %&gt;% 
-  slice_head(n = 10) %&gt;% 
-  mutate(word = fct_reorder(word, n)) %&gt;% 
-  ggplot(aes(n, word)) +
-  geom_bar()</code></pre>
-</div>
-</div>
-<p><strong>Option B</strong></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-library(tidytext)
-library(tidyverse)
-
-d &lt;- read_csv(path_to_data)
-
-stopwords &lt;- get_stopwords()
-emo &lt;- get_sentiments('bing')
-
-wordcount_plot1 &lt;- 
-d %&gt;% 
-  select(review) %&gt;% 
-  unnest_tokens(word, review) %&gt;% 
-  filter(str_detect(word, '[a-z]+')) %&gt;% 
-  anti_join(stopwords) %&gt;% 
-  left_join(emo) %&gt;% 
-  count(word, sort = TRUE) %&gt;% 
-  slice_head(n = 10) %&gt;% 
-  mutate(word = fct_reorder(word, n)) %&gt;% 
-  ggplot(aes(n, word)) +
-  geom_col()</code></pre>
-</div>
-</div>
-<p><strong>Option C</strong></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-library(tidytext)
-library(tidyverse)
-
-d &lt;- read_csv(path_to_data)
-
-stopwords &lt;- get_stopwords()
 emo &lt;- get_sentiments('loughran')
 
 wordcount_plot1 &lt;- 
@@ -257,13 +206,7 @@ d %&gt;%
   geom_col()</code></pre>
 </div>
 </div>
-<p><strong>Option D</strong></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>keine der genannten</code></pre>
-</div>
-</div>
-<p><strong>Option E</strong></p>
+<p><strong>Option B</strong></p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -289,6 +232,63 @@ d %&gt;%
   geom_col()</code></pre>
 </div>
 </div>
+<p><strong>Option C</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>keine der genannten</code></pre>
+</div>
+</div>
+<p><strong>Option D</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidyverse)
+library(tidytext)
+
+d &lt;- read_csv(path_to_data)
+emo &lt;- get_sentiments()
+stopwords &lt;- get_stopwords()
+
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(input = word, output = review) %&gt;% 
+  filter(str_detect(word, '\w.')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  inner_join(emos) %&gt;% 
+  count(word) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot() +
+  aes(n, word) +
+  geom_bar()</code></pre>
+</div>
+</div>
+<p><strong>Option E</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+library(tidytext)
+library(tidyverse)
+
+d &lt;- read_csv(path_to_data)
+
+stopwords &lt;- get_stopwords()
+emo &lt;- get_sentiments('bing')
+
+wordcount_plot1 &lt;- 
+d %&gt;% 
+  select(review) %&gt;% 
+  unnest_tokens(word, review) %&gt;% 
+  filter(str_detect(word, '[a-z]+')) %&gt;% 
+  anti_join(stopwords) %&gt;% 
+  left_join(emo) %&gt;% 
+  count(word, sort = TRUE) %&gt;% 
+  slice_head(n = 10) %&gt;% 
+  mutate(word = fct_reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_col()</code></pre>
+</div>
+</div>
 <section id="answerlist" class="level2">
 <h2 class="anchored" data-anchor-id="answerlist">Answerlist</h2>
 <ul>
@@ -303,7 +303,7 @@ d %&gt;%
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
-<p>Die richtige Syntax lautet Syntax E.</p>
+<p>Die richtige Syntax lautet Syntax B.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -339,10 +339,10 @@ d %&gt;%
 <h2 class="anchored" data-anchor-id="answerlist-1">Answerlist</h2>
 <ul>
 <li>Falsch</li>
-<li>Falsch</li>
-<li>Falsch</li>
-<li>Falsch</li>
 <li>Richtig</li>
+<li>Falsch</li>
+<li>Falsch</li>
+<li>Falsch</li>
 </ul>
 <hr>
 <p>Categories:</p>

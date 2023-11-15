@@ -1,5 +1,5 @@
 ---
-exname: germeval03-sent-textfeatures-rand-for
+exname: germeval08-schimpf
 expoints: 1
 extype: string
 exsolution: NA
@@ -10,11 +10,10 @@ categories:
 - germeval
 - prediction
 - tidymodels
-- sentiment
 - string
 date: '2023-11-15'
-slug: germeval03
-title: germeval03
+slug: germeval08-schimpf
+title: germeval08-schimpf
 
 ---
 
@@ -39,7 +38,7 @@ options(rstudio.help.showDataPreview = FALSE)
 
 # Aufgabe
 
-Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
+Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Schimpfwörter im Rahmen von Feature-Engineering.
 
 Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -91,10 +90,18 @@ d_train <-
 ```{r}
 library(tictoc)
 library(tidymodels)
+library(tidytext)
 library(syuzhet)
 library(beepr)
-data("sentiws", package = "pradadata")
+data("schimpfwoerter", package = "pradadata")
 ```
+
+Um ein Wörterbuch zu erzeugen für `syuzhet` braucht es eine Spalte `value`:
+
+```{r}
+schimpfwoerter$value <- 1
+```
+
 
 
 Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
@@ -113,9 +120,9 @@ rec1 <-
   update_role(id, new_role = "id")  |> 
   #update_role(c2, new_role = "ignore") |> 
   update_role(text, new_role = "ignore") |> 
-  step_mutate(n_emo = get_sentiment(text,  # aus `syuzhet`
+  step_mutate(n_schimpf = get_sentiment(text,  # aus `syuzhet`
                                     method = "custom",
-                                    lexicon = sentiws))  |> 
+                                    lexicon = schimpfwoerter))  |> 
   step_rm(text)  # Datensatz verschlanken
 
 
@@ -130,13 +137,15 @@ wf1 <-
 
 ## Fit
 
+Ohne Tuning:
+
 ```{r}
 tic()
 fit1 <-
   fit(wf1,
       data = d_train)
 toc()
-beep()
+#beep()
 ```
 
 
@@ -176,9 +185,60 @@ my_metrics(d_test,
 
 
 
+Als Check: Das gepreppte/bebackene Rezept:
+
+```{r}
+tic()
+rec1_prepped <- prep(rec1)
+toc()
+```
+
+
+```{r}
+tic()
+d_train_baked <- bake(rec1_prepped, new_data = NULL)
+toc()
+```
+
+
+```{r}
+d_train_baked |> 
+  arrange(-n_schimpf) |> 
+  head()
+```
+
+
+```{r}
+d_train |> 
+  filter(id == 707) |> 
+  pull(text)
+```
+
+```{r}
+d_train |> 
+  filter(id == 707) |> 
+  select(text) |> 
+  unnest_tokens(output = word, input = text) |> 
+  inner_join(schimpfwoerter)
+```
 
 
 
+```{r}
+d_train |> 
+  filter(id == 4493) |> 
+  pull(text)
+```
+
+
+
+```{r}
+d_train |> 
+  filter(id == 4493) |> 
+  select(text) |> 
+  unnest_tokens(output = word, input = text) |> 
+  inner_join(schimpfwoerter)
+```
 
 
 
@@ -192,6 +252,5 @@ Categories:
 - germeval
 - prediction
 - tidymodels
-- sentiment
 - string
 

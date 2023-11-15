@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-11-15">
 
-<title>datenwerk - tidymodels-vorlage3</title>
+<title>datenwerk - germeval01-textfeatures</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -151,11 +151,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">tidymodels-vorlage3</h1>
+      <h1 class="title">germeval01-textfeatures</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">tidymodels</div>
-                <div class="quarto-category">statlearning</div>
-                <div class="quarto-category">template</div>
+                <div class="quarto-category">2023</div>
+                <div class="quarto-category">textmining</div>
+                <div class="quarto-category">datawrangling</div>
+                <div class="quarto-category">germeval</div>
                 <div class="quarto-category">string</div>
               </div>
                   </div>
@@ -189,189 +190,130 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
-<p>Schreiben Sie eine prototypische Analyse für ein Vorhersagemodell, das sich als Vorlage für Analysen dieser Art eignet!</p>
-<p>Verzichten Sie auf Resampling und Tuning.</p>
+<p>Extrahieren Sie typisches Text-Features aus einem Text.</p>
+<p>Nutzen Sie das Paket <a href="https://github.com/cran/textfeatures/tree/master"><code>textfeatures</code></a>.</p>
+<p>Nutzen Sie die <a href="https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML">GermEval-2018-Daten</a>.</p>
+<p>Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),</p>
+<p>Die Daten sind auch über das R-Paket <a href="https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master">PradaData</a> zu beziehen.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_train"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nutzen Sie diesen Text-Datensatz, bevor Sie den größeren <code>germeval</code>-Datensatz verwenden:</p>
+</section>
+<section id="daten" class="level1">
+<h1>Daten</h1>
+<p>Teststring:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Abbau, Abbruch ist jetzt"</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Test   🧑‍🎓 😄 heute!!"</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Abbruch #morgen #perfekt"</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Abmachung... LORE IPSUM"</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>          <span class="st">"boese ja"</span>, <span class="st">"böse nein"</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>          <span class="st">"hallo ?! www.google.de"</span>, </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"gut schlecht I am you are he she it is"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>n_emo <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>test_text <span class="ot">&lt;-</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">text =</span> text,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_emo =</span> n_emo)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>test_text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id                     text n_emo
+1  1 Abbau, Abbruch ist jetzt     2
+2  2   Test   🧑‍🎓 😄 heute!!     0
+3  3 Abbruch #morgen #perfekt     2
+ [ reached 'max' / getOption("max.print") -- omitted 5 rows ]</code></pre>
+</div>
+</div>
 <p>Hinweise:</p>
 <ul>
-<li>Berechnen Sie ein Modell</li>
-<li>Tunen Sie keinen Parameter des Modells</li>
-<li>Verwenden Sie keine Kreuzvalidierung.</li>
-<li>Verwenden Sie Standardwerte, wo nicht anders angegeben.</li>
-<li>Fixieren Sie Zufallszahlen auf den Startwert 42.</li>
+<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
+<p>Das Paket <code>textfeatures</code> ist aktuelle nicht auf CRAN, aber über Github zu bekommen (oder im CRAN-Archiv).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 1.1.1 ──</code></pre>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(textfeatures)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>✔ broom        1.0.5     ✔ recipes      1.0.8
-✔ dials        1.2.0     ✔ rsample      1.2.0
-✔ dplyr        1.1.3     ✔ tibble       3.2.1
-✔ ggplot2      3.4.4     ✔ tidyr        1.3.0
-✔ infer        1.0.5     ✔ tune         1.1.2
-✔ modeldata    1.2.0     ✔ workflows    1.1.3
-✔ parsnip      1.1.1     ✔ workflowsets 1.0.1
-✔ purrr        1.0.2     ✔ yardstick    1.2.0</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
-✖ purrr::discard() masks scales::discard()
-✖ dplyr::filter()  masks stats::filter()
-✖ dplyr::lag()     masks stats::lag()
-✖ recipes::step()  masks stats::step()
-• Dig deeper into tidy modeling with R at https://www.tmwr.org</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ forcats   1.0.0     ✔ readr     2.1.4
-✔ lubridate 1.9.3     ✔ stringr   1.5.0</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ readr::col_factor() masks scales::col_factor()
-✖ purrr::discard()    masks scales::discard()
-✖ dplyr::filter()     masks stats::filter()
-✖ stringr::fixed()    masks recipes::fixed()
-✖ dplyr::lag()        masks stats::lag()
-✖ readr::spec()       masks yardstick::spec()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)  <span class="co"># Zeitmessung</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)   <span class="co"># NAs zählen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
-✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
-✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
-✔ insight     0.19.6   ✔ modelbased  0.8.6 
-✔ performance 0.10.8   ✔ parameters  0.21.3
-✔ report      0.5.7    ✖ see         0.8.0 
-
-Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data:</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 344 Columns: 9
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-chr (3): species, island, sex
-dbl (6): rownames, bill_length_mm, bill_depth_mm, flipper_length_mm, body_ma...
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>d_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(d)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span> <span class="fu">training</span>(d_split)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(d_split)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># model:</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"regression"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># cv:</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>rsmpl <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(d_train)</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe:</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span> <span class="fu">recipe</span>(body_mass_g <span class="sc">~</span>  ., <span class="at">data =</span> d_train) <span class="sc">|&gt;</span> </span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>(), <span class="at">new_level =</span> <span class="st">"NA"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_naomit</span>(<span class="fu">all_predictors</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_predictors</span>()) </span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co"># workflow:</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod1) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># tuning:</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>wf1_fit <span class="ot">&lt;-</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  wf1 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(<span class="at">split =</span> d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>→ A | error:   Missing data in columns: bill_length_mm, bill_depth_mm, flipper_length_mm.
-There were issues with some computations   A: x1
-There were issues with some computations   A: x1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: All models failed. Run `show_notes(.Last.tune.result)` for more
-information.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.594 sec elapsed</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(wf1_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>NULL</code></pre>
-</div>
-</div>
-<p>Als Check: Das gepreppte/bebackene Rezept:</p>
+</section>
+<section id="test-1" class="level1">
+<h1>Test 1</h1>
+<p>Hier ein <a href="https://textfeatures.mikewk.com/">Test vom Autor des Pakets</a>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rec1_prepped <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec1)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="sc">|&gt;</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"this is A!</span><span class="sc">\t</span><span class="st"> sEntence https://github.com about #rstats @github"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"and another sentence here"</span>, <span class="st">"THe following list:</span><span class="sc">\n</span><span class="st">- one</span><span class="sc">\n</span><span class="st">- two</span><span class="sc">\n</span><span class="st">- three</span><span class="sc">\n</span><span class="st">Okay!?!"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="do">## get text features</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>textfeatures<span class="sc">::</span><span class="fu">textfeatures</span>(x, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 12
-  rownames bill_length_mm bill_depth_mm flipper_length_mm    year body_mass_g
-     &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;
-1   -1.24          -1.53          0.386            -0.794 -1.29          3450
-2    1.45           1.32          0.386            -0.365  1.14          3675
-3   -0.212          0.401        -1.97              0.707 -1.29          4500
-4   -0.993          0.343         0.887            -0.294 -0.0757        4150
-5    0.530          0.879        -0.566             2.07  -0.0757        5800
-6   -0.281         -0.957         0.787            -1.15   1.14          3650
-# ℹ 6 more variables: species_Chinstrap &lt;dbl&gt;, species_Gentoo &lt;dbl&gt;,
-#   island_Dream &lt;dbl&gt;, island_Torgersen &lt;dbl&gt;, sex_male &lt;dbl&gt;, sex_NA. &lt;dbl&gt;</code></pre>
+<pre><code># A tibble: 3 × 36
+  n_urls n_uq_urls n_hashtags n_uq_hashtags n_mentions n_uq_mentions n_chars
+   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;   &lt;dbl&gt;
+1  1.15      1.15       1.15          1.15       1.15          1.15    0.243
+2 -0.577    -0.577     -0.577        -0.577     -0.577        -0.577  -1.10 
+3 -0.577    -0.577     -0.577        -0.577     -0.577        -0.577   0.856
+# ℹ 29 more variables: n_uq_chars &lt;dbl&gt;, n_commas &lt;dbl&gt;, n_digits &lt;dbl&gt;,
+#   n_exclaims &lt;dbl&gt;, n_extraspaces &lt;dbl&gt;, n_lowers &lt;dbl&gt;, n_lowersp &lt;dbl&gt;,
+#   n_periods &lt;dbl&gt;, n_words &lt;dbl&gt;, n_uq_words &lt;dbl&gt;, n_caps &lt;dbl&gt;,
+#   n_nonasciis &lt;dbl&gt;, n_puncts &lt;dbl&gt;, n_capsp &lt;dbl&gt;, n_charsperword &lt;dbl&gt;,
+#   sent_afinn &lt;dbl&gt;, sent_bing &lt;dbl&gt;, sent_syuzhet &lt;dbl&gt;, sent_vader &lt;dbl&gt;,
+#   n_polite &lt;dbl&gt;, n_first_person &lt;dbl&gt;, n_first_personp &lt;dbl&gt;,
+#   n_second_person &lt;dbl&gt;, n_second_personp &lt;dbl&gt;, n_third_person &lt;dbl&gt;, …</code></pre>
 </div>
 </div>
+</section>
+<section id="test-2" class="level1">
+<h1>Test 2</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe_distribution</span>(d_train_baked)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>textfeatures<span class="sc">::</span><span class="fu">textfeatures</span>(test_text<span class="sc">$</span>text,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">sentiment =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">word_dims =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variable          |      Mean |     SD |     IQR |              Range | Skewness | Kurtosis |   n | n_Missing
--------------------------------------------------------------------------------------------------------------
-rownames          | -5.63e-17 |   1.00 |    1.70 |      [-1.72, 1.68] |    -0.01 |    -1.21 | 257 |         0
-bill_length_mm    | -2.97e-16 |   1.00 |    1.68 |      [-2.28, 2.98] |     0.01 |    -0.79 | 257 |         0
-bill_depth_mm     |  2.71e-16 |   1.00 |    1.60 |      [-2.02, 2.19] |    -0.11 |    -0.87 | 257 |         0
-flipper_length_mm | -9.83e-16 |   1.00 |    1.64 |      [-1.94, 2.07] |     0.32 |    -1.02 | 257 |         0
-year              | -6.89e-14 |   1.00 |    2.43 |      [-1.29, 1.14] |    -0.12 |    -1.51 | 257 |         0
-body_mass_g       |   4200.97 | 792.54 | 1212.50 | [2700.00, 6300.00] |     0.49 |    -0.69 | 257 |         0
-species_Chinstrap | -2.24e-17 |   1.00 |    0.00 |      [-0.50, 1.98] |     1.49 |     0.22 | 257 |         0
-species_Gentoo    |  1.64e-17 |   1.00 |    2.07 |      [-0.76, 1.31] |     0.56 |    -1.70 | 257 |         0
-island_Dream      | -5.50e-17 |   1.00 |    2.08 |      [-0.75, 1.34] |     0.60 |    -1.66 | 257 |         0
-island_Torgersen  |  1.72e-17 |   1.00 |    0.00 |      [-0.41, 2.43] |     2.04 |     2.18 | 257 |         0
-sex_male          | -5.86e-17 |   1.00 |    2.00 |      [-0.96, 1.03] |     0.07 |    -2.01 | 257 |         0
-sex_NA.           |  1.45e-17 |   1.00 |    0.00 |      [-0.15, 6.46] |     6.35 |    38.63 | 257 |         0</code></pre>
+<pre><code>[32m↪[39m [38;5;244mCounting features in text...[39m
+[32m↪[39m [38;5;244mParts of speech...[39m
+[32m↪[39m [38;5;244mWord dimensions started[39m
+[32m↪[39m [38;5;244mNormalizing data[39m
+[32m✔[39m Job's done!</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 29
+  n_urls n_uq_urls n_hashtags n_uq_hashtags n_mentions n_uq_mentions n_chars
+   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;   &lt;dbl&gt;
+1      0         0     -0.354        -0.354          0             0  0.532 
+2      0         0     -0.354        -0.354          0             0  0.0800
+3      0         0      2.47          2.47           0             0  0.589 
+4      0         0     -0.354        -0.354          0             0  0.532 
+5      0         0     -0.354        -0.354          0             0 -1.86  
+6      0         0     -0.354        -0.354          0             0 -1.25  
+7      0         0     -0.354        -0.354          0             0  0.471 
+8      0         0     -0.354        -0.354          0             0  0.910 
+# ℹ 22 more variables: n_uq_chars &lt;dbl&gt;, n_commas &lt;dbl&gt;, n_digits &lt;dbl&gt;,
+#   n_exclaims &lt;dbl&gt;, n_extraspaces &lt;dbl&gt;, n_lowers &lt;dbl&gt;, n_lowersp &lt;dbl&gt;,
+#   n_periods &lt;dbl&gt;, n_words &lt;dbl&gt;, n_uq_words &lt;dbl&gt;, n_caps &lt;dbl&gt;,
+#   n_nonasciis &lt;dbl&gt;, n_puncts &lt;dbl&gt;, n_capsp &lt;dbl&gt;, n_charsperword &lt;dbl&gt;,
+#   n_first_person &lt;dbl&gt;, n_first_personp &lt;dbl&gt;, n_second_person &lt;dbl&gt;,
+#   n_second_personp &lt;dbl&gt;, n_third_person &lt;dbl&gt;, n_tobe &lt;dbl&gt;,
+#   n_prepositions &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>tidymodels</li>
-<li>statlearning</li>
-<li>template</li>
+<li>2023</li>
+<li>textmining</li>
+<li>datawrangling</li>
+<li>germeval</li>
 <li>string</li>
 </ul>
 

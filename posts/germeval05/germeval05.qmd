@@ -1,17 +1,17 @@
 ---
-exname: germeval05
+exname: germeval05-glove6b
 expoints: 1
 extype: string
 exsolution: NA
 categories:
-- 2023
 - textmining
 - datawrangling
 - germeval
 - prediction
 - tidymodels
+- wordvec
 - string
-date: '2023-11-11'
+date: '2023-11-15'
 slug: germeval05
 title: germeval05
 
@@ -102,7 +102,7 @@ Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.n
 
 ## Textvektoren importieren
 
-```{r}
+```{r import-glove6b}
 library(textdata)
 
 glove_embedding <- embedding_glove6b(
@@ -115,10 +115,9 @@ head(glove_embedding)
 ```
 
 
-`glove6b` ist für die englische Sprache vorgekocht. 
-Das macht wenig Sin für einen deutschsprachigen Corpus.
+## Workflow
 
-```{r}
+```{r wf1}
 # model:
 mod1 <-
   logistic_reg()
@@ -148,8 +147,13 @@ wf1 <-
   add_model(mod1) %>% 
   add_recipe(rec1)
 
+```
 
-# tuning:
+
+## Tuining/Fitting
+
+```{r tuning}
+#| cache: true
 tic()
 wf1_fit <-
   wf1 %>% 
@@ -163,9 +167,14 @@ beep()
 
 
 
-
 ```{r}
 wf1_fit |> collect_metrics()
+```
+
+Bester Fold:
+
+```{r}
+show_best(wf1_fit)
 ```
 
 
@@ -187,12 +196,13 @@ fit1 <-
 
 Vorhersagen im Test-Set:
 
-```{r predict}
+```{r}
 tic()
 preds <-
   predict(fit1, new_data = germeval_test)
 toc()
 ```
+
 
 Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
 
@@ -217,15 +227,23 @@ my_metrics(d_test,
 
 
 
+
+`glove6b` ist für die englische Sprache vorgekocht. 
+Das macht wenig Sinn für einen deutschsprachigen Corpus.
+
+
+
+
+
 ---
 
 Categories: 
 
-- 2023
 - textmining
 - datawrangling
 - germeval
 - prediction
 - tidymodels
+- wordvec
 - string
 

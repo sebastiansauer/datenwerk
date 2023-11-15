@@ -1,0 +1,225 @@
+---
+exname: count-emojis
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- tidymodels
+- count
+- germeval
+- emojis
+- string
+date: '2023-11-15'
+slug: count-emojis
+title: count-emojis
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+Zählen sie die Emojis eines Textes. 
+
+Untersuchen Sie die Rechenzeit, die die jeweiligen Verfahren benötigen.
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+# Setup
+
+```{r}
+options(paged.print = FALSE,
+        pillar.print_max = 15, 
+        pillar.print_min = 10)
+```
+
+
+
+
+```{r setup}
+library(tidyverse)
+library(tictoc)  # Zeitmessung
+```
+
+
+Teststring:
+
+```{r}
+test_text <-
+  tibble(id = 1:4,
+         text = c("Abbau ist jetzt", 
+                  "Hello 😊🌎🚀", 
+                  "🔫", 
+                  "🔫 🔪"),
+         valence = c(0, 1, -1, -2))
+
+test_text
+```
+
+
+Daten importieren:
+
+```{r}
+data(wild_emojis, package = "pradadata")
+```
+
+
+```{r}
+wild_emojis$value <- 1
+wild_emojis$word <- wild_emojis$emoji
+```
+
+
+
+# Wörter zählen im Test-Datensatz
+
+
+
+## `stringr::str_count`
+
+
+Man kann den Unicode-Code von Emojis ansprechen, praktische Sache:
+
+
+```{r}
+emoji_pattern <- "\\p{So}" 
+```
+
+
+```{r}
+test_text$text |> 
+  map_int(str_count, emoji_pattern)
+```
+
+
+
+Die Funktion `map` ist nicht nötig:
+
+```{r}
+str_count(test_text$text, "\\p{So}")
+```
+
+
+Als neue Spalte in der Tabelle:
+
+```{r}
+test_text |>
+  mutate(n_emojis = str_count(text, "\\p{So}"))
+```
+
+
+
+# Germeval-Datensatz
+
+```{r}
+data(germeval_train, package = "pradadata")
+```
+
+
+
+
+## `stringr::str_count`
+
+
+
+```{r}
+tic()
+method1 <- germeval_train$text |> 
+  map_int(str_count, emoji_pattern)
+toc()
+
+method1 |> str()
+```
+
+```{r}
+print(method1, max = 20)
+```
+
+
+Die Funktion `map` ist nicht nötig:
+
+```{r}
+tic()
+method3 <- 
+  str_count(germeval_train$text, emoji_pattern)
+toc()
+```
+
+
+```{r}
+method3 |> head()
+```
+
+
+
+Dann geht es auch viel schneller.
+
+Als neue Spalte in der Tabelle:
+
+```{r}
+tic()
+method4 <- 
+germeval_train |> 
+  mutate(n_words = str_count(text, emoji_pattern))
+toc()
+```
+
+
+```{r}
+str(method4)
+method4 |> head()
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- tidymodels
+- count
+- germeval
+- emojis
+- string
+

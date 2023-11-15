@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-11-15">
 
-<title>datenwerk - tidymodels-vorlage3</title>
+<title>datenwerk - germeval08-schimpf</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -151,11 +151,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">tidymodels-vorlage3</h1>
+      <h1 class="title">germeval08-schimpf</h1>
                                 <div class="quarto-categories">
+                <div class="quarto-category">2023</div>
+                <div class="quarto-category">textmining</div>
+                <div class="quarto-category">datawrangling</div>
+                <div class="quarto-category">germeval</div>
+                <div class="quarto-category">prediction</div>
                 <div class="quarto-category">tidymodels</div>
-                <div class="quarto-category">statlearning</div>
-                <div class="quarto-category">template</div>
                 <div class="quarto-category">string</div>
               </div>
                   </div>
@@ -189,193 +192,237 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<!-- Schreiben Sie eine Vorlage für eine prädiktive Analyse mit Tidymodels! -->
-<p>Schreiben Sie eine prototypische Analyse für ein Vorhersagemodell, das sich als Vorlage für Analysen dieser Art eignet!</p>
-<p>Verzichten Sie auf Resampling und Tuning.</p>
+<p>Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Schimpfwörter im Rahmen von Feature-Engineering.</p>
+<p>Nutzen Sie die <a href="https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML">GermEval-2018-Daten</a>.</p>
+<p>Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),</p>
+<p>Die Daten sind auch über das R-Paket <a href="https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master">PradaData</a> zu beziehen.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_train"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_test"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Die AV lautet <code>c1</code>. Die (einzige) UV lautet: <code>text</code>.</p>
 <p>Hinweise:</p>
 <ul>
-<li>Berechnen Sie ein Modell</li>
-<li>Tunen Sie keinen Parameter des Modells</li>
-<li>Verwenden Sie keine Kreuzvalidierung.</li>
-<li>Verwenden Sie Standardwerte, wo nicht anders angegeben.</li>
-<li>Fixieren Sie Zufallszahlen auf den Startwert 42.</li>
+<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
+<li>Nutzen Sie Tidymodels.</li>
+<li>Nutzen Sie das <code>sentiws</code> Lexikon.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 1.1.1 ──</code></pre>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  germeval_train <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, c1, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>✔ broom        1.0.5     ✔ recipes      1.0.8
-✔ dials        1.2.0     ✔ rsample      1.2.0
-✔ dplyr        1.1.3     ✔ tibble       3.2.1
-✔ ggplot2      3.4.4     ✔ tidyr        1.3.0
-✔ infer        1.0.5     ✔ tune         1.1.2
-✔ modeldata    1.2.0     ✔ workflows    1.1.3
-✔ parsnip      1.1.1     ✔ workflowsets 1.0.1
-✔ purrr        1.0.2     ✔ yardstick    1.2.0</code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(syuzhet)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beepr)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"schimpfwoerter"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
-✖ purrr::discard() masks scales::discard()
-✖ dplyr::filter()  masks stats::filter()
-✖ dplyr::lag()     masks stats::lag()
-✖ recipes::step()  masks stats::step()
-• Dig deeper into tidy modeling with R at https://www.tmwr.org</code></pre>
+<p>Um ein Wörterbuch zu erzeugen für <code>syuzhet</code> braucht es eine Spalte <code>value</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>schimpfwoerter<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ forcats   1.0.0     ✔ readr     2.1.4
-✔ lubridate 1.9.3     ✔ stringr   1.5.0</code></pre>
+<p>Eine <a href="https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html">Vorlage für ein Tidymodels-Pipeline findet sich hier</a>.</p>
+<section id="workflow" class="level2">
+<h2 class="anchored" data-anchor-id="workflow">Workflow</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"classification"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(c1 <span class="sc">~</span> ., <span class="at">data =</span> d_train) <span class="sc">|&gt;</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(id, <span class="at">new_role =</span> <span class="st">"id"</span>)  <span class="sc">|&gt;</span> </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#update_role(c2, new_role = "ignore") |&gt; </span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(text, <span class="at">new_role =</span> <span class="st">"ignore"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">n_schimpf =</span> <span class="fu">get_sentiment</span>(text,  <span class="co"># aus `syuzhet`</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">method =</span> <span class="st">"custom"</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">lexicon =</span> schimpfwoerter))  <span class="sc">|&gt;</span> </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(text)  <span class="co"># Datensatz verschlanken</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># workflow:</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod1) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ readr::col_factor() masks scales::col_factor()
-✖ purrr::discard()    masks scales::discard()
-✖ dplyr::filter()     masks stats::filter()
-✖ stringr::fixed()    masks recipes::fixed()
-✖ dplyr::lag()        masks stats::lag()
-✖ readr::spec()       masks yardstick::spec()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)  <span class="co"># Zeitmessung</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)   <span class="co"># NAs zählen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code># Attaching packages: easystats 0.6.0 (red = needs update)
-✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
-✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
-✔ insight     0.19.6   ✔ modelbased  0.8.6 
-✔ performance 0.10.8   ✔ parameters  0.21.3
-✔ report      0.5.7    ✖ see         0.8.0 
-
-Restart the R-Session and update packages in red with `easystats::easystats_update()`.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data:</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 344 Columns: 9
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-chr (3): species, island, sex
-dbl (6): rownames, bill_length_mm, bill_depth_mm, flipper_length_mm, body_ma...
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>d_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(d)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span> <span class="fu">training</span>(d_split)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(d_split)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># model:</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"regression"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># cv:</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>rsmpl <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(d_train)</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe:</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span> <span class="fu">recipe</span>(body_mass_g <span class="sc">~</span>  ., <span class="at">data =</span> d_train) <span class="sc">|&gt;</span> </span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>(), <span class="at">new_level =</span> <span class="st">"NA"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_naomit</span>(<span class="fu">all_predictors</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_predictors</span>()) </span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co"># workflow:</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod1) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># tuning:</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>wf1_fit <span class="ot">&lt;-</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  wf1 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(<span class="at">split =</span> d_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>→ A | error:   Missing data in columns: bill_length_mm, bill_depth_mm, flipper_length_mm.
-There were issues with some computations   A: x1
-There were issues with some computations   A: x1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: All models failed. Run `show_notes(.Last.tune.result)` for more
-information.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="fit" class="level2">
+<h2 class="anchored" data-anchor-id="fit">Fit</h2>
+<p>Ohne Tuning:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(wf1,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> d_train)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.594 sec elapsed</code></pre>
+<pre><code>10.428 sec elapsed</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(wf1_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#beep()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>NULL</code></pre>
+<pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: rand_forest()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+2 Recipe Steps
+
+• step_mutate()
+• step_rm()
+
+── Model ───────────────────────────────────────────────────────────────────────
+Ranger result
+
+Call:
+ ranger::ranger(x = maybe_data_frame(x), y = y, num.threads = 1,      verbose = FALSE, seed = sample.int(10^5, 1), probability = TRUE) 
+
+Type:                             Probability estimation 
+Number of trees:                  500 
+Sample size:                      5009 
+Number of independent variables:  1 
+Mtry:                             1 
+Target node size:                 10 
+Variable importance mode:         none 
+Splitrule:                        gini 
+OOB prediction error (Brier s.):  0.2137514 </code></pre>
+</div>
+</div>
+</section>
+<section id="test-set-güte" class="level2">
+<h2 class="anchored" data-anchor-id="test-set-güte">Test-Set-Güte</h2>
+<p>Vorhersagen im Test-Set:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit1, <span class="at">new_data =</span> germeval_test)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>6.198 sec elapsed</code></pre>
+</div>
+</div>
+<p>Und die Vorhersagen zum Test-Set hinzufügen, damit man <code>TRUTH</code> und <code>ESTIMATE</code> vergleichen kann:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  germeval_test <span class="sc">|&gt;</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">|&gt;</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c1 =</span> <span class="fu">as.factor</span>(c1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>my_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, f_meas)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">my_metrics</span>(d_test,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">truth =</span> c1,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">estimate =</span> .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.676
+2 f_meas   binary         0.336</code></pre>
 </div>
 </div>
 <p>Als Check: Das gepreppte/bebackene Rezept:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rec1_prepped <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec1)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>rec1_prepped <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec1)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>10.499 sec elapsed</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.006 sec elapsed</code></pre>
+</div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="sc">|&gt;</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>n_schimpf) <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 12
-  rownames bill_length_mm bill_depth_mm flipper_length_mm    year body_mass_g
-     &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;
-1   -1.24          -1.53          0.386            -0.794 -1.29          3450
-2    1.45           1.32          0.386            -0.365  1.14          3675
-3   -0.212          0.401        -1.97              0.707 -1.29          4500
-4   -0.993          0.343         0.887            -0.294 -0.0757        4150
-5    0.530          0.879        -0.566             2.07  -0.0757        5800
-6   -0.281         -0.957         0.787            -1.15   1.14          3650
-# ℹ 6 more variables: species_Chinstrap &lt;dbl&gt;, species_Gentoo &lt;dbl&gt;,
-#   island_Dream &lt;dbl&gt;, island_Torgersen &lt;dbl&gt;, sex_male &lt;dbl&gt;, sex_NA. &lt;dbl&gt;</code></pre>
+<pre><code># A tibble: 6 × 3
+     id c1      n_schimpf
+  &lt;int&gt; &lt;fct&gt;       &lt;dbl&gt;
+1  4493 OFFENSE         4
+2   707 OFFENSE         3
+3   771 OFFENSE         3
+4  1504 OTHER           3
+5  3145 OTHER           3
+6  3354 OFFENSE         3</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe_distribution</span>(d_train_baked)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>d_train <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(id <span class="sc">==</span> <span class="dv">707</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variable          |      Mean |     SD |     IQR |              Range | Skewness | Kurtosis |   n | n_Missing
--------------------------------------------------------------------------------------------------------------
-rownames          | -5.63e-17 |   1.00 |    1.70 |      [-1.72, 1.68] |    -0.01 |    -1.21 | 257 |         0
-bill_length_mm    | -2.97e-16 |   1.00 |    1.68 |      [-2.28, 2.98] |     0.01 |    -0.79 | 257 |         0
-bill_depth_mm     |  2.71e-16 |   1.00 |    1.60 |      [-2.02, 2.19] |    -0.11 |    -0.87 | 257 |         0
-flipper_length_mm | -9.83e-16 |   1.00 |    1.64 |      [-1.94, 2.07] |     0.32 |    -1.02 | 257 |         0
-year              | -6.89e-14 |   1.00 |    2.43 |      [-1.29, 1.14] |    -0.12 |    -1.51 | 257 |         0
-body_mass_g       |   4200.97 | 792.54 | 1212.50 | [2700.00, 6300.00] |     0.49 |    -0.69 | 257 |         0
-species_Chinstrap | -2.24e-17 |   1.00 |    0.00 |      [-0.50, 1.98] |     1.49 |     0.22 | 257 |         0
-species_Gentoo    |  1.64e-17 |   1.00 |    2.07 |      [-0.76, 1.31] |     0.56 |    -1.70 | 257 |         0
-island_Dream      | -5.50e-17 |   1.00 |    2.08 |      [-0.75, 1.34] |     0.60 |    -1.66 | 257 |         0
-island_Torgersen  |  1.72e-17 |   1.00 |    0.00 |      [-0.41, 2.43] |     2.04 |     2.18 | 257 |         0
-sex_male          | -5.86e-17 |   1.00 |    2.00 |      [-0.96, 1.03] |     0.07 |    -2.01 | 257 |         0
-sex_NA.           |  1.45e-17 |   1.00 |    0.00 |      [-0.15, 6.46] |     6.35 |    38.63 | 257 |         0</code></pre>
+<pre><code>[1] "@mastermikeg @machtjanix23 @AthinaMala @_macmike @Norbinator2403 @ennof_ @troll_putin @NancyPeggyMandy @petpanther0 @info2099 @lifetrend @ThomasGBauer @SchmiddieMaik @charlie_silve @NoHerrman @willjrosenblatt @feldenfrizz @nasanasal @ellibisathide @MD_Franz Der Typ hat sich mit etlichen hier angelegt, hat inhaltlich nichts zu bieten - nur Klugscheißern. Eigenes hat er auch nicht zu bieten - dafür reicht sein Intellekt nicht."</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>d_train <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(id <span class="sc">==</span> <span class="dv">707</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(text) <span class="sc">|&gt;</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(<span class="at">output =</span> word, <span class="at">input =</span> text) <span class="sc">|&gt;</span> </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(schimpfwoerter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    word value
+1    typ     1
+2 nichts     1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>d_train <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(id <span class="sc">==</span> <span class="dv">4493</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "@Der_Eisenhans @focusonline Soweit mir bekannt ist das Wort Muschi ein kosenahme für eine Katze die es auch Geschlechts spezifisch gibt. Als Schwanz oder Schweif bezeichnet man das End Stück eines Pferdes oder Hund. Beides nicht Ursprung der Fortpflanzung. Ich hoffe ich konnte helfen. :-)"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>d_train <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(id <span class="sc">==</span> <span class="dv">4493</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(text) <span class="sc">|&gt;</span> </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(<span class="at">output =</span> word, <span class="at">input =</span> text) <span class="sc">|&gt;</span> </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(schimpfwoerter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     word value
+1   katze     1
+2 schwanz     1
+3 schweif     1
+4   stück     1
+5    hund     1</code></pre>
 </div>
 </div>
 <hr>
 <p>Categories:</p>
 <ul>
+<li>2023</li>
+<li>textmining</li>
+<li>datawrangling</li>
+<li>germeval</li>
+<li>prediction</li>
 <li>tidymodels</li>
-<li>statlearning</li>
-<li>template</li>
 <li>string</li>
 </ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

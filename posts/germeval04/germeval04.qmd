@@ -1,5 +1,5 @@
 ---
-exname: germeval04
+exname: germeval04sent-textfeatures-nn
 expoints: 1
 extype: string
 exsolution: NA
@@ -11,7 +11,7 @@ categories:
 - prediction
 - tidymodels
 - string
-date: '2023-11-11'
+date: '2023-11-15'
 slug: germeval04
 title: germeval04
 
@@ -88,6 +88,12 @@ d_train <-
 
 
 ```{r}
+d_test <-
+  germeval_test
+```
+
+
+```{r}
 library(tictoc)
 library(tidymodels)
 library(syuzhet)
@@ -121,7 +127,7 @@ rec1 <-
                                     method = "custom",
                                     lexicon = sentiws))  |>
   step_textfeature(text)  |> 
-  step_zv()   |> # der vorherige Step erzeugt Features ohne Varianz
+  step_zv(all_predictors())   |>  # der vorherige Step erzeugt Features ohne Varianz
   step_normalize(all_numeric_predictors()) 
 
 
@@ -131,18 +137,22 @@ wf1 <-
   add_model(mod1) %>% 
   add_recipe(rec1)
 
+```
 
-# tuning:
+
+Tuning:
+
+```{r fit-tune-grid}
 tic()
 wf1_fit <-
   wf1 %>% 
   tune_grid(
     resamples = rsmpl,
+    grid = 2,  # Zeit sparen
     metrics = metric_set(accuracy, f_meas, roc_auc),
     control = control_grid(verbose = TRUE))
 toc()
 beep()
-
 ```
 
 
@@ -152,7 +162,7 @@ beep()
 wf1_fit
 ```
 
-## Test-Set-Güte
+## Finalisieren
 
 ```{r}
 fit1_best <- select_best(wf1_fit)
@@ -164,15 +174,14 @@ wf1_final_fit <- fit(wf1_final, data = d_train)
 ```
 
 
-
-Vorhersagen im Test-Set:
+Vorhersagen:
 
 ```{r}
-tic()
-preds <-
-  predict(wf1_final_fit, new_data = germeval_test)
-toc()
+preds <- predict(wf1_final_fit, germeval_test)
 ```
+
+
+## Test-Set-Güte
 
 Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
 

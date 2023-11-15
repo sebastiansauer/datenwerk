@@ -1,5 +1,5 @@
 ---
-exname: germeval07
+exname: germeval07-de-wordvec-no-resamples
 expoints: 1
 extype: string
 exsolution: NA
@@ -11,7 +11,7 @@ categories:
 - prediction
 - tidymodels
 - string
-date: '2023-11-12'
+date: '2023-11-15'
 slug: germeval07
 title: germeval07
 
@@ -39,7 +39,7 @@ options(rstudio.help.showDataPreview = FALSE)
 # Aufgabe
 
 Erstellen Sie ein prädiktives Modell für Textdaten. 
-Nutzen Sie Deutsche Word-Vektoren für das Feature-Engineering.
+Nutzen Sie *deutsche Word-Vektoren* für das Feature-Engineering.
 
 Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -108,22 +108,47 @@ wiki_de_embeds_path <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikip
 
 
 tic()
-wiki_de_embeds <-
-  data.table::fread(file = wiki_de_embeds_path,
-                    sep = " ",
-                    header = FALSE,
-                    showProgress = FALSE)
+wiki_de_embeds <- arrow::read_feather(file = "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/part-0.arrow")
 toc()
+
+
 
 names(wiki_de_embeds)[1] <- "word"
 
 wiki <- as_tibble(wiki_de_embeds)
+
+```
+
+Die Arrow-Datei ist *viel* schneller zu importieren als die Text-Datei.
+
+```{r}
+#| eval: false
+tic()
+wiki_de_embeds <-
+  data.table::fread(file = wiki_de_embeds_path,
+                    sep = " ",
+                    header = FALSE,
+                    showProgress = FALSE)  # progressbar
+toc()
 ```
 
 
 
+Als Parquet-Datei speichern (effizienter):
 
 ```{r}
+#| eval: false
+tic()
+arrow::write_dataset(wiki_de_embeds, path = "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec",
+                     format = "arrow")
+toc()
+
+```
+
+
+## Workflow
+
+```{r wf1}
 # model:
 mod1 <-
   logistic_reg()
@@ -147,7 +172,21 @@ wf1 <-
   workflow() %>% 
   add_model(mod1) %>% 
   add_recipe(rec1)
+```
 
+## Preppen/Baken
+
+```{r prep-rec1}
+tic()
+rec1_prepped <- prep(rec1)
+toc()
+head(rec1_prepped)
+```
+
+
+```{r bake-d-train}
+d_train_baked <-
+  bake(rec1_prepped, new_data = NULL)
 ```
 
 
@@ -156,7 +195,7 @@ wf1 <-
 
 
 ```{r tune-fit}
-#| cache: true
+#| cache: false
 tic()
 wf1_fit <-
   wf1 %>% 
@@ -166,6 +205,7 @@ beep()
 ```
 
 
+Aus Zeitgründen verzichten wir hier auf Tuning.
 
 
 ## Test-Set-Güte
@@ -173,7 +213,7 @@ beep()
 
 Vorhersagen im Test-Set:
 
-```{r predict}
+```{r}
 tic()
 preds <-
   predict(wf1_fit, new_data = germeval_test)
@@ -201,8 +241,12 @@ my_metrics(d_test,
 
 ## Fazit
 
+
 `wikipedia2vec` ist für die deutsche Sprache vorgekocht. 
 Das macht Sinn für einen deutschsprachigen Corpus.
+
+
+
 
 ---
 
