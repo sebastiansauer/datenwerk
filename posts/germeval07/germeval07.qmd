@@ -106,17 +106,13 @@ Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.n
 ```{r read-word-embeddings}
 wiki_de_embeds_path <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/dewiki_20180420_100d.txt"
 
-
 tic()
 wiki_de_embeds <- arrow::read_feather(file = "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/part-0.arrow")
 toc()
 
-
-
 names(wiki_de_embeds)[1] <- "word"
 
 wiki <- as_tibble(wiki_de_embeds)
-
 ```
 
 Die Arrow-Datei ist *viel* schneller zu importieren als die Text-Datei.
@@ -153,19 +149,18 @@ toc()
 mod1 <-
   logistic_reg()
 
-
 # recipe:
 rec1 <-
   recipe(c1 ~ ., data = d_train) |> 
   update_role(id, new_role = "id")  |> 
   #update_role(c2, new_role = "ignore") |> 
   step_tokenize(text) %>%
-  step_stopwords(text, keep = FALSE) %>%
+  step_stopwords(text, language = "de", stopword_source = "snowball") |> 
+
   step_word_embeddings(text,
                        embeddings = wiki,
                        aggregation = "mean") |> 
   step_normalize(all_numeric_predictors()) 
-
 
 # workflow:
 wf1 <-
@@ -180,13 +175,14 @@ wf1 <-
 tic()
 rec1_prepped <- prep(rec1)
 toc()
-head(rec1_prepped)
 ```
 
 
 ```{r bake-d-train}
 d_train_baked <-
   bake(rec1_prepped, new_data = NULL)
+
+head(d_train_baked)
 ```
 
 
