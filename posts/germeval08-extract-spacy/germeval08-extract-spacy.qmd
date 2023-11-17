@@ -1,0 +1,162 @@
+---
+exname: germeval08-extract-spacy
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- wordembedding
+- textmining
+- python
+- string
+date: '2023-11-16'
+slug: germeval08-extract-spacy
+title: germeval08-extract-spacy
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+options(max.print = 10)
+options(rstudio.help.showDataPreview = FALSE)
+```
+
+
+
+# Aufgabe
+
+Extrahieren Sie deutsche Worembedding aus [SpaCy](https://spacy.io/) für den GermEval-Datensatz (Train).
+
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+data("germeval_train", package = "pradadata")
+```
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Setup
+
+```{r}
+#| eval: false
+library(tidyverse)
+```
+
+
+```{python}
+#| eval: false
+import spacy
+import de_core_news_sm
+import pandas as pd
+nlp = de_core_news_sm.load()
+```
+
+
+## Daten in Python importieren
+
+```{python import-data}
+#| eval: false
+csv_file_path = '/home/sebastian/git-repos/pradadata/data-raw/germeval_train.csv'
+
+germeval_train = pd.read_csv(csv_file_path)
+```
+
+## Vorbereiten
+
+Als String konvertieren:
+
+```{python}
+#| eval: false
+tweets = germeval_train['text']
+tweets2 = tweets.astype(str)
+tweets3 = tweets2.to_string()
+```
+
+
+NLP-Features berechnen:
+
+```{python nlp}
+#| eval: false
+doc = nlp(tweets3)
+```
+
+
+## Wortvektoren berechnen
+
+```{python word-vec}
+#| eval: false
+wordvec = [token.vector for token in doc]
+len(wordvec)
+```
+
+## Export
+
+als Pandas DF:
+
+```{python}
+#| eval: false
+df = pd.DataFrame(wordvec)
+
+dimensions = df.shape
+dimensions
+```
+
+
+In CSV schreiben:
+
+```{python}
+#| eval: false
+df.to_csv("germeval_spacy_embed.csv")
+```
+
+
+
+
+---
+
+Categories: 
+
+- wordembedding
+- textmining
+- python
+- string
+

@@ -1,0 +1,227 @@
+---
+exname: germeval09-tfidf
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- string
+date: '2023-11-16'
+slug: germeval09-tfidf
+title: germeval09-tfidf
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+options(max.print = 10)
+options(rstudio.help.showDataPreview = FALSE)
+```
+
+
+
+# Aufgabe
+
+Erstellen Sie ein prädiktives Modell für Textdaten, nutzen Sie einen Entscheidungsbaum als Modell. Erstellen Sie pro Wort tfIDF-Kennwerte im Rahmen von Feature-Engineering.
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+data("germeval_train", package = "pradadata")
+data("germeval_test", package = "pradadata")
+```
+
+Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Tidymodels.
+- Nutzen Sie das `sentiws` Lexikon.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+d_train <-
+  germeval_train |> 
+  select(id, c1, text)
+```
+
+
+```{r}
+library(tictoc)
+library(tidymodels)
+library(tidytext)
+library(beepr)
+library(textrecipes)  # step_tokenfilter, step_tokenize
+```
+
+
+
+
+Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
+
+
+## Workflow
+
+```{r}
+# model:
+mod1 <-
+  decision_tree(mode = "classification")
+
+# recipe:
+rec1 <-
+  recipe(c1 ~ ., data = d_train) |> 
+  update_role(id, new_role = "id")  |> 
+  step_tokenize(text) %>%
+  step_tokenfilter(text, max_tokens = 1e3) %>%
+  step_tfidf(text) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+```
+
+
+
+## Fit
+
+Ohne Tuning:
+
+```{r}
+tic()
+fit1 <-
+  fit(wf1,
+      data = d_train)
+toc()
+#beep()
+```
+
+
+```{r}
+fit1
+```
+
+## Test-Set-Güte
+
+
+Vorhersagen im Test-Set:
+
+```{r}
+tic()
+preds <-
+  predict(fit1, new_data = germeval_test)
+toc()
+```
+
+Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
+
+```{r}
+d_test <-
+  germeval_test |> 
+  bind_cols(preds) |> 
+  mutate(c1 = as.factor(c1))
+```
+
+
+
+```{r}
+my_metrics <- metric_set(accuracy, f_meas)
+my_metrics(d_test,
+           truth = c1,
+           estimate = .pred_class)
+```
+
+
+## Prep/Bake
+
+Als Check: Das gepreppte/bebackene Rezept:
+
+```{r}
+tic()
+rec1_prepped <- prep(rec1)
+toc()
+```
+
+
+```{r}
+tic()
+d_train_baked <- bake(rec1_prepped, new_data = NULL)
+toc()
+```
+
+
+## Sehr viele Spalten
+
+Das Problem ist, dass dieses Rezept sehr viele Spalten erzeugt.
+Das ist (sehr) rechen- und speicherintensiv.
+
+
+
+```{r}
+dim(d_train_baked)
+```
+
+
+```{r}
+d_train_baked |> 
+  head()
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- string
+

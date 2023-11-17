@@ -1,13 +1,14 @@
 ---
 extype: string
 exsolution: NA
-exname: pupilsize
+exname: Pupil-size
 expoints: 1
 categories:
 - probability
 - bayes
 - regression
-date: '2022-11-05'
+- string
+date: '2023-11-16'
 slug: Pupil-size
 title: Pupil-size
 
@@ -39,7 +40,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-# Exercise
+# Aufgabe
 
 Pupillendaten sind ein verbreiteter Analysegegenstand in Bereichen wie Psychologie, Marktforschung und Marketing.
 
@@ -49,7 +50,7 @@ und einen Datensatz der [Uni Münster](http://cran.uni-muenster.de/web/packages/
 
 
 ```{r}
-library(PupilPre)
+library(PupilPre)  # installieren, einmalig, nicht vergessen
 data("Pupildat")
 d <-
   Pupildat %>% 
@@ -58,7 +59,7 @@ d <-
   mutate(size = size / 100) # in millimeter
 ```
 
-Mit dem R-Paket `easystats` kann man sich bequem typische Statistiken ausgeben lassen. Aber natürlich können Sie auch mit `summarise(mw = mean(size))` arbeiten.
+Mit dem R-Paket `eaystats` kann man sich bequem typische Statistiken ausgeben lassen. Aber natürlich können Sie auch mit `summarise(mw = mean(size))` o.Ä. arbeiten.
 
 ```{r}
 library(easystats)
@@ -86,17 +87,12 @@ Geben Sie zentrale Statistiken an.
 
 e) Geben Sie ein 95%-Intervall für die mittlere Pupillengröße an auf Basis der Posteriori-Verteilung.
 
-
-
+f) Geben Sie die Prioris an, die `rstanarm` verwendet hat.
 
 Hinweise:
 
-- Spezifizieren Sie eine Gleichverteilung von 0 bis 20 mm als Prior für die Streuung $\sigma$.
-
-
-
-
-
+- Verwenden Sie die Defaults von `rstanarm` für Ihr Modell.
+- Falls Sie Teile der Aufgabe nicht lösen können, weil Ihnen der Stoff dazu fehlt: Einfach ignorieren 😄.
 
 
 
@@ -113,16 +109,14 @@ Hinweise:
 </br>
 </br>
 
-# Solution
-
-
+# Lösung
 
 a) Modelldefinition
 
 $$\begin{aligned}
 s_i &\sim \mathcal{N}(\mu, \sigma)\qquad \text{| s wie size }\\
 \mu &\sim \mathcal{N}(10, 5)\\
-\sigma &\sim \mathcal{U}(0, 20)
+\sigma &\sim \mathcal{E}(.2)
 \end{aligned}$$
 
 b) Begründung der Modellspezifikation
@@ -137,12 +131,29 @@ Es ist wünschenswert, dass Modelle mit so wenig wie möglich Annahmen auskommt 
 
 $\sigma$: Die Streuung muss positiv sein, 
 daher kommt keine Normalverteilung in Frage.
-Eine Gleichverteilung ist *eine von mehreren denkabaren* Verteilungen.
-Besser wäre vermutlich eine Verteilung,
-die extrem große Werte als zunehmen unwahrscheinlich beurteilt.
-Aus Gründen der Einfachheit bleiben wir hier bei der Gleichverteilung.
+Eine Exponentialverteilung ist *eine von mehreren denkbaren* Verteilungen.
+
+Aber welche Werte von lambda kommen in Frage? Probieren wir mal etwas aus:
+
+```{r}
+qexp(p = .5, rate = 1)
+```
+
+Mit $\lambda = 1$ liegt der Median der Streuung der Pupillengrößen (`p = .5`) bei ca. 0.7 mm. 
+Dieser Wert erscheint mir etwas wenig
+
+
+```{r}
+qexp(p = .5, rate = 0.2)
+```
+
+Hm. Eine Streuung von ca. 3.5mm um den Mittelwert herum; das könnte passen.
+
+
+
 
 Die große Stichprobe wird den Priori-Wert vermutlich überstimmen.
+
 
 c) Priori-Prädiktiv-Verteilung
 
@@ -186,6 +197,7 @@ Die Posteriori-Verteilung kann man mit dem Paket `{rstanarm}` d.h. mit der Funkt
 library(rstanarm)
 m_pupil <- stan_glm(size ~ 1,
                     data = d3,
+                    seed = 42,
                     refresh = 0)
 ```
 
@@ -206,12 +218,12 @@ plot(parameters(m_pupil), show_intercept = TRUE)
 ```
 
 
-Natürlich kann man auch die Post-Verteilung plotten:
+Natürlich kann man auch die Post-Verteilung plotten (z.B: HDI):
 
 ```{r}
 m_hdi <- hdi(m_pupil, ci = c(0.5, 0.95))
 
-plot(m_hdi, show_intercept = TRUE)
+plot(m_hdi, show_intercept = TRUE)  # Im Default wird der Intercept nicht gezeigt
 ```
 
 
@@ -227,6 +239,11 @@ as_tibble(m_pupil) %>%
 ```
 
 
+
+
+
+
+
 e) Geben Sie ein 95%-Intervall für die mittlere Pupillengröße an auf Basis der Posteriori-Verteilung.
 
 ```{r}
@@ -234,10 +251,19 @@ eti(m_pupil)
 ```
 
 
-Und dann erstellen wir ein 89%-PI:
+Und dann erstellen wir noch ein 89%-PI, einfach zum Spaß an der Freude:
 
 ```{r}
 eti(m_pupil, ci = .89)
+```
+
+
+f) Geben Sie die Prioris an, die `rstanarm` verwendet hat.
+
+Voilà:
+
+```{r}
+prior_summary(m_pupil)
 ```
 
 
@@ -251,4 +277,5 @@ Categories:
 - probability
 - bayes
 - regression
+- string
 

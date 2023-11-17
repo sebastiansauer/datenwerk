@@ -1,5 +1,5 @@
 ---
-exname: germeval04sent-textfeatures-nn
+exname: germeval04-sent-textfeatures-nn
 expoints: 1
 extype: string
 exsolution: NA
@@ -10,8 +10,9 @@ categories:
 - germeval
 - prediction
 - tidymodels
+- sentiment
 - string
-date: '2023-11-15'
+date: '2023-11-16'
 slug: germeval04
 title: germeval04
 
@@ -88,12 +89,6 @@ d_train <-
 
 
 ```{r}
-d_test <-
-  germeval_test
-```
-
-
-```{r}
 library(tictoc)
 library(tidymodels)
 library(syuzhet)
@@ -127,7 +122,7 @@ rec1 <-
                                     method = "custom",
                                     lexicon = sentiws))  |>
   step_textfeature(text)  |> 
-  step_zv(all_predictors())   |>  # der vorherige Step erzeugt Features ohne Varianz
+   step_zv(all_predictors())  |>  # der vorherige Step erzeugt Features ohne Varianz
   step_normalize(all_numeric_predictors()) 
 
 
@@ -148,7 +143,7 @@ wf1_fit <-
   wf1 %>% 
   tune_grid(
     resamples = rsmpl,
-    grid = 2,  # Zeit sparen
+    grid = 2,  # nur um Zeit zu sparen
     metrics = metric_set(accuracy, f_meas, roc_auc),
     control = control_grid(verbose = TRUE))
 toc()
@@ -168,7 +163,7 @@ wf1_fit
 fit1_best <- select_best(wf1_fit)
 ```
 
-```{r}
+```{r final-fit}
 wf1_final <- finalize_workflow(wf1, fit1_best)
 wf1_final_fit <- fit(wf1_final, data = d_train)
 ```
@@ -179,6 +174,7 @@ Vorhersagen:
 ```{r}
 preds <- predict(wf1_final_fit, germeval_test)
 ```
+
 
 
 ## Test-Set-Güte
@@ -219,5 +215,6 @@ Categories:
 - germeval
 - prediction
 - tidymodels
+- sentiment
 - string
 
