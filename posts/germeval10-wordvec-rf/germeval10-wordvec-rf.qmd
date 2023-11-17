@@ -1,0 +1,274 @@
+---
+exname: germeval10-wordvec-rf
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- string
+date: '2023-11-17'
+slug: germeval10-wordvec-rf
+title: germeval10-wordvec-rf
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+Erstellen Sie ein prädiktives Modell für Textdaten. 
+Nutzen Sie *deutsche Word-Vektoren* für das Feature-Engineering.
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+data("germeval_train", package = "pradadata")
+data("germeval_test", package = "pradadata")
+```
+
+Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Tidymodels.
+- Nutzen Sie [Wikipedia2Vec](https://wikipedia2vec.github.io/wikipedia2vec/) als Grundlage für die Wordembeddings in deutscher Sprache. Laden Sie die Daten herunter (Achtung: ca. 2.8 GB).
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+d_train <-
+  germeval_train |> 
+  select(id, c1, text)
+```
+
+
+```{r}
+library(tictoc)
+library(tidymodels)
+library(syuzhet)
+library(beepr)
+library(textrecipes)
+```
+
+
+Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
+
+
+## Deutsche Textvektoren importieren
+
+```{r read-word-embeddings}
+tic()
+wiki_de_embeds <- arrow::read_feather(
+  file = "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/part-0.arrow")
+toc()
+
+names(wiki_de_embeds)[1] <- "word"
+
+wiki <- as_tibble(wiki_de_embeds)
+```
+
+## Workflow
+
+```{r wf1}
+# model:
+mod1 <-
+  rand_forest(mode = "classification",
+              mtry = tune())
+
+# recipe:
+rec1 <-
+  recipe(c1 ~ ., data = d_train) |> 
+  update_role(id, new_role = "id")  |> 
+  #update_role(c2, new_role = "ignore") |> 
+  step_tokenize(text) %>%
+  step_stopwords(text, language = "de", stopword_source = "snowball") |> 
+  step_word_embeddings(text,
+                       embeddings = wiki,
+                       aggregation = "mean")
+
+# workflow:
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+```
+
+## Preppen/Baken
+
+```{r prep-rec1}
+tic()
+rec1_prepped <- prep(rec1)
+toc()
+```
+
+
+```{r bake-d-train}
+d_train_baked <-
+  bake(rec1_prepped, new_data = NULL)
+head(d_train_baked)
+```
+
+
+
+## Tuninig/Fitting
+
+
+```{r tune-fit}
+#| cache: true
+#| eval: false
+tic()
+wf_fit <-
+  wf1 %>% 
+  tune_grid(
+    grid = 5,
+    resamples = vfold_cv(strata = c1, 
+                         v = 5,
+                         data = d_train),
+    control = control_grid(save_pred = TRUE,
+                           verbose = TRUE,
+                           save_workflow = FALSE)) 
+toc()
+beep()
+```
+
+
+Oder das schon in grauer Vorzeit berechnete Objekt importieren:
+
+```{r}
+wf_fit <- read_rds("/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/germeval10-wordvec-rf.rds")
+```
+
+
+
+## Plot performance
+
+```{r}
+autoplot(wf_fit)
+```
+
+
+```{r}
+show_best(wf_fit)
+```
+
+
+## Finalisieren
+
+
+```{r}
+best_params <- select_best(wf_fit)
+tic()
+wf_finalized <- finalize_workflow(wf1, best_params)
+lastfit1 <- fit(wf_finalized, data = d_train)
+toc()
+```
+
+
+## Test-Set-Güte
+
+```{r}
+tic()
+preds <-
+  predict(lastfit1, new_data = germeval_test)
+toc()
+```
+
+
+```{r}
+d_test <-
+  germeval_test |> 
+  bind_cols(preds) |> 
+  mutate(c1 = as.factor(c1))
+```
+
+
+```{r metrics}
+my_metrics <- metric_set(accuracy, f_meas)
+my_metrics(d_test,
+           truth = c1,
+           estimate = .pred_class)
+```
+
+
+## Fazit
+
+
+`wikipedia2vec` ist für die deutsche Sprache vorgekocht. 
+Das macht Sinn für einen deutschsprachigen Corpus.
+
+Das Modell braucht doch ganz schön viel Rechenzeit.
+
+Achtung: Mit dem Parameter `save_pred = TRUE` wird der Workflow größer als 3 GB.
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- string
+
