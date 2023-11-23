@@ -1,0 +1,147 @@
+---
+date: today
+draft: TRUE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: chatgpt-sentiment-simple
+extype: string
+exsolution: ""
+categories:
+- textmining
+- nlp
+- transformer
+- chatgpt
+- sentiment
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Fragen Sie ChatGPT via API zum Sentiment der ersten zwei Texte aus dem Germeval-2018-Datensatz (Train).
+
+
+Hinweise:
+
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Python, nicht R.
+- Das Verwenden der OpenAI-API kostet Geld. 💸 Informieren Sie sich vorab. Um auf die API zugreifen zu können, müssen Sie sich ein Konto angelegt haben und über ein Guthaben verfügen.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+:::.callout-attention
+OpenAI hat eine neue API (Stand: 2023-11-23). Der Code der alten API bricht. 💔 $\square$
+:::
+
+
+
+
+Module importieren:
+
+```{python}
+from openai import OpenAI
+import pandas as pd
+```
+
+
+
+Daten importieren:
+
+```{python import-data}
+csv_file_path_train = 'https://github.com/sebastiansauer/pradadata/raw/master/data-raw/germeval_train.csv'
+
+germeval_train = pd.read_csv(csv_file_path_train)
+```
+
+
+Die ersten paar Texte herausziehen:
+
+```{r}
+text = germeval_train["text"].head(2).tolist()
+
+```
+
+
+
+Anmelden bei OpenAI:
+
+```{python}
+client = OpenAI()
+```
+
+
+:::.callout-note
+Dieses Verfahren setzt voraus, dass in `.Renviron` die Variable `OPENAI_API_KEY` hinterlegt ist. $\square$
+:::
+
+
+Textschnipsel, das zu klassifizieren ist:
+
+```{python}
+text = 
+```
+
+
+Prompt definieren:
+
+```{python}
+my_prompt  = f"Analysieren Sie das Sentiment des folgenden Texts:\n{text}"
+```
+
+
+Anfrage an die API, in eine Funktion gepackt:
+
+```{python}
+def get_completion(prompt, client_instance, model="gpt-3.5-turbo"):
+  messages = [{"role": "user", "content": prompt}]
+  response = client_instance.chat.completions.create(
+  model=model,
+  messages=messages,
+  max_tokens=50,
+  temperature=0,
+  )
+  return response.choices[0].message.content
+```
+
+
+Und los:
+
+```{python ask-api}
+get_completion(my_prompt, client) 
+```
+
