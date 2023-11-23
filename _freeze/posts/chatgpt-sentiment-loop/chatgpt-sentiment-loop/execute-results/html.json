@@ -1,0 +1,17 @@
+{
+  "hash": "79379969e10dda80b03457cbfaec5976",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ndate: today\ndraft: TRUE   # ACHTUNG DRAFT STEHT AUF TRUE!\ntitle: chatgpt-sentiment-simple\nexecute: \n  eval: false\n\nextype: string\nexsolution: \"\"\ncategories:\n- textmining\n- nlp\n- transformer\n- chatgpt\n- sentiment\n---\n\n\n\n\n\n\n\n\n\n\n# Aufgabe\n\n\nFragen Sie ChatGPT via API zum Sentiment der ersten zwei Texte aus dem Germeval-2018-Datensatz (Train).\n\n\nHinweise:\n\n- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).\n- Nutzen Sie Python, nicht R.\n- Das Verwenden der OpenAI-API kostet Geld. 💸 Informieren Sie sich vorab. Um auf die API zugreifen zu können, müssen Sie sich ein Konto angelegt haben und über ein Guthaben verfügen.\n\n\n\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n\n# Lösung\n\n\n::: {.callout-attention}\nOpenAI hat eine neue API (Stand: 2023-11-23). Der Code der alten API bricht. 💔 $\\square$\n:::\n\n\n\n\nModule importieren:\n\n\n::: {.cell}\n\n```{.python .cell-code}\nfrom openai import OpenAI\nimport pandas as pd\n```\n:::\n\n\n\n\nDaten importieren:\n\n\n::: {.cell}\n\n```{.python .cell-code}\ncsv_file_path_train = 'https://github.com/sebastiansauer/pradadata/raw/master/data-raw/germeval_train.csv'\n\ngermeval_train = pd.read_csv(csv_file_path_train)\n```\n:::\n\n\n\nDie ersten paar Texte herausziehen:\n\n\n::: {.cell}\n\n```{.python .cell-code}\ntweets_first2 = germeval_train[\"text\"].head(2).tolist()\ntweets_first2\n```\n:::\n\n\n\nPrompt definieren:\n\n\n::: {.cell}\n\n```{.python .cell-code}\nprompt_stem  = \"Als KI mit Exertise in natürlicher Sprache und Emotionserkennung ist es Ihre Aufgabe, das Sentiment des folgenden Textes zu erkennen. Bitte antworten Sie nur mit einem Wort, entweder 'positiv', 'neutral' oder 'negativ'. Dieses Wort soll die Insgesamt-Einschätzung des Sentiments des Textes zusammenfassen.\"\n```\n:::\n\n\n\nMit \"List Comprehension\" können wir die Tweets jeweils mit dem Prompt verknüpfen:\n\n\n::: {.cell}\n\n```{.python .cell-code}\nprompts = [prompt_stem + tweet for tweet in tweets_first2]\nprompts\n```\n:::\n\n\n\n\nAnmelden bei OpenAI:\n\n\n::: {.cell}\n\n```{.python .cell-code}\nclient = OpenAI()\n```\n:::\n\n\n\n::: {.callout-note}\nDieses Anmeldeverfahren setzt voraus, dass in `.Renviron` die Variable `OPENAI_API_KEY` hinterlegt ist. $\\square$\n:::\n\n\n\n\n\n\nAnfrage an die API, in eine Funktion gepackt:\n\n\n::: {.cell}\n\n```{.python .cell-code}\ndef get_completion(prompt, client_instance, model=\"gpt-3.5-turbo\"):\n  messages = [{\"role\": \"user\", \"content\": prompt}]\n  response = client_instance.chat.completions.create(\n  model=model,\n  messages=messages,\n  max_tokens=50,\n  temperature=0,\n  )\n  return response.choices[0].message.content\n```\n:::\n\n\n\nUnd jetzt als Schleife:\n\n\n::: {.cell}\n\n```{.python .cell-code}\nfor prompt in prompts:\n  get_completion(pr, client) \n```\n:::\n",
+    "supporting": [
+      "chatgpt-sentiment-loop_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

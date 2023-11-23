@@ -2,6 +2,9 @@
 date: today
 draft: TRUE   # ACHTUNG DRAFT STEHT AUF TRUE!
 title: chatgpt-sentiment-simple
+execute: 
+  eval: false
+
 extype: string
 exsolution: ""
 categories:
@@ -64,7 +67,7 @@ Hinweise:
 # Lösung
 
 
-:::.callout-attention
+::: {.callout-attention}
 OpenAI hat eine neue API (Stand: 2023-11-23). Der Code der alten API bricht. 💔 $\square$
 :::
 
@@ -91,9 +94,24 @@ germeval_train = pd.read_csv(csv_file_path_train)
 
 Die ersten paar Texte herausziehen:
 
-```{r}
-text = germeval_train["text"].head(2).tolist()
+```{python}
+tweets_first2 = germeval_train["text"].head(2).tolist()
+tweets_first2
+```
 
+
+Prompt definieren:
+
+```{python}
+prompt_stem  = "Als KI mit Exertise in natürlicher Sprache und Emotionserkennung ist es Ihre Aufgabe, das Sentiment des folgenden Textes zu erkennen. Bitte antworten Sie nur mit einem Wort, entweder 'positiv', 'neutral' oder 'negativ'. Dieses Wort soll die Insgesamt-Einschätzung des Sentiments des Textes zusammenfassen."
+```
+
+
+Mit "List Comprehension" können wir die Tweets jeweils mit dem Prompt verknüpfen:
+
+```{python}
+prompts = [prompt_stem + tweet for tweet in tweets_first2]
+prompts
 ```
 
 
@@ -105,23 +123,13 @@ client = OpenAI()
 ```
 
 
-:::.callout-note
-Dieses Verfahren setzt voraus, dass in `.Renviron` die Variable `OPENAI_API_KEY` hinterlegt ist. $\square$
+::: {.callout-note}
+Dieses Anmeldeverfahren setzt voraus, dass in `.Renviron` die Variable `OPENAI_API_KEY` hinterlegt ist. $\square$
 :::
 
 
-Textschnipsel, das zu klassifizieren ist:
-
-```{python}
-text = 
-```
 
 
-Prompt definieren:
-
-```{python}
-my_prompt  = f"Analysieren Sie das Sentiment des folgenden Texts:\n{text}"
-```
 
 
 Anfrage an die API, in eine Funktion gepackt:
@@ -139,9 +147,10 @@ def get_completion(prompt, client_instance, model="gpt-3.5-turbo"):
 ```
 
 
-Und los:
+Und jetzt als Schleife:
 
 ```{python ask-api}
-get_completion(my_prompt, client) 
+for prompt in prompts:
+  get_completion(pr, client) 
 ```
 
