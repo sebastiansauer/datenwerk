@@ -3,9 +3,9 @@ date: today
 draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
 title: chatgpt-sentiment-loop
 execute: 
-  eval: true
+  eval: true 
   
-highlight-style: github
+highlight-style: arrow 
 cache: true
 
 extype: string
@@ -42,6 +42,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
+
 # Aufgabe
 
 
@@ -71,10 +72,30 @@ Hinweise:
 
 
 ::: {.callout-attention}
-OpenAI hat eine neue API (Stand: 2023-11-23). Der Code der alten API bricht. 💔 $\square$
+OpenAI hat eine neue API (Stand: 2023-11-23), V1.3.5. Der Code der alten API bricht. 💔 $\square$
 :::
 
 
+Die richtige venv nutzen:
+
+```{r}
+library(reticulate)
+#virtualenv_create("chatgpt")
+use_virtualenv("chatgpt")
+```
+
+
+Check zu Python:
+
+```{r}
+reticulate::py_config()
+```
+
+Ggf. noch Module installieren:
+
+```{r}
+#reticulate::py_install("pandas")
+```
 
 
 Module importieren:
@@ -85,7 +106,20 @@ import pandas as pd
 import time 
 ```
 
+Versionen der importierten Module:
 
+```{python}
+pd.__version__
+```
+
+
+```{zsh}
+#| echo: fenced
+pip list | grep openai
+```
+
+
+Wir brauchen `>= 1.35`.
 
 Daten importieren:
 
@@ -98,7 +132,7 @@ germeval_train = pd.read_csv(csv_file_path_train)
 
 Die ersten paar Texte herausziehen:
 
-```{python}
+```{python tweets-first-few}
 n_tweets = 2
 tweets_first_few = germeval_train["text"].head(n_tweets).tolist()
 tweets_first_few
