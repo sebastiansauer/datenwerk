@@ -1,5 +1,5 @@
 ---
-exname: wfsets_penguins02
+exname: wfsets1
 extype: num
 exsolution: r fmt(sol)
 exshuffle: no
@@ -8,11 +8,10 @@ categories:
 - R
 - statlearning
 - tidymodels
-- num
 - wfsets
-date: '2023-05-17'
-slug: wfsets_penguins02
-title: wfsets_penguins02
+- template
+date: '2023-11-30'
+title: wfsets1
 
 ---
 
@@ -43,18 +42,15 @@ library(exams)
 
 # Aufgabe
 
-Berechnen Sie die Vorhersagegüte (RMSE) für folgende Lernalgorithmen:
+Berechnen Sie die Vorhersagegüte (RMSE) für folgende Lernalgorithmen mittesl `tidymodels`:
 
 - lineares Modell
-- knn (neighbors: tune)
 
 Modellgleichung: `body_mass_g ~ bill_length_mm, data = d_train`.
 
-Tunen Sie bei `neighbors` folgende Werte: 5, 10, 15, 20, 35, 30 und betrachten Sie deren Modellgüte.
+Nutzen Sie minimale Vorverarbeitung im Rahmen zweier Rezepte.
 
-Nutzen Sie minimale Vorverarbeitung.
-
-Berichten Sie die den RSME.
+Nutzen Sie ein *Workflowset.*
 
 
 
@@ -73,10 +69,9 @@ Berichten Sie die den RSME.
 # Lösung
 
 ## Setup
-
 ```{r}
 library(tidymodels)
-library(tidyverse)
+library(tictoc)  # Zeitmessung
 data(penguins, package = "palmerpenguins")
 ```
 
@@ -125,10 +120,15 @@ rec_basic
 ```
 
 
+```{r}
+rec_plain <- recipe(body_mass_g ~ bill_length_mm, data = d_train)
+```
+
+
 ## Resampling
 
 ```{r}
-rsmpls <- vfold_cv(d_train)
+rsmpls <- vfold_cv(d_train, v = 5)
 ```
 
 
@@ -137,107 +137,66 @@ rsmpls <- vfold_cv(d_train)
 ```{r}
 wf_set <-
   workflow_set(
-    preproc = list(rec_simple = rec_basic),
-    models = list(mod_lm = mod_lin,
-                  mod_nn = mod_knn)
+    preproc = list(rec_simple = rec_basic,
+                   rec_plain = rec_plain),
+    models = list(mod_lm = mod_lin)
   )
 
 wf_set
 ```
-
-## Tuningparameter-Werte bestimmen
-
-Welche Tuningparameter hatten wir noch mal ausgewiesen?
-
-```{r}
-mod_knn %>% 
-  extract_parameter_set_dials()
-```
-
-Updaten wir die Parameter mit unseren Werten, also min. 5 Nachbarn und max. 20 Nachbarn.
-
-
-
-```{r}
-params_knn <- 
-mod_knn %>% 
-  extract_parameter_set_dials() %>% 
-  update(neighbors = neighbors(c(5, 20)))
-
-params_knn
-```
-
-Diese Infos ergänzen wir jetzt in das Workflow-Set-Objekt für den Workflow mit der ID "rec_simple_mod_nn" unter der Spalte "Options":
-
-
-
-```{r}
-wf_set <- 
-wf_set %>% 
-  option_add(param_info = params_knn, id = "rec_simple_mod_nn")  
-
-wf_set
-```
-
 
 
 ## Fitten
 
 
 ```{r}
-wf_set_fit <-
+tic()
+wf_fit <-
   wf_set %>% 
   workflow_map(resamples = rsmpls)
-
-wf_set_fit
+toc()
+wf_fit
 ```
 
 
 Check:
 
 ```{r}
-wf_set_fit %>% pluck("result")
+wf_fit %>% pluck("result")
 ```
 
 
 ## Bester Kandidat
 
 ```{r}
-autoplot(wf_set_fit)
+autoplot(wf_fit)
+```
+
+
+```{r}
+autoplot(wf_fit, select_best = TRUE)
+```
+
+
+```{r}
+collect_metrics(wf_fit)
 ```
 
 
 
-
 ```{r}
-rank_results(wf_set_fit, rank_metric = "rmse") %>% 
+rank_results(wf_fit, rank_metric = "rmse") %>% 
   filter(.metric == "rmse")
 ```
 
 
-Am besten war das lineare Modell, aber schauen wir uns auch mal das knn-Modell an, v.a. um zu wissen, wie man den besten Tuningparameter-Wert sieht:
-
-```{r}
-wf_knn <- 
-  extract_workflow_set_result(wf_set_fit, "rec_simple_mod_nn")
-```
-
-
-```{r}
-wf_knn %>% autoplot()
-```
-
-
-```{r}
-wf_knn %>% select_best()
-```
 
 
 ## Last Fit
 
 ```{r}
 best_wf <-
-  wf_set_fit %>% 
+  wf_fit %>% 
   extract_workflow("rec_simple_mod_lm")
 ```
 
@@ -260,13 +219,4 @@ collect_metrics(fit_final)
 
 
 
-
----
-
-Categories: 
-
-- R
-- statlearning
-- tidymodels
-- num
 
