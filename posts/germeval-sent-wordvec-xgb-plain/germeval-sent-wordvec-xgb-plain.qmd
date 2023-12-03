@@ -13,9 +13,9 @@ categories:
 - xgb
 - tune
 date: '2023-12-03'
-title: germeval03-sent-wordvec-xgb-tune
-draft: true   # DRAFT TRUE
-eval: false
+title: germeval03-sent-wordvec-xgb-plain
+draft: false   # DRAFT TRUE
+eval: true
 ---
 
 
@@ -42,8 +42,10 @@ options(rstudio.help.showDataPreview = FALSE)
 Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
 Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
 
-Als Lernalgorithmus verwenden Sie XGB. Tunen Sie die Lernrate und die max. Tiefe (`max_depth`) des Modells.
+Als Lernalgorithmus verwenden Sie XGB. 
 
+Preppen und Backen Sie das Rezept,
+aber führen Sie die Pipelien mit dem gebackenen Datensatz und einem "Plain-Rezept" durch.
 
 
 ## Daten
@@ -55,7 +57,7 @@ Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Lang
 Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
 
 
-```{r}
+```{r data}
 library(tidyverse)
 data("germeval_train", package = "pradadata")
 data("germeval_test", package = "pradadata")
@@ -93,19 +95,20 @@ Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 
 ## Setup
 
-```{r}
+```{r d-train}
 d_train <-
   germeval_train |> 
   select(id, c1, text)
 ```
 
 
-```{r}
+```{r libs}
 library(tictoc)
 library(tidymodels)
 library(syuzhet)
 library(beepr)
 library(lobstr)  # object size
+library(visdat)  # Fingerprint/footprint of dataset (CSV)
 data("sentiws", package = "pradadata")
 ```
 
@@ -124,7 +127,7 @@ mod <-
              )
 ```
 
-## Rezept
+## Rezept Workvektoren
 
 Pfad zu den Wordvektoren:
 
@@ -135,6 +138,7 @@ path_wordvec <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2ve
 
 
 ```{r}
+#| eval: false
 source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_recipe_wordvec_senti.R")
 
 rec <- def_recipe_wordvec_senti(data_train = d_train,
@@ -143,44 +147,105 @@ rec <- def_recipe_wordvec_senti(data_train = d_train,
 
 
 
-## Workflow
-
-```{r source-def-wf}
-source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_wf.R")
-wf <- def_wf()
-```
-
-
-## Check
+## Prep/Bake Wordvektoren
 
 ```{r prep-rec}
+#| eval: false
 tic()
 rec_prepped <- prep(rec)
 toc()
-
-rec_prepped
 ```
 
 
-```{r}
-obj_size(rec_prepped)
-```
-
-Groß!
-
+`78.021 sec elapsed`
 
 
 
 ```{r bake}
+#| eval: false
 d_rec_baked <- bake(rec_prepped, new_data = NULL)
-
-head(d_rec_baked)
 ```
 
 
 ```{r}
+#| eval: false
 sum(is.na(d_rec_baked))
 ```
+
+
+## Test-Set auch baken
+
+```{r}
+#| eval: false
+d_test_baked <- bake(rec_prepped, new_data = germeval_test)
+dim(d_test_baked)
+```
+
+
+```{r}
+#| eval: false
+write_csv(d_test_baked, "data/germeval/germeval_test_recipe_wordvec_senti.csv")
+```
+
+Später kann man es dann analog wieder importieren:
+
+```{r}
+d_test_baked <- read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_test_recipe_wordvec_senti.csv")
+```
+
+
+## Gebackenen Datensatz als neue Grundlage
+
+Den gepreppten/gebackenen Datensatz speichern wir als Datensatz ab:
+
+```{r}
+#| eval: false
+write_csv(d_rec_baked, "https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_train_recipe_wordvec_senti.csv")
+```
+
+
+Später können wir den Datensatz als "neuen, frischen" Datensatz für ein "Plain-Rezept", also ein ganz einfaches Rezept nutzen.
+Das hat den Vorteil (hoffentlich), das die Datenvolumina viel kleiner sind.
+
+```{r import-train-data}
+d_train_new <-
+  read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_train_recipe_wordvec_senti.csv")
+```
+
+
+```{r vis-dat}
+vis_dat(d_train_new) +
+  # remove axis labels:
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank() 
+        )
+```
+
+
+
+## Plain-Rezept
+
+```{r}
+rec <- 
+  recipe(c1 ~ ., data = d_train_new)
+```
+
+
+
+
+## Neuer Workflow mit plainem Rezept
+
+```{r wf-new}
+wf <-
+  workflow() |> 
+  add_recipe(rec) |> 
+  add_model(mod)
+
+wf
+```
+
+
+
 
 
 ## Parallelisierung über mehrere Kerne
@@ -196,6 +261,7 @@ plan(cluster, workers = cl)
 ```
 
 
+Achtung: Viele Kerne brauchen auch viel Speicher.
 
 ## Tune/Resample/Fit
 
@@ -206,9 +272,8 @@ tic()
 fit_wordvec_senti_xgb <-
   tune_grid(
     wf,
-    grid = 10,
-    resamples = vfold_cv(d_train, v = 5),
-    data = d_train)
+    grid = 50,
+    resamples = vfold_cv(d_train_new, v = 5))
 toc()
 beep()
 ```
@@ -221,10 +286,8 @@ Objekt-Größe:
 lobstr::obj_size(fit_wordvec_senti_xgb)
 ```
 
+Ah! Angenehm klein.
 
-Groß!
-
-Wie wir gesehen haben, ist das Rezept riesig.
 
 
 
@@ -235,12 +298,12 @@ autoplot(fit_wordvec_senti_xgb)
 ```
 
 
-```{r}
+```{r show-best}
 show_best(fit_wordvec_senti_xgb)
 ```
 
 
-```{r}
+```{r select-best}
 best_params <- select_best(fit_wordvec_senti_xgb)
 ```
 
@@ -252,7 +315,7 @@ best_params <- select_best(fit_wordvec_senti_xgb)
 best_params <- select_best(fit_wordvec_senti_xgb)
 tic()
 wf_finalized <- finalize_workflow(wf, best_params)
-lastfit_xgb <- fit(wf_finalized, data = d_train)
+lastfit_xgb <- fit(wf_finalized, data = d_train_new)
 toc()
 ```
 
@@ -262,7 +325,7 @@ toc()
 ```{r predict}
 tic()
 preds <-
-  predict(lastfit_xgb, new_data = germeval_test)
+  predict(lastfit_xgb, new_data = d_test_baked)
 toc()
 ```
 
@@ -282,6 +345,11 @@ my_metrics(d_test,
            estimate = .pred_class)
 ```
 
+
+## Fazit
+
+Verzichtet man auf ein Rezept mit viel Datenvolument (Wordvektoren blähen das Rezept mächtig auf), so wird das Fitten schlanker und schneller.
+Schneller auch deshalb, weil ggf. kein Swapping zwischen Speicher und Festplatte mehr nötig ist.
 
 
 

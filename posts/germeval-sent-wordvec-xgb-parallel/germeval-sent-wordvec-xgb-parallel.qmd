@@ -11,10 +11,10 @@ categories:
 - sentiment
 - string
 - xgb
-- tune
-date: '2023-12-03'
-title: germeval03-sent-wordvec-xgb-tune
-draft: true   # DRAFT TRUE
+- speed
+date: '2023-12-01'
+title: germeval03-sent-wordvec-xgb-parallel
+draft: true
 eval: false
 ---
 
@@ -42,11 +42,9 @@ options(rstudio.help.showDataPreview = FALSE)
 Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
 Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
 
-Als Lernalgorithmus verwenden Sie XGB. Tunen Sie die Lernrate und die max. Tiefe (`max_depth`) des Modells.
+Als Lernalgorithmus verwenden Sie XGB.
 
-
-
-## Daten
+Verwenden Sie mehrere Rechenkerne und dokumentieren Sie die Geschwindigkeit (und die Zeitersparnis im Vergleich zu einem einzelnen Rechenkern).
 
 Verwenden Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -61,12 +59,10 @@ data("germeval_train", package = "pradadata")
 data("germeval_test", package = "pradadata")
 ```
 
-## AV und UV
-
 Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 
 
-## Hinweise
+Hinweise:
 
 - Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
 - Nutzen Sie Tidymodels.
@@ -91,8 +87,6 @@ Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 # Lösung
 
 
-## Setup
-
 ```{r}
 d_train <-
   germeval_train |> 
@@ -113,20 +107,27 @@ data("sentiws", package = "pradadata")
 Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
 
 
+## Mehrere Kerne
+
+```{r}
+doParallel::registerDoParallel(cores=3)
+```
+
+
 
 ## Learner/Modell
 
 ```{r}
 mod <-
   boost_tree(mode = "classification",
-             learn_rate = tune(), 
-             tree_depth = tune()
+             learn_rate = .01, 
+             tree_depth = 5
              )
 ```
 
 ## Rezept
 
-Pfad zu den Wordvektoren:
+Pfad zu den Wordvecktoren:
 
 ```{r}
 path_wordvec <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/part-0.arrow"
@@ -146,7 +147,7 @@ rec <- def_recipe_wordvec_senti(data_train = d_train,
 ## Workflow
 
 ```{r source-def-wf}
-source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_wf.R")
+source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_df.R")
 wf <- def_wf()
 ```
 
@@ -157,8 +158,6 @@ wf <- def_wf()
 tic()
 rec_prepped <- prep(rec)
 toc()
-
-rec_prepped
 ```
 
 
@@ -173,8 +172,6 @@ Groß!
 
 ```{r bake}
 d_rec_baked <- bake(rec_prepped, new_data = NULL)
-
-head(d_rec_baked)
 ```
 
 
@@ -183,37 +180,22 @@ sum(is.na(d_rec_baked))
 ```
 
 
-## Parallelisierung über mehrere Kerne
 
-```{r}
-library(parallel)
-all_cores <- detectCores(logical = FALSE)
-
-library(doFuture)
-registerDoFuture()
-cl <- makeCluster(2)
-plan(cluster, workers = cl)
-```
-
-
-
-## Tune/Resample/Fit
-
-
+## Fit
 
 ```{r fit}
 tic()
 fit_wordvec_senti_xgb <-
-  tune_grid(
-    wf,
-    grid = 10,
-    resamples = vfold_cv(d_train, v = 5),
-    data = d_train)
+  fit(wf,
+      data = d_train)
 toc()
 beep()
 ```
 
 
+```{r}
+fit_wordvec_senti_xgb
+```
 
 Objekt-Größe:
 
@@ -227,52 +209,35 @@ Groß!
 Wie wir gesehen haben, ist das Rezept riesig.
 
 
-
-## Get best performance
-
 ```{r}
-autoplot(fit_wordvec_senti_xgb)
+library(butcher)
+out <- butcher(fit_wordvec_senti_xgb)
+lobstr::obj_size(out)
 ```
 
-
-```{r}
-show_best(fit_wordvec_senti_xgb)
-```
-
-
-```{r}
-best_params <- select_best(fit_wordvec_senti_xgb)
-```
-
-
-## Finalisieren
-
-
-```{r finalize-wf}
-best_params <- select_best(fit_wordvec_senti_xgb)
-tic()
-wf_finalized <- finalize_workflow(wf, best_params)
-lastfit_xgb <- fit(wf_finalized, data = d_train)
-toc()
-```
 
 
 ## Test-Set-Güte
 
+
+Vorhersagen im Test-Set:
+
 ```{r predict}
 tic()
 preds <-
-  predict(lastfit_xgb, new_data = germeval_test)
+  predict(fit_wordvec_senti_xgb, new_data = germeval_test)
 toc()
 ```
 
+Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
 
-```{r bind-cols}
+```{r}
 d_test <-
   germeval_test |> 
   bind_cols(preds) |> 
   mutate(c1 = as.factor(c1))
 ```
+
 
 
 ```{r metrics}
@@ -281,7 +246,6 @@ my_metrics(d_test,
            truth = c1,
            estimate = .pred_class)
 ```
-
 
 
 
