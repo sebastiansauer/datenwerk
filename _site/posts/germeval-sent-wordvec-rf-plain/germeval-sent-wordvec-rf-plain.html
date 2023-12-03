@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2023-12-03">
 
-<title>datenwerk - germeval03-sent-wordvec-xgb-plain</title>
+<title>datenwerk - germeval03-sent-wordvec-rf-plain</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -157,7 +157,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">germeval03-sent-wordvec-xgb-plain</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title">germeval03-sent-wordvec-rf-plain</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">textmining</div>
     <div class="quarto-category">datawrangling</div>
@@ -166,7 +166,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="quarto-category">tidymodels</div>
     <div class="quarto-category">sentiment</div>
     <div class="quarto-category">string</div>
-    <div class="quarto-category">xgb</div>
+    <div class="quarto-category">random-forest</div>
     <div class="quarto-category">tune</div>
   </div>
   </div>
@@ -317,7 +317,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(d_train, <span class="at">v =</span> <span class="dv">5</span>))</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>1351.392 sec elapsed</code></pre>
+<pre><code>1353.989 sec elapsed</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -347,11 +347,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 5 × 8
    mtry min_n .metric .estimator  mean     n std_err .config              
   &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
-1     9    30 roc_auc binary     0.792     5 0.00401 Preprocessor1_Model08
-2    23     4 roc_auc binary     0.784     5 0.00381 Preprocessor1_Model01
-3    27    40 roc_auc binary     0.780     5 0.00335 Preprocessor1_Model02
-4    39    15 roc_auc binary     0.775     5 0.00321 Preprocessor1_Model04
-5    56     8 roc_auc binary     0.770     5 0.00348 Preprocessor1_Model06</code></pre>
+1     4    38 roc_auc binary     0.801     5 0.00530 Preprocessor1_Model01
+2    16     6 roc_auc binary     0.788     5 0.00300 Preprocessor1_Model02
+3    33    24 roc_auc binary     0.779     5 0.00301 Preprocessor1_Model10
+4    62    15 roc_auc binary     0.774     5 0.00215 Preprocessor1_Model06
+5    46    35 roc_auc binary     0.773     5 0.00202 Preprocessor1_Model08</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -367,7 +367,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>lastfit_rf <span class="ot">&lt;-</span> <span class="fu">fit</span>(wf_finalized, <span class="at">data =</span> d_train)</span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>14.077 sec elapsed</code></pre>
+<pre><code>6.621 sec elapsed</code></pre>
 </div>
 </div>
 </section>
@@ -379,7 +379,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(lastfit_rf, <span class="at">new_data =</span> d_test_baked)</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.324 sec elapsed</code></pre>
+<pre><code>0.295 sec elapsed</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -396,8 +396,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 3
   .metric  .estimator .estimate
   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
-1 accuracy binary         0.708
-2 f_meas   binary         0.304</code></pre>
+1 accuracy binary         0.691
+2 f_meas   binary         0.210</code></pre>
 </div>
 </div>
 </section>
@@ -872,11 +872,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">- tidymodels</span></span>
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">- sentiment</span></span>
 <span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">- string</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">- xgb</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">- random-forest</span></span>
 <span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co">- tune</span></span>
 <span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2023-12-03'</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> germeval03-sent-wordvec-xgb-plain</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> false   # DRAFT TRUE</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> germeval03-sent-wordvec-rf-plain</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> false   </span></span>
 <span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="an">eval:</span><span class="co"> true</span></span>
 <span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>

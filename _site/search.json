@@ -8675,106 +8675,204 @@
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "",
     "text": "Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering. Nutzen Sie außerdem deutsche Word-Vektoren für das Feature-Engineering.\nAls Lernalgorithmus verwenden Sie XGB.\nPreppen und Backen Sie das Rezept, aber führen Sie die Pipelien mit dem gebackenen Datensatz und einem “Plain-Rezept” durch.\n\n\nVerwenden Sie die GermEval-2018-Daten.\nDie Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),\nDie Daten sind auch über das R-Paket PradaData zu beziehen.\n\nlibrary(tidyverse)\ndata(\"germeval_train\", package = \"pradadata\")\ndata(\"germeval_test\", package = \"pradadata\")\n\n\n\n\nDie AV lautet c1. Die (einzige) UV lautet: text.\n\n\n\n\nOrientieren Sie sich im Übrigen an den allgemeinen Hinweisen des Datenwerks.\nNutzen Sie Tidymodels.\nNutzen Sie das sentiws Lexikon.\n❗ Achten Sie darauf, die Variable c2 zu entfernen bzw. nicht zu verwenden."
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#daten",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#daten",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "",
     "text": "Verwenden Sie die GermEval-2018-Daten.\nDie Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),\nDie Daten sind auch über das R-Paket PradaData zu beziehen.\n\nlibrary(tidyverse)\ndata(\"germeval_train\", package = \"pradadata\")\ndata(\"germeval_test\", package = \"pradadata\")"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#av-und-uv",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#av-und-uv",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "",
     "text": "Die AV lautet c1. Die (einzige) UV lautet: text."
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#hinweise",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#hinweise",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "",
     "text": "Orientieren Sie sich im Übrigen an den allgemeinen Hinweisen des Datenwerks.\nNutzen Sie Tidymodels.\nNutzen Sie das sentiws Lexikon.\n❗ Achten Sie darauf, die Variable c2 zu entfernen bzw. nicht zu verwenden."
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#setup",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#setup",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Setup",
     "text": "Setup\n\nd_train &lt;-\n  germeval_train |&gt; \n  select(id, c1, text)\n\n\nlibrary(tictoc)\nlibrary(tidymodels)\nlibrary(syuzhet)\nlibrary(beepr)\nlibrary(lobstr)  # object size\nlibrary(visdat)  # Fingerprint/footprint of dataset (CSV)\ndata(\"sentiws\", package = \"pradadata\")\n\nEine Vorlage für ein Tidymodels-Pipeline findet sich hier."
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#learnermodell-rf",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#learnermodell-rf",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Learner/Modell: RF",
     "text": "Learner/Modell: RF\n\nmod &lt;-\n  rand_forest(mode = \"classification\",\n           mtry = tune(), \n           min_n = tune()\n  )"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#gebackenen-datensatz-als-neue-grundlage",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#gebackenen-datensatz-als-neue-grundlage",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Gebackenen Datensatz als neue Grundlage",
     "text": "Gebackenen Datensatz als neue Grundlage\nWir importieren den schon an anderer Stelle aufbereiteten Datensatz. Das hat den Vorteil (hoffentlich), das die Datenvolumina viel kleiner sind. Die Arbeit des Feature Engineering wurde uns schon abgenommen.\n\nd_train &lt;-\n  read_csv(\"https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_train_recipe_wordvec_senti.csv\")\n\n\nvis_dat(d_train) +\n  # remove axis labels:\n  theme(axis.text.x=element_blank(),\n        axis.ticks.x=element_blank() \n        )\n\n\n\n\n\n\n\n\n\nd_test_baked &lt;- read_csv(\"https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_test_recipe_wordvec_senti.csv\")"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#plain-rezept",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#plain-rezept",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Plain-Rezept",
     "text": "Plain-Rezept\n\nrec &lt;- \n  recipe(c1 ~ ., data = d_train)"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#neuer-workflow-mit-plainem-rezept",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#neuer-workflow-mit-plainem-rezept",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Neuer Workflow mit plainem Rezept",
     "text": "Neuer Workflow mit plainem Rezept\n\nwf &lt;-\n  workflow() |&gt; \n  add_recipe(rec) |&gt; \n  add_model(mod)"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#parallelisierung-über-mehrere-kerne",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#parallelisierung-über-mehrere-kerne",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Parallelisierung über mehrere Kerne",
     "text": "Parallelisierung über mehrere Kerne\n\nlibrary(parallel)\nall_cores &lt;- detectCores(logical = FALSE)\n\nlibrary(doFuture)\nregisterDoFuture()\ncl &lt;- makeCluster(3)\nplan(cluster, workers = cl)\n\nAchtung: Viele Kerne brauchen auch viel Speicher."
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#tuneresamplefit",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#tuneresamplefit",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Tune/Resample/Fit",
-    "text": "Tune/Resample/Fit\n\ntic()\nfit_wordvec_senti_rf &lt;-\n  tune_grid(\n    wf,\n    grid = 10,\n    resamples = vfold_cv(d_train, v = 5))\ntoc()\n\n1351.392 sec elapsed\n\nbeep()\n\nModerate Größe:\n\nobj_size(fit_wordvec_senti_rf)\n\n5.05 MB"
+    "text": "Tune/Resample/Fit\n\ntic()\nfit_wordvec_senti_rf &lt;-\n  tune_grid(\n    wf,\n    grid = 10,\n    resamples = vfold_cv(d_train, v = 5))\ntoc()\n\n1353.989 sec elapsed\n\nbeep()\n\nModerate Größe:\n\nobj_size(fit_wordvec_senti_rf)\n\n5.05 MB"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#get-best-performance",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#get-best-performance",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Get best performance",
-    "text": "Get best performance\n\nautoplot(fit_wordvec_senti_rf)\n\n\n\n\n\n\n\n\n\nshow_best(fit_wordvec_senti_rf)\n\n# A tibble: 5 × 8\n   mtry min_n .metric .estimator  mean     n std_err .config              \n  &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                \n1     9    30 roc_auc binary     0.792     5 0.00401 Preprocessor1_Model08\n2    23     4 roc_auc binary     0.784     5 0.00381 Preprocessor1_Model01\n3    27    40 roc_auc binary     0.780     5 0.00335 Preprocessor1_Model02\n4    39    15 roc_auc binary     0.775     5 0.00321 Preprocessor1_Model04\n5    56     8 roc_auc binary     0.770     5 0.00348 Preprocessor1_Model06\n\n\n\nbest_params &lt;- select_best(fit_wordvec_senti_rf)"
+    "text": "Get best performance\n\nautoplot(fit_wordvec_senti_rf)\n\n\n\n\n\n\n\n\n\nshow_best(fit_wordvec_senti_rf)\n\n# A tibble: 5 × 8\n   mtry min_n .metric .estimator  mean     n std_err .config              \n  &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                \n1     4    38 roc_auc binary     0.801     5 0.00530 Preprocessor1_Model01\n2    16     6 roc_auc binary     0.788     5 0.00300 Preprocessor1_Model02\n3    33    24 roc_auc binary     0.779     5 0.00301 Preprocessor1_Model10\n4    62    15 roc_auc binary     0.774     5 0.00215 Preprocessor1_Model06\n5    46    35 roc_auc binary     0.773     5 0.00202 Preprocessor1_Model08\n\n\n\nbest_params &lt;- select_best(fit_wordvec_senti_rf)"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#finalisieren",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#finalisieren",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Finalisieren",
-    "text": "Finalisieren\n\nbest_params &lt;- select_best(fit_wordvec_senti_rf)\ntic()\nwf_finalized &lt;- finalize_workflow(wf, best_params)\nlastfit_rf &lt;- fit(wf_finalized, data = d_train)\ntoc()\n\n14.077 sec elapsed"
+    "text": "Finalisieren\n\nbest_params &lt;- select_best(fit_wordvec_senti_rf)\ntic()\nwf_finalized &lt;- finalize_workflow(wf, best_params)\nlastfit_rf &lt;- fit(wf_finalized, data = d_train)\ntoc()\n\n6.621 sec elapsed"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#test-set-güte",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#test-set-güte",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Test-Set-Güte",
-    "text": "Test-Set-Güte\n\ntic()\npreds &lt;-\n  predict(lastfit_rf, new_data = d_test_baked)\ntoc()\n\n0.324 sec elapsed\n\n\n\nd_test &lt;-\n  germeval_test |&gt; \n  bind_cols(preds) |&gt; \n  mutate(c1 = as.factor(c1))\n\nmy_metrics &lt;- metric_set(accuracy, f_meas)\nmy_metrics(d_test,\n           truth = c1,\n           estimate = .pred_class)\n\n# A tibble: 2 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy binary         0.708\n2 f_meas   binary         0.304"
+    "text": "Test-Set-Güte\n\ntic()\npreds &lt;-\n  predict(lastfit_rf, new_data = d_test_baked)\ntoc()\n\n0.295 sec elapsed\n\n\n\nd_test &lt;-\n  germeval_test |&gt; \n  bind_cols(preds) |&gt; \n  mutate(c1 = as.factor(c1))\n\nmy_metrics &lt;- metric_set(accuracy, f_meas)\nmy_metrics(d_test,\n           truth = c1,\n           estimate = .pred_class)\n\n# A tibble: 2 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy binary         0.691\n2 f_meas   binary         0.210"
   },
   {
     "objectID": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#fazit",
     "href": "posts/germeval-sent-wordvec-rf-plain/germeval-sent-wordvec-rf-plain.html#fazit",
-    "title": "germeval03-sent-wordvec-xgb-plain",
+    "title": "germeval03-sent-wordvec-rf-plain",
     "section": "Fazit",
     "text": "Fazit\nVerzichtet man auf ein Rezept mit viel Datenvolumen (Wordvektoren blähen das Rezept mächtig auf), so wird das Fitten schlanker und schneller. Schneller auch deshalb, weil ggf. kein Swapping zwischen Speicher und Festplatte mehr nötig ist."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "",
+    "text": "Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering. Nutzen Sie außerdem deutsche Word-Vektoren für das Feature-Engineering.\nAls Lernalgorithmus verwenden Sie XGB. Tunen Sie die Lernrate und die max. Tiefe (max_depth) des Modells.\n\n\nVerwenden Sie die GermEval-2018-Daten.\nDie Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),\nDie Daten sind auch über das R-Paket PradaData zu beziehen.\n\nlibrary(tidyverse)\ndata(\"germeval_train\", package = \"pradadata\")\ndata(\"germeval_test\", package = \"pradadata\")\n\n\n\n\nDie AV lautet c1. Die (einzige) UV lautet: text.\n\n\n\n\nOrientieren Sie sich im Übrigen an den allgemeinen Hinweisen des Datenwerks.\nNutzen Sie Tidymodels.\nNutzen Sie das sentiws Lexikon.\n❗ Achten Sie darauf, die Variable c2 zu entfernen bzw. nicht zu verwenden."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#daten",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#daten",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "",
+    "text": "Verwenden Sie die GermEval-2018-Daten.\nDie Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),\nDie Daten sind auch über das R-Paket PradaData zu beziehen.\n\nlibrary(tidyverse)\ndata(\"germeval_train\", package = \"pradadata\")\ndata(\"germeval_test\", package = \"pradadata\")"
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#av-und-uv",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#av-und-uv",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "",
+    "text": "Die AV lautet c1. Die (einzige) UV lautet: text."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#hinweise",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#hinweise",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "",
+    "text": "Orientieren Sie sich im Übrigen an den allgemeinen Hinweisen des Datenwerks.\nNutzen Sie Tidymodels.\nNutzen Sie das sentiws Lexikon.\n❗ Achten Sie darauf, die Variable c2 zu entfernen bzw. nicht zu verwenden."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#setup",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#setup",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Setup",
+    "text": "Setup\n\nd_train &lt;-\n  germeval_train |&gt; \n  select(id, c1, text)\n\n\nlibrary(tictoc)\nlibrary(tidymodels)\n#library(syuzhet)\nlibrary(beepr)\nlibrary(finetune)  # anova race\nlibrary(lobstr)  # object size\nlibrary(visdat)  # footprint of csv\n#data(\"sentiws\", package = \"pradadata\")\n\nEine Vorlage für ein Tidymodels-Pipeline findet sich hier."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#learnermodell",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#learnermodell",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Learner/Modell",
+    "text": "Learner/Modell\n\nmod &lt;-\n  boost_tree(mode = \"classification\",\n             learn_rate = tune(), \n             tree_depth = tune()\n             )"
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#gebackenen-datensatz-als-neue-grundlage",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#gebackenen-datensatz-als-neue-grundlage",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Gebackenen Datensatz als neue Grundlage",
+    "text": "Gebackenen Datensatz als neue Grundlage\nWir importieren den schon an anderer Stelle aufbereiteten Datensatz. Das hat den Vorteil (hoffentlich), das die Datenvolumina viel kleiner sind. Die Arbeit des Feature Engineering wurde uns schon abgenommen.\n\nd_train &lt;-\n  read_csv(\"https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_train_recipe_wordvec_senti.csv\")\n\nRows: 5009 Columns: 121\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr   (1): c1\ndbl (120): id, emo_count, schimpf_count, emoji_count, textfeature_text_copy_...\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\n\n\nvis_dat(d_train) +\n  # remove axis labels:\n  theme(axis.text.x=element_blank(),\n        axis.ticks.x=element_blank() \n        )\n\n\n\n\n\n\n\n\n\nd_test_baked &lt;- read_csv(\"https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_test_recipe_wordvec_senti.csv\")\n\nRows: 3532 Columns: 121\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr   (1): c1\ndbl (120): id, emo_count, schimpf_count, emoji_count, textfeature_text_copy_...\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#plain-rezept",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#plain-rezept",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Plain-Rezept",
+    "text": "Plain-Rezept\n\nrec &lt;- \n  recipe(c1 ~ ., data = d_train)"
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#neuer-workflow-mit-plainem-rezept",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#neuer-workflow-mit-plainem-rezept",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Neuer Workflow mit plainem Rezept",
+    "text": "Neuer Workflow mit plainem Rezept\n\nwf &lt;-\n  workflow() |&gt; \n  add_recipe(rec) |&gt; \n  add_model(mod)"
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#parallelisierung-über-mehrere-kerne",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#parallelisierung-über-mehrere-kerne",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Parallelisierung über mehrere Kerne",
+    "text": "Parallelisierung über mehrere Kerne\n\nlibrary(parallel)\nall_cores &lt;- detectCores(logical = FALSE)\n\nlibrary(doFuture)\n\nLoading required package: foreach\n\n\n\nAttaching package: 'foreach'\n\n\nThe following objects are masked from 'package:purrr':\n\n    accumulate, when\n\n\nLoading required package: future\n\nregisterDoFuture()\ncl &lt;- makeCluster(3)\nplan(cluster, workers = cl)\n\nAchtung: Viele Kerne brauchen auch viel Speicher."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#tuneresamplefit",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#tuneresamplefit",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Tune/Resample/Fit",
+    "text": "Tune/Resample/Fit\n\ntic()\nfit_wordvec_senti_xgb &lt;-\n  tune_race_anova(\n    wf,\n    grid = 30,\n    resamples = vfold_cv(d_train, v = 5),\n    control = control_race(verbose_elim = TRUE))\n\nℹ Racing will maximize the roc_auc metric.\nℹ Resamples are analyzed in a random order.\nℹ Fold5: 23 eliminated; 7 candidates remain.\n\nℹ Fold4: 2 eliminated; 5 candidates remain.\n\ntoc()\n\n186.332 sec elapsed\n\nbeep()\n\nObjekt-Größe:\n\nlobstr::obj_size(fit_wordvec_senti_xgb)\n\n5.10 MB\n\n\nGroß!\nWie wir gesehen haben, ist das Rezept riesig."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#get-best-performance",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#get-best-performance",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Get best performance",
+    "text": "Get best performance\n\nautoplot(fit_wordvec_senti_xgb)\n\n\n\n\n\n\n\n\n\nshow_best(fit_wordvec_senti_xgb)\n\nWarning: No value of `metric` was given; metric 'roc_auc' will be used.\n\n\n# A tibble: 5 × 8\n  tree_depth learn_rate .metric .estimator  mean     n std_err .config          \n       &lt;int&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;            \n1          7     0.255  roc_auc binary     0.765     5 0.00862 Preprocessor1_Mo…\n2         11     0.292  roc_auc binary     0.760     5 0.00859 Preprocessor1_Mo…\n3          9     0.126  roc_auc binary     0.756     5 0.00662 Preprocessor1_Mo…\n4          8     0.0796 roc_auc binary     0.755     5 0.00570 Preprocessor1_Mo…\n5         10     0.213  roc_auc binary     0.754     5 0.00628 Preprocessor1_Mo…\n\nbest_params &lt;- select_best(fit_wordvec_senti_xgb)\n\nWarning: No value of `metric` was given; metric 'roc_auc' will be used."
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#finalisieren",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#finalisieren",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Finalisieren",
+    "text": "Finalisieren\n\nbest_params &lt;- select_best(fit_wordvec_senti_xgb)\n\nWarning: No value of `metric` was given; metric 'roc_auc' will be used.\n\ntic()\nwf_finalized &lt;- finalize_workflow(wf, best_params)\nlastfit_xgb &lt;- fit(wf_finalized, data = d_train)\ntoc()\n\n1.997 sec elapsed"
+  },
+  {
+    "objectID": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#test-set-güte",
+    "href": "posts/germeval-sent-wordvec-xgb-tune/germeval-sent-wordvec-xgb-tune.html#test-set-güte",
+    "title": "germeval03-sent-wordvec-xgb-tune",
+    "section": "Test-Set-Güte",
+    "text": "Test-Set-Güte\n\ntic()\npreds &lt;-\n  predict(lastfit_xgb, new_data = d_test_baked)\ntoc()\n\n0.219 sec elapsed\n\n\n\nd_test &lt;-\n  d_test_baked |&gt; \n  bind_cols(preds) |&gt; \n  mutate(c1 = as.factor(c1))\n\n\nmy_metrics &lt;- metric_set(accuracy, f_meas)\nmy_metrics(d_test,\n           truth = c1,\n           estimate = .pred_class)\n\n# A tibble: 2 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy binary         0.715\n2 f_meas   binary         0.479"
   }
 ]

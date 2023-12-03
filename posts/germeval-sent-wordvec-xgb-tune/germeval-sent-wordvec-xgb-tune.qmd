@@ -14,8 +14,10 @@ categories:
 - tune
 date: '2023-12-03'
 title: germeval03-sent-wordvec-xgb-tune
-draft: true   # DRAFT TRUE
-eval: false
+draft: false   # DRAFT TRUE
+eval: true
+execute:
+  cache: true
 ---
 
 
@@ -29,6 +31,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
                       echo = TRUE,  # ECHO IS FALSE!!!
                       message = FALSE,
                       warning = FALSE,
+                      # cache = TRUE,
                       fig.show = "hold")
 
 options(max.print = 10)
@@ -93,20 +96,22 @@ Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 
 ## Setup
 
-```{r}
+```{r d-train}
 d_train <-
   germeval_train |> 
   select(id, c1, text)
 ```
 
 
-```{r}
+```{r libs}
 library(tictoc)
 library(tidymodels)
-library(syuzhet)
+#library(syuzhet)
 library(beepr)
+library(finetune)  # anova race
 library(lobstr)  # object size
-data("sentiws", package = "pradadata")
+library(visdat)  # footprint of csv
+#data("sentiws", package = "pradadata")
 ```
 
 
@@ -124,63 +129,58 @@ mod <-
              )
 ```
 
-## Rezept
 
-Pfad zu den Wordvektoren:
 
-```{r}
-path_wordvec <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/part-0.arrow"
+## Gebackenen Datensatz als neue Grundlage
+
+Wir importieren den schon an anderer Stelle aufbereiteten Datensatz.
+Das hat den Vorteil (hoffentlich), das die Datenvolumina viel kleiner sind.
+Die Arbeit des Feature Engineering wurde uns schon abgenommen.
+
+```{r import-train-data}
+d_train <-
+  read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_train_recipe_wordvec_senti.csv")
+```
+
+
+```{r vis-dat}
+vis_dat(d_train) +
+  # remove axis labels:
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank() 
+        )
 ```
 
 
 
-```{r}
-source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_recipe_wordvec_senti.R")
-
-rec <- def_recipe_wordvec_senti(data_train = d_train,
-                                path_wordvec = path_wordvec)
-```
-
-
-
-## Workflow
-
-```{r source-def-wf}
-source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_wf.R")
-wf <- def_wf()
-```
-
-
-## Check
-
-```{r prep-rec}
-tic()
-rec_prepped <- prep(rec)
-toc()
-
-rec_prepped
-```
 
 
 ```{r}
-obj_size(rec_prepped)
+d_test_baked <- read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_test_recipe_wordvec_senti.csv")
 ```
 
-Groß!
 
-
-
-
-```{r bake}
-d_rec_baked <- bake(rec_prepped, new_data = NULL)
-
-head(d_rec_baked)
-```
-
+## Plain-Rezept
 
 ```{r}
-sum(is.na(d_rec_baked))
+rec <- 
+  recipe(c1 ~ ., data = d_train)
 ```
+
+
+
+
+## Neuer Workflow mit plainem Rezept
+
+```{r wf-new}
+wf <-
+  workflow() |> 
+  add_recipe(rec) |> 
+  add_model(mod)
+```
+
+
+
 
 
 ## Parallelisierung über mehrere Kerne
@@ -191,24 +191,26 @@ all_cores <- detectCores(logical = FALSE)
 
 library(doFuture)
 registerDoFuture()
-cl <- makeCluster(2)
+cl <- makeCluster(3)
 plan(cluster, workers = cl)
 ```
 
 
+Achtung: Viele Kerne brauchen auch viel Speicher.
 
 ## Tune/Resample/Fit
+
 
 
 
 ```{r fit}
 tic()
 fit_wordvec_senti_xgb <-
-  tune_grid(
+  tune_race_anova(
     wf,
-    grid = 10,
+    grid = 30,
     resamples = vfold_cv(d_train, v = 5),
-    data = d_train)
+    control = control_race(verbose_elim = TRUE))
 toc()
 beep()
 ```
@@ -235,12 +237,9 @@ autoplot(fit_wordvec_senti_xgb)
 ```
 
 
-```{r}
+```{r best-params}
 show_best(fit_wordvec_senti_xgb)
-```
 
-
-```{r}
 best_params <- select_best(fit_wordvec_senti_xgb)
 ```
 
@@ -262,14 +261,14 @@ toc()
 ```{r predict}
 tic()
 preds <-
-  predict(lastfit_xgb, new_data = germeval_test)
+  predict(lastfit_xgb, new_data = d_test_baked)
 toc()
 ```
 
 
 ```{r bind-cols}
 d_test <-
-  germeval_test |> 
+  d_test_baked |> 
   bind_cols(preds) |> 
   mutate(c1 = as.factor(c1))
 ```
