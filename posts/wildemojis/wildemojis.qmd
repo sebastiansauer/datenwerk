@@ -1,0 +1,174 @@
+---
+date: today
+draft: true   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: wildemojis  # ACHTUNG: HIER NAMEN DER AUFGABE ANGEBEN
+
+execute: 
+  eval: false 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- emojis  # ENTER CATEGORIES HERE
+- nlp
+- textmining
+- germeval
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Zählen Sie die "wilden Emojis" im Datensatz `germeval`.
+
+Nutzen Sie das entsprechende Lexikon aus `pradadata`. 
+
+
+Verwenden Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+data("germeval_train", package = "pradadata")
+data("germeval_test", package = "pradadata")
+```
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Tidymodels.
+- Nutzen Sie das `sentiws` Lexikon.
+- ❗ Achten Sie darauf, die Variable `c2` zu entfernen bzw. nicht zu verwenden.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+# Setup
+
+
+```{r}
+library(tictoc)
+library(tidymodels)
+library(tidyverse)
+library(syuzhet)
+library(textfeatures)
+library(textrecipes)
+data("wild_emojis", package = "pradadata")
+```
+
+
+Check:
+
+```{r}
+wild_emojis
+```
+
+
+
+
+```{r}
+d_train <-
+  germeval_train |> 
+  select(id, c1, text)
+```
+
+Ein Emo-Lexicon braucht eine Spalte `value` und eine Spalte `word`:
+
+```{r}
+wild_emojis$word <- wild_emojis$emoji
+wild_emojis$value <- 1
+
+wild_emojis <- 
+wild_emojis |> 
+  mutate(unicode = str_detect(emoji, emoji))
+wild_emojis$unicode[7]
+```
+
+
+# Feature Engineering
+
+Wir erstellen die Spalte `wildemojis_n`, die die Anzahl `n` "wilder" Emojis pro Tweet zählt:
+
+
+```{r}
+tic()
+d_train_emojis <- 
+  d_train |> 
+  mutate(wildemojis_n = get_sentiment(text,
+                                      method = "custom",
+                                      lexicon = wild_emojis))
+toc()
+```
+
+
+Check:
+
+```{r}
+d_train_emojis |> 
+  count(wildemojis_n)
+```
+
+Keine.
+
+# Check
+
+
+```{r}
+txt <- c("🧑‍🎓 😄 🥳 Test", "🔫", "Test 🔫", "🔫 🔫", "🔪 Test 🔪🔪")
+```
+
+
+
+```{r}
+txt |> count_lexicon(wild_emojis)
+```
+
+
+Oh nein! Ein Bug. Hier ist noch Arbeit nötig.

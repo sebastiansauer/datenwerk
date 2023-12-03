@@ -1,0 +1,262 @@
+---
+exname: germeval03-sent-wrodvec-xgb
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- datawrangling
+- germeval
+- prediction
+- tidymodels
+- sentiment
+- string
+- xgb
+date: '2023-12-01'
+title: germeval03-sent-wordvec-xgb
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+options(max.print = 10)
+options(rstudio.help.showDataPreview = FALSE)
+```
+
+
+
+# Aufgabe
+
+Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
+Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
+
+Als Lernalgorithmus verwenden Sie XGB.
+
+Verwenden Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+data("germeval_train", package = "pradadata")
+data("germeval_test", package = "pradadata")
+```
+
+Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Tidymodels.
+- Nutzen Sie das `sentiws` Lexikon.
+- ❗ Achten Sie darauf, die Variable `c2` zu entfernen bzw. nicht zu verwenden.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+d_train <-
+  germeval_train |> 
+  select(id, c1, text)
+```
+
+
+```{r}
+library(tictoc)
+library(tidymodels)
+library(syuzhet)
+library(beepr)
+library(lobstr)  # object size
+data("sentiws", package = "pradadata")
+```
+
+
+Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
+
+
+
+## Learner/Modell
+
+```{r}
+mod <-
+  boost_tree(mode = "classification",
+             learn_rate = .01, 
+             tree_depth = 5
+             )
+```
+
+## Rezept
+
+Pfad zu den Wordvecktoren:
+
+```{r}
+path_wordvec <- "/Users/sebastiansaueruser/datasets/word-embeddings/wikipedia2vec/part-0.arrow"
+```
+
+
+
+```{r}
+source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_recipe_wordvec_senti.R")
+
+rec <- def_recipe_wordvec_senti(data_train = d_train,
+                                path_wordvec = path_wordvec)
+```
+
+
+
+## Workflow
+
+```{r source-def-wf}
+source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_df.R")
+wf <- def_wf()
+
+wf
+```
+
+
+## Check
+
+```{r prep-rec}
+tic()
+rec_prepped <- prep(rec)
+toc()
+
+rec_prepped
+```
+
+
+```{r}
+obj_size(rec_prepped)
+```
+
+Groß!
+
+
+```{r}
+tidy(rec_prepped)
+```
+
+
+
+```{r bake}
+d_rec_baked <- bake(rec_prepped, new_data = NULL)
+
+head(d_rec_baked)
+```
+
+
+```{r}
+sum(is.na(d_rec_baked))
+```
+
+```{r}
+obj_size(d_rec_baked)
+```
+
+
+
+## Fit
+
+```{r fit}
+tic()
+fit_wordvec_senti_xgb <-
+  fit(wf,
+      data = d_train)
+toc()
+beep()
+```
+
+
+```{r}
+fit_wordvec_senti_xgb
+```
+
+Objekt-Größe:
+
+```{r}
+lobstr::obj_size(fit_wordvec_senti_xgb)
+```
+
+
+Groß!
+
+Wie wir gesehen haben, ist das Rezept riesig.
+
+
+```{r}
+library(butcher)
+out <- butcher(fit_wordvec_senti_xgb)
+lobstr::obj_size(out)
+```
+
+
+
+## Test-Set-Güte
+
+
+Vorhersagen im Test-Set:
+
+```{r predict}
+tic()
+preds <-
+  predict(fit_wordvec_senti_xgb, new_data = germeval_test)
+toc()
+```
+
+Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
+
+```{r}
+d_test <-
+  germeval_test |> 
+  bind_cols(preds) |> 
+  mutate(c1 = as.factor(c1))
+```
+
+
+
+```{r metrics}
+my_metrics <- metric_set(accuracy, f_meas)
+my_metrics(d_test,
+           truth = c1,
+           estimate = .pred_class)
+```
+
+
+
+
+
+
+
+
+
+
