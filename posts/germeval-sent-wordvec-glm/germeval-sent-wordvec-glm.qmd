@@ -10,10 +10,9 @@ categories:
 - tidymodels
 - sentiment
 - string
-- random-forest 
 - tune
-date: '2023-12-04'
-title: germeval03-sent-wordvec-rf-tune
+date: '2023-12-05'
+title: germeval03-sent-wordvec-glm
 draft: false  
 eval: true
 execute:
@@ -45,8 +44,7 @@ options(rstudio.help.showDataPreview = FALSE)
 Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
 Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
 
-Als Lernalgorithmus verwenden Sie Random Forest (Ranger). Tunen Sie `mtry` und `min_n`.
-
+Als Lernalgorithmus verwenden Sie eine einfache logistische Regression, d.h. ohne Tuning-Parameter. 
 
 
 ## Daten
@@ -96,22 +94,21 @@ Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 
 ## Setup
 
+Train-Datensatz:
+
 ```{r d-train}
 d_train <-
   germeval_train |> 
   select(id, c1, text)
 ```
 
+Pakete:
 
 ```{r libs}
 library(tictoc)
 library(tidymodels)
-#library(syuzhet)
 library(beepr)
 library(finetune)  # anova race
-library(lobstr)  # object size
-library(visdat)  # footprint of csv
-#data("sentiws", package = "pradadata")
 ```
 
 
@@ -123,10 +120,8 @@ Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://datenwerk.n
 
 ```{r}
 mod <-
-  rand_forest(mode = "classification",
-             mtry =  tune(), 
-             min_n = tune()
-             )
+  logistic_reg(mode = "classification"
+  )
 ```
 
 
@@ -138,39 +133,60 @@ Das hat den Vorteil (hoffentlich), das die Datenvolumina viel kleiner sind.
 Die Arbeit des Feature Engineering wurde uns schon abgenommen.
 
 ```{r import-train-data}
-d_train <-
+d_train_raw <-
   read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_train_recipe_wordvec_senti.csv")
 ```
 
 
-```{r vis-dat}
-vis_dat(d_train) +
-  # remove axis labels:
-  theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank() 
-        )
+
+
+```{r}
+d_test_baked_raw <- read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_test_recipe_wordvec_senti.csv")
 ```
 
 
+## Keine Dummysierung der AV
+
+Lineare Modelle müssen dummysiert sein. Rezepte wollen das nicht so gerne für die AV besorgen. 
+
+ABER: Klassifikationsmodelle in Tidymodels (parsnip) benötigen eine Variable vom Typ *factor*  als AV, sonst werden sie nicht als Klassifikation erkannt.
+
+```{r}
+d_train <-
+  d_train_raw |> 
+  mutate(c1 = as.factor(c1)) 
+
+levels(d_train$c1)
+```
+
+Tidymodels modelliert die *erste* Stufe, nicht die zweite, wie Base-R `glm`.
 
 
 
 ```{r}
-d_test_baked <- read_csv("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/data/germeval/germeval_test_recipe_wordvec_senti.csv")
+d_test_baked <-
+  d_test_baked_raw |> 
+  mutate(c1 = as.factor(c1)) 
+
+levels(d_test_baked$c1)
 ```
 
 
-## Plain-Rezept
+
+
+## Dummy-Rezept
+
+Plain, aber mit Dummyisierung:
 
 ```{r}
 rec <- 
-  recipe(c1 ~ ., data = d_train)
+  recipe(c1 ~ ., data = d_train) 
 ```
 
 
 
 
-## Neuer Workflow mit plainem Rezept
+##  Workflow
 
 ```{r wf-new}
 wf <-
@@ -183,72 +199,18 @@ wf <-
 
 
 
-## Parallelisierung über mehrere Kerne
-
-```{r}
-library(parallel)
-all_cores <- detectCores(logical = FALSE)
-
-library(doFuture)
-registerDoFuture()
-cl <- makeCluster(3)
-plan(cluster, workers = cl)
-```
-
-
-Achtung: Viele Kerne brauchen auch viel Speicher.
-
 ## Tune/Resample/Fit
 
 
 
 
 ```{r fit}
-tic()
-fit_wordvec_senti_rf <-
-  tune_race_anova(
-    wf,
-    grid = 50,
-    resamples = vfold_cv(d_train, v = 5),
-    control = control_race(verbose_elim = TRUE))
-toc()
-beep()
+fit_train <-
+  fit(wf,
+      data = d_train)
 ```
 
 
-
-Objekt-Größe:
-
-```{r}
-lobstr::obj_size(fit_wordvec_senti_rf)
-```
-
-
-
-## Beste Performance
-
-```{r}
-autoplot(fit_wordvec_senti_rf)
-```
-
-
-```{r best-params}
-show_best(fit_wordvec_senti_rf)
-
-best_params <- select_best(fit_wordvec_senti_rf)
-```
-
-
-## Finalisieren
-
-
-```{r finalize-wf}
-best_params <- select_best(fit_wordvec_senti_rf)
-tic()
-wf_finalized <- finalize_workflow(wf, best_params)
-lastfit_rf <- fit(wf_finalized, data = d_train)
-toc()
-```
 
 
 ## Test-Set-Güte
@@ -256,7 +218,7 @@ toc()
 ```{r predict}
 tic()
 preds <-
-  predict(lastfit_rf, new_data = d_test_baked)
+  predict(fit_train, new_data = d_test_baked)
 toc()
 ```
 
