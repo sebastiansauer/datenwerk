@@ -1,0 +1,155 @@
+---
+date: today
+draft: TRUE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: Wskt-Schluckspecht 
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- post  # ENTER CATEGORIES HERE
+- bayes
+- regression
+
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Prüfen Sie folgende Hypothese:
+
+>    Autos mit viel PS haben einen höheren Spritverbrauch als Autos mit wenig PS.
+
+
+Quantifizieren Sie die Wahrscheinlichkeit dieser Hypothese!
+
+Hinweise:
+
+- "viel PS" definieren wir als "mehr als der Median".
+- Verwenden Sie den Datensatz `mtcars`.
+- Nutzen Sie die Bayes-Statistik mit `Stan`. 
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Setup
+
+```{r}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+```
+
+```{r}
+data(mtcars)
+```
+
+
+## Modell
+
+Die Hypothese kann man wie folgt formalisieren:
+
+$$\text{mpg}_{PS=0} > \text{mpg}_{PS=1}$$,
+
+wobei $PS=0$ die Autos mit wenig PS meint.
+
+
+## Vorverarbeitung
+
+
+```{r}
+mtcars <-
+  mtcars |> 
+  mutate(PS = case_when(
+    mpg > median(mpg) ~ 1,
+    mpg <= median(mpg) ~ 0
+  ))
+```
+
+
+## Modell berechnen
+
+```{r}
+m <- stan_glm(mpg ~ PS,
+              data = mtcars,
+              refresh = 0,
+              seed = 42)
+```
+
+
+```{r}
+parameters(m)
+```
+
+
+
+
+## Post-Verteilung auslesen
+
+```{r}
+m_post <-
+  m |>
+  as_tibble()
+
+prop <- 
+m_post |> 
+  count(PS >= 0) |> 
+  mutate(prop = n/sum(n))
+
+prop
+```
+
+
+```{r}
+#| echo: false
+sol <- prop |> filter(`PS >= 0` == TRUE) |> pull(prop) |> round(2)
+```
+
+
+## Antwort
+
+Laut unserem Modell beträgt die Wahrscheinlichkeit für obige Hypothese `r sol`.
