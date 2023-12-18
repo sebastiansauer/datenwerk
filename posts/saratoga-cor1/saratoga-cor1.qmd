@@ -1,0 +1,123 @@
+---
+date: 2023-12-18  # HEUTIGES DATUM EINTRAGEN
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: saratoga-cor1  # ACHTUNG: HIER NAMEN DER AUFGABE ANGEBEN
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- r  # ENTER CATEGORIES HERE
+- dataviz
+- causal
+- eda
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Importieren Sie den Datensatz `saratoga`. 
+
+Gruppieren Sie den Datensatz in die Quartile für `livingArea`.
+
+
+
+Berechnen Sie dann den Zusammenhang zwischen `price` und `bedrooms` *pro Quartil* von `livingArea`.
+
+
+
+Hinweise:
+
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Tipp: Die Funktion `ntile` aus `{dplyr}` teilt eine Variable `var` in Quartile auf, wenn Sie schreiben `ntile(var, 4)`.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+
+```{r}
+data("SaratogaHouses", package = "mosaicData")
+```
+
+
+
+
+## Gruppieren
+
+```{r}
+d2 <-
+  SaratogaHouses |> 
+  mutate(q = ntile(livingArea, 4)) |> 
+  group_by(q)
+```
+
+
+## Statistiken
+
+```{r}
+d2 |> 
+  summarise(korrelation = cor(bedrooms, price))
+```
+
+
+## Visualisierung
+
+
+```{r}
+ggscatter(d2, 
+          x = "bedrooms",
+          y = "price",
+          facet.by = "q",
+          add = "reg.line")
+```
+
