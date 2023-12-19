@@ -1,0 +1,126 @@
+---
+date: 2023-12-19  # HEUTIGES DATUM EINTRAGEN
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: hintertuer  # ACHTUNG: HIER NAMEN DER AUFGABE ANGEBEN
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- causal  # ENTER CATEGORIES HERE
+
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+Wir wollen hier den (kausalen) Einfluss der Eltern `E` und Großeltern `G` auf den *Bildungserfolg* der Kinder `K` untersuchen.
+
+Wir nehmen folgende Effekte an:
+
+- indirekter Effekt von `G` auf `K`: $G \rightarrow E \rightarrow K$
+- direkter Effekt von `E` auf `K`: $E \rightarrow K$
+- direkter Effekt von `G` auf `K`: $G \rightarrow K$
+
+
+Wir sind v.a. interessiert an $G \rightarrow K$, dem *direkten kausalen* Effekt von Großeltern auf ihre Enkel, s. @fig-dag-grannies, $G \rightarrow K$.
+
+
+
+```{r}
+#| echo: false
+#| label: fig-dag-grannies
+#| fig-cap: "Der kausale Effekt von Großeltern auf Enkel hinsichtlich Bildung."
+
+coll4_dag <-
+  dagitty("dag
+          {
+          G -> E
+          E -> K
+          G -> K
+          U -> E
+          U -> K
+          }
+          ")
+
+dag_coords <-
+  tibble(name = c("G", "E", "K", "U"),
+         x    = c(1, 2, 2, 2.5),
+         y    = c(2, 2, 1, 1.5))
+
+dagify(E ~ G + U,
+       K ~ E + G + U,
+       coords = dag_coords) |> 
+  ggdag() +
+  theme_dag()
+```
+
+
+*Aufgabe*: Geben Sie das minimale Adjustierungsset an, um den *direkten* kausalen Effekt von `G` auf `K` zu identifizieren.
+
+Hinweise:
+
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+Es ist keine Adjustierung nötig, um nicht-kausale Pfade zu schließen.
+Alle nicht-kausalen Pfade sind bereits geschlossen.
+
+Ist man am *direkten* Effekt von `G` auf `K` interessiert, so muss man folgende Variablen kontrollieren:
+
+- E
+- U
+
+
+
+Falls man `U` nicht kontrollieren kann (was der Namen `U` andeutet), so ist der gesuchte kausale Effekt nicht idenfizierbar.
+
+
