@@ -1,5 +1,5 @@
 ---
-date: 20123-12-05 
+date: 2023-12-05 
 draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
 title: chatgpt-sentiment-loop
 execute: 
@@ -104,6 +104,7 @@ Module importieren:
 from openai import OpenAI
 import pandas as pd
 import time 
+import tiktoken  # Token zählen
 ```
 
 Versionen der importierten Module:
@@ -158,6 +159,39 @@ Check: Wie viele Elemente hat die Liste `prompts`?
 ```{python}
 len(prompts)
 ```
+
+
+
+
+Check: Wie viele Tokens hat jeder String (jeder Prompt)?
+
+Wir definieren eine Helper-Funktion:
+
+```{python}
+def count_tokens(string: str, encoding_name: str) -> int:
+    encoding = tiktoken.get_encoding(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
+```
+
+
+Und zählen:
+
+```{python}
+encoding_name = "cl100k_base"
+
+num_tokens_list = [count_tokens(prompt, encoding_name) for prompt in prompts]
+
+for i, num_tokens in enumerate(num_tokens_list):
+    print(f"The number of tokens in Prompt {[i]} is {num_tokens}.")
+```
+
+
+Mehr Infos zum Encoding bei ChatGPT finden sich [hier](https://stackoverflow.com/questions/75804599/openai-api-how-do-i-count-tokens-before-i-send-an-api-request).
+
+Laut OpenAI kostet 1k Token für das Modell `gpt-3.5-turbo-1106` `$0.001`.
+
+
 
 
 
