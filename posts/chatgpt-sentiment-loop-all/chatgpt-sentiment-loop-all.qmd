@@ -1,0 +1,297 @@
+---
+date: 2023-12-20
+draft: TRUE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: chatgpt-sentiment-loop-all
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+extype: string
+exsolution: ""
+categories:
+- textmining
+- nlp
+- transformer
+- chatgpt
+- sentiment
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Fragen Sie ChatGPT via API zum Sentiment der Texte aus dem Germeval-2018-Datensatz (Test).
+
+
+Hinweise:
+
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie Python, nicht R.
+- Das Verwenden der OpenAI-API kostet Geld. 💸 Informieren Sie sich vorab über die [Preise von OpenAI](https://openai.com/pricing). Um auf die API zugreifen zu können, müssen Sie sich ein Konto angelegt haben und über ein Guthaben verfügen. Sie können unter <https://platform.openai.com/usage> Ihre Kosten prüfen.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Achtung
+
+::: {.callout-attention}
+OpenAI hat eine neue API (Stand: 2023-11-23), V1.3.5. Der Code der alten API bricht. 💔 $\square$
+:::
+
+## Setup
+
+
+Die richtige venv nutzen:
+
+```{r venv}
+library(reticulate)
+#virtualenv_create("chatgpt")
+use_virtualenv("chatgpt")
+```
+
+
+Check zu Python:
+
+```{r}
+reticulate::py_config()
+```
+
+Ggf. noch Module installieren:
+
+```{r}
+#reticulate::py_install("pandas")
+#py_install("tiktoken")
+#py_install("datar")
+```
+
+
+## Module
+
+Module importieren:
+
+```{python libs}
+from openai import OpenAI
+import pandas as pd
+import numpy as np
+import time
+from datetime import datetime
+```
+
+Versionen der importierten Module:
+
+```{python py-version}
+pd.__version__
+```
+
+
+```{zsh openai-version-zsh}
+#| echo: fenced
+pip list | grep openai
+```
+
+
+Wir brauchen `>= 1.35`.
+
+Der Operator `|` ist die "Pfeife" der Kommandozeile, also sozusagen der "UND-DANN-Befehl".
+
+
+## Daten
+
+Daten importieren:
+
+```{python import-data}
+csv_file_path_test = 'https://github.com/sebastiansauer/pradadata/raw/master/data-raw/germeval_test.csv'
+
+germeval_test = pd.read_csv(csv_file_path_test)
+```
+
+
+Die ersten paar Texte herausziehen:
+
+```{python tweets-tolist}
+start_pos = 0
+end_pos = 3531
+tweets = germeval_test["text"].iloc[start_pos:(end_pos+1)].tolist()
+```
+
+
+## Prompt
+
+Prompt definieren:
+
+```{python}
+prompt_stem  = "Als KI mit Exertise in natürlicher Sprache und Emotionserkennung ist es Ihre Aufgabe, das Sentiment des folgenden Textes einzuschätzen. Bitte antworten Sie nur mit einem einzigen Wort, entweder 'positiv', 'neutral' oder 'negativ'. Ihre Antwort soll Ihre Insgesamt-Einschätzung zum Sentiments des Textes zusammenfassen. Nach dem Doppelpunkt folgt der Text, dessen Sentiment Sie einschätzen sollen: "
+```
+
+Gute Prompts können helfen, gute Antworten vom Modell zu erhalten.
+
+
+
+Mit "List Comprehension" können wir die Tweets jeweils mit dem Prompt verknüpfen:
+
+```{python prompt-list}
+prompts = [prompt_stem + tweet for tweet in tweets]
+prompts[0]
+```
+
+Check: Wie viele Elemente hat die Liste `prompts`?
+
+```{python}
+len(prompts)
+```
+
+
+
+Laut OpenAI kostet 1k Token für das Modell `gpt-3.5-turbo-1106` $0.001.
+
+
+## Authentifizieren
+
+Anmelden bei OpenAI:
+
+```{python openai-auth}
+client = OpenAI()
+```
+
+
+::: {.callout-note}
+Dieses Anmeldeverfahren setzt voraus, dass in `.Renviron` die Variable `OPENAI_API_KEY` hinterlegt ist. $\square$
+:::
+
+
+
+
+
+
+Anfrage an die API, in eine Funktion gepackt:
+
+```{python fun-ask-chatgpt}
+def get_completion(prompt, client_instance, model="gpt-3.5-turbo"):
+  messages = [{"role": "user", "content": prompt}]
+  response = client_instance.chat.completions.create(
+    model=model,
+    messages=messages,
+    max_tokens=50,
+    temperature=0,
+  )
+  return response.choices[0].message.content
+```
+
+
+## API anfragen
+
+Und jetzt als Schleife. Ergebnisliste anlegen, am Anfang noch leer:
+
+```{python}
+predicted_values = []
+```
+
+
+```{python ask-api}
+start_time = time.time()
+
+for prompt in prompts:
+  result = get_completion(prompt, client) 
+  predicted_values.append(result)
+
+end_time = time.time()
+end_time - start_time
+```
+
+Voilà:
+
+
+```{python}
+print(predicted_values[:5])
+```
+
+## Als CSV speichern
+
+```{python save-csv}
+id_seq = [i for i in range(start_pos, end_pos + 1)]
+predicted_values_df = pd.DataFrame(id_seq, columns = ["id"])
+predicted_values_df["pred"] = predicted_values
+
+now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+csv_output_name = "germeval_test_preds_at_" + now
+predicted_values_df.to_csv(csv_output_name)
+```
+
+
+
+# Scoring
+
+Was waren noch mal die Variablen unser Tabelle?
+
+```{python}
+germeval_test.columns
+```
+
+Die ersten paar Werte:
+
+```{python}
+germeval_test.head()
+```
+
+
+```{python rescore}
+df = germeval_test
+df["c1"] = df["c1"].replace({"OFFENSE": "negativ"})
+df.head
+```
+
+Hier ist die Liste der wahren Werte:
+
+```{python}
+y = df["c1"].values.tolist()
+```
+
+
+Trefferquote (Accuracy) berechnen:
+
+
+```{python accuracy}
+correct_predictions = sum(1 for true, pred in zip(y, predicted_values) if true == pred)
+accuracy = correct_predictions / len(predicted_values)
+print(f'Accuracy: {accuracy * 100:.2f}%')
+```
+
