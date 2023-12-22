@@ -101,10 +101,19 @@ Ggf. noch Module installieren:
 #reticulate::py_install("pandas")
 #py_install("tiktoken")
 #py_install("datar")
+#py_install("scikit-learn")
 ```
 
 
-## Module
+## R-Pakete und Python-Module
+
+
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+```
+
 
 Module importieren:
 
@@ -114,6 +123,8 @@ import pandas as pd
 import numpy as np
 import time
 from datetime import datetime
+#from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
 ```
 
 Versionen der importierten Module:
@@ -123,15 +134,19 @@ pd.__version__
 ```
 
 
+
+
 ```{zsh openai-version-zsh}
 #| echo: fenced
 pip list | grep openai
 ```
 
-
 Wir brauchen `>= 1.35`.
 
 Der Operator `|` ist die "Pfeife" der Kommandozeile, also sozusagen der "UND-DANN-Befehl".
+
+
+
 
 
 ## Daten
@@ -227,6 +242,7 @@ predicted_values = []
 
 
 ```{python ask-api}
+#| eval: false
 start_time = time.time()
 
 for prompt in prompts:
@@ -236,6 +252,8 @@ for prompt in prompts:
 end_time = time.time()
 end_time - start_time
 ```
+
+
 
 Voilà:
 
@@ -247,6 +265,7 @@ print(predicted_values[:5])
 ## Als CSV speichern
 
 ```{python save-csv}
+#| eval: false
 id_seq = [i for i in range(start_pos, end_pos + 1)]
 predicted_values_df = pd.DataFrame(id_seq, columns = ["id"])
 predicted_values_df["pred"] = predicted_values
@@ -257,8 +276,61 @@ predicted_values_df.to_csv(csv_output_name)
 ```
 
 
+## Oder Vorhersagen aus CSV importieren
 
-# Scoring
+
+```{python}
+preds_path = 'https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/posts/chatgpt-sentiment-loop-all/germeval_test_preds_at_2023-12-20%2014%3A06%3A00'
+
+preds = pd.read_csv(preds_path)
+
+preds.head()
+```
+
+Man kann eine Python-Variable an R übergeben:
+
+```{r}
+preds_r <- py$preds
+```
+
+## Vorhersagen (Predictions) betrachten
+
+
+Zählen wir mal kurz aus:
+
+```{r}
+preds_r |> 
+  count(pred) |> 
+  slice(3:5)  # zwei komische, kaputte Zeilen, weg damit
+```
+
+Oder in Python:
+
+```{python}
+preds["pred"].value_counts()
+```
+Puh, das ist ein bisschen was kaput gegangen.
+
+## Predictions reparieren
+
+```{python}
+allowed_preds = ["positiv", "neutral", "negativ"]
+preds.loc[~preds["pred"].isin(allowed_preds), "pred"] = np.nan
+```
+
+Check:
+
+```{python}
+preds["pred"].value_counts()
+```
+
+
+
+Passt!
+
+
+
+## Scoring vorbereiten
 
 Was waren noch mal die Variablen unser Tabelle?
 
@@ -273,25 +345,63 @@ germeval_test.head()
 ```
 
 
-```{python rescore}
+Rescore im Test-Set:
+
+```{python rescore-test}
 df = germeval_test
 df["c1"] = df["c1"].replace({"OFFENSE": "negativ"})
-df.head
+
+df["c1"].value_counts()
 ```
 
-Hier ist die Liste der wahren Werte:
+Rescore in den Vorhersagen
 
-```{python}
+```{python rescore-preds}
+preds["pred"] = preds["pred"].replace({"neutral": "OTHER", "positiv": "OTHER"})
+
+preds["pred"].value_counts()
+```
+
+```{python preds-list}
+preds_list = preds["pred"].tolist()
+```
+
+Hier ist die *Liste* der wahren Werte:
+
+```{python def-y-list}
 y = df["c1"].values.tolist()
 ```
 
+## Scoring
 
-Trefferquote (Accuracy) berechnen:
+```{python py-score}
+accuracy = accuracy_score(y, preds_list)
+print("Accuracy:", accuracy)
+```
 
 
-```{python accuracy}
-correct_predictions = sum(1 for true, pred in zip(y, predicted_values) if true == pred)
-accuracy = correct_predictions / len(predicted_values)
-print(f'Accuracy: {accuracy * 100:.2f}%')
+
+
+
+Oder  mit `tidymodels`; zuerst aufbereiten:
+
+```{r prepare-for-tidymodels}
+y_truth = as.factor(py$y)
+y_pred = py$preds_list 
+
+# replace NAN with NA and convert to factor:
+y_pred = as.character(y_pred) 
+y_pred[is.nan(y_pred)] <- NA
+y_pred[!y_pred %in% c("negativ", "OTHER")] <- NA
+y_pred <- as.factor(y_pred)
+
+table(y_pred)
+```
+
+
+
+```{r tidymodels-score}
+accuracy_vec(truth = y_truth,
+             estimate = y_pred)
 ```
 
