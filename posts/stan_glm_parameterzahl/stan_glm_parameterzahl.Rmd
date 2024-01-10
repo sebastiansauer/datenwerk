@@ -8,17 +8,14 @@ expoints: 1
 date: '2022-12-13'
 slug: stan_glm_parameterzahl
 title: stan_glm_parameterzahl
-
+categories:
+- bayes
+- regression
+- parameters
 ---
 
 
 
-
-```{r libs, include = FALSE}
-library(tidyverse)
-#library(glue)
-library(rstanarm)
-```
 
 
 ```{r global-knitr-options, include=FALSE}
@@ -50,6 +47,7 @@ Betrachten Sie dazu dieses Modell:
 stan_glm(price ~ cut, data = diamonds, 
                    prior = normal(location = c(100, 100, 100, 100),
                                   scale = c(100, 100, 100, 100)),
+                   prior_aux = exponential(1),
                    prior_intercept = normal(3000, 500))
 ```
 
@@ -74,6 +72,31 @@ Hinweise:
 
 # Solution
 
+
+Grundsätzlich hat ein Regressionsmodell die folgenden Parameter:
+
+1. einen Parameter für den Intercept, $\beta_0$
+2. pro UV ein weiterer Parameter, $\beta_1, \beta_2, \ldots$
+3. für sigma ($\sigma$) noch ein zusätzlicher Parameter
+
+Zu beachten ist aber, dass bei einer *nominalen* Variablen mit zwei Stufen nur *ein* Regressionsgewicht ($\beta_1$) berechnet wird. Allgemein gilt bei nominalen also, dass bei $k$ Stufen nur $k-1$ Regressionsgewichte berechnet werden.
+
+Im vorliegenden Fall hat die Variable `cut` 5 Stufen, also werden 4 Regressiongewiche berechnet.
+
+In Summe werden also *6* Parameter berechnet.
+
+
+
+
+```{r libs, message = FALSE}
+library(tidyverse)
+library(rstanarm)
+```
+
+
+
+
+
 Berechnet man das Modell, 
 so kann man sich auch Infos über die Prioris ausgeben lassen:
 
@@ -83,6 +106,7 @@ m1 <- stan_glm(price ~ cut, data = diamonds,
                prior = normal(location = c(100, 100, 100, 100),
                               scale = c(100, 100, 100, 100)),
                prior_intercept = normal(3000, 500),
+               prior_aux = exponential(1),
                refresh = 0)
 
 prior_summary(m1)
@@ -149,14 +173,6 @@ Das sind:
 - 4 Gruppen (zusätzlich zur Referenzgruppe, die mit dem Achsenabschnitt dargestellt ist) - `prior_normal`
 - 1 Sigma (Ungewissheit "innerhalb des Modells") - `prior_aux`
 
-
-
-```{r}
-sol <- 6
-```
-
-Die Anzahl der Parameter in diesem Modell ist also: 
-`r sol`
 
 
 

@@ -41,7 +41,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
 Die folgende Aufgabe basiert auf S. 110 von Bourier, G. (2018). Wahrscheinlichkeitsrechnung und schließende Statistik: Praxisorientierte Einführung — Mit Aufgaben und Lösungen. Springer Fachmedien. https://doi.org/10.1007/978-3-658-07481-4
 
 
-An einer Bushaltestelle verkehren zwei Linien. Linie A hält im 10-Minuten-Takt, Linie B im 20-Minuten-Takt, der um fünf Minuten zeitversetzt ist zu Linie A. 
+An einer Bushaltestelle verkehren zwei Linien. Linie *A* hält im *10-Minuten-Takt*, Linie *B* im *20-Minuten-Takt*, der um fünf Minuten zeitversetzt ist zu Linie A. 
 
 
 
@@ -76,7 +76,7 @@ Vergegenwärtigen wir uns die Ereignisse ("Bus A kommt" und "Bus B kommt") in de
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 d <- tribble(
-  ~Minute, ~Linie_A, ~Linie_B,
+  ~Minute, ~Linie_A, ~Linie_B, 
        1L,       0L,       0L,
        2L,       0L,       0L,
        3L,       0L,       0L,
@@ -101,7 +101,6 @@ d <- tribble(
 ```
 
 
-Dabei vereinbaren wir, dass `Minute=1` bedeutet zwischen 0 und 1 einer Minute zu warten, etc.
 
 Ergänzen wir noch das Ereignis "Bus A oder Bus B kommt":
 
@@ -135,6 +134,7 @@ d3 <-
 ```
 
 
+
 Das plotten wir mal.
 
 Zum Plotten macht es Sinn, den Datensatz lang zu pivotieren:
@@ -156,6 +156,41 @@ d3_long %>%
   scale_color_manual(values = c("grey80", "red")) +
   labs(color = "Bus kommt") +
   theme_minimal()
+```
+
+
+Jetzt fügen wir die Wartezeiten hinzu.
+Dazu ein Beispiel: Kommt man in Minute 1 oder in Minute 6 an, so muss man 4 Minuten warten auf Linie A. Kommt man in Minute 2 oder 7 an, so muss man 3 Minuten warten auf Linie A, etc. Kommt man in der 5. Minute, so ist der Bus gerade weg (man könnte auch vereinbaren, dass der Bus noch da ist; beides ist okay).
+Für Linie B gilt Ähnliches.
+
+Um das auszurechnen, braucht man den "Rest-Operator" in R, `%%`:
+
+```{r}
+5 %% 5
+6 %% 5
+7 %% 5
+```
+
+
+
+```{r}
+d3 <-
+  d3 |> 
+  mutate(Wartezeit_Linie_A = 5 - Minute %% 5,
+         Wartezeit_Linie_B = 10 - Minute %% 10
+  )
+```
+
+
+Die Gesamt-Wartezeit ist die kleinere der beiden Wartezeiten (Warten auf Linie A bzw. auf Linie B):
+
+```{r}
+d3 <-
+  d3 |> 
+  mutate(Wartzeit = case_when(
+    Wartezeit_Linie_A <= Wartezeit_Linie_B ~ Wartezeit_Linie_A,
+    TRUE ~ Wartezeit_Linie_B
+  ))
 ```
 
 
