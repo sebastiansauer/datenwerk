@@ -50,7 +50,7 @@ Allerdings spricht das Aussehen am ehesten für $A_2$, der seltenen Art.
 
 👉 Aufgabe: *Wie groß ist die Wahrscheinlichkeit, dass Prof. Mügge wirklich einen großen Fang gemacht hat und einen unbekannten Käfer entdeckt hat?*
 
-*Geben Sie ein 95%-HDI für diese Wahrscheinlichkeit an!*
+*Geben Sie diese Wahrscheinlichkeit an!*
 
 
 
@@ -113,35 +113,16 @@ bb
 
 
 
-```{r}
-samples <-
-  bb %>%  # nimmt die Tabelle mit Posteriori-Daten,
-  slice_sample(  # Ziehe daraus eine Stichprobe,
-    n = 1e4,  # mit insgesamt n=10000 Zeilen,
-    weight_by = post_std,  # Gewichte nach Post-Wskt.,
-    replace = T)  %>%  # Ziehe mit Zurücklegen
-  select(hyps)
-```
-
-
-```{r}
-samples_count <-
-count(samples, hyps) |> 
-  mutate(prop = n / sum(n))
-
-samples_count
-```
-
 
 
 
 ```{r}
 #| echo: false
-sol <- samples_count$prop[2]
+sol <- bb$post_std[2] |> round(2)
 ```
 
 
-*Antwort*: Die Wahrscheinlichkeit, dass der Käfer zur Art "B" gehört, ist relativ klein: `r  samples_count$prop[2]`.
+*Antwort*: Die Wahrscheinlichkeit, dass der Käfer zur Art "B" gehört, ist relativ klein: `r  sol`.
 
 
 
