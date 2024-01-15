@@ -17,7 +17,9 @@ title: Bed-Post-Wskt1
 
 
 ```{r libs, include = FALSE}
+library(rstanarm)
 library(tidyverse)
+library(easystats)
 ```
 
 
@@ -35,32 +37,42 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
+```{r echo = FALSE, message=FALSE}
+Kung_path <-  
+  "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/Howell1a.csv"  
+
+d <- read.csv(Kung_path) 
+
+d <-
+  d |> mutate(weight_c = weight - mean(weight))
+
+d <-
+  d |> 
+  filter(age >= 18)
+
+mod <- stan_glm(height ~ weight_c, data = d, refresh = 0)
+
+d_x0 <-
+  d |> 
+  filter(between(weight_c, 9.5, 10.5))
+```
+
+
 
 
 # Exercise
 
 Beziehen Sie sich auf das Regressionsmodell, für das die Ausgabe mit `stan_glm()` hier dargestellt ist:
 
-```
-## stan_glm
-##  family:       gaussian [identity]
-##  formula:      height ~ weight_c
-##  observations: 346
-##  predictors:   2
-## ------
-##             Median MAD_SD
-## (Intercept) 154.6    0.3 
-## weight_c      0.9    0.0 
-## 
-## Auxiliary parameter(s):
-##       Median MAD_SD
-## sigma 5.1    0.2   
+```{r echo=FALSE}
+parameters(mod)
 ```
 
 
-Betrachten Sie wieder folgende Beziehung (Gleichung bzw. Ungleichung):
 
-$$Pr(\text{height}_i = 155|\text{weightcentered}_i=0, \alpha, \beta, \sigma) \quad \Box \quad Pr(\text{height}_i = 156|\text{weightcentered}_i=0, \alpha, \beta, \sigma)$$
+Betrachten Sie folgende Beziehung (Gleichung bzw. Ungleichung):
+
+$$Pr(\text{height}_i = 155|\text{weightcentered}_i=10, \alpha, \beta, \sigma) \quad \Box \quad Pr(\text{height}_i = 160|\text{weightcentered}_i=10, \alpha, \beta, \sigma)$$
 Die in der obigen Beziehung angegebenen Parameter beziehen sich auf das oben dargestellt Modell.
 
 Ergänzen Sie das korrekte Zeichen in das Rechteck $\Box$!
@@ -89,10 +101,91 @@ Answerlist
 
 # Solution
 
+
 Als Prädiktorwert wurde der Achsenabschnitt spezifiziert, also $x=0$. 
 Der Achsenabschnitt wird mit 154.6 angegeben. 
 Je weiter ein $y_i$ von 154.6 entfernt ist, desto unwahrscheinlicher ist es,
 gegeben $x=0$.
+Für jede Einheit von $X$ wird $Y$ größer, also weiter weg von Null.
+
+Im Detail:
+
+Pakete starten:
+
+```{r eval=FALSE}
+library(rstanarm)
+library(tidyverse)
+library(easystats)
+```
+
+
+Daten importieren:
+
+```{r}
+Kung_path <-  
+  "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/Howell1a.csv"  
+
+d <- read.csv(Kung_path) 
+```
+
+
+Daten zentrieren:
+
+```{r}
+d <-
+  d |> mutate(weight_c = weight - mean(weight))
+```
+
+Nur Erwachsene:
+
+```{r}
+d <-
+  d |> 
+  filter(age >= 18)
+```
+
+
+Modell berechnen:
+
+```{r eval = FALSE}
+mod <- stan_glm(height ~ weight_c, data = d, refresh = 0)
+```
+
+
+Paramter des Modells:
+
+```{r}
+parameters(mod)
+```
+
+
+Modell visualisieren:
+
+```{r eval = FALSE}
+estimate_relation(mod) |> plot()
+```
+
+
+```{r echo = FALSE}
+p1 <- 
+estimate_relation(mod) |> 
+  plot() +
+  geom_hline(yintercept = 155, linetype = "dashed") +
+  geom_hline(yintercept = 160, linetype = "dashed") +
+  annotate("point", color = "blue", alpha = .7,
+                size = 5, x = 10, y= 155) +
+  geom_violinhalf(data = d_x0, aes(x = weight_c, y = height),
+                  fill = "red")
+
+p1
+```
+
+
+
+
+Wie man im Diagramm sieht, ist die Wahrscheinlichkeit bei `x=10` für `y=155` größer als für `y=160`.
+
+Die Wahrscheinlichkeit für einen bestimmten Y-Wert gegeben `x=10` ist auf der Regressionsgeraden am größten (blauer Punkt).
 
 Answerlist
 ----------
