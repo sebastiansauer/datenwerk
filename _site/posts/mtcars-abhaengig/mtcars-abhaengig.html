@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.513">
+<meta name="generator" content="quarto-1.4.544">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -95,6 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -103,6 +104,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -241,7 +269,7 @@ $ carb &lt;dbl&gt; 4, 4, 1, 1, 2, 1, 4, 2, 2, 4, 4, 3, 3, 3, 4, 4, 4, 1, 2, 1, 1
 <ol type="a">
 <li><p>Schauen Sie im Datensatz nach, ob unser Vorgehen (Erstellung von <code>hp_high</code> und <code>mpg_high</code>) überhaupt funktioniert hat. Probieren geht über Studieren.</p></li>
 <li><p>Visualisieren Sie in geeigneter Form den Zusammenhang.</p></li>
-<li><p>Berechnen Sie <span class="math inline">\(Pr(\text{mpg_high}|\text{hp_high})\)</span> und <span class="math inline">\(Pr(\text{mpg_high}|\neg \text{hp_high})\)</span> !</p></li>
+<li><p>Berechnen Sie <span class="math inline">\(Pr(\text{mpg high}|\text{hphigh})\)</span> und <span class="math inline">\(Pr(\text{mpg high}|\neg \text{hp high})\)</span> !</p></li>
 </ol>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
@@ -281,7 +309,7 @@ Hornet Sportabout 175    TRUE 18.7    FALSE</code></pre>
 </div>
 </div>
 <p>Hey, sowas von abhängig voneinander, die zwei Variablen, <code>mpg_high</code> und <code>hp_high</code>!</p>
-<p>Der <em>rechte</em> Balken zeigt <span class="math inline">\(Pr(\text{mpg_high}|\text{ hp_high})\)</span> und <span class="math inline">\(Pr(\neg \text{mpg_high}|\text{hp_high})\)</span>.Der <em>linke</em> Balken zeigt <span class="math inline">\(Pr(\text{mpg_high}|\neg \text{hp_high})\)</span> und <span class="math inline">\(Pr(\neg \text{mpg_high}|\neg \text{hp_high})\)</span>.</p>
+<p>Der <em>rechte</em> Balken zeigt <span class="math inline">\(Pr(\text{mpghigh}|\text{hp high})\)</span> und <span class="math inline">\(Pr(\neg \text{mpg high}|\text{hp high})\)</span>.Der <em>linke</em> Balken zeigt <span class="math inline">\(Pr(\text{mpg high}|\neg \text{hp high})\)</span> und <span class="math inline">\(Pr(\neg \text{mpg high}|\neg \text{hp high})\)</span>.</p>
 <ol start="3" type="a">
 <li>Berechnen wir die relevanten Anteile:</li>
 </ol>
@@ -508,27 +536,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
     stripColumnClz(note)
-    const typesetMath = (el) => {
-      if (window.MathJax) {
-        // MathJax Typeset
-        window.MathJax.typeset([el]);
-      } else if (window.katex) {
-        // KaTeX Render
-        var mathElements = el.getElementsByClassName("math");
-        var macros = [];
-        for (var i = 0; i < mathElements.length; i++) {
-          var texText = mathElements[i].firstChild;
-          if (mathElements[i].tagName == "SPAN") {
-            window.katex.render(texText.data, mathElements[i], {
-              displayMode: mathElements[i].classList.contains('display'),
-              throwOnError: false,
-              macros: macros,
-              fleqn: false
-            });
-          }
-        }
-      }
-    }
     if (id === null || id.startsWith('sec-')) {
       // Special case sections, only their first couple elements
       const container = document.createElement("div");
@@ -543,10 +550,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             break;
           }
         }
-        typesetMath(container);
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
         return container.innerHTML
       } else {
-        typesetMath(note);
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
         return note.innerHTML;
       }
     } else {
@@ -555,8 +566,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (anchorLink) {
         anchorLink.remove();
       }
-      typesetMath(note);
-      return note.innerHTML;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
     }
   }
   for (var i=0; i<xrefs.length; i++) {
@@ -877,7 +895,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>b) Visualisieren Sie in geeigneter Form den Zusammenhang.</span>
 <span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>c) Berechnen Sie $Pr(\text{mpg_high}|\text{hp_high})$ und $Pr(\text{mpg_high}|\neg \text{hp_high})$ !</span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>c) Berechnen Sie $Pr(\text{mpg high}|\text{hphigh})$ und $Pr(\text{mpg high}|\neg \text{hp high})$ !</span>
 <span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a></span>
@@ -915,7 +933,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a>Hey, sowas von abhängig voneinander, die zwei Variablen, <span class="in">`mpg_high`</span> und <span class="in">`hp_high`</span>!</span>
 <span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>Der *rechte* Balken zeigt $Pr(\text{mpg_high}|\text{ hp_high})$ und $Pr(\neg \text{mpg_high}|\text{hp_high})$.Der *linke* Balken zeigt $Pr(\text{mpg_high}|\neg \text{hp_high})$ und $Pr(\neg \text{mpg_high}|\neg \text{hp_high})$.</span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>Der *rechte* Balken zeigt $Pr(\text{mpghigh}|\text{hp high})$ und $Pr(\neg \text{mpg high}|\text{hp high})$.Der *linke* Balken zeigt $Pr(\text{mpg high}|\neg \text{hp high})$ und $Pr(\neg \text{mpg high}|\neg \text{hp high})$.</span>
 <span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a></span>
