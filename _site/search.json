@@ -9475,21 +9475,21 @@
     "href": "posts/wskt-df-r/wskt-df-r.html#setup",
     "title": "wskt-df-r",
     "section": "Setup",
-    "text": "Setup\n\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.3     ✔ readr     2.1.4\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.4.4     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.0\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\n\n\n\n\n\n\n\n\n\nA\nB\n\n\n\n\n1\n1\n\n\n1\n0\n\n\n0\n1\n\n\n0\n0"
+    "text": "Setup\n\nlibrary(tidyverse)\n\nHier ist unserer Datentabelle:\n\n\n\n\n\n\n\n\nA\nB\n\n\n\n\n1\n1\n\n\n1\n0\n\n\n0\n1\n\n\n0\n0"
   },
   {
     "objectID": "posts/wskt-df-r/wskt-df-r.html#pracap-b",
     "href": "posts/wskt-df-r/wskt-df-r.html#pracap-b",
     "title": "wskt-df-r",
     "section": "\\(Pr(A\\cap B)\\)",
-    "text": "\\(Pr(A\\cap B)\\)\n\nd |&gt; \n  filter(A == 1 & B == 1)\n\n  A B\n1 1 1\n\n\nAlso 1 von 4 Zeilen, das heißt 1/4 oder .25.\nMan kann das auch mit count ausrechnen:\n\nd |&gt; \n  count(A == 1 & B == 1)\n\n  A == 1 & B == 1 n\n1           FALSE 3\n2            TRUE 1\n\n\nDer Operator & steht für das logische “UND” (Union, Vereinigung).\nUnd so kann man sich noch die Anteile ausrechnen lassen:\n\nd |&gt; \n  count(A == 1 & B == 1) |&gt; \n  mutate(Anteil = n / sum(n))\n\n  A == 1 & B == 1 n Anteil\n1           FALSE 3   0.75\n2            TRUE 1   0.25"
+    "text": "\\(Pr(A\\cap B)\\)\n\nd |&gt; \n  filter(A == 1 & B == 1)\n\n  A B\n1 1 1\n\n\nAlso 1 von 4 Zeilen, das heißt 1/4 oder .25.\nMan kann das auch mit count ausrechnen:\n\nd |&gt; \n  count(A == 1 & B == 1)\n\n  A == 1 & B == 1 n\n1           FALSE 3\n2            TRUE 1\n\n\nDer Operator & steht für das logische “UND” (Schnitt, intersect).\nUnd so kann man sich noch die Anteile ausrechnen lassen:\n\nd |&gt; \n  count(A == 1 & B == 1) |&gt; \n  mutate(Anteil = n / sum(n))\n\n  A == 1 & B == 1 n Anteil\n1           FALSE 3   0.75\n2            TRUE 1   0.25"
   },
   {
     "objectID": "posts/wskt-df-r/wskt-df-r.html#prneg-acap-b",
     "href": "posts/wskt-df-r/wskt-df-r.html#prneg-acap-b",
     "title": "wskt-df-r",
     "section": "\\(Pr(\\neg A\\cap B)\\)",
-    "text": "\\(Pr(\\neg A\\cap B)\\)\n\\(Pr(\\neg A\\cap B)\\) ist im Prinzip identisch zur Union (Vereinigung) ohne Negation:\n\nd |&gt; \n  count(A == 0 & B == 1) |&gt; \n  mutate(Anteil = n / sum(n))\n\n  A == 0 & B == 1 n Anteil\n1           FALSE 3   0.75\n2            TRUE 1   0.25\n\n\nOder so:\n\nd |&gt; \n  count(!(A == 1) & B == 1) |&gt; \n  mutate(Anteil = n / sum(n))\n\n  !(A == 1) & B == 1 n Anteil\n1              FALSE 3   0.75\n2               TRUE 1   0.25\n\n\nDer Operator ! entspricht der logischen Negation."
+    "text": "\\(Pr(\\neg A\\cap B)\\)\n\\(Pr(\\neg A\\cap B)\\) ist im Prinzip identisch zum Schnitt ohne Negation:\n\nd |&gt; \n  count(A == 0 & B == 1) |&gt; \n  mutate(Anteil = n / sum(n))\n\n  A == 0 & B == 1 n Anteil\n1           FALSE 3   0.75\n2            TRUE 1   0.25\n\n\nOder so:\n\nd |&gt; \n  count(!(A == 1) & B == 1) |&gt; \n  mutate(Anteil = n / sum(n))\n\n  !(A == 1) & B == 1 n Anteil\n1              FALSE 3   0.75\n2               TRUE 1   0.25\n\n\nDer Operator ! entspricht der logischen Negation."
   },
   {
     "objectID": "posts/wskt-df-r/wskt-df-r.html#pracup-b",
@@ -9525,5 +9525,12 @@
     "title": "wskt-df-r",
     "section": "Kommentare",
     "text": "Kommentare\nUm die Union von A und B auszurechnen, könnte man auch so vorgehen:\n\nA &lt;- d$A"
+  },
+  {
+    "objectID": "posts/wskt-df-r/wskt-df-r.html#bonus-prbneg-a",
+    "href": "posts/wskt-df-r/wskt-df-r.html#bonus-prbneg-a",
+    "title": "wskt-df-r",
+    "section": "Bonus \\(Pr(B|\\neg A)\\)",
+    "text": "Bonus \\(Pr(B|\\neg A)\\)\n\\(Pr(B|\\neg A)\\) - Eigentlich nichts Neues:\n\nd |&gt; \n  filter(!(A == 1)) |&gt; \n  count(B)\n\n  B n\n1 0 1\n2 1 1"
   }
 ]
