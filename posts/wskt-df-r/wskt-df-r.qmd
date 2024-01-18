@@ -1,0 +1,194 @@
+---
+date: 2024-01-18  # HEUTIGES DATUM EINTRAGEN
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: wskt-df-r  # ACHTUNG: HIER NAMEN DER AUFGABE ANGEBEN
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- probability  # ENTER CATEGORIES HERE
+- R
+---
+
+
+
+
+
+
+Question
+========
+
+In dieser Aufgabe betrachten wir typische Relationen von Ereignissen, um typische Fragen der Wahrscheinlichkeitsrechnung zu beantworten.
+  
+Gegeben sei folgender Datensatz:
+
+```{r}
+d <-
+  data.frame(
+    A = c(1, 1, 0, 0),
+    B = c(1, 0, 1, 0)
+  )
+
+d
+```
+
+
+Der Datensatz `d` stellt alle vier Kombinationen der beiden Variablen `A` und `B` da (wir gehen davon aus, dass es sich um binäre Variablen, wie Ereignisse, handelt, der Einfachheit halber).
+
+Dabei steht `A == 1` für $A$ (Ereignis $A$ ist der Fall) und `A == 0` für $\neg A$, A tritt nicht ein, ist nicht der Fall.
+
+Generell wird in der Wissenschaft und Technik 0 für "nein, falsch" und 1 für "ja, wahr, richtig" verwendet.
+
+
+*Aufgabe*: **Berechnen Sie mit R $Pr(A\cap B), Pr(\neg A\cap B), Pr(A\cup B), Pr(A|B), Pr(B|A)$!**
+
+
+
+Solution
+========
+
+
+Gesucht sind mehrere Relationen: $Pr(A\cap B), Pr(\neg A\cap B), Pr(A\cup B), Pr(A|B), Pr(B|A)$
+
+
+## Setup
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+#| echo: false
+gt::gt(d)
+```
+
+
+
+## $Pr(A\cap B)$
+
+
+```{r}
+d |> 
+  filter(A == 1 & B == 1)
+```
+
+Also 1 von 4 Zeilen, das heißt 1/4 oder .25.
+
+Man kann das auch mit `count` ausrechnen:
+
+```{r}
+d |> 
+  count(A == 1 & B == 1)
+```
+
+Der Operator `&` steht für das logische "UND" (Union, Vereinigung).
+
+
+Und so kann man sich noch die Anteile ausrechnen lassen:
+
+```{r}
+d |> 
+  count(A == 1 & B == 1) |> 
+  mutate(Anteil = n / sum(n))
+```
+
+
+## $Pr(\neg A\cap B)$
+
+$Pr(\neg A\cap B)$ ist im Prinzip identisch zur Union (Vereinigung) ohne Negation:
+
+
+```{r}
+d |> 
+  count(A == 0 & B == 1) |> 
+  mutate(Anteil = n / sum(n))
+```
+
+
+Oder so:
+
+```{r}
+d |> 
+  count(!(A == 1) & B == 1) |> 
+  mutate(Anteil = n / sum(n))
+```
+
+
+Der Operator `!` entspricht der logischen Negation.
+
+
+
+## $Pr(A\cup B)$
+
+Kommen wir zu $Pr(A\cup B)$, der logischen Vereinigung, auch logisches "ODER" genannt.
+
+
+```{r}
+d |> 
+  count((A == 1) | (B == 1)) |> 
+  mutate(Anteil = n / sum(n))
+```
+
+
+Der Operator `|` steht in R für das logische ODER.
+
+Wie man sieht, kann man die Klammern um `(A == 1) | (B == 1)` verwenden für bessere Sichtbarkeit. Es ist aber nicht nötig.
+
+
+
+## $Pr(A|B)$
+
+$Pr(A|B)$ entspricht einem Filtern, d.h. bedingen auf B entspricht einem Filtern, so dass nur noch $B$ und nicht $\neg B$ übrig bleibt.
+
+```{r}
+d |> 
+  filter(B == 1) |> 
+  count(A)
+```
+
+1 Fall von 2 erfüllt die Bedingung `A == 1`, also 50%.
+
+
+
+## $Pr(B|A)$
+
+Diese Aufgabe ist analog zu $Pr(A|B)$:
+
+```{r}
+d |> 
+  filter(A == 1) |> 
+  count(B)
+```
+
+
+## Bonus $Pr(B|\negA)$
+
+Eigentlich nichts Neues:
+
+```{r}
+d |> 
+  filter(!(A == 1)) |> 
+  count(B)
+```
+
+## Kommentare
+
+
+Um die Union von A und B auszurechnen, könnte man auch so vorgehen:
+
+```{r}
+A <- d$A
+B <- d$B
+
+union
+```
+
