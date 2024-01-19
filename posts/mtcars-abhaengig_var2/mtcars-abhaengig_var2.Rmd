@@ -127,6 +127,46 @@ glimpse(d2)
 ```
 `av_high = 1` zeigt hohe Werte in `mpg` an, und `av_high = 0` zeigt geringe Werte (im Verhältnis zum Mittelwert).
 
+
+Achtung! Wenn es fehlende Werte im Datensatz gäbe, müssten wir diese in geeigneter Manier vorab entfernen. Also z.B.:
+
+
+
+```{r compute-binary-vars2}
+# split by mean:
+d2 <-
+  mtcars %>% 
+  select(mpg, hp) %>% 
+  drop_na() |> 
+  mutate(av_high = case_when(
+    mpg <= mean(mpg) ~ 0,
+    mpg > mean(mpg) ~ 1
+  )) %>% 
+  select(-mpg) 
+
+glimpse(d2)
+```
+
+
+Oder so:
+
+
+
+```{r compute-binary-vars3}
+# split by mean:
+d2 <-
+  mtcars %>% 
+  select(mpg, hp) %>% 
+  mutate(av_high = case_when(
+    mpg <= mean(mpg, na.rm = TRUE) ~ 0,
+    mpg > mean(mpg, na.rm = TRUE) ~ 1
+  )) %>% 
+  select(-mpg) 
+
+glimpse(d2)
+```
+
+
 Man beachte, dass *hohe* Werte in MPG einen *geringen* Spritverbrauch bedeuten (also eine *hohe* Sparsamkeit im Verbrauch).
 
 Dann berechnen wir `uv_high`:
@@ -145,6 +185,7 @@ glimpse(d3)
 ```
 
 
+Auch hier gilt, dass die Funktionen der deskriptiven Statistik alle Beine von sich strecken und den Dienst "verweigern", wenn es fehlende Werte im Vektor geben sollte. Sie meinen es natürlich nur gut mit Ihnen. 🤷‍♂️ 
 
 Dann zählen wir die gesuchten Wahrscheinlichkeiten bzw. Anteile der AV:
 ```{r echo = TRUE}
