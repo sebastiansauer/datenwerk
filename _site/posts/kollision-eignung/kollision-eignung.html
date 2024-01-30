@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.513">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -95,6 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -188,12 +189,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Sagen wir, über die <em>Eignung</em>, <code>e</code>, für ein Studium würden nur (die individuellen Ausprägungen) von Intelligenz (<code>iq</code>) und Fleiss (<code>fleiss</code>) entscheiden, s. den DAG in <a href="#fig-coll3-dag" class="quarto-xref">Figure&nbsp;1</a>.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-coll3-dag" class="quarto-figure quarto-figure-center anchored" width="384" data-fig-pos="H">
+<div id="fig-coll3-dag" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-coll3-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="fig-coll3-dag-1.png" class="img-fluid figure-img" data-fig-pos="H" width="384">
 </div>
-<figcaption class="figure quarto-float-caption quarto-float-fig" id="fig-coll3-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coll3-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Kollisionsstruktur im Dag zur Studiumseignung, mit <code>s</code> für Studium, <code>f</code> für fleiss und <code>iq</code> für Intelligenz
 </figcaption>
 </figure>
@@ -204,9 +205,9 @@ Figure&nbsp;1: Kollisionsstruktur im Dag zur Studiumseignung, mit <code>s</code>
 <p><a href="https://data-se.netlify.app/2020/04/16/simulation-berkson-s-paradox/">Quelle</a></p>
 <p>Eignung (fürs Studium) sei definiert als die Summe von <code>iq</code> und <code>fleiss</code>, plus etwas Glück, s. <a href="#lst-studium" class="quarto-xref">Listing&nbsp;1</a>.</p>
 <div class="cell">
-<div id="lst-studium" class="r cell-code listing">
+<div id="lst-studium" class="r cell-code listing quarto-float">
 <figure class="quarto-float quarto-float-lst figure">
-<figcaption class="listing quarto-float-caption quarto-float-lst" id="lst-studium-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-studium-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Listing&nbsp;1: Eignung ist die Summe von Fleiss und Intelligenz, plus ein Quentchen Glück
 </figcaption>
 <div aria-describedby="lst-studium-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -487,27 +488,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
     stripColumnClz(note)
-    const typesetMath = (el) => {
-      if (window.MathJax) {
-        // MathJax Typeset
-        window.MathJax.typeset([el]);
-      } else if (window.katex) {
-        // KaTeX Render
-        var mathElements = el.getElementsByClassName("math");
-        var macros = [];
-        for (var i = 0; i < mathElements.length; i++) {
-          var texText = mathElements[i].firstChild;
-          if (mathElements[i].tagName == "SPAN") {
-            window.katex.render(texText.data, mathElements[i], {
-              displayMode: mathElements[i].classList.contains('display'),
-              throwOnError: false,
-              macros: macros,
-              fleqn: false
-            });
-          }
-        }
-      }
-    }
     if (id === null || id.startsWith('sec-')) {
       // Special case sections, only their first couple elements
       const container = document.createElement("div");
@@ -522,10 +502,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             break;
           }
         }
-        typesetMath(container);
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
         return container.innerHTML
       } else {
-        typesetMath(note);
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
         return note.innerHTML;
       }
     } else {
@@ -534,8 +518,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (anchorLink) {
         anchorLink.remove();
       }
-      typesetMath(note);
-      return note.innerHTML;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
     }
   }
   for (var i=0; i<xrefs.length; i++) {
