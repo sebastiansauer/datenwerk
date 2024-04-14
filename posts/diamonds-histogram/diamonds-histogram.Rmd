@@ -25,6 +25,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
                       fig.cap = "", 
                       fig.path = "",
                       dpi = 96,
+                      out.width = "100%",
                       message = FALSE,
                       echo = FALSE)
 ```
@@ -42,17 +43,21 @@ Die Daten beziehen sich auf den Datensatz `diamonds` und sind [hier](https://ggp
 ```{r message = FALSE, echo = FALSE}
 data(diamonds, package = "ggplot2")
 library(tidyverse)
+library(plotly)
 
+
+plot1 <- 
 diamonds %>% 
   drop_na(cut, price) %>% 
   mutate(price = price/1000 %>% round) %>% 
-  
   ggplot() +
   aes(x = price) +
   geom_histogram()  +
   geom_vline(aes(xintercept = median(price))) +
   theme_light() +
   facet_wrap( ~ cut, scales = "free")
+
+ggplotly(plot1)
 ```
 
 
