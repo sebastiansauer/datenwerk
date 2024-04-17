@@ -198,6 +198,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Teilen Sie Test- vs.&nbsp;Train-Set hälftig auf.</li>
 <li>Teilen Sie Analysis vs.&nbsp;Assessment-Set 3:1 auf.</li>
 <li>Den Datensatz <code>penguins</code> können Sie entweder aus dem Paket <code>palmerpenguins</code> beziehen oder z.B. von <a href="https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv">hier</a> via <code>read_csv()</code> importieren.</li>
+<li>Orientieren Sie sich im Übrigen an den <a href="https://datenwerk.netlify.app/hinweise">allgemeinen Hinweisen des Datenwerks</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
@@ -225,7 +226,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Use suppressPackageStartupMessages() to eliminate package startup messages</code></pre>
+• Use tidymodels_prefer() to resolve common conflicts.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -245,12 +246,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code># Attaching packages: easystats 0.7.0
+<pre><code># Attaching packages: easystats 0.7.0 (red = needs update)
 ✔ bayestestR  0.13.2   ✔ correlation 0.8.4 
-✔ datawizard  0.9.1    ✔ effectsize  0.8.6 
-✔ insight     0.19.8   ✔ modelbased  0.8.7 
-✔ performance 0.10.9   ✔ parameters  0.21.5
-✔ report      0.5.8    ✔ see         0.8.2 </code></pre>
+✖ datawizard  0.9.1    ✖ effectsize  0.8.6 
+✖ insight     0.19.8   ✔ modelbased  0.8.7 
+✖ performance 0.10.9   ✖ parameters  0.21.5
+✔ report      0.5.8    ✖ see         0.8.2 
+
+Restart the R-Session and update packages with `easystats::easystats_update()`.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"penguins"</span>, <span class="at">package =</span> <span class="st">"palmerpenguins"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -289,11 +292,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>Variable          |      Mean |     SD |     IQR |              Range | Skewness | Kurtosis |   n | n_Missing
 -------------------------------------------------------------------------------------------------------------
-bill_length_mm    | -4.69e-16 |   1.00 |    1.67 |      [-2.07, 2.77] |     0.11 |    -0.67 | 129 |         0
-bill_depth_mm     | -6.28e-16 |   1.00 |    1.58 |      [-1.96, 2.17] |    -0.11 |    -0.86 | 129 |         0
-flipper_length_mm |  7.82e-16 |   1.00 |    1.75 |      [-2.10, 2.12] |     0.36 |    -0.99 | 129 |         0
-year              |  1.27e-14 |   1.00 |    2.39 |      [-1.25, 1.14] |    -0.09 |    -1.57 | 129 |         0
-body_mass_g       |   4182.95 | 811.37 | 1312.50 | [2900.00, 6050.00] |     0.44 |    -0.77 | 129 |         0</code></pre>
+bill_length_mm    | -5.75e-16 |   1.00 |    1.63 |      [-2.06, 2.72] |     0.10 |    -0.76 | 129 |         0
+bill_depth_mm     | -1.12e-16 |   1.00 |    1.52 |      [-2.12, 2.30] |    -0.24 |    -0.70 | 129 |         0
+flipper_length_mm |  1.06e-16 |   1.00 |    1.76 |      [-1.62, 2.12] |     0.42 |    -1.15 | 129 |         0
+year              |  2.18e-15 |   1.00 |    2.51 |      [-1.27, 1.25] |    -0.01 |    -1.42 | 129 |         0
+body_mass_g       |   4187.30 | 812.31 | 1200.00 | [2700.00, 6050.00] |     0.55 |    -0.56 | 128 |         1</code></pre>
 </div>
 </div>
 <p>Workflow und CV definieren:</p>
@@ -328,7 +331,7 @@ using the resamples with no tuning. Did you want to [tune()] parameters?</code><
 <pre><code># A tibble: 1 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard    294.     2    5.24 Preprocessor1_Model1</code></pre>
+1 rmse    standard    316.     2    6.86 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>wf1_final <span class="ot">&lt;-</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  wf1 <span class="sc">%&gt;%</span> </span>
@@ -366,8 +369,8 @@ Computational engine: lm </code></pre>
 <pre><code># A tibble: 2 × 4
   .metric .estimator .estimate .config             
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     323.    Preprocessor1_Model1
-2 rsq     standard       0.812 Preprocessor1_Model1</code></pre>
+1 rmse    standard     271.    Preprocessor1_Model1
+2 rsq     standard       0.896 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fit1_train <span class="ot">&lt;-</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  wf1_final <span class="sc">%&gt;%</span> </span>
@@ -383,12 +386,12 @@ Computational engine: lm </code></pre>
 <pre><code># A tibble: 6 × 1
   .pred
   &lt;dbl&gt;
-1 4569.
-2 3260.
-3 3422.
-4 4000.
-5 3429.
-6 5725.</code></pre>
+1 4366.
+2 5444.
+3 4154.
+4 3277.
+5 4164.
+6 4905.</code></pre>
 </div>
 </div>
 <p>Vgl <a href="https://workflows.tidymodels.org/reference/predict-workflow.html" class="uri">https://workflows.tidymodels.org/reference/predict-workflow.html</a></p>
@@ -894,7 +897,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Teilen Sie Test- vs. Train-Set hälftig auf.</span>
 <span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Teilen Sie Analysis vs. Assessment-Set 3:1 auf.</span>
 <span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Den Datensatz <span class="in">`penguins`</span> können Sie entweder aus dem Paket <span class="in">`palmerpenguins`</span> beziehen oder z.B. von <span class="co">[</span><span class="ot">hier</span><span class="co">](https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv)</span> via <span class="in">`read_csv()`</span> importieren.</span>
-<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
 <span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
 <span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
