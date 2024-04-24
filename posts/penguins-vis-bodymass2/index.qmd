@@ -1,0 +1,83 @@
+---
+date: 2024-04-24  
+draft: false   
+title: penguins-vis-bodymass2
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- vis  # ENTER CATEGORIES HERE
+
+---
+
+# Aufgabe
+
+Im Datensatz `palmerpenguins`: Ist der Zusammenhang zwischen Körpergewicht und Schnabelhöhe (bill depth) (vgl. [Schemazeichnung hier](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png)) größer, wenn man den Zusammenhang getrennt für jede Spezies betrachtet?
+
+*Beantworten Sie diese Frage mit Hilfe einer Visualisierung!*
+
+
+Sie können den Datensatz so beziehen:
+
+```{r}
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+data("penguins")
+d <- penguins 
+```
+
+
+Oder so:
+
+```{r eval=FALSE}
+d <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")
+```
+
+
+Ein Codebook finden Sie [hier](https://vincentarelbundock.github.io/Rdatasets/doc/palmerpenguins/penguins.html).
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Nutzen Sie das R-Paket `ggpubr` zur Visualisierung. Dort finden Sie einen Befehl namens `ggscatter(datensatz, x-variable, y_variable, facet_by)`, mit dem Sie Streudiagramme aufgeteilt nach ("facettiert nach") einer (nominal skalierten) Gruppierungsvariablen erstellen können.
+
+
+
+# Lösung
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+```{r}
+d <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")
+```
+
+
+
+```{r}
+d |> 
+  ggscatter(x = "bill_depth_mm", y = "body_mass_g", facet.by = "species")
+```
+
+
+Und jetzt erstellen wir das Streudiagramm ohne Aufteilung in die Gruppen von `species`:
+
+```{r}
+ggscatter(d, x = "bill_depth_mm", y = "body_mass_g")
+```
+
+Wie man sieht, tritt der Zusammenhang klarer hervor, wenn man die Daten in die von `species` definierten Gruppen aufteilt. 
+
+
