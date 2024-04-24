@@ -220,7 +220,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Aufgaben</h1>
 <ol type="1">
 <li>Visualisieren Sie die Verteilung von <code>y</code> auf zwei verschiedene Arten.</li>
-<li>Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</li>
+<li>Fügen Sie relevante Kennzahlen hinzu.</li>
 <li>Visualisieren Sie die Verteilung von <code>x1</code> und <code>x2</code>.</li>
 <li>Visualisieren Sie die Verteilung von <code>y</code> bedingt auf <code>x1</code>.</li>
 <li>Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</li>
@@ -249,19 +249,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggstatsplot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggstatsplot)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DataExplorer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="los-gehts" class="level1">
 <h1>Los geht’s</h1>
 <section id="umbenennen" class="level2">
 <h2 class="anchored" data-anchor-id="umbenennen">Umbenennen</h2>
-<p>Zur einfacheren Verarbeitung nenne ich die Variablen um:</p>
+<p>Für weniger Tippen nenne ich die Variablen um:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">y =</span> body_mass_g, <span class="at">x1 =</span> species, <span class="at">x2 =</span> bill_length_mm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Das ist aber nicht unbedingt nötig und bringt auch vielleicht keinen Vorteil für Sie.</p>
 </section>
 <section id="visualisieren-sie-die-verteilung-von-y-auf-zwei-verschiedene-arten." class="level2">
 <h2 class="anchored" data-anchor-id="visualisieren-sie-die-verteilung-von-y-auf-zwei-verschiedene-arten.">Visualisieren Sie die Verteilung von <code>y</code> auf zwei verschiedene Arten.</h2>
@@ -300,12 +302,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</section>
-<section id="fügen-sie-relevante-kennzahlen-zur-letzten-visualisierung-hinzu." class="level2">
-<h2 class="anchored" data-anchor-id="fügen-sie-relevante-kennzahlen-zur-letzten-visualisierung-hinzu.">Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</h2>
-<p>Um Diagramme mit Statistiken anzureichen, bietet sich das Paket <code>ggstatsplot</code> an:</p>
+<p>Alternativ könnte man das R-Paket <code>{DataExplorer}</code> verwenden:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(y) <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_density</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -314,54 +315,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+</section>
+<section id="fügen-sie-relevante-kennzahlen-hinzu." class="level2">
+<h2 class="anchored" data-anchor-id="fügen-sie-relevante-kennzahlen-hinzu.">Fügen Sie relevante Kennzahlen hinzu.</h2>
+<p>Um Diagramme mit Statistiken anzureichen, bietet sich das Paket <code>{ggstatsplot}</code> an:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unnamed-chunk-8-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
+</figure>
+</div>
+</div>
+</div>
 <p>Beachten Sie, dass die Variable <em>nicht</em> in Anführungsstriche gesetzt werden darf: <code>x = y</code>.</p>
+<p>Natürlich könnte man sich typische deskriptive Statistiken auch anderweitig ausgeben lassen, etwa mit <code>{easystats}</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(y) <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variable |    Mean |     SD |     IQR |              Range | Skewness | Kurtosis |   n | n_Missing
+--------------------------------------------------------------------------------------------------
+y        | 4201.75 | 801.95 | 1206.25 | [2700.00, 6300.00] |     0.47 |    -0.72 | 342 |         2</code></pre>
+</div>
+</div>
 </section>
 <section id="visualisieren-sie-die-verteilung-von-x1-und-x2." class="level2">
 <h2 class="anchored" data-anchor-id="visualisieren-sie-die-verteilung-von-x1-und-x2.">Visualisieren Sie die Verteilung von <code>x1</code> und <code>x2</code>.</h2>
 <section id="x1" class="level3">
 <h3 class="anchored" data-anchor-id="x1"><code>x1</code></h3>
+<p>Mit <code>ggpubr</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d_counted <span class="ot">&lt;-</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(x1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d_counted <span class="ot">&lt;-</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(x1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(<span class="at">data =</span> d_counted, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">x =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="unnamed-chunk-9-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="x2" class="level3">
-<h3 class="anchored" data-anchor-id="x2"><code>x2</code></h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> x2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="unnamed-chunk-10-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="visualisieren-sie-die-verteilung-von-y-bedingt-auf-x1" class="level2">
-<h2 class="anchored" data-anchor-id="visualisieren-sie-die-verteilung-von-y-bedingt-auf-x1">Visualisieren Sie die Verteilung von <code>y</code> bedingt auf <code>x1</code></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">fill =</span> <span class="st">"x1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using `bins = 30` by default. Pick better value with the argument
-`bins`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
-(`stat_bin()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(<span class="at">data =</span> d_counted, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">x =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -370,17 +362,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Oder so:</p>
+<p>Mit <code>DataExplorer</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using `bins = 30` by default. Pick better value with the argument
-`bins`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
-(`stat_bin()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(x1) <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -390,10 +376,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="fügen-sie-relevante-kennzahlen-zur-letzten-visualisierung-hinzu" class="level2">
-<h2 class="anchored" data-anchor-id="fügen-sie-relevante-kennzahlen-zur-letzten-visualisierung-hinzu">Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu</h2>
+<section id="x2" class="level3">
+<h3 class="anchored" data-anchor-id="x2"><code>x2</code></h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grouped_gghistostats</span>(d, <span class="at">x =</span> y, <span class="at">grouping.var =</span> x1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> x2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -403,13 +389,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="visualisieren-sie-den-zusammenhang-von-y-und-x2" class="level2">
-<h2 class="anchored" data-anchor-id="visualisieren-sie-den-zusammenhang-von-y-und-x2">Visualisieren Sie den Zusammenhang von <code>y</code> und <code>x2</code></h2>
+</section>
+<section id="visualisieren-sie-die-verteilung-von-y-bedingt-auf-x1" class="level2">
+<h2 class="anchored" data-anchor-id="visualisieren-sie-die-verteilung-von-y-bedingt-auf-x1">Visualisieren Sie die Verteilung von <code>y</code> bedingt auf <code>x1</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">fill =</span> <span class="st">"x1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
-(`geom_point()`).</code></pre>
+<pre><code>Warning: Using `bins = 30` by default. Pick better value with the argument
+`bins`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -419,17 +410,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</section>
-<section id="verbessern-sie-das-letzte-diagramm-so-dass-es-übersichtlicher-wird" class="level2">
-<h2 class="anchored" data-anchor-id="verbessern-sie-das-letzte-diagramm-so-dass-es-übersichtlicher-wird">Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird</h2>
-<p>Es gibt mehrere Wege, das Diagramm übersichtlicher zu machen. Logarithmieren ist ein Weg.</p>
+<p>Oder so:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2)) <span class="sc">|&gt;</span> </span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggscatter</span>(<span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
-(`geom_point()`).</code></pre>
+<pre><code>Warning: Using `bins = 30` by default. Pick better value with the argument
+`bins`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -439,18 +429,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Synonym könnten wir schreiben:</p>
+</section>
+<section id="fügen-sie-relevante-kennzahlen-zur-letzten-visualisierung-hinzu" class="level2">
+<h2 class="anchored" data-anchor-id="fügen-sie-relevante-kennzahlen-zur-letzten-visualisierung-hinzu">Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>d_logged <span class="ot">&lt;-</span> </span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2))</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
-(`geom_point()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grouped_gghistostats</span>(d, <span class="at">x =</span> y, <span class="at">grouping.var =</span> x1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -460,21 +443,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="fügen-sie-dem-letzten-diagramm-relevante-kennzahlen-hinzu" class="level2">
-<h2 class="anchored" data-anchor-id="fügen-sie-dem-letzten-diagramm-relevante-kennzahlen-hinzu">Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu</h2>
+<section id="visualisieren-sie-den-zusammenhang-von-y-und-x2" class="level2">
+<h2 class="anchored" data-anchor-id="visualisieren-sie-den-zusammenhang-von-y-und-x2">Visualisieren Sie den Zusammenhang von <code>y</code> und <code>x2</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatterstats</span>(d_logged, <span class="at">x =</span> x2, <span class="at">y =</span> y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="fügen-sie-dem-diagramm-zum-zusammenhang-von-y-und-x2-eine-regressionsgerade-hinzu" class="level2">
-<h2 class="anchored" data-anchor-id="fügen-sie-dem-diagramm-zum-zusammenhang-von-y-und-x2-eine-regressionsgerade-hinzu">Fügen Sie dem Diagramm zum Zusammenhang von <code>y</code> und <code>x2</code> eine Regressionsgerade hinzu</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"reg.line"</span>, </span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
-(`stat_smooth()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
@@ -488,15 +460,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="ersetzen-sie-die-regressionsgerade-durch-eine-loess-gerade" class="level2">
-<h2 class="anchored" data-anchor-id="ersetzen-sie-die-regressionsgerade-durch-eine-loess-gerade">Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade</h2>
+<section id="verbessern-sie-das-letzte-diagramm-so-dass-es-übersichtlicher-wird" class="level2">
+<h2 class="anchored" data-anchor-id="verbessern-sie-das-letzte-diagramm-so-dass-es-übersichtlicher-wird">Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird</h2>
+<p>Es gibt mehrere Wege, das Diagramm übersichtlicher zu machen. Logarithmieren ist ein Weg.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
-(`stat_smooth()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2)) <span class="sc">|&gt;</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggscatter</span>(<span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
@@ -509,17 +479,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</section>
-<section id="gruppieren-sie-das-letzte-diagramm-nach-x1" class="level2">
-<h2 class="anchored" data-anchor-id="gruppieren-sie-das-letzte-diagramm-nach-x1">Gruppieren Sie das letzte Diagramm nach <code>x1</code></h2>
+<p>Synonym könnten wir schreiben:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>),</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
-(`stat_smooth()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>d_logged <span class="ot">&lt;-</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
@@ -533,22 +500,95 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="dichotomisieren-sie-y-und-zählen-sie-die-häufigkeiten" class="level2">
-<h2 class="anchored" data-anchor-id="dichotomisieren-sie-y-und-zählen-sie-die-häufigkeiten">Dichotomisieren Sie <code>y</code> und zählen Sie die Häufigkeiten</h2>
-<p>Nehmen wir einen Mediansplit, um zu dichotomisieren.</p>
+<section id="fügen-sie-dem-letzten-diagramm-relevante-kennzahlen-hinzu" class="level2">
+<h2 class="anchored" data-anchor-id="fügen-sie-dem-letzten-diagramm-relevante-kennzahlen-hinzu">Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y_dicho =</span> <span class="fu">ifelse</span>(y <span class="sc">&gt;</span> <span class="fu">median</span>(y), <span class="st">"high"</span>, <span class="st">"low"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatterstats</span>(d_logged, <span class="at">x =</span> x2, <span class="at">y =</span> y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="fügen-sie-dem-diagramm-zum-zusammenhang-von-y-und-x2-eine-regressionsgerade-hinzu" class="level2">
+<h2 class="anchored" data-anchor-id="fügen-sie-dem-diagramm-zum-zusammenhang-von-y-und-x2-eine-regressionsgerade-hinzu">Fügen Sie dem Diagramm zum Zusammenhang von <code>y</code> und <code>x2</code> eine Regressionsgerade hinzu</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho) <span class="sc">|&gt;</span> </span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggbarplot</span>(<span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"reg.line"</span>, </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unnamed-chunk-20-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ersetzen-sie-die-regressionsgerade-durch-eine-loess-gerade" class="level2">
+<h2 class="anchored" data-anchor-id="ersetzen-sie-die-regressionsgerade-durch-eine-loess-gerade">Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
 <p><img src="unnamed-chunk-21-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="gruppieren-sie-das-letzte-diagramm-nach-x1" class="level2">
+<h2 class="anchored" data-anchor-id="gruppieren-sie-das-letzte-diagramm-nach-x1">Gruppieren Sie das letzte Diagramm nach <code>x1</code></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>),</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unnamed-chunk-22-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="dichotomisieren-sie-y-und-zählen-sie-die-häufigkeiten" class="level2">
+<h2 class="anchored" data-anchor-id="dichotomisieren-sie-y-und-zählen-sie-die-häufigkeiten">Dichotomisieren Sie <code>y</code> und zählen Sie die Häufigkeiten</h2>
+<p>Nehmen wir einen Mediansplit, um zu dichotomisieren.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y_dicho =</span> <span class="fu">ifelse</span>(y <span class="sc">&gt;</span> <span class="fu">median</span>(y), <span class="st">"high"</span>, <span class="st">"low"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho) <span class="sc">|&gt;</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggbarplot</span>(<span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unnamed-chunk-24-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
 </figure>
 </div>
 </div>
@@ -558,11 +598,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="gruppieren-sie-das-letzte-diagramm-nach-den-stufen-von-x1" class="level2">
 <h2 class="anchored" data-anchor-id="gruppieren-sie-das-letzte-diagramm-nach-den-stufen-von-x1">Gruppieren Sie das letzte Diagramm nach den Stufen von <code>x1</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span> </span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho, x1) </span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>d_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho, x1) </span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>d_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   y_dicho x1            n
@@ -573,11 +613,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="unnamed-chunk-23-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
+<p><img src="unnamed-chunk-26-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
 </figure>
 </div>
 </div>
@@ -586,12 +626,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="variieren-sie-das-letzte-diagramm-so-dass-anteile-relative-häufigkeiten-statt-absoluter-häufigkeiten-gezeigt-werden" class="level2">
 <h2 class="anchored" data-anchor-id="variieren-sie-das-letzte-diagramm-so-dass-anteile-relative-häufigkeiten-statt-absoluter-häufigkeiten-gezeigt-werden">Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  d_count <span class="sc">|&gt;</span> </span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> <span class="fu">round</span>(prop, <span class="dv">2</span>))</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>d_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  d_count <span class="sc">|&gt;</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> <span class="fu">round</span>(prop, <span class="dv">2</span>))</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>d_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 4
   y_dicho x1            n  prop
@@ -603,8 +643,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Check:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>d_count <span class="sc">|&gt;</span> </span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">sum</span>(prop))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>d_count <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">sum</span>(prop))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 1
   `sum(prop)`
@@ -614,11 +654,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Gut! Die Anteile summieren sich zu ca. 1 (100 Prozent).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"prop"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"prop"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="unnamed-chunk-26-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
+<p><img src="unnamed-chunk-29-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
 </figure>
 </div>
 </div>
@@ -1079,381 +1119,414 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb47" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> vis-penguins</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> NA</span></span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="co">- vis</span></span>
-<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="co">- yacsda</span></span>
-<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a><span class="co">- ggquick</span></span>
-<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a><span class="co">- penguins</span></span>
-<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="co">- string</span></span>
-<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2023-09-12'</span></span>
-<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> vis-penguins</span></span>
-<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> vis-penguins</span></span>
-<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE, message=FALSE}</span></span>
-<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(fig.pos = 'H',</span></span>
-<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.asp = 0.618,</span></span>
-<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.width = 4,</span></span>
-<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.cap = "", </span></span>
-<span id="cb47-24"><a href="#cb47-24" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.path = "",</span></span>
-<span id="cb47-25"><a href="#cb47-25" aria-hidden="true" tabindex="-1"></a><span class="in">                      out.width = "100%",</span></span>
-<span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a><span class="in">                      echo = TRUE,</span></span>
-<span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a><span class="in">                      message = FALSE,</span></span>
-<span id="cb47-28"><a href="#cb47-28" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.show = "hold")</span></span>
-<span id="cb47-29"><a href="#cb47-29" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-30"><a href="#cb47-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-31"><a href="#cb47-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-32"><a href="#cb47-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-33"><a href="#cb47-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-34"><a href="#cb47-34" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
-<span id="cb47-35"><a href="#cb47-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-36"><a href="#cb47-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-37"><a href="#cb47-37" aria-hidden="true" tabindex="-1"></a>In dieser Fallstudie (YACSDA: Yet another Case Study on Data Analysis) untersuchen wir den Datensatz <span class="in">`penguins`</span>.</span>
-<span id="cb47-38"><a href="#cb47-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-39"><a href="#cb47-39" aria-hidden="true" tabindex="-1"></a>Sie können den Datensatz so beziehen:</span>
-<span id="cb47-40"><a href="#cb47-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-43"><a href="#cb47-43" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-44"><a href="#cb47-44" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("palmerpenguins")</span></span>
-<span id="cb47-45"><a href="#cb47-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(palmerpenguins)</span>
-<span id="cb47-46"><a href="#cb47-46" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"penguins"</span>)</span>
-<span id="cb47-47"><a href="#cb47-47" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> penguins </span>
-<span id="cb47-48"><a href="#cb47-48" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-49"><a href="#cb47-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-50"><a href="#cb47-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-51"><a href="#cb47-51" aria-hidden="true" tabindex="-1"></a>Oder so:</span>
-<span id="cb47-52"><a href="#cb47-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-53"><a href="#cb47-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval=FALSE}</span></span>
-<span id="cb47-54"><a href="#cb47-54" aria-hidden="true" tabindex="-1"></a><span class="in">d &lt;- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")</span></span>
-<span id="cb47-55"><a href="#cb47-55" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-56"><a href="#cb47-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-57"><a href="#cb47-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-58"><a href="#cb47-58" aria-hidden="true" tabindex="-1"></a>Ein Codebook finden Sie <span class="co">[</span><span class="ot">hier</span><span class="co">](https://vincentarelbundock.github.io/Rdatasets/doc/palmerpenguins/penguins.html)</span>.</span>
-<span id="cb47-59"><a href="#cb47-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-60"><a href="#cb47-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-61"><a href="#cb47-61" aria-hidden="true" tabindex="-1"></a>Die Forschungsfrage lautet:</span>
-<span id="cb47-62"><a href="#cb47-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-63"><a href="#cb47-63" aria-hidden="true" tabindex="-1"></a>Was ist der Einfluss der Spezies und der Schnabellänge auf das Körpergewicht?</span>
-<span id="cb47-64"><a href="#cb47-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-65"><a href="#cb47-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Abhängige Variable (metrisch), <span class="in">`y`</span>: Körpergewicht</span>
-<span id="cb47-66"><a href="#cb47-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unabhängige Variable 1 (nominal), <span class="in">`x1`</span>: Spezies</span>
-<span id="cb47-67"><a href="#cb47-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unabhängige Variable 2 (metrisch), <span class="in">`x2`</span>: Schnabellänge</span>
-<span id="cb47-68"><a href="#cb47-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-69"><a href="#cb47-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-70"><a href="#cb47-70" aria-hidden="true" tabindex="-1"></a>Visualisieren Sie dazu folgende Aspekte der Forschungsfrage!</span>
-<span id="cb47-71"><a href="#cb47-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-72"><a href="#cb47-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-73"><a href="#cb47-73" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
-<span id="cb47-74"><a href="#cb47-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-75"><a href="#cb47-75" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
-<span id="cb47-76"><a href="#cb47-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-77"><a href="#cb47-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-78"><a href="#cb47-78" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgaben</span></span>
-<span id="cb47-79"><a href="#cb47-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-80"><a href="#cb47-80" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Visualisieren Sie die Verteilung von <span class="in">`y`</span> auf zwei verschiedene Arten.</span>
-<span id="cb47-81"><a href="#cb47-81" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</span>
-<span id="cb47-82"><a href="#cb47-82" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Visualisieren Sie die Verteilung von <span class="in">`x1`</span> und <span class="in">`x2`</span>.</span>
-<span id="cb47-83"><a href="#cb47-83" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Visualisieren Sie die Verteilung von <span class="in">`y`</span> bedingt auf <span class="in">`x1`</span>.</span>
-<span id="cb47-84"><a href="#cb47-84" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</span>
-<span id="cb47-85"><a href="#cb47-85" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Visualisieren Sie den Zusammenhang von <span class="in">`y`</span> und <span class="in">`x2`</span>.</span>
-<span id="cb47-86"><a href="#cb47-86" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird.</span>
-<span id="cb47-87"><a href="#cb47-87" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu.</span>
-<span id="cb47-88"><a href="#cb47-88" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Fügen Sie dem Diagramm zum Zusammenhang von <span class="in">`y`</span> und <span class="in">`x2`</span> eine Regressionsgerade hinzu.</span>
-<span id="cb47-89"><a href="#cb47-89" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade.</span>
-<span id="cb47-90"><a href="#cb47-90" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Gruppieren Sie das letzte Diagramm nach <span class="in">`x1`</span>.</span>
-<span id="cb47-91"><a href="#cb47-91" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Dichotomisieren Sie <span class="in">`y`</span> und zählen Sie die Häufigkeiten. *Achtung*: Dichotomisieren wird von einigen Statistikern mit Exkommunikation bestraft. Proceed at your own risk.</span>
-<span id="cb47-92"><a href="#cb47-92" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Gruppieren Sie das letzte Diagramm nach den Stufen von <span class="in">`x1`</span>.</span>
-<span id="cb47-93"><a href="#cb47-93" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden.</span>
-<span id="cb47-94"><a href="#cb47-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-95"><a href="#cb47-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-96"><a href="#cb47-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-97"><a href="#cb47-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-98"><a href="#cb47-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-99"><a href="#cb47-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-100"><a href="#cb47-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-101"><a href="#cb47-101" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
-<span id="cb47-102"><a href="#cb47-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-103"><a href="#cb47-103" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
-<span id="cb47-104"><a href="#cb47-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-105"><a href="#cb47-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-106"><a href="#cb47-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-107"><a href="#cb47-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-108"><a href="#cb47-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-109"><a href="#cb47-109" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-110"><a href="#cb47-110" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-111"><a href="#cb47-111" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-112"><a href="#cb47-112" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-113"><a href="#cb47-113" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-114"><a href="#cb47-114" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-115"><a href="#cb47-115" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-116"><a href="#cb47-116" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-117"><a href="#cb47-117" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-118"><a href="#cb47-118" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb47-119"><a href="#cb47-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-120"><a href="#cb47-120" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
-<span id="cb47-121"><a href="#cb47-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-122"><a href="#cb47-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-123"><a href="#cb47-123" aria-hidden="true" tabindex="-1"></a><span class="fu"># Pakete starten</span></span>
-<span id="cb47-124"><a href="#cb47-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-125"><a href="#cb47-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{r echo = TRUE}</span></span>
-<span id="cb47-126"><a href="#cb47-126" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse) </span></span>
-<span id="cb47-127"><a href="#cb47-127" aria-hidden="true" tabindex="-1"></a><span class="in">library(easystats)</span></span>
-<span id="cb47-128"><a href="#cb47-128" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggpubr)</span></span>
-<span id="cb47-129"><a href="#cb47-129" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggstatsplot)</span></span>
-<span id="cb47-130"><a href="#cb47-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-131"><a href="#cb47-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-132"><a href="#cb47-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-133"><a href="#cb47-133" aria-hidden="true" tabindex="-1"></a><span class="fu"># Los geht's </span></span>
-<span id="cb47-134"><a href="#cb47-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-135"><a href="#cb47-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-136"><a href="#cb47-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-137"><a href="#cb47-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Umbenennen</span></span>
-<span id="cb47-138"><a href="#cb47-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-139"><a href="#cb47-139" aria-hidden="true" tabindex="-1"></a>Zur einfacheren Verarbeitung nenne ich die Variablen um:</span>
-<span id="cb47-140"><a href="#cb47-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-143"><a href="#cb47-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-144"><a href="#cb47-144" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb47-145"><a href="#cb47-145" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb47-146"><a href="#cb47-146" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">y =</span> body_mass_g, <span class="at">x1 =</span> species, <span class="at">x2 =</span> bill_length_mm)</span>
-<span id="cb47-147"><a href="#cb47-147" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-148"><a href="#cb47-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-149"><a href="#cb47-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-150"><a href="#cb47-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-151"><a href="#cb47-151" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie die Verteilung von `y` auf zwei verschiedene Arten.</span></span>
-<span id="cb47-152"><a href="#cb47-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-153"><a href="#cb47-153" aria-hidden="true" tabindex="-1"></a>Das R-Paket <span class="in">`ggpubr`</span> erstellt schöne Diagramme (basierend auf <span class="in">`ggplot`</span>) auf einfache Art.</span>
-<span id="cb47-154"><a href="#cb47-154" aria-hidden="true" tabindex="-1"></a>Nehmen wir ein Dichtediagramm; die Variable <span class="in">`y`</span> soll auf der X-Achse stehen:</span>
-<span id="cb47-155"><a href="#cb47-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-158"><a href="#cb47-158" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-159"><a href="#cb47-159" aria-hidden="true" tabindex="-1"></a><span class="fu">ggdensity</span>(d, <span class="at">x =</span> <span class="st">"y"</span>)</span>
-<span id="cb47-160"><a href="#cb47-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-161"><a href="#cb47-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-162"><a href="#cb47-162" aria-hidden="true" tabindex="-1"></a>Beachten Sie, dass die Variable in Anführungsstriche gesetzt werden muss: <span class="in">`x = "y"`</span>.</span>
-<span id="cb47-163"><a href="#cb47-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-164"><a href="#cb47-164" aria-hidden="true" tabindex="-1"></a>Oder ein Histogramm:</span>
-<span id="cb47-165"><a href="#cb47-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-168"><a href="#cb47-168" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-169"><a href="#cb47-169" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>)</span>
-<span id="cb47-170"><a href="#cb47-170" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-171"><a href="#cb47-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-172"><a href="#cb47-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-173"><a href="#cb47-173" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</span></span>
-<span id="cb47-174"><a href="#cb47-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-175"><a href="#cb47-175" aria-hidden="true" tabindex="-1"></a>Um Diagramme mit Statistiken anzureichen, bietet sich das Paket <span class="in">`ggstatsplot`</span> an:</span>
-<span id="cb47-176"><a href="#cb47-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-179"><a href="#cb47-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-180"><a href="#cb47-180" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> y)</span>
-<span id="cb47-181"><a href="#cb47-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-182"><a href="#cb47-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-183"><a href="#cb47-183" aria-hidden="true" tabindex="-1"></a>Beachten Sie, dass die Variable *nicht* in Anführungsstriche gesetzt werden darf: <span class="in">`x = y`</span>.</span>
-<span id="cb47-184"><a href="#cb47-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-185"><a href="#cb47-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-186"><a href="#cb47-186" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie die Verteilung von `x1` und `x2`.</span></span>
-<span id="cb47-187"><a href="#cb47-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-188"><a href="#cb47-188" aria-hidden="true" tabindex="-1"></a><span class="fu">### `x1`</span></span>
-<span id="cb47-189"><a href="#cb47-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-192"><a href="#cb47-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-193"><a href="#cb47-193" aria-hidden="true" tabindex="-1"></a>d_counted <span class="ot">&lt;-</span> </span>
-<span id="cb47-194"><a href="#cb47-194" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb47-195"><a href="#cb47-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(x1) </span>
-<span id="cb47-196"><a href="#cb47-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-197"><a href="#cb47-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-198"><a href="#cb47-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-201"><a href="#cb47-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-202"><a href="#cb47-202" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(<span class="at">data =</span> d_counted, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">x =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb47-203"><a href="#cb47-203" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-204"><a href="#cb47-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-205"><a href="#cb47-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-206"><a href="#cb47-206" aria-hidden="true" tabindex="-1"></a><span class="fu">### `x2`</span></span>
-<span id="cb47-207"><a href="#cb47-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-208"><a href="#cb47-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-211"><a href="#cb47-211" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-212"><a href="#cb47-212" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> x2)</span>
-<span id="cb47-213"><a href="#cb47-213" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-214"><a href="#cb47-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-215"><a href="#cb47-215" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie die Verteilung von `y` bedingt auf `x1`</span></span>
-<span id="cb47-216"><a href="#cb47-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-217"><a href="#cb47-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-220"><a href="#cb47-220" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-221"><a href="#cb47-221" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">fill =</span> <span class="st">"x1"</span>)</span>
-<span id="cb47-222"><a href="#cb47-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-223"><a href="#cb47-223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-224"><a href="#cb47-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-225"><a href="#cb47-225" aria-hidden="true" tabindex="-1"></a>Oder so:</span>
-<span id="cb47-226"><a href="#cb47-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-227"><a href="#cb47-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-230"><a href="#cb47-230" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-231"><a href="#cb47-231" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span>
-<span id="cb47-232"><a href="#cb47-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-233"><a href="#cb47-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-234"><a href="#cb47-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-235"><a href="#cb47-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu</span></span>
-<span id="cb47-236"><a href="#cb47-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-237"><a href="#cb47-237" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-240"><a href="#cb47-240" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-241"><a href="#cb47-241" aria-hidden="true" tabindex="-1"></a><span class="fu">grouped_gghistostats</span>(d, <span class="at">x =</span> y, <span class="at">grouping.var =</span> x1)</span>
-<span id="cb47-242"><a href="#cb47-242" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-243"><a href="#cb47-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-244"><a href="#cb47-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-245"><a href="#cb47-245" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie den Zusammenhang von `y` und `x2`</span></span>
-<span id="cb47-246"><a href="#cb47-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-249"><a href="#cb47-249" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-250"><a href="#cb47-250" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span>
-<span id="cb47-251"><a href="#cb47-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-252"><a href="#cb47-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-253"><a href="#cb47-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-254"><a href="#cb47-254" aria-hidden="true" tabindex="-1"></a><span class="fu">## Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird</span></span>
-<span id="cb47-255"><a href="#cb47-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-256"><a href="#cb47-256" aria-hidden="true" tabindex="-1"></a>Es gibt mehrere Wege, das Diagramm übersichtlicher zu machen.</span>
-<span id="cb47-257"><a href="#cb47-257" aria-hidden="true" tabindex="-1"></a>Logarithmieren ist ein Weg.</span>
-<span id="cb47-258"><a href="#cb47-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-261"><a href="#cb47-261" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-262"><a href="#cb47-262" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
-<span id="cb47-263"><a href="#cb47-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2)) <span class="sc">|&gt;</span> </span>
-<span id="cb47-264"><a href="#cb47-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggscatter</span>(<span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span>
-<span id="cb47-265"><a href="#cb47-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-266"><a href="#cb47-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-267"><a href="#cb47-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-268"><a href="#cb47-268" aria-hidden="true" tabindex="-1"></a>Synonym könnten wir schreiben:</span>
-<span id="cb47-269"><a href="#cb47-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-270"><a href="#cb47-270" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-273"><a href="#cb47-273" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-274"><a href="#cb47-274" aria-hidden="true" tabindex="-1"></a>d_logged <span class="ot">&lt;-</span> </span>
-<span id="cb47-275"><a href="#cb47-275" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb47-276"><a href="#cb47-276" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2))</span>
-<span id="cb47-277"><a href="#cb47-277" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb47-278"><a href="#cb47-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-279"><a href="#cb47-279" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span>
-<span id="cb47-280"><a href="#cb47-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-281"><a href="#cb47-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-282"><a href="#cb47-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-283"><a href="#cb47-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu</span></span>
-<span id="cb47-284"><a href="#cb47-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-285"><a href="#cb47-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-286"><a href="#cb47-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ggscatter1, eval = FALSE}</span></span>
-<span id="cb47-287"><a href="#cb47-287" aria-hidden="true" tabindex="-1"></a><span class="in">ggscatterstats(d_logged, x = x2, y = y)</span></span>
-<span id="cb47-288"><a href="#cb47-288" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-289"><a href="#cb47-289" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-290"><a href="#cb47-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-291"><a href="#cb47-291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-292"><a href="#cb47-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie dem Diagramm zum Zusammenhang von `y` und `x2` eine Regressionsgerade hinzu</span></span>
-<span id="cb47-293"><a href="#cb47-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-294"><a href="#cb47-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-297"><a href="#cb47-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-298"><a href="#cb47-298" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"reg.line"</span>, </span>
-<span id="cb47-299"><a href="#cb47-299" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span>
-<span id="cb47-300"><a href="#cb47-300" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-301"><a href="#cb47-301" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-302"><a href="#cb47-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-303"><a href="#cb47-303" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade</span></span>
-<span id="cb47-304"><a href="#cb47-304" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-305"><a href="#cb47-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-308"><a href="#cb47-308" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-309"><a href="#cb47-309" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
-<span id="cb47-310"><a href="#cb47-310" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span>
-<span id="cb47-311"><a href="#cb47-311" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-312"><a href="#cb47-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-313"><a href="#cb47-313" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-314"><a href="#cb47-314" aria-hidden="true" tabindex="-1"></a><span class="fu">## Gruppieren Sie das letzte Diagramm nach `x1`</span></span>
-<span id="cb47-315"><a href="#cb47-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-318"><a href="#cb47-318" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-319"><a href="#cb47-319" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
-<span id="cb47-320"><a href="#cb47-320" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>),</span>
-<span id="cb47-321"><a href="#cb47-321" aria-hidden="true" tabindex="-1"></a>          <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span>
-<span id="cb47-322"><a href="#cb47-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-323"><a href="#cb47-323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-324"><a href="#cb47-324" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-325"><a href="#cb47-325" aria-hidden="true" tabindex="-1"></a><span class="fu">##  Dichotomisieren Sie `y` und zählen Sie die Häufigkeiten</span></span>
-<span id="cb47-326"><a href="#cb47-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-327"><a href="#cb47-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-328"><a href="#cb47-328" aria-hidden="true" tabindex="-1"></a>Nehmen wir einen Mediansplit, um zu dichotomisieren.</span>
-<span id="cb47-329"><a href="#cb47-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-332"><a href="#cb47-332" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-333"><a href="#cb47-333" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb47-334"><a href="#cb47-334" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb47-335"><a href="#cb47-335" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y_dicho =</span> <span class="fu">ifelse</span>(y <span class="sc">&gt;</span> <span class="fu">median</span>(y), <span class="st">"high"</span>, <span class="st">"low"</span>))</span>
-<span id="cb47-336"><a href="#cb47-336" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-337"><a href="#cb47-337" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-338"><a href="#cb47-338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-339"><a href="#cb47-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-342"><a href="#cb47-342" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-343"><a href="#cb47-343" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
-<span id="cb47-344"><a href="#cb47-344" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho) <span class="sc">|&gt;</span> </span>
-<span id="cb47-345"><a href="#cb47-345" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggbarplot</span>(<span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>)</span>
-<span id="cb47-346"><a href="#cb47-346" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-347"><a href="#cb47-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-348"><a href="#cb47-348" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-349"><a href="#cb47-349" aria-hidden="true" tabindex="-1"></a>Gleich viele! Das sollte nicht verwundern.</span>
-<span id="cb47-350"><a href="#cb47-350" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-351"><a href="#cb47-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-352"><a href="#cb47-352" aria-hidden="true" tabindex="-1"></a><span class="fu">## Gruppieren Sie das letzte Diagramm nach den Stufen von `x1`</span></span>
-<span id="cb47-353"><a href="#cb47-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-354"><a href="#cb47-354" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-355"><a href="#cb47-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-358"><a href="#cb47-358" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-359"><a href="#cb47-359" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span> </span>
-<span id="cb47-360"><a href="#cb47-360" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
-<span id="cb47-361"><a href="#cb47-361" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho, x1) </span>
-<span id="cb47-362"><a href="#cb47-362" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-363"><a href="#cb47-363" aria-hidden="true" tabindex="-1"></a>d_count</span>
-<span id="cb47-364"><a href="#cb47-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-365"><a href="#cb47-365" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-368"><a href="#cb47-368" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-369"><a href="#cb47-369" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb47-370"><a href="#cb47-370" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-371"><a href="#cb47-371" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-372"><a href="#cb47-372" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-373"><a href="#cb47-373" aria-hidden="true" tabindex="-1"></a><span class="fu">## Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden</span></span>
-<span id="cb47-374"><a href="#cb47-374" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-375"><a href="#cb47-375" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-378"><a href="#cb47-378" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-379"><a href="#cb47-379" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span></span>
-<span id="cb47-380"><a href="#cb47-380" aria-hidden="true" tabindex="-1"></a>  d_count <span class="sc">|&gt;</span> </span>
-<span id="cb47-381"><a href="#cb47-381" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
-<span id="cb47-382"><a href="#cb47-382" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> <span class="fu">round</span>(prop, <span class="dv">2</span>))</span>
-<span id="cb47-383"><a href="#cb47-383" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-384"><a href="#cb47-384" aria-hidden="true" tabindex="-1"></a>d_count</span>
-<span id="cb47-385"><a href="#cb47-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-386"><a href="#cb47-386" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-387"><a href="#cb47-387" aria-hidden="true" tabindex="-1"></a>Check:</span>
-<span id="cb47-388"><a href="#cb47-388" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-391"><a href="#cb47-391" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-392"><a href="#cb47-392" aria-hidden="true" tabindex="-1"></a>d_count <span class="sc">|&gt;</span> </span>
-<span id="cb47-393"><a href="#cb47-393" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">sum</span>(prop))</span>
-<span id="cb47-394"><a href="#cb47-394" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-395"><a href="#cb47-395" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-396"><a href="#cb47-396" aria-hidden="true" tabindex="-1"></a>Gut! Die Anteile summieren sich zu ca. 1 (100 Prozent).</span>
-<span id="cb47-397"><a href="#cb47-397" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-398"><a href="#cb47-398" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-401"><a href="#cb47-401" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb47-402"><a href="#cb47-402" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"prop"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb47-403"><a href="#cb47-403" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb47-404"><a href="#cb47-404" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-405"><a href="#cb47-405" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-406"><a href="#cb47-406" aria-hidden="true" tabindex="-1"></a>Man beachten, dass sich die Anteile auf das "Gesamt-N" beziehen.</span>
-<span id="cb47-407"><a href="#cb47-407" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-408"><a href="#cb47-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-409"><a href="#cb47-409" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-410"><a href="#cb47-410" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-411"><a href="#cb47-411" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-412"><a href="#cb47-412" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-413"><a href="#cb47-413" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-414"><a href="#cb47-414" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-415"><a href="#cb47-415" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb47-416"><a href="#cb47-416" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-417"><a href="#cb47-417" aria-hidden="true" tabindex="-1"></a>Categories: </span>
-<span id="cb47-418"><a href="#cb47-418" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-419"><a href="#cb47-419" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>vis</span>
-<span id="cb47-420"><a href="#cb47-420" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>yacsda</span>
-<span id="cb47-421"><a href="#cb47-421" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ggquick</span>
-<span id="cb47-422"><a href="#cb47-422" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>penguins</span>
-<span id="cb47-423"><a href="#cb47-423" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>string</span>
+<div class="sourceCode" id="cb51" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> vis-penguins</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> NA</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="co">- vis</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="co">- yacsda</span></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a><span class="co">- ggquick</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a><span class="co">- penguins</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a><span class="co">- string</span></span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2023-09-12'</span></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> vis-penguins</span></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> vis-penguins</span></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE, message=FALSE}</span></span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(fig.pos = 'H',</span></span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.asp = 0.618,</span></span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.width = 4,</span></span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.cap = "", </span></span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.path = "",</span></span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a><span class="in">                      out.width = "100%",</span></span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a><span class="in">                      echo = TRUE,</span></span>
+<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a><span class="in">                      message = FALSE,</span></span>
+<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.show = "hold")</span></span>
+<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
+<span id="cb51-35"><a href="#cb51-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-36"><a href="#cb51-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-37"><a href="#cb51-37" aria-hidden="true" tabindex="-1"></a>In dieser Fallstudie (YACSDA: Yet another Case Study on Data Analysis) untersuchen wir den Datensatz <span class="in">`penguins`</span>.</span>
+<span id="cb51-38"><a href="#cb51-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-39"><a href="#cb51-39" aria-hidden="true" tabindex="-1"></a>Sie können den Datensatz so beziehen:</span>
+<span id="cb51-40"><a href="#cb51-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-43"><a href="#cb51-43" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-44"><a href="#cb51-44" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("palmerpenguins")</span></span>
+<span id="cb51-45"><a href="#cb51-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(palmerpenguins)</span>
+<span id="cb51-46"><a href="#cb51-46" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"penguins"</span>)</span>
+<span id="cb51-47"><a href="#cb51-47" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> penguins </span>
+<span id="cb51-48"><a href="#cb51-48" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-49"><a href="#cb51-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-50"><a href="#cb51-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-51"><a href="#cb51-51" aria-hidden="true" tabindex="-1"></a>Oder so:</span>
+<span id="cb51-52"><a href="#cb51-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-53"><a href="#cb51-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval=FALSE}</span></span>
+<span id="cb51-54"><a href="#cb51-54" aria-hidden="true" tabindex="-1"></a><span class="in">d &lt;- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")</span></span>
+<span id="cb51-55"><a href="#cb51-55" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-56"><a href="#cb51-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-57"><a href="#cb51-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-58"><a href="#cb51-58" aria-hidden="true" tabindex="-1"></a>Ein Codebook finden Sie <span class="co">[</span><span class="ot">hier</span><span class="co">](https://vincentarelbundock.github.io/Rdatasets/doc/palmerpenguins/penguins.html)</span>.</span>
+<span id="cb51-59"><a href="#cb51-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-60"><a href="#cb51-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-61"><a href="#cb51-61" aria-hidden="true" tabindex="-1"></a>Die Forschungsfrage lautet:</span>
+<span id="cb51-62"><a href="#cb51-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-63"><a href="#cb51-63" aria-hidden="true" tabindex="-1"></a>Was ist der Einfluss der Spezies und der Schnabellänge auf das Körpergewicht?</span>
+<span id="cb51-64"><a href="#cb51-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-65"><a href="#cb51-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Abhängige Variable (metrisch), <span class="in">`y`</span>: Körpergewicht</span>
+<span id="cb51-66"><a href="#cb51-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unabhängige Variable 1 (nominal), <span class="in">`x1`</span>: Spezies</span>
+<span id="cb51-67"><a href="#cb51-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unabhängige Variable 2 (metrisch), <span class="in">`x2`</span>: Schnabellänge</span>
+<span id="cb51-68"><a href="#cb51-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-69"><a href="#cb51-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-70"><a href="#cb51-70" aria-hidden="true" tabindex="-1"></a>Visualisieren Sie dazu folgende Aspekte der Forschungsfrage!</span>
+<span id="cb51-71"><a href="#cb51-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-72"><a href="#cb51-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-73"><a href="#cb51-73" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
+<span id="cb51-74"><a href="#cb51-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-75"><a href="#cb51-75" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
+<span id="cb51-76"><a href="#cb51-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-77"><a href="#cb51-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-78"><a href="#cb51-78" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgaben</span></span>
+<span id="cb51-79"><a href="#cb51-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-80"><a href="#cb51-80" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Visualisieren Sie die Verteilung von <span class="in">`y`</span> auf zwei verschiedene Arten.</span>
+<span id="cb51-81"><a href="#cb51-81" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Fügen Sie relevante Kennzahlen hinzu.</span>
+<span id="cb51-82"><a href="#cb51-82" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Visualisieren Sie die Verteilung von <span class="in">`x1`</span> und <span class="in">`x2`</span>.</span>
+<span id="cb51-83"><a href="#cb51-83" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Visualisieren Sie die Verteilung von <span class="in">`y`</span> bedingt auf <span class="in">`x1`</span>.</span>
+<span id="cb51-84"><a href="#cb51-84" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.</span>
+<span id="cb51-85"><a href="#cb51-85" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Visualisieren Sie den Zusammenhang von <span class="in">`y`</span> und <span class="in">`x2`</span>.</span>
+<span id="cb51-86"><a href="#cb51-86" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird.</span>
+<span id="cb51-87"><a href="#cb51-87" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu.</span>
+<span id="cb51-88"><a href="#cb51-88" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Fügen Sie dem Diagramm zum Zusammenhang von <span class="in">`y`</span> und <span class="in">`x2`</span> eine Regressionsgerade hinzu.</span>
+<span id="cb51-89"><a href="#cb51-89" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade.</span>
+<span id="cb51-90"><a href="#cb51-90" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Gruppieren Sie das letzte Diagramm nach <span class="in">`x1`</span>.</span>
+<span id="cb51-91"><a href="#cb51-91" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Dichotomisieren Sie <span class="in">`y`</span> und zählen Sie die Häufigkeiten. *Achtung*: Dichotomisieren wird von einigen Statistikern mit Exkommunikation bestraft. Proceed at your own risk.</span>
+<span id="cb51-92"><a href="#cb51-92" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Gruppieren Sie das letzte Diagramm nach den Stufen von <span class="in">`x1`</span>.</span>
+<span id="cb51-93"><a href="#cb51-93" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden.</span>
+<span id="cb51-94"><a href="#cb51-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-95"><a href="#cb51-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-96"><a href="#cb51-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-97"><a href="#cb51-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-98"><a href="#cb51-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-99"><a href="#cb51-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-100"><a href="#cb51-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-101"><a href="#cb51-101" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
+<span id="cb51-102"><a href="#cb51-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-103"><a href="#cb51-103" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
+<span id="cb51-104"><a href="#cb51-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-105"><a href="#cb51-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-106"><a href="#cb51-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-107"><a href="#cb51-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-108"><a href="#cb51-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-109"><a href="#cb51-109" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-110"><a href="#cb51-110" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-111"><a href="#cb51-111" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-112"><a href="#cb51-112" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-113"><a href="#cb51-113" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-114"><a href="#cb51-114" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-115"><a href="#cb51-115" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-116"><a href="#cb51-116" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-117"><a href="#cb51-117" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-118"><a href="#cb51-118" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb51-119"><a href="#cb51-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-120"><a href="#cb51-120" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
+<span id="cb51-121"><a href="#cb51-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-122"><a href="#cb51-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-123"><a href="#cb51-123" aria-hidden="true" tabindex="-1"></a><span class="fu"># Pakete starten</span></span>
+<span id="cb51-124"><a href="#cb51-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-125"><a href="#cb51-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{r echo = TRUE}</span></span>
+<span id="cb51-126"><a href="#cb51-126" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse) </span></span>
+<span id="cb51-127"><a href="#cb51-127" aria-hidden="true" tabindex="-1"></a><span class="in">library(easystats)</span></span>
+<span id="cb51-128"><a href="#cb51-128" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggpubr)</span></span>
+<span id="cb51-129"><a href="#cb51-129" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggstatsplot)</span></span>
+<span id="cb51-130"><a href="#cb51-130" aria-hidden="true" tabindex="-1"></a><span class="in">library(DataExplorer)</span></span>
+<span id="cb51-131"><a href="#cb51-131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-132"><a href="#cb51-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-133"><a href="#cb51-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-134"><a href="#cb51-134" aria-hidden="true" tabindex="-1"></a><span class="fu"># Los geht's </span></span>
+<span id="cb51-135"><a href="#cb51-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-136"><a href="#cb51-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-137"><a href="#cb51-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-138"><a href="#cb51-138" aria-hidden="true" tabindex="-1"></a><span class="fu">## Umbenennen</span></span>
+<span id="cb51-139"><a href="#cb51-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-140"><a href="#cb51-140" aria-hidden="true" tabindex="-1"></a>Für weniger Tippen nenne ich die Variablen um:</span>
+<span id="cb51-141"><a href="#cb51-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-144"><a href="#cb51-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-145"><a href="#cb51-145" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
+<span id="cb51-146"><a href="#cb51-146" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb51-147"><a href="#cb51-147" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">y =</span> body_mass_g, <span class="at">x1 =</span> species, <span class="at">x2 =</span> bill_length_mm)</span>
+<span id="cb51-148"><a href="#cb51-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-149"><a href="#cb51-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-150"><a href="#cb51-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-151"><a href="#cb51-151" aria-hidden="true" tabindex="-1"></a>Das ist aber nicht unbedingt nötig und bringt auch vielleicht keinen Vorteil für Sie.</span>
+<span id="cb51-152"><a href="#cb51-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-153"><a href="#cb51-153" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie die Verteilung von `y` auf zwei verschiedene Arten.</span></span>
+<span id="cb51-154"><a href="#cb51-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-155"><a href="#cb51-155" aria-hidden="true" tabindex="-1"></a>Das R-Paket <span class="in">`ggpubr`</span> erstellt schöne Diagramme (basierend auf <span class="in">`ggplot`</span>) auf einfache Art.</span>
+<span id="cb51-156"><a href="#cb51-156" aria-hidden="true" tabindex="-1"></a>Nehmen wir ein Dichtediagramm; die Variable <span class="in">`y`</span> soll auf der X-Achse stehen:</span>
+<span id="cb51-157"><a href="#cb51-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-160"><a href="#cb51-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-161"><a href="#cb51-161" aria-hidden="true" tabindex="-1"></a><span class="fu">ggdensity</span>(d, <span class="at">x =</span> <span class="st">"y"</span>)</span>
+<span id="cb51-162"><a href="#cb51-162" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-163"><a href="#cb51-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-164"><a href="#cb51-164" aria-hidden="true" tabindex="-1"></a>Beachten Sie, dass die Variable in Anführungsstriche gesetzt werden muss: <span class="in">`x = "y"`</span>.</span>
+<span id="cb51-165"><a href="#cb51-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-166"><a href="#cb51-166" aria-hidden="true" tabindex="-1"></a>Oder ein Histogramm:</span>
+<span id="cb51-167"><a href="#cb51-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-170"><a href="#cb51-170" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-171"><a href="#cb51-171" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>)</span>
+<span id="cb51-172"><a href="#cb51-172" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-173"><a href="#cb51-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-174"><a href="#cb51-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-175"><a href="#cb51-175" aria-hidden="true" tabindex="-1"></a>Alternativ könnte man das R-Paket <span class="in">`{DataExplorer}`</span> verwenden:</span>
+<span id="cb51-176"><a href="#cb51-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-179"><a href="#cb51-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-180"><a href="#cb51-180" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb51-181"><a href="#cb51-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(y) <span class="sc">|&gt;</span> </span>
+<span id="cb51-182"><a href="#cb51-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_density</span>()</span>
+<span id="cb51-183"><a href="#cb51-183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-184"><a href="#cb51-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-185"><a href="#cb51-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-186"><a href="#cb51-186" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie relevante Kennzahlen hinzu.</span></span>
+<span id="cb51-187"><a href="#cb51-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-188"><a href="#cb51-188" aria-hidden="true" tabindex="-1"></a>Um Diagramme mit Statistiken anzureichen, bietet sich das Paket <span class="in">`{ggstatsplot}`</span> an:</span>
+<span id="cb51-189"><a href="#cb51-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-192"><a href="#cb51-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-193"><a href="#cb51-193" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> y)</span>
+<span id="cb51-194"><a href="#cb51-194" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-195"><a href="#cb51-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-196"><a href="#cb51-196" aria-hidden="true" tabindex="-1"></a>Beachten Sie, dass die Variable *nicht* in Anführungsstriche gesetzt werden darf: <span class="in">`x = y`</span>.</span>
+<span id="cb51-197"><a href="#cb51-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-198"><a href="#cb51-198" aria-hidden="true" tabindex="-1"></a>Natürlich könnte man sich typische deskriptive Statistiken auch anderweitig ausgeben lassen, etwa mit <span class="in">`{easystats}`</span>:</span>
+<span id="cb51-199"><a href="#cb51-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-202"><a href="#cb51-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-203"><a href="#cb51-203" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb51-204"><a href="#cb51-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(y) <span class="sc">|&gt;</span> </span>
+<span id="cb51-205"><a href="#cb51-205" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span>
+<span id="cb51-206"><a href="#cb51-206" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-207"><a href="#cb51-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-208"><a href="#cb51-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-209"><a href="#cb51-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-210"><a href="#cb51-210" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie die Verteilung von `x1` und `x2`.</span></span>
+<span id="cb51-211"><a href="#cb51-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-212"><a href="#cb51-212" aria-hidden="true" tabindex="-1"></a><span class="fu">### `x1`</span></span>
+<span id="cb51-213"><a href="#cb51-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-214"><a href="#cb51-214" aria-hidden="true" tabindex="-1"></a>Mit <span class="in">`ggpubr`</span>:</span>
+<span id="cb51-215"><a href="#cb51-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-218"><a href="#cb51-218" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-219"><a href="#cb51-219" aria-hidden="true" tabindex="-1"></a>d_counted <span class="ot">&lt;-</span> </span>
+<span id="cb51-220"><a href="#cb51-220" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb51-221"><a href="#cb51-221" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(x1) </span>
+<span id="cb51-222"><a href="#cb51-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-223"><a href="#cb51-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-224"><a href="#cb51-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-227"><a href="#cb51-227" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-228"><a href="#cb51-228" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(<span class="at">data =</span> d_counted, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">x =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-229"><a href="#cb51-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-230"><a href="#cb51-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-231"><a href="#cb51-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-232"><a href="#cb51-232" aria-hidden="true" tabindex="-1"></a>Mit <span class="in">`DataExplorer`</span>: </span>
+<span id="cb51-233"><a href="#cb51-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-234"><a href="#cb51-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-237"><a href="#cb51-237" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-238"><a href="#cb51-238" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb51-239"><a href="#cb51-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(x1) <span class="sc">|&gt;</span> </span>
+<span id="cb51-240"><a href="#cb51-240" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_bar</span>()</span>
+<span id="cb51-241"><a href="#cb51-241" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-242"><a href="#cb51-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-243"><a href="#cb51-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-244"><a href="#cb51-244" aria-hidden="true" tabindex="-1"></a><span class="fu">### `x2`</span></span>
+<span id="cb51-245"><a href="#cb51-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-246"><a href="#cb51-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-249"><a href="#cb51-249" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-250"><a href="#cb51-250" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistostats</span>(d, <span class="at">x =</span> x2)</span>
+<span id="cb51-251"><a href="#cb51-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-252"><a href="#cb51-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-253"><a href="#cb51-253" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie die Verteilung von `y` bedingt auf `x1`</span></span>
+<span id="cb51-254"><a href="#cb51-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-255"><a href="#cb51-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-258"><a href="#cb51-258" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-259"><a href="#cb51-259" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">fill =</span> <span class="st">"x1"</span>)</span>
+<span id="cb51-260"><a href="#cb51-260" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-261"><a href="#cb51-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-262"><a href="#cb51-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-263"><a href="#cb51-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-264"><a href="#cb51-264" aria-hidden="true" tabindex="-1"></a>Oder so:</span>
+<span id="cb51-265"><a href="#cb51-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-266"><a href="#cb51-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-269"><a href="#cb51-269" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-270"><a href="#cb51-270" aria-hidden="true" tabindex="-1"></a><span class="fu">gghistogram</span>(d, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span>
+<span id="cb51-271"><a href="#cb51-271" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-272"><a href="#cb51-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-273"><a href="#cb51-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-274"><a href="#cb51-274" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu</span></span>
+<span id="cb51-275"><a href="#cb51-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-276"><a href="#cb51-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-279"><a href="#cb51-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-280"><a href="#cb51-280" aria-hidden="true" tabindex="-1"></a><span class="fu">grouped_gghistostats</span>(d, <span class="at">x =</span> y, <span class="at">grouping.var =</span> x1)</span>
+<span id="cb51-281"><a href="#cb51-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-282"><a href="#cb51-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-283"><a href="#cb51-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-284"><a href="#cb51-284" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualisieren Sie den Zusammenhang von `y` und `x2`</span></span>
+<span id="cb51-285"><a href="#cb51-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-288"><a href="#cb51-288" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-289"><a href="#cb51-289" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span>
+<span id="cb51-290"><a href="#cb51-290" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-291"><a href="#cb51-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-292"><a href="#cb51-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-293"><a href="#cb51-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Verbessern Sie das letzte Diagramm, so dass es übersichtlicher wird</span></span>
+<span id="cb51-294"><a href="#cb51-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-295"><a href="#cb51-295" aria-hidden="true" tabindex="-1"></a>Es gibt mehrere Wege, das Diagramm übersichtlicher zu machen.</span>
+<span id="cb51-296"><a href="#cb51-296" aria-hidden="true" tabindex="-1"></a>Logarithmieren ist ein Weg.</span>
+<span id="cb51-297"><a href="#cb51-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-300"><a href="#cb51-300" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-301"><a href="#cb51-301" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb51-302"><a href="#cb51-302" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2)) <span class="sc">|&gt;</span> </span>
+<span id="cb51-303"><a href="#cb51-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggscatter</span>(<span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span>
+<span id="cb51-304"><a href="#cb51-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-305"><a href="#cb51-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-306"><a href="#cb51-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-307"><a href="#cb51-307" aria-hidden="true" tabindex="-1"></a>Synonym könnten wir schreiben:</span>
+<span id="cb51-308"><a href="#cb51-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-309"><a href="#cb51-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-312"><a href="#cb51-312" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-313"><a href="#cb51-313" aria-hidden="true" tabindex="-1"></a>d_logged <span class="ot">&lt;-</span> </span>
+<span id="cb51-314"><a href="#cb51-314" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb51-315"><a href="#cb51-315" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x2 =</span> <span class="fu">log</span>(x2))</span>
+<span id="cb51-316"><a href="#cb51-316" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb51-317"><a href="#cb51-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-318"><a href="#cb51-318" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>)</span>
+<span id="cb51-319"><a href="#cb51-319" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-320"><a href="#cb51-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-321"><a href="#cb51-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-322"><a href="#cb51-322" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie dem letzten Diagramm relevante Kennzahlen hinzu</span></span>
+<span id="cb51-323"><a href="#cb51-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-324"><a href="#cb51-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-325"><a href="#cb51-325" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ggscatter1, eval = FALSE}</span></span>
+<span id="cb51-326"><a href="#cb51-326" aria-hidden="true" tabindex="-1"></a><span class="in">ggscatterstats(d_logged, x = x2, y = y)</span></span>
+<span id="cb51-327"><a href="#cb51-327" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-328"><a href="#cb51-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-329"><a href="#cb51-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-330"><a href="#cb51-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-331"><a href="#cb51-331" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fügen Sie dem Diagramm zum Zusammenhang von `y` und `x2` eine Regressionsgerade hinzu</span></span>
+<span id="cb51-332"><a href="#cb51-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-333"><a href="#cb51-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-336"><a href="#cb51-336" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-337"><a href="#cb51-337" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"reg.line"</span>, </span>
+<span id="cb51-338"><a href="#cb51-338" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span>
+<span id="cb51-339"><a href="#cb51-339" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-340"><a href="#cb51-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-341"><a href="#cb51-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-342"><a href="#cb51-342" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ersetzen Sie die Regressionsgerade durch eine LOESS-Gerade</span></span>
+<span id="cb51-343"><a href="#cb51-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-344"><a href="#cb51-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-347"><a href="#cb51-347" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-348"><a href="#cb51-348" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
+<span id="cb51-349"><a href="#cb51-349" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>))</span>
+<span id="cb51-350"><a href="#cb51-350" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-351"><a href="#cb51-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-352"><a href="#cb51-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-353"><a href="#cb51-353" aria-hidden="true" tabindex="-1"></a><span class="fu">## Gruppieren Sie das letzte Diagramm nach `x1`</span></span>
+<span id="cb51-354"><a href="#cb51-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-357"><a href="#cb51-357" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-358"><a href="#cb51-358" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(d_logged, <span class="at">x =</span> <span class="st">"x2"</span>, <span class="at">y =</span> <span class="st">"y"</span>, <span class="at">add =</span> <span class="st">"loess"</span>, </span>
+<span id="cb51-359"><a href="#cb51-359" aria-hidden="true" tabindex="-1"></a>             <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>),</span>
+<span id="cb51-360"><a href="#cb51-360" aria-hidden="true" tabindex="-1"></a>          <span class="at">facet.by =</span> <span class="st">"x1"</span>)</span>
+<span id="cb51-361"><a href="#cb51-361" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-362"><a href="#cb51-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-363"><a href="#cb51-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-364"><a href="#cb51-364" aria-hidden="true" tabindex="-1"></a><span class="fu">##  Dichotomisieren Sie `y` und zählen Sie die Häufigkeiten</span></span>
+<span id="cb51-365"><a href="#cb51-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-366"><a href="#cb51-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-367"><a href="#cb51-367" aria-hidden="true" tabindex="-1"></a>Nehmen wir einen Mediansplit, um zu dichotomisieren.</span>
+<span id="cb51-368"><a href="#cb51-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-371"><a href="#cb51-371" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-372"><a href="#cb51-372" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
+<span id="cb51-373"><a href="#cb51-373" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">|&gt;</span> </span>
+<span id="cb51-374"><a href="#cb51-374" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y_dicho =</span> <span class="fu">ifelse</span>(y <span class="sc">&gt;</span> <span class="fu">median</span>(y), <span class="st">"high"</span>, <span class="st">"low"</span>))</span>
+<span id="cb51-375"><a href="#cb51-375" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-376"><a href="#cb51-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-377"><a href="#cb51-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-378"><a href="#cb51-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-381"><a href="#cb51-381" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-382"><a href="#cb51-382" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb51-383"><a href="#cb51-383" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho) <span class="sc">|&gt;</span> </span>
+<span id="cb51-384"><a href="#cb51-384" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggbarplot</span>(<span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>)</span>
+<span id="cb51-385"><a href="#cb51-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-386"><a href="#cb51-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-387"><a href="#cb51-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-388"><a href="#cb51-388" aria-hidden="true" tabindex="-1"></a>Gleich viele! Das sollte nicht verwundern.</span>
+<span id="cb51-389"><a href="#cb51-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-390"><a href="#cb51-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-391"><a href="#cb51-391" aria-hidden="true" tabindex="-1"></a><span class="fu">## Gruppieren Sie das letzte Diagramm nach den Stufen von `x1`</span></span>
+<span id="cb51-392"><a href="#cb51-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-393"><a href="#cb51-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-394"><a href="#cb51-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-397"><a href="#cb51-397" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-398"><a href="#cb51-398" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span> </span>
+<span id="cb51-399"><a href="#cb51-399" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb51-400"><a href="#cb51-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(y_dicho, x1) </span>
+<span id="cb51-401"><a href="#cb51-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-402"><a href="#cb51-402" aria-hidden="true" tabindex="-1"></a>d_count</span>
+<span id="cb51-403"><a href="#cb51-403" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-404"><a href="#cb51-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-407"><a href="#cb51-407" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-408"><a href="#cb51-408" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-409"><a href="#cb51-409" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-410"><a href="#cb51-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-411"><a href="#cb51-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-412"><a href="#cb51-412" aria-hidden="true" tabindex="-1"></a><span class="fu">## Variieren Sie das letzte Diagramm so, dass Anteile (relative Häufigkeiten) statt absoluter Häufigkeiten gezeigt werden</span></span>
+<span id="cb51-413"><a href="#cb51-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-414"><a href="#cb51-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-417"><a href="#cb51-417" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-418"><a href="#cb51-418" aria-hidden="true" tabindex="-1"></a>d_count <span class="ot">&lt;-</span></span>
+<span id="cb51-419"><a href="#cb51-419" aria-hidden="true" tabindex="-1"></a>  d_count <span class="sc">|&gt;</span> </span>
+<span id="cb51-420"><a href="#cb51-420" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
+<span id="cb51-421"><a href="#cb51-421" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> <span class="fu">round</span>(prop, <span class="dv">2</span>))</span>
+<span id="cb51-422"><a href="#cb51-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-423"><a href="#cb51-423" aria-hidden="true" tabindex="-1"></a>d_count</span>
+<span id="cb51-424"><a href="#cb51-424" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-425"><a href="#cb51-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-426"><a href="#cb51-426" aria-hidden="true" tabindex="-1"></a>Check:</span>
+<span id="cb51-427"><a href="#cb51-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-430"><a href="#cb51-430" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-431"><a href="#cb51-431" aria-hidden="true" tabindex="-1"></a>d_count <span class="sc">|&gt;</span> </span>
+<span id="cb51-432"><a href="#cb51-432" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">sum</span>(prop))</span>
+<span id="cb51-433"><a href="#cb51-433" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-434"><a href="#cb51-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-435"><a href="#cb51-435" aria-hidden="true" tabindex="-1"></a>Gut! Die Anteile summieren sich zu ca. 1 (100 Prozent).</span>
+<span id="cb51-436"><a href="#cb51-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-437"><a href="#cb51-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-440"><a href="#cb51-440" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb51-441"><a href="#cb51-441" aria-hidden="true" tabindex="-1"></a><span class="fu">ggbarplot</span>(d_count, <span class="at">x =</span> <span class="st">"y_dicho"</span>, <span class="at">y =</span> <span class="st">"prop"</span>, <span class="at">facet.by =</span> <span class="st">"x1"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-442"><a href="#cb51-442" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb51-443"><a href="#cb51-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-444"><a href="#cb51-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-445"><a href="#cb51-445" aria-hidden="true" tabindex="-1"></a>Man beachten, dass sich die Anteile auf das "Gesamt-N" beziehen.</span>
+<span id="cb51-446"><a href="#cb51-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-447"><a href="#cb51-447" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-448"><a href="#cb51-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-449"><a href="#cb51-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-450"><a href="#cb51-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-451"><a href="#cb51-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-452"><a href="#cb51-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-453"><a href="#cb51-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-454"><a href="#cb51-454" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb51-455"><a href="#cb51-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-456"><a href="#cb51-456" aria-hidden="true" tabindex="-1"></a>Categories: </span>
+<span id="cb51-457"><a href="#cb51-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-458"><a href="#cb51-458" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>vis</span>
+<span id="cb51-459"><a href="#cb51-459" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>yacsda</span>
+<span id="cb51-460"><a href="#cb51-460" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ggquick</span>
+<span id="cb51-461"><a href="#cb51-461" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>penguins</span>
+<span id="cb51-462"><a href="#cb51-462" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>string</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

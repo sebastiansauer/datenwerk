@@ -76,7 +76,7 @@ Hinweise:
 # Aufgaben
 
 1. Visualisieren Sie die Verteilung von `y` auf zwei verschiedene Arten.
-2. Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.
+2. Fügen Sie relevante Kennzahlen hinzu.
 2. Visualisieren Sie die Verteilung von `x1` und `x2`.
 3. Visualisieren Sie die Verteilung von `y` bedingt auf `x1`.
 4. Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.
@@ -125,6 +125,7 @@ library(tidyverse)
 library(easystats)
 library(ggpubr)
 library(ggstatsplot)
+library(DataExplorer)
 ```
 
 
@@ -134,7 +135,7 @@ library(ggstatsplot)
 
 ## Umbenennen
 
-Zur einfacheren Verarbeitung nenne ich die Variablen um:
+Für weniger Tippen nenne ich die Variablen um:
 
 ```{r}
 d <-
@@ -143,6 +144,7 @@ d <-
 ```
 
 
+Das ist aber nicht unbedingt nötig und bringt auch vielleicht keinen Vorteil für Sie.
 
 ## Visualisieren Sie die Verteilung von `y` auf zwei verschiedene Arten.
 
@@ -162,9 +164,18 @@ gghistogram(d, x = "y")
 ```
 
 
-## Fügen Sie relevante Kennzahlen zur letzten Visualisierung hinzu.
+Alternativ könnte man das R-Paket `{DataExplorer}` verwenden:
 
-Um Diagramme mit Statistiken anzureichen, bietet sich das Paket `ggstatsplot` an:
+```{r}
+d |> 
+  select(y) |> 
+  plot_density()
+```
+
+
+## Fügen Sie relevante Kennzahlen hinzu.
+
+Um Diagramme mit Statistiken anzureichen, bietet sich das Paket `{ggstatsplot}` an:
 
 ```{r}
 gghistostats(d, x = y)
@@ -172,10 +183,21 @@ gghistostats(d, x = y)
 
 Beachten Sie, dass die Variable *nicht* in Anführungsstriche gesetzt werden darf: `x = y`.
 
+Natürlich könnte man sich typische deskriptive Statistiken auch anderweitig ausgeben lassen, etwa mit `{easystats}`:
+
+```{r}
+d |> 
+  select(y) |> 
+  describe_distribution()
+```
+
+
 
 ## Visualisieren Sie die Verteilung von `x1` und `x2`.
 
 ### `x1`
+
+Mit `ggpubr`:
 
 ```{r}
 d_counted <- 
@@ -186,6 +208,16 @@ d_counted <-
 
 ```{r}
 ggbarplot(data = d_counted, y = "n", x = "x1", label = TRUE)
+```
+
+
+Mit `DataExplorer`: 
+
+
+```{r}
+d |> 
+  select(x1) |> 
+  plot_bar()
 ```
 
 
@@ -202,6 +234,7 @@ gghistostats(d, x = x2)
 ```{r}
 gghistogram(d, x = "y", fill = "x1")
 ```
+
 
 
 Oder so:
