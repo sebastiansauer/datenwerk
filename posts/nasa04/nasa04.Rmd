@@ -86,8 +86,8 @@ also keine Daten, sondern Informationen (Daten) zu den eigentlichen Daten.
 
 **Aufgaben**
 
-- Visualisieren Sie Temperatur pro Jahr und Dekade.
-- Animieren Sie Ihre Diagramme mittels `gganimate`.
+1. Visualisieren Sie Temperatur pro Jahr und Dekade.
+3. BONUSAUFGABE: Animieren Sie Ihre Diagramme mittels `gganimate`.
 
 
 Hinweise:
@@ -128,7 +128,8 @@ d <-
 ```
 
 
-Character in Zahlen umwandeln:
+Die Temperaturdaten der Monate April bis Dezember sind als Textdaten (`character`) formatiert. Aber wir brauchen Zahlen zum Rechne.
+Daher müssen wir noch in Zahlen umwandeln:
 
 ```{r}
 d2 <-
@@ -136,23 +137,38 @@ d2 <-
   select(Year:Dec) %>% 
   mutate(across(Apr:Dec, as.numeric))
 ```
+Ins lange Format umwandeln:
 
 ```{r}
 d3 <- 
   d2 %>% 
-  pivot_longer(-Year, values_to = "temp", names_to = "month")
+  pivot_longer(-Year, 
+               values_to = "temp", 
+               names_to = "month")
 ```
+
+Die Monate sind wie folgt bezeichnet in den Daten:
+
+```{r}
+month_vec <- c("Jan", "Feb", "Mar", "Apr", "May",
+               "Jun", "Jul", "Aug", "Sep", "Oct",
+               "Nov", "Dec")
+```
+
 
 ```{r}
 months <-
   tibble(
-    month = d3$month[1:12],
+    month = month_vec,
     month_num = 1:12
   )
 ```
 
+
+Und dann die Monatsnummer (1-12) zu den Daten (`d3`) hinzufügen. Das geht komfortabel mit einem Join:
+
 ```{r}
-d3 <- 
+d4 <- 
   d3 %>% 
   full_join(months)
 ```
