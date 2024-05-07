@@ -1,7 +1,7 @@
 ---
-date: today  # HEUTIGES DATUM EINTRAGEN
-draft: TRUE   # ACHTUNG DRAFT STEHT AUF TRUE!
-title: NAME-OF-EXERCISE  # ACHTUNG: HIER NAMEN DER AUFGABE ANGEBEN
+date: 2024-05-07  # HEUTIGES DATUM EINTRAGEN
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: smartphone1
 
 execute: 
   eval: true 
@@ -9,95 +9,271 @@ execute:
 highlight-style: arrow 
 cache: true
 
+toc: true
+number-sections: true
 
 extype: string
 exsolution: ""
 exshuffle: no
 categories:
-- DUMMY  # ENTER CATEGORIES HERE
-
----
-
-
-
-
-
-<!-- The author of this question is Karsten Lübke. -->
+- R  # ENTER CATEGORIES HERE
+- eda
+- datawrangling
+- vis 
+- yacsda
 
 
-```{r data generation, echo = FALSE, results = "hide"}
-library(exams)
-
-pfeil <- sample(c("A hängt ab von B", "B hängt ab von A"),1)
-uv <- sample(c("A", "B"),1)
-cv <- ifelse(uv=="A", "B", "A")
-
-## Questions
-questions <- character(7)
-questions[1] <- "`C ~ A`"
-questions[2] <- "`C ~ B`"
-questions[3] <- "`C ~ A + B`"
-questions[4] <- paste0("`", uv, " ~ C`")
-questions[5] <- paste0("`", uv, " ~ C + ",  cv, "`")
-questions[6] <- paste0("`", uv, " ~ ",  cv, "`")
-questions[7] <- "Der totale kausale Effekt kann nicht bestimmt werden."
-
-
-solutions <- rep(FALSE, 7)
-
-if (uv=="A") {
-  if (pfeil == "A hängt ab von B") solutions[3] <- TRUE
-  else solutions[1] <- TRUE
-}
-
-if (uv=="B") {
-  if (pfeil == "A hängt ab von B") solutions[2] <- TRUE
-  else solutions[3] <- TRUE
-}
-
-
-```
-
-Question
-========
-  
-Die kausale Abhängigkeit zwischen drei Variablen A, B, C sieht wie folgt aus:
-
-- `r pfeil`.
-- C hängt ab von A.
-- C hängt ab von B.
-
-Hinweise:
-
-- Abhängigkeit ist kausal zu verstehen.
-
-Wie lautet die R-Formel, um den totalen kausalen Effekt von `r uv` auf C zu bestimmen?
-  
-```{r questionlist, echo = FALSE, results = "asis"}
-answerlist(questions, markup = "markdown")
-```
-
-Solution
-========
-
+  # - bib/bib.bib
+bibliography: "/Users/sebastiansaueruser/Google Drive/Literatur/refmgt/library-ses.bib"
+csl: "/Users/sebastiansaueruser/Google Drive/Literatur/refmgt/apa7.csl"
 
 
 ---
 
-Aufgaben-ID: Kausal
+
+
+# Aufgabe
+
+
+*In dieser Fallstudie analysieren Sie die Ergebnisse einer Umfrage zum Thema Smartphone-Nutzung. *
+
+Kernstück der Umfrage ist die Smartphone-Sucht-Skala [@kwon_smartphone_2013]. Eine Studie fand, dass ca. ein Siebtel der Studierenden süchtig nach ihrem Smartphone sind [@haug_smartphone_2015]; demnach könnte dem Thema eine hohe Bedeutsamkeit zukommen.
+
+1. Importieren Sie den [Datensatz zur Handynutzung](https://docs.google.com/spreadsheets/d/1SWMj4rIIIJdAsfsSKQHSg8jHr_OuKLpJx_0XV4LGnH0/edit?usp=sharing) von Google-Docs.
+2. Benennen Sie die Spalten um und zwar nach folgendem Muster: `itemXY`, wobei `XY` die Nummer der Spalte ist. Sichern Sie die ursprünglichen Spaltennamen in einem Vektor.
+3. Berechnen Sie für die Items der Smartphone-Addiction-Scale den Mittelwert pro Person. Tipp: Erstellen Sie einen Dataframe mit den entsprechenden Items und nutzen Sie dann die Funktion `rowMeans(mein_dataframe)`, um den Mittelwert über mehrere Spalten für jede Zeile zu berechnen ("Score").
+4. Visualisieren Sie die Verteilung des Scores getrennt für die Geschlechter.
+5. Nach einer Quelle [@kwon_smartphone_2013] liegt der Cutoff-Wert für Sucht bei 3.1 (Männer) bzw. 3.3 (Frauen). Bestimmen Sie den Anteil abhängiger Personen (pro Geschlecht).
+6. Das Item `i13` ist ein Versuch, mit einem *einzelnen* Item zu messen, ob jemand süchtig nach seinem Smartphone ist (Item-Label: "Ich.würde.sagen..dass.ich.smartphone.süchtig.bin."). Visualisieren Sie den Zusammenhang dieses Items mit dem Score.
+6. Visualsieren Sie den Anteil abhängiger Personen.
+7. Berechnen Sie, wie viel Geld für das zuletzt gekaufte Handy im Schnitt ausgegeben wurde. Gruppieren Sie dabei nach dem Betriebsystem.
+8. Wer gibt mehr Geld für das Handy aus: Frauen oder Männer? Beantworten Sie die Frage anhand des Medians. 
+9. Visualisieren Sie den Median des Geldausgebens für das Handy, getrennt nach Geschlechtern
+
+
+:::{.callout-tip}
+Nutzen Sie ChatGPT oder einen anderen Bot, um sich Hilfe mit dem R-Code zu holen. $\square$
+:::
+
+:::{.callout-tip}
+Es wird (fast) nie von Ihnen verlangt, dass Sie eine Aufgabe mit einem bestimmten R-Befehl lösen. Wenn Ihnen ein bestimmter R-Befehl nicht zusagt (oder Sie ihn nicht kennen oder verstehen) -- dann nehmen Sie einfach einen anderen R-Befehl, der Ihnen mehr zusagt. $\square$
+:::
+
+
+:::{.callout-note}
+Beachten Sie die [Hinweise des Datenwerks](https://datenwerk.netlify.app/hinweise). $\square$
+:::
 
 
 
+# Lösung
 
-
-```{r solutionlist, echo = FALSE, results = "asis"}
-answerlist(ifelse(solutions, "Richtig", "Falsch"), markup = "markdown")
+```{r}
+#| include: false
+library(tidyverse)
+library(DataExplorer)
+library(ggpubr)
 ```
 
-Meta-information
-================
-extype: schoice
-expoints: 1
-exsolution: `r mchoice2string(solutions, single = TRUE)`
-exname: Kausal
-exshuffle: 4
+
+## Daten importieren
+
+
+```{r}
+data_path <- "https://raw.githubusercontent.com/sebastiansauer/statistik1/main/daten/Smartphone-Nutzung%20(Responses)%20-%20Form%20responses%201.csv"
+smartphone_raw <- read.csv(data_path)
+```
+
+
+## Spalten umbenennen
+
+```{r}
+item_labels <- names(smartphone_raw)
+names(smartphone_raw) <- paste0("item",1:ncol(smartphone_raw))
+```
+
+
+Sie möchten lieber zweistellige Nummern für die Spalten, also 01, 02, ..., 09, 10, ...? Gute Idee. Aber wie macht man das?
+Eine einfache Lösung: Fragen Sie ChatGPT!
+
+>    👩‍🎓: I want a string of the type "itemXY", where XY is a number between 0 and 18. Make sure to use two digits. Use the R function `paste0`.
+
+
+>     🤖: 😸
+
+
+## Mittelwert der Smartphone-Addiction-Scale
+
+```{r}
+smartphone_addiction_mittelwert <- 
+smartphone_raw |> 
+  select(item3:item12) |> 
+  rowMeans()
+```
+
+Wir erhalten einen Vektor mit den Mittwerten (Score) pro Person für die Skala *Smartphone-Abhängigkeit*:
+
+```{r}
+head(smartphone_addiction_mittelwert)
+```
+
+
+Diesen Vektor fügen wir dann unseren Daten hinzu. Außerdem benennen wir die Spalte `item15` in `sex` um, damit wir uns merken können, in welcher Spalte das Geschlecht codiert ist.
+
+```{r}
+smartphone <-
+  smartphone_raw |> 
+  mutate(smartphone_addiction_mean = smartphone_addiction_mittelwert) |> 
+  rename(sex = item15) |>   
+  filter(sex == "Frau" | sex == "Mann") 
+```
+
+
+Mit `rename(neuer_name = alter_name)` können Sie die Namen von Spalten Ihrer Datentabelle ändern.
+
+>    🧑‍🎓  Also das mit `rename` hätte ich jetzt nicht gewusst.
+
+>    👩‍🏫 Dann frag mal ChatGPT.
+
+>    🤖 Ja, bitte!!
+
+
+Alternativ können Sie die folgende, etwas fortgeschrittenere Syntax nutzen:
+
+
+```{r}
+smartphone2 <- 
+smartphone_raw |> 
+  rowwise() |> 
+  mutate(smartphone_addiction_mean = mean(c_across(item3:item12))) 
+```
+
+
+
+## Score visualisieren
+
+Leider kann `DataExplorer` nicht mehrere Gruppen in einem Dichtediagramm anzeigen. Wir müssten also mit `DataExplorer` zwei Diagramme erstellen, eines für Frauen und eines für Männer.
+Eleganter geht es mit dem Paket `ggpubr`
+
+```{r}
+smartphone |> 
+  ggdensity(x = "smartphone_addiction_mean", 
+            color = "sex")
+```
+
+
+## Anteil Smartphone-Abhängigkeit
+
+Mit `case_when` erstellen wir folgende Regel:
+
+- "addicted": *wenn* der Score > 3.1 *und* das Geschlecht "Mann" ist bzw.
+- "addicted": *wenn* der Score > 3.3 *und* das Geschlecht "Frau" ist bzw.
+- "nicht addicted": ansonsten
+
+```{r}
+smartphone <-
+  smartphone |> 
+  mutate(is_addicted =
+           case_when(smartphone_addiction_mean > 3.1 & sex == "Mann" ~ "addicted",
+                     smartphone_addiction_mean > 3.3 & sex == "Frau" ~ "addicted",
+                     TRUE ~ "not-addicted"))
+```
+
+Jetzt haben wir die Spalte `is_addicted`, die für jede Person (Zeile) angibt, 
+ob die Person addicted ist.
+Nun zählen wir die Anzahl (`n`) aus, und zwar pro Geschlechtsgruppe.
+Weil es praktisch ist, rechen wir die Anzahl noch in einen Anteil (`proportion`) um.
+
+```{r}
+smartphone_count <- 
+smartphone |> 
+  group_by(sex) |> 
+  count(is_addicted) |> 
+  mutate(is_addicted_proportion = n / sum(n))
+
+smartphone_count
+```
+
+
+## Smartphone-Sucht, mit einzelnen Item gemessen
+
+
+```{r}
+smartphone |> 
+  select(smartphone_addiction_mean, item13) |> 
+  drop_na() |> 
+  plot_scatterplot(by = "smartphone_addiction_mean")
+```
+
+
+Es scheint einen Zusammenhang zwischen `item13` und `smartphone_addiction_mean` zu geben.
+
+
+## Anteil der Abhängigen visualisieren
+
+Der Anteil der abhängigen Personen ist in beiden Geschlechtern gleich hoch:
+
+```{r}
+smartphone_count |> 
+  plot_bar(by = "sex")
+```
+
+
+Hier noch eine alternative Visualisierung mit dem Paket `ggpubr`:
+
+
+```{r}
+smartphone_count |> 
+  ggbarplot(x = "sex", y = "n", fill = "is_addicted")
+```
+
+
+
+## Kosten nach Betriebssystem
+
+
+```{r}
+smartphone |> 
+  group_by(item17) |> 
+  summarise(price_mean = mean(item18, na.rm = TRUE))
+```
+
+
+## Kosten nach Geschlecht
+
+
+```{r}
+smartphone |> 
+  group_by(sex) |> 
+  summarise(price_median = median(item18, na.rm = TRUE))
+```
+
+Männer geben im Median 300 Euro mehr aus.
+
+
+:::{.callout-tip}
+Wenn Sie nicht mehr wissen, was z.B. `na.rm = TRUE` bedeutet, dann einfach googeln oder einen ChatBot fragen. In der Regel ist die Frage dann in zwei Minuten beantwortet. $\square$
+:::
+
+
+
+## Kosten nach Geschlecht visualisieren
+
+
+```{r}
+smartphone |> 
+  select(sex, item18) |> 
+  plot_boxplot(by = "sex")
+```
+
+Wie man sieht ist der Median bei den Männern höher als bei den Frauen. Allerdings fällt der Median der Männer aus das dritte Quartil, was vermuten lässt, dass da irgendwas nicht stimmt. 
+Schauen wir uns die Daten näher an:
+
+
+```{r}
+smartphone |> 
+  filter(sex == "Mann")
+```
+
+Ah, es sind einfach sehr wenig Männer in diesem Datensatz enthalten.
+
