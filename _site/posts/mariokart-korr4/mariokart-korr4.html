@@ -190,26 +190,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
-<p>Importieren Sie den Datensatz <code>mariokart</code> in R. Berechnen Sie den mittleren Verkaufspreis (<code>total_pr</code>) für Spiele, die sowohl neu sind <em>oder</em> über Lenkräder (<code>wheels</code>) verfügen.</p>
+<p>Importieren Sie den Datensatz <code>mariokart</code> in R. Berechnen Sie die Korrelation von mittlerem Verkaufspreis (<code>total_pr</code>) und Startgebot (<code>start_pr</code>) für Spiele, die sowohl neu sind <em>oder</em> über Lenkräder (<code>wheels</code>) verfügen.</p>
 <p>Hinweise:</p>
 <ul>
 <li>Runden Sie auf 1 Dezimalstelle.</li>
+<li>Beachten Sie die <a href="https://datenwerk.netlify.app/hinweise">Hinweise des Datenwerk</a>.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
 <p>Pakete starten:</p>
-<div class="cell" data-hash="mariokart-korr4_cache/html/unnamed-chunk-1_6c2d68a2055b1baee158aaa7a97eb64f">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Daten importieren:</p>
-<div class="cell" data-hash="mariokart-korr4_cache/html/unnamed-chunk-2_584ff28c47ab83c8f59805b8e7330cd2">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d_url <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data_read</span>(d_url)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(d_url)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="mariokart-korr4_cache/html/unnamed-chunk-3_1c9d286f9b5c17b4fa6aa6f3e58ef46b">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>d  <span class="sc">%&gt;%</span> </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(cond <span class="sc">==</span> <span class="st">"new"</span> <span class="sc">|</span> wheels <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
@@ -222,11 +223,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Alternativ kann man (komfortabel) die Korrelation z.B. so berechnen:</p>
-<div class="cell" data-hash="mariokart-korr4_cache/html/unnamed-chunk-4_22438a358223db2c59ccf27d974a9aa8">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(start_pr, total_pr, cond, wheels) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(cond <span class="sc">==</span> <span class="st">"new"</span> <span class="sc">|</span> wheels <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlation</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(cond <span class="sc">==</span> <span class="st">"new"</span> <span class="sc">|</span> wheels <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span>   <span class="co"># logisches ODER</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlation</span>()  <span class="co"># aus dem Paket `easystats`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Correlation Matrix (pearson-method)
 
@@ -739,12 +740,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
 <span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>Importieren Sie den Datensatz <span class="in">`mariokart`</span> in R.</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>Berechnen Sie den mittleren Verkaufspreis (<span class="in">`total_pr`</span>) für Spiele, die sowohl neu sind *oder* über Lenkräder (<span class="in">`wheels`</span>) verfügen.</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>Berechnen Sie die Korrelation von mittlerem Verkaufspreis (<span class="in">`total_pr`</span>) und Startgebot (<span class="in">`start_pr`</span>) für Spiele, die sowohl neu sind *oder* über Lenkräder (<span class="in">`wheels`</span>) verfügen.</span>
 <span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
 <span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runden Sie auf 1 Dezimalstelle.</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Beachten Sie die <span class="co">[</span><span class="ot">Hinweise des Datenwerk</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
 <span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
@@ -772,7 +773,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>d_url <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv"</span></span>
-<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data_read</span>(d_url)</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(d_url)</span>
 <span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
@@ -791,8 +792,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> </span>
 <span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(start_pr, total_pr, cond, wheels) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(cond <span class="sc">==</span> <span class="st">"new"</span> <span class="sc">|</span> wheels <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlation</span>()</span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(cond <span class="sc">==</span> <span class="st">"new"</span> <span class="sc">|</span> wheels <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span>   <span class="co"># logisches ODER</span></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlation</span>()  <span class="co"># aus dem Paket `easystats`</span></span>
 <span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a></span>
