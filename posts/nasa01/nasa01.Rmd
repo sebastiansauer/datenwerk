@@ -69,7 +69,7 @@ Importieren Sie dann die Daten:
 
 ```{r}
 data_path <- "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
-d <- read_csv(data_path, skip = 1)
+d <- read.csv(data_path, skip = 1)
 ```
 
 Wir lassen die 1. Zeile des Datensatzes aus (Argument `skip`), da dort *Metadaten* stehen,
@@ -78,11 +78,11 @@ also keine Daten, sondern Informationen (Daten) zu den eigentlichen Daten.
 
 **Aufgabe**
 
-Berechnen Sie die folgende Statistiken pro Dekade:
+Berechnen und visualisieren Sie die folgende Statistiken pro Dekade:
 
 1. Mittelwert der Temperatur im Januar
  
-- SD der Temperatur im Januar
+2. SD der Temperatur im Januar
 
 Hinweise:
 
@@ -110,6 +110,16 @@ Hinweise:
 
 # Lösung
 
+## Setup
+
+```{r}
+library(ggpubr)
+library(DataExplorer)
+```
+
+
+## Daten aufbereiten
+
 Dekade berechnen:
 
 
@@ -120,6 +130,8 @@ d <-
 ```
 
 Das ist *ein möglicher* Weg, um aus einer Jahreszahl die Dekade zu berechnen.
+
+## Statistiken berechnen
 
 Statistiken pro Dekade:
 
@@ -139,6 +151,39 @@ d_summarized %>%
   gt::gt() %>% 
   gt::fmt_number(c(2,3))
 ```
+
+## Statistiken visualisieren
+
+### Mit `DataExplorer`
+
+```{r}
+d_summarized |> 
+  select(decade, temp_mean) |> 
+  plot_scatterplot(by = "temp_mean")
+
+d_summarized |> 
+  select(decade, temp_sd) |> 
+  plot_scatterplot(by = "temp_sd")
+  
+```
+
+
+### Mit `ggpubr`
+
+```{r}
+d_summarized |> 
+  ggline(x = "decade", y = "temp_mean")
+
+d_summarized |> 
+  ggline(x = "decade", y = "temp_sd")
+```
+
+
+```{r}
+d  |> 
+  ggerrorplot(x = "decade", y = "Jan")
+```
+
 
 
 

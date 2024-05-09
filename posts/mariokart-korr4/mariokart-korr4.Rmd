@@ -42,12 +42,12 @@ knitr::opts_chunk$set(fig.pos = 'H',
 # Aufgabe
 
 Importieren Sie den Datensatz `mariokart` in R.
-Berechnen Sie den mittleren Verkaufspreis (`total_pr`) für Spiele, die sowohl neu sind *oder* über Lenkräder (`wheels`) verfügen.
+Berechnen Sie die Korrelation von mittlerem Verkaufspreis (`total_pr`) und Startgebot (`start_pr`) für Spiele, die sowohl neu sind *oder* über Lenkräder (`wheels`) verfügen.
 
 Hinweise:
 
 - Runden Sie auf 1 Dezimalstelle.
-
+- Beachten Sie die [Hinweise des Datenwerk](https://datenwerk.netlify.app/hinweise).
 
 
 </br>
@@ -75,7 +75,7 @@ Daten importieren:
 
 ```{r}
 d_url <- "https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv"
-d <- data_read(d_url)
+d <- read.csv(d_url)
 ```
 
 ```{r}
@@ -94,8 +94,8 @@ Alternativ kann man (komfortabel) die Korrelation z.B. so berechnen:
 ```{r}
 d %>% 
   select(start_pr, total_pr, cond, wheels) %>% 
-  filter(cond == "new" | wheels > 0) %>% 
-  correlation()
+  filter(cond == "new" | wheels > 0) %>%   # logisches ODER
+  correlation()  # aus dem Paket `easystats`
 ```
 
 
