@@ -186,7 +186,7 @@ window.Quarto = {
 <p>Kernstück der Umfrage ist die Smartphone-Sucht-Skala <span class="citation" data-cites="kwon_smartphone_2013">(<a href="#ref-kwon_smartphone_2013" role="doc-biblioref">Kwon et al., 2013</a>)</span>. Eine Studie fand, dass ca. ein Siebtel der Studierenden süchtig nach ihrem Smartphone sind <span class="citation" data-cites="haug_smartphone_2015">(<a href="#ref-haug_smartphone_2015" role="doc-biblioref">Haug et al., 2015</a>)</span>; demnach könnte dem Thema eine hohe Bedeutsamkeit zukommen.</p>
 <ol type="1">
 <li>Importieren Sie den <a href="https://docs.google.com/spreadsheets/d/1SWMj4rIIIJdAsfsSKQHSg8jHr_OuKLpJx_0XV4LGnH0/edit?usp=sharing">Datensatz zur Handynutzung</a> von Google-Docs.</li>
-<li>Benennen Sie die Spalten um und zwar nach folgendem Muster: <code>itemXY</code>, wobei <code>XY</code> die Nummer der Spalte ist. Sichern Sie die ursprünglichen Spaltennamen in einem Vektor.</li>
+<li>Benennen Sie die Spalten um und zwar nach folgendem Muster: <code>itemXY</code>, wobei <code>XY</code> die Nummer der Spalte ist. Sichern Sie die ursprünglichen Spaltennamen in einem Vektor. Tipp: Der Funktion <code>names(meine_tabelle)</code> können Sie einen Vektor mit neuen Spaltennamen übergeben.</li>
 <li>Berechnen Sie für die Items der Smartphone-Addiction-Scale den Mittelwert pro Person. Tipp: Erstellen Sie einen Dataframe mit den entsprechenden Items und nutzen Sie dann die Funktion <code>rowMeans(mein_dataframe)</code>, um den Mittelwert über mehrere Spalten für jede Zeile zu berechnen (“Score”).</li>
 <li>Visualisieren Sie die Verteilung des Scores getrennt für die Geschlechter.</li>
 <li>Nach einer Quelle <span class="citation" data-cites="kwon_smartphone_2013">(<a href="#ref-kwon_smartphone_2013" role="doc-biblioref">Kwon et al., 2013</a>)</span> liegt der Cutoff-Wert für Sucht bei 3.1 (Männer) bzw. 3.3 (Frauen). Bestimmen Sie den Anteil abhängiger Personen (pro Geschlecht).</li>
@@ -244,12 +244,69 @@ Note
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/sebastiansauer/statistik1/main/daten/Smartphone-Nutzung%20(Responses)%20-%20Form%20responses%201.csv"</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>smartphone_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Die Anzahl der Spalten einer Tabelle kann man sich übrigens z.B. mit <code>ncol</code> ausgeben lassen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>anz_spalten <span class="ot">&lt;-</span> <span class="fu">ncol</span>(smartphone_raw)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>anz_spalten</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 18</code></pre>
+</div>
+</div>
+<p>Unsere Datentabelle hat also 18 Spalten.</p>
 </section>
 <section id="spalten-umbenennen" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="spalten-umbenennen"><span class="header-section-number">2.2</span> Spalten umbenennen</h2>
+<p>Zunächst sichern wir die alten Spaltennamen in einen Vektor:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>item_labels <span class="ot">&lt;-</span> <span class="fu">names</span>(smartphone_raw)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(smartphone_raw) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"item"</span>,<span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(smartphone_raw))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>item_labels_old <span class="ot">&lt;-</span> <span class="fu">names</span>(smartphone_raw)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>item_labels_old</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Timestamp"                                                                                                        
+ [2] "Wann.haben.Sie.heute.zum.letzten.Mal.Ihr.Handy.benutzt..Bitte.geben.Sie.die.Uhrzeit.an."                          
+ [3] "Aufgrund.meiner.Smartphone.Nutzung.erledige.ich.geplante.Aufgaben.nicht."                                         
+ [4] "Aufgrund.meiner.Smartphone.Nutzung.fällt.es.mir.schwer..mich.in.der.Schule.oder.Arbeit.zu.konzentrieren."         
+ [5] "Bei.der.Nutzung.des.Smartphones.bekomme.ich.Schmerzen.in.Handgelenk.oder.Nacken."                                 
+ [6] "Ich.würde.es.nicht.aushalten..kein.Smartphone.zu.haben."                                                          
+ [7] "Wenn.ich.mein.Smartphone.nicht.in.der.Hand.habe..fühle.ich.mich.unruhig.und.gereizt."                             
+ [8] "Ich.denke.ständig.an.mein.Smartphone..auch.wenn.ich.es.nicht.benutze."                                            
+ [9] "Ich.werde.nie.aufhören..mein.Smartphone.zu.benutzen..selbst.wenn.mein.Alltag.bereits.stark.davon.beeinflusst.ist."
+[10] "Ich.schaue.ständig.auf.mein.Smartphone..um.keine.Neuigkeiten.zu.verpassen."                                       
+[11] "Ich.benutze.mein.Smartphone.länger.als.ich.es.vorhabe."                                                           
+[12] "Die.Menschen.in.meinem.Umfeld.sagen.mir..dass.ich.mein.Smartphone.zu.häufig.nutze."                               
+[13] "Ich.würde.sagen..dass.ich.smartphone.süchtig.bin."                                                                
+[14] "Hier.ist.Platz.für.Ihre.Kommentare"                                                                               
+[15] "Bitte.geben.Sie.Ihr.Geschlecht.an."                                                                               
+[16] "Bitte.geben.Sie.Ihr.Alter.an."                                                                                    
+[17] "Bitte.geben.Sie.das.Betriebssystem.Ihres..am.meisten.genutzten..Handies.an."                                      
+[18] "Wie.viel.Geld.haben.Sie.für.Ihr.zuletzt.gekauftes.Handy.gezahlt."                                                 </code></pre>
+</div>
+</div>
+<p>Variablen aus psychologischen Fragebögen nennt man übrigens oft <em>items</em>.</p>
+<p>Und dann nennen wir die Spaltennamen um. Das geht mit der Funktion <code>names(smartphone_raw) &lt;-</code>, der wir einen Vektor mit neuen Spaltennamen übergeben, z.B. so:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>item_labels_new <span class="ot">&lt;-</span> <span class="fu">c</span>( <span class="st">"item1"</span>,  <span class="st">"item2"</span>,  <span class="st">"item3"</span>,  <span class="st">"item4"</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"item5"</span>, <span class="st">"item6"</span>,  <span class="st">"item7"</span>,  <span class="st">"item8"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"item9"</span>,  <span class="st">"item10"</span>, <span class="st">"item11"</span>, <span class="st">"item12"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"item13"</span>, <span class="st">"item14"</span>, <span class="st">"item15"</span>, <span class="st">"item16"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"item17"</span>, <span class="st">"item18"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Wichtig ist, dass ihr Vektor <code>item_labels_new</code> genau so viele Elemente hat, wie die Datentabelle Spalten hat.</p>
+<p>Jetzt können Sie der Funktion <code>names()</code> den neuen Vektor <code>item_labels_new</code> zuweisen und haben damit die Spaltenanmen geändert:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(smartphone_raw) <span class="ot">&lt;-</span> item_labels_new</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Den Vektor <code>item_labels_new</code> zu erstellen, war Ihnen zu viel Tipperei? Ja, mir auch. Schneller geht’s mit der Funktion <code>paste0</code>. Das erklärt sich am einfachsten mit einem Beispiel:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"item"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "item1" "item2" "item3"</code></pre>
+</div>
+</div>
+<p>Sehen Sie, was <code>paste0</code> macht? Es fügt zwei Vektoreneinen Reißverschluss zusammen. Da <code>item</code> nur aus einem Element besteht, wird es <code>item</code> einfach auf die richtige Länge erhöht.</p>
+<p>Der Doppelpunkt in <code>1:3</code> bedeutet “von 1 bis 3”.</p>
+<p>Also:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(smartphone_raw) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"item"</span>,<span class="dv">1</span><span class="sc">:</span>anz_spalten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Sie möchten lieber zweistellige Nummern für die Spalten, also 01, 02, …, 09, 10, …? Gute Idee. Aber wie macht man das? Eine einfache Lösung: Fragen Sie ChatGPT!</p>
 <blockquote class="blockquote">
@@ -262,25 +319,25 @@ Note
 <section id="mittelwert-der-smartphone-addiction-scale" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="mittelwert-der-smartphone-addiction-scale"><span class="header-section-number">2.3</span> Mittelwert der Smartphone-Addiction-Scale</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>smartphone_addiction_mittelwert <span class="ot">&lt;-</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>smartphone_raw <span class="sc">|&gt;</span> </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(item3<span class="sc">:</span>item12) <span class="sc">|&gt;</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowMeans</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>smartphone_addiction_mittelwert <span class="ot">&lt;-</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>smartphone_raw <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(item3<span class="sc">:</span>item12) <span class="sc">|&gt;</span> </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowMeans</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Wir erhalten einen Vektor mit den Mittwerten (Score) pro Person für die Skala <em>Smartphone-Abhängigkeit</em>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(smartphone_addiction_mittelwert)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(smartphone_addiction_mittelwert)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3.0 3.8 2.7 3.2 4.2 3.3</code></pre>
 </div>
 </div>
 <p>Diesen Vektor fügen wir dann unseren Daten hinzu. Außerdem benennen wir die Spalte <code>item15</code> in <code>sex</code> um, damit wir uns merken können, in welcher Spalte das Geschlecht codiert ist.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="ot">&lt;-</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  smartphone_raw <span class="sc">|&gt;</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">smartphone_addiction_mean =</span> smartphone_addiction_mittelwert) <span class="sc">|&gt;</span> </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">sex =</span> item15) <span class="sc">|&gt;</span>   </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"Frau"</span> <span class="sc">|</span> sex <span class="sc">==</span> <span class="st">"Mann"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  smartphone_raw <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">smartphone_addiction_mean =</span> smartphone_addiction_mittelwert) <span class="sc">|&gt;</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">sex =</span> item15) <span class="sc">|&gt;</span>   </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"Frau"</span> <span class="sc">|</span> sex <span class="sc">==</span> <span class="st">"Mann"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Mit <code>rename(neuer_name = alter_name)</code> können Sie die Namen von Spalten Ihrer Datentabelle ändern.</p>
 <blockquote class="blockquote">
@@ -294,19 +351,19 @@ Note
 </blockquote>
 <p>Alternativ können Sie die folgende, etwas fortgeschrittenere Syntax nutzen:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>smartphone2 <span class="ot">&lt;-</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>smartphone_raw <span class="sc">|&gt;</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">smartphone_addiction_mean =</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(item3<span class="sc">:</span>item12))) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>smartphone2 <span class="ot">&lt;-</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>smartphone_raw <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">smartphone_addiction_mean =</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(item3<span class="sc">:</span>item12))) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="score-visualisieren" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="score-visualisieren"><span class="header-section-number">2.4</span> Score visualisieren</h2>
 <p>Leider kann <code>DataExplorer</code> nicht mehrere Gruppen in einem Dichtediagramm anzeigen. Wir müssten also mit <code>DataExplorer</code> zwei Diagramme erstellen, eines für Frauen und eines für Männer. Eleganter geht es mit dem Paket <code>ggpubr</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggdensity</span>(<span class="at">x =</span> <span class="st">"smartphone_addiction_mean"</span>, </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggdensity</span>(<span class="at">x =</span> <span class="st">"smartphone_addiction_mean"</span>, </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 1 row containing non-finite outside the scale range
 (`stat_density()`).</code></pre>
@@ -314,7 +371,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -329,22 +386,22 @@ Note
 <li>“nicht addicted”: ansonsten</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="ot">&lt;-</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_addicted =</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">case_when</span>(smartphone_addiction_mean <span class="sc">&gt;</span> <span class="fl">3.1</span> <span class="sc">&amp;</span> sex <span class="sc">==</span> <span class="st">"Mann"</span> <span class="sc">~</span> <span class="st">"addicted"</span>,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                     smartphone_addiction_mean <span class="sc">&gt;</span> <span class="fl">3.3</span> <span class="sc">&amp;</span> sex <span class="sc">==</span> <span class="st">"Frau"</span> <span class="sc">~</span> <span class="st">"addicted"</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                     <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"not-addicted"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="ot">&lt;-</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_addicted =</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">case_when</span>(smartphone_addiction_mean <span class="sc">&gt;</span> <span class="fl">3.1</span> <span class="sc">&amp;</span> sex <span class="sc">==</span> <span class="st">"Mann"</span> <span class="sc">~</span> <span class="st">"addicted"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                     smartphone_addiction_mean <span class="sc">&gt;</span> <span class="fl">3.3</span> <span class="sc">&amp;</span> sex <span class="sc">==</span> <span class="st">"Frau"</span> <span class="sc">~</span> <span class="st">"addicted"</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                     <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"not-addicted"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Jetzt haben wir die Spalte <code>is_addicted</code>, die für jede Person (Zeile) angibt, ob die Person addicted ist. Nun zählen wir die Anzahl (<code>n</code>) aus, und zwar pro Geschlechtsgruppe. Weil es praktisch ist, rechen wir die Anzahl noch in einen Anteil (<code>proportion</code>) um.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>smartphone_count <span class="ot">&lt;-</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(is_addicted) <span class="sc">|&gt;</span> </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_addicted_proportion =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n))</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>smartphone_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>smartphone_count <span class="ot">&lt;-</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(is_addicted) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_addicted_proportion =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>smartphone_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
 # Groups:   sex [2]
@@ -360,14 +417,14 @@ Note
 <section id="smartphone-sucht-mit-einzelnen-item-gemessen" class="level2" data-number="2.6">
 <h2 data-number="2.6" class="anchored" data-anchor-id="smartphone-sucht-mit-einzelnen-item-gemessen"><span class="header-section-number">2.6</span> Smartphone-Sucht, mit einzelnen Item gemessen</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(smartphone_addiction_mean, item13) <span class="sc">|&gt;</span> </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_scatterplot</span>(<span class="at">by =</span> <span class="st">"smartphone_addiction_mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(smartphone_addiction_mean, item13) <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_scatterplot</span>(<span class="at">by =</span> <span class="st">"smartphone_addiction_mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -378,24 +435,24 @@ Note
 <h2 data-number="2.7" class="anchored" data-anchor-id="anteil-der-abhängigen-visualisieren"><span class="header-section-number">2.7</span> Anteil der Abhängigen visualisieren</h2>
 <p>Der Anteil der abhängigen Personen ist in beiden Geschlechtern gleich hoch:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>smartphone_count <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_bar</span>(<span class="at">by =</span> <span class="st">"sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>smartphone_count <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_bar</span>(<span class="at">by =</span> <span class="st">"sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Hier noch eine alternative Visualisierung mit dem Paket <code>ggpubr</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>smartphone_count <span class="sc">|&gt;</span> </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggbarplot</span>(<span class="at">x =</span> <span class="st">"sex"</span>, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">fill =</span> <span class="st">"is_addicted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>smartphone_count <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggbarplot</span>(<span class="at">x =</span> <span class="st">"sex"</span>, <span class="at">y =</span> <span class="st">"n"</span>, <span class="at">fill =</span> <span class="st">"is_addicted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -404,9 +461,9 @@ Note
 <section id="kosten-nach-betriebssystem" class="level2" data-number="2.8">
 <h2 data-number="2.8" class="anchored" data-anchor-id="kosten-nach-betriebssystem"><span class="header-section-number">2.8</span> Kosten nach Betriebssystem</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(item17) <span class="sc">|&gt;</span> </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">price_mean =</span> <span class="fu">mean</span>(item18, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(item17) <span class="sc">|&gt;</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">price_mean =</span> <span class="fu">mean</span>(item18, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
   item17  price_mean
@@ -419,9 +476,9 @@ Note
 <section id="kosten-nach-geschlecht" class="level2" data-number="2.9">
 <h2 data-number="2.9" class="anchored" data-anchor-id="kosten-nach-geschlecht"><span class="header-section-number">2.9</span> Kosten nach Geschlecht</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span> </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">price_median =</span> <span class="fu">median</span>(item18, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">price_median =</span> <span class="fu">median</span>(item18, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
   sex   price_median
@@ -448,9 +505,9 @@ Tip
 <section id="kosten-nach-geschlecht-visualisieren" class="level2" data-number="2.10">
 <h2 data-number="2.10" class="anchored" data-anchor-id="kosten-nach-geschlecht-visualisieren"><span class="header-section-number">2.10</span> Kosten nach Geschlecht visualisieren</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sex, item18) <span class="sc">|&gt;</span> </span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_boxplot</span>(<span class="at">by =</span> <span class="st">"sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sex, item18) <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_boxplot</span>(<span class="at">by =</span> <span class="st">"sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 1 row containing non-finite outside the scale range
 (`stat_boxplot()`).</code></pre>
@@ -458,15 +515,15 @@ Tip
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Wie man sieht ist der Median bei den Männern höher als bei den Frauen. Allerdings fällt der Median der Männer aus das dritte Quartil, was vermuten lässt, dass da irgendwas nicht stimmt. Schauen wir uns die Daten näher an:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"Mann"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>smartphone <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"Mann"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                item1    item2 item3 item4 item5 item6 item7 item8 item9 item10
 1 02/05/2024 16:29:51              4     4     3    NA     1    NA     1      4
