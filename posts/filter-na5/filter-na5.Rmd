@@ -63,7 +63,7 @@ apply(d, 1, function(x) sum(is.na(x)))
 d_na_only <- 
   d %>% 
   rowwise() %>% 
-  mutate(na_n = sum(is.na(cur_data()))) %>% 
+  mutate(na_n = sum(is.na(cur_data()))) %>%  # "na_n" für "Anzahl (n) NA"
   ungroup()
 
 d_na_only %>% 
@@ -73,17 +73,13 @@ d_na_only %>%
 
 ## Weg 3
 
-
 ```{r}
-d_na_only <- 
-  d %>% 
-  mutate(na_n = rowSums(is.na(.)))
- 
-
-d_na_only %>% 
-  pull(na_n)
+rowSums(is.na(d))
 ```
-# Weg 4
+
+
+
+## Weg 4
 
 Der folgende Weg funktioniert nur, wenn alle Variablen vom Typ `numeric` sind.
 
@@ -97,6 +93,21 @@ d %>%
 ```
 
 
+## Weg 5
+
+Wir definieren eine Funktion, die die NAs des Vektors `x` zählt:
+
+```{r}
+sum_na <- function(x) {sum(is.na(x))}
+```
+
+
+Diese Funktion "mappen" wir  wir auf jede Spalte  (und lassen uns einen numerischen Vektor `dbl` ("double") zurückgeben):
+
+```{r}
+d |> 
+  map_dbl(sum_na)
+```
 
 
 ---
