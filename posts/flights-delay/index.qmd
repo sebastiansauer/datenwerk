@@ -55,7 +55,7 @@ library("easystats")  # stats made easy
 Aus Gründen der Datenökonomie nutzen wir eine kleinere Version des Datensatz `flights`. 
 Wir nutzen nicht mehr die Daten aus dem 2013, sondern die neueren Daten aus dem Jahr 2023.
 
-```{r}
+```{r sample-prop-flights}
 library(nycflights23)
 data(flights)
 
@@ -88,7 +88,7 @@ flights2 <-
 Der Hintergrund zur Idee der Aufteilung in Train- und Test-Stichprobe kann z.b. [hier](https://www.tmwr.org/splitting.html) oder [hier](https://www.springer.com/de/book/9783658215866), Kapitel 15, nachgelesen werden.
 
 
-```{r}
+```{r initial-split}
 flights_split <- initial_split(flights2, 
                                strata = dep_delay)
 ```
@@ -97,7 +97,7 @@ flights_split <- initial_split(flights2,
 
 # flights_train2, flights_test2
 
-```{r trian-test}
+```{r train-test}
 set.seed(42)  # Reproduzierbarkeit
 flights_train2 <- training(flights_split)
 flights_test2 <- testing(flights_split)
@@ -456,11 +456,11 @@ flights_train5 <-
 
 # lm6: Wie lm5, aber ohne fehlende Werte
 
-```{r}
+```{r lm6}
 lm6 <-lm(dep_delay ~ ., data = flights_train5)
 ```
 
-```{r}
+```{r lm6r2}
 r2(lm6)
 ```
 
@@ -481,7 +481,7 @@ Es sieht so aus, als wäre `air_time` deutlich rechtsschief mit einigen Ausreiß
 Betrachten wir noch Boxplots, die auch gut Extermwerte visualisieren.
 
 
-```{r}
+```{r plot-boxplots}
 flights_train5 |> 
   select(where(is.numeric), "origin") |> 
   plot_boxplot(by = "origin")
@@ -621,7 +621,7 @@ Am schwierigsten ist es, bei den ganzen Nummerierungen nicht durcheinander zu ko
 Prüfen wir noch, wie viele fehlende Werte es bei den vorhergesagten Werten gibt:
 
 
-```{r}
+```{r count-na}
 flights_test4_pred %>% 
   summarise(pred_isna = sum(is.na(pred_lm7)),
             pred_isna_prop = pred_isna / nrow(flights_test4_pred))  # prop wie "proportion" (Anteil)
@@ -636,7 +636,7 @@ flights_test4_pred %>%
 ```
 
 
-```{r}
+```{r count-na2}
 flights_test4_pred2 %>% 
   summarise(sum(is.na(pred_lm7)))
 ```
