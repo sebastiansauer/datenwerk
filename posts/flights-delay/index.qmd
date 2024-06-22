@@ -4,6 +4,8 @@ draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
 title: flights-delay
 execute: 
   eval: true 
+  cache: true
+  freeze: true
 highlight-style: arrow 
 cache: true
 toc: true
@@ -31,31 +33,24 @@ Dazu nutzen wir lineare Modelle als Modellierungsmethoden.
 Dieser Post knüpft an [den Post zur explorativen Datenanalyse der Flugverspätungen](https://data-se.netlify.app/2021/03/08/eda-zu-flugversp%C3%A4tungen/) an (es gibt auch [hier, Teil 1](https://www.youtube.com/watch?v=t8i_qTonuLM) und [hier, Teil 2](https://youtu.be/AeBqwr2U7MA) ein Video zu diesem EDA-Post).
 
 
+# Setup
 
+## Pakete laden
 
-# Pakete laden
-
-Wirklich wichtig sind nur `tidymodels` und `tidyverse`. Die restlichen Pakete werden nur am Rande benötigt.
+Wirklich wichtig sind nur `tidymodels` und `tidyverse`. Die restlichen Pakete werden nur am Rande benötigt. 
+Man sollte auch nur die Pakete laden,
+die man für die Analyse benötigt.
 
 ```{r load-libs, message = FALSE, warning = FALSE}
 library("tidymodels")  # Train- und Test-Sample aufteilen
 library("tidyverse")  # data wrangling
 library("conflicted")  # Name clashes finden
 library("easystats")  # stats made easy
-library("leaps")  # Rohe Gewalt
-#library("skimr")  # deskriptive Statistiken komfortabel
-library("ggfortify")  # Modellannahmen grafisch prüfen
-library("tictoc")  # Rechenzeit messen
 ```
 
 
 
-```{r echo=FALSE, include = FALSE}
-library(printr)
-```
-
-
-# Daten laden: Flights 2023
+## Daten laden: Flights 2023
 
 Aus Gründen der Datenökonomie nutzen wir eine kleinere Version des Datensatz `flights`. 
 Wir nutzen nicht mehr die Daten aus dem 2013, sondern die neueren Daten aus dem Jahr 2023.
@@ -143,7 +138,7 @@ model_parameters(lm1)
 
 Man vergleiche:
 
-```{r flights2}
+```{r flights2-compare}
 flights_train2 %>% 
   drop_na(dep_delay) %>% 
   group_by(origin) %>% 
@@ -158,10 +153,15 @@ Der Mittelwertsvergleich und das Modell `lm1` sind faktisch informationsgleich.
 
 Aber leider ist es um die Modellgüte nicht so gut bestellt (eigentlich eher "grottenschlecht"):
 
-```{r}
+```{r r2lm1}
 r2(lm1)
 ```
 
+
+`lm1` ist so schlecht, wir löschen es gleich wieder...
+```{r}
+rm(lm1)
+```
 
 
 
@@ -193,7 +193,7 @@ flights_train3 <-
 
 Wem das `across` zu kompliziert ist, der kann auch alternativ (synonym) jede Variable einzeln in einen Faktor umwandeln und zwar so:
 
-```{r}
+```{r no-across}
 flights_train3a <- 
   flights_train2 %>% 
   mutate(tailnum = as.factor(tailnum),
@@ -210,7 +210,7 @@ Das ist einfacher als mit `across`, aber dafür mehr Tipperei.
 Wir müssen die Transformationen, die wir auf das Train-Sample anwenden, auch auf das Test-Sample anwenden:
 
 
-## flights_test3
+# flights_test3
 
 ```{r flights-test3}
 flights_test3 <- 
@@ -246,17 +246,17 @@ flights_train3 %>%
 
 # flights_train4: Faktorstufen zusammenfassen
 
-```{r}
+```{r flights-train4}
 flights_train4 <-
   flights_train3 %>% 
   mutate(across(
     .cols = where(is.factor),
-    .fns = fct_lump_prop, prop = .01
+    .fns = fct_lump_prop, prop = .025
   ))
 ```
 
 
-## Variante mit `fact_lump_n` 
+# Variante mit `fact_lump_n` 
 
 Sinngemäß bedeutet das:
 
@@ -269,24 +269,16 @@ flights_train3 %>%
 ```
 
 
-## Variante mit `fact_lump_prop` 
+Hier sind die Faktorstufen von `dest`:
 
 ```{r}
-flights_train4a <-
-  flights_train3 %>% 
-  mutate(dest  = fct_lump_prop(f = dest, 
-                               prop = .01))
+flights_train4$dest |> levels()
 ```
 
 
+Visusalsieren wir die Häufigkeit der Faktorstufen:
 
-```{r}
-flights_train4a %>% 
-  count(dest)
-```
-
-
-```{r}
+```{r plot-count-levels-dest}
 flights_train4 %>%
   count(dest) %>%
   ggplot() +
@@ -297,32 +289,8 @@ flights_train4 %>%
 
 
 
-Check:
 
-```{r}
-flights_train4 %>% 
-  select(where(is.factor)) %>% 
-  summarise(nlevels_dest = nlevels(dest))
-```
-
-Oder alle Faktorvariablen auf einmal (Achtung, fortgeschritten):
-
-
-
-```{r}
-flights_train4 %>% 
-  select(where(is.factor)) %>% 
-  map_dfc(nlevels)  # "mappe die Funktion `nlevels` auf jede Spalte und liefere einen Tibble (df) zurück
-```
-Das sind jetzt Zahlen von Faktorstufen, mit denen wir arbeiten können.
-
-
-!ACHTUNG! `tailnum`und `time_hour` haben jetzt nur noch EINE EINZIGE Faktorstufe, `other`. 
-Solche Variablen führen zu einem Fehler im Regressionsmodell!
-
-
-
-## flights_test4
+# flights_test4
 
 Vergessen wir nicht, die Transformation auch auf das Test-Sample anzuwenden:
 
@@ -333,11 +301,23 @@ flights_test4 <-
   flights_test3 %>% 
   mutate(across(
     .cols = where(is.factor),
-    .fns = fct_lump_prop, prop = .01
+    .fns = fct_lump_prop, prop = .025
   ))
 ```
 
 
+
+Wichtig! Im Alle Faktorstufen, die im Test-Set vorkommen, müssen auch im Train-Set vorkommen. Sonst können wir das Regressionsmodell nicht berechnen.
+
+```{r}
+levels(flights_test4$dest) 
+```
+
+```{r}
+levels(flights_train4$dest)
+```
+
+Das sieht gut aus: Alle Faktorstufen im Test-Set sind im Train-Set enthalten.
 
 # lm3: Alle zusammengefassten Faktorvariablen
 
@@ -348,29 +328,9 @@ lm3 <- flights_train4 %>%
   lm(dep_delay ~ ., data = .)
 ```
 
-Hier ist der Fehler, der darauf beruht, dass `tailnum` und `time_hour` nur über eine einzige Faktorstufe verfügen.
+Achtung! Falls ein Faktor nur über eine einzige Faktorstufe verfügt, wird das Regressionsmodell zusammenbrechen mit einer Fehlermeldung. Adios!
 
-Check:
-```{r}
-flights_train4 %>% 
-  select(where(~is.factor(.) && nlevels(.) <= 2)) |> 
-  names()
-```
 
-Werfen wir die betreffenden Variablen raus:
-
-```{r}
-flights_train4_factors_clean <- flights_train4 %>% 
-  select(where(~!is.factor(.) || nlevels(.) >= 2))
-```
-
-Und berechnen unser Modell erneut:
-
-```{r}
-lm3 <- flights_train4_factors_clean %>% 
-  select(dep_delay, where(is.factor), -any_of(c("tailnum", "id"))) %>% 
-  lm(dep_delay ~ ., data = .)
-```
 
 
 Der Punkt bei `dep_delay ~ .` meint "nimm alle Variablen im Datensatz (bis auf `dep_delay`)".
@@ -390,10 +350,18 @@ options(digits = 2)
 
 
 
-```{r}
-r2(lm3)  # R^2
+```{r lm3-params}
 model_parameters(lm3)  # Modellkoeffizienten, also die Beta-Gewichte ("estimate")
 ```
+
+
+Wie man sieht, wird eine nominalskalierte Variable mit vielen Stufen in entsprechend (viele!) binäre Variablen umgewandelt, die jeweils einen Regressionskoeffizienten ergeben.
+
+
+```{r lm3-r2}
+r2(lm3)  # R^2
+```
+
 
 Ein mageres R-Quadrat.
 
@@ -500,7 +468,7 @@ r2(lm6)
 # flights_train6: Extremwerte entfernen
 
 
-```{r}
+```{r plot-densities}
 library(DataExplorer)
 
 flights_train5 |> 
@@ -528,7 +496,7 @@ Wir ersetzen dabei alle Werte von ` air_time`, für die gilt, dass sie größer 
 
 Q3:
 
-```{r}
+```{r comp-q3}
 flights_train5 |> 
   summarise(iqr_airtime = quantile(air_time, prob = .75))
 ```
@@ -537,14 +505,14 @@ flights_train5 |>
 
 IQR:
 
-```{r}
+```{r comp-iqr}
 flights_train5 |> 
   summarise(iqr_airtime = IQR(air_time))
 ```
 
 Der Grenzwert ist also:
 
-```{r}
+```{r comp-threshold}
 (# Q3
   flights_train5 |> 
   summarise(iqr_airtime = quantile(air_time, prob = .75)) 
@@ -559,13 +527,13 @@ Der Grenzwert ist also:
 
 Der Median von `air_time` beträgt übrigens:
 
-```{r}
+```{r comp-md}
  flights_train5 |> 
   summarise(iqr_airtime = median(air_time)) 
 ```
 
 
-```{r}
+```{r flights-train6}
 flights_train6 <-
   flights_train5 |> 
   mutate(air_time = 
@@ -582,11 +550,9 @@ Grob auf Deutsch übersetzt:
 
 # lm7: Wie lm5, aber ohne Extremwerte für `air_time`
 
-```{r}
+```{r lm7}
 lm7 <-lm(dep_delay ~ ., data = flights_train6)
-```
 
-```{r}
 r2(lm7)
 ```
 
@@ -601,8 +567,8 @@ $R^2$ kann man übrigens auch so berechnen:
 
 Zuerst fügen wir die Vorhersagen zum Datensatz hinzu:
 
-```{r lm6-predict}
-flights_train6_pred <- 
+```{r lm7-predict}
+flights_train7_pred <- 
   flights_train6 %>% 
   mutate(lm7_pred = predict(lm7, newdata = flights_train6))  
 ```
@@ -610,8 +576,8 @@ flights_train6_pred <-
 
 Dann berechnen wir das R-Quadrat mit der Funktion `rsq` (wie "r squared") anhand der beiden relevanten Spalten:
 
-```{r}
-flights_train6_pred %>% 
+```{r flights_train7_pred-r2}
+flights_train7_pred %>% 
   rsq(truth = dep_delay,
       estimate = lm7_pred)
 ```
@@ -624,7 +590,7 @@ Berechnen wir jetzt die Modellgüte im Testsample.
 
 Fügen wir die Vorhersagewerte dem Testsample dazu:
 
-```{r}
+```{r flights_test4_pred}
 flights_test4_pred <-
   flights_test4 %>% 
   mutate(pred_lm7 = predict(lm7, newdata = flights_test4))
@@ -640,7 +606,7 @@ flights_test4_pred %>%
 
 
 
-```{r}
+```{r test-r2}
 test_rsq <- 
  tibble(model = "lm7") %>% 
   mutate(rsq = rsq_vec(truth = flights_test4_pred$dep_delay,
@@ -663,7 +629,7 @@ flights_test4_pred %>%
 
 Da fehlende Werte u.U. mit dem Mittelwert (der übrigen prognostizierten Werte) aufgefüllt werden, erledigen wir das gleich, um den Effekt auf $R^2$ abzuschätzen:
 
-```{r}
+```{r flights_test4_pred2}
 flights_test4_pred2 <- 
 flights_test4_pred %>% 
   mutate(pred_lm7 = replace_na(pred_lm7, mean(pred_lm7, na.rm = TRUE)))
@@ -680,13 +646,26 @@ Keine fehlenden Werte mehr.
 
 Wie sieht $R^2$ jetzt aus?
 
-```{r}
+```{r lm7-r2-test}
 flights_test4_pred2 %>% 
   rsq(truth = dep_delay, estimate = pred_lm7)
 ```
 
 Keine (nennenswerte) Veränderung.
 
+
+
+```{r rm-all-lms}
+#| echo: false
+
+rm(lm2)
+rm(lm3)
+rm(lm4)
+rm(lm5)
+rm(lm6)
+rm(lm7)
+rm(flights)
+```
 
 
 
@@ -696,9 +675,9 @@ Keine (nennenswerte) Veränderung.
 Das beste Modell im *Train-Sample* reichen wir ein; in diesem Fall `lm7`.
 
 
-## CSV-Datei erstellen zum Einreichen
 
-```{r}
+
+```{r subm-df}
 submission_df <- 
 flights_test4_pred2 |> 
   select(id, pred = pred_lm7)  # gleich umbenennen in "pred"
@@ -714,6 +693,8 @@ write_csv(submission_df, file = "Sauer_Sebastian_0123456_Prognose.csv")
 
 # Was noch?
 
+## Mehr geht immer...
+
 Ein nächster Schritt könnte sein, sich folgende Punkte anzuschauen:
 
   - Interaktionen
@@ -723,19 +704,10 @@ Ein nächster Schritt könnte sein, sich folgende Punkte anzuschauen:
 Eine Faustregel zu Interaktionen lautet: Wenn zwei Variablen jeweils einen starken Haupteffekt haben, lohnt es sich u.U., den Interaktionseffekt anzuschauen (vgl. Gelman & Hill, 2007, S. 69).
 
 
-# Tidymodels
+## Tidymodels
 
 Das ständige Updaten des Test-Datensatzes nervt; mit `tidymodels` wird es komfortabler und man hat Zugang zu leistungsfähigeren Prognosemodellen. [Hier](https://www.tmwr.org/) findet sich ein Einstieg und hier eine [Fallstudie mit Tutorial](https://www.tidymodels.org/start/models/).
 
-
-
-# Reproducibility
-
-```{r reproducibility, echo = FALSE}
-## Reproducibility info
-options(width = 120)
-devtools::session_info()
-```
 
 
 
