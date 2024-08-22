@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.527">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2024-06-22">
+
+<title>datenwerk - flights-delay</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">datenwerk</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Ans Werk, Daten!</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Hinweise.html"> 
+<span class="menu-text">Hinweise</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/sebastiansauer/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#hintergrund-und-forschungsfrage" id="toc-hintergrund-und-forschungsfrage" class="nav-link active" data-scroll-target="#hintergrund-und-forschungsfrage"><span class="header-section-number">1</span> Hintergrund und Forschungsfrage</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">2</span> Setup</a>
+  <ul class="collapse">
+  <li><a href="#pakete-laden" id="toc-pakete-laden" class="nav-link" data-scroll-target="#pakete-laden"><span class="header-section-number">2.1</span> Pakete laden</a></li>
+  <li><a href="#daten-laden-flights-2023" id="toc-daten-laden-flights-2023" class="nav-link" data-scroll-target="#daten-laden-flights-2023"><span class="header-section-number">2.2</span> Daten laden: Flights 2023</a></li>
+  </ul></li>
+  <li><a href="#flights2-nicht-benötigte-variablen-entfernen-und-id-hinzufügen" id="toc-flights2-nicht-benötigte-variablen-entfernen-und-id-hinzufügen" class="nav-link" data-scroll-target="#flights2-nicht-benötigte-variablen-entfernen-und-id-hinzufügen"><span class="header-section-number">3</span> flights2: Nicht benötigte Variablen entfernen und ID hinzufügen</a></li>
+  <li><a href="#aufteilung-in-train--und-testsample" id="toc-aufteilung-in-train--und-testsample" class="nav-link" data-scroll-target="#aufteilung-in-train--und-testsample"><span class="header-section-number">4</span> Aufteilung in Train- und Testsample</a></li>
+  <li><a href="#flights_train2-flights_test2" id="toc-flights_train2-flights_test2" class="nav-link" data-scroll-target="#flights_train2-flights_test2"><span class="header-section-number">5</span> flights_train2, flights_test2</a></li>
+  <li><a href="#lm0-nullmodell" id="toc-lm0-nullmodell" class="nav-link" data-scroll-target="#lm0-nullmodell"><span class="header-section-number">6</span> lm0: Nullmodell</a></li>
+  <li><a href="#lm1-origin" id="toc-lm1-origin" class="nav-link" data-scroll-target="#lm1-origin"><span class="header-section-number">7</span> lm1: origin</a></li>
+  <li><a href="#lm2-all-in" id="toc-lm2-all-in" class="nav-link" data-scroll-target="#lm2-all-in"><span class="header-section-number">8</span> lm2: All in</a></li>
+  <li><a href="#flights_train3-textvariablen-in-faktorvariablen-umwandeln" id="toc-flights_train3-textvariablen-in-faktorvariablen-umwandeln" class="nav-link" data-scroll-target="#flights_train3-textvariablen-in-faktorvariablen-umwandeln"><span class="header-section-number">9</span> flights_train3: Textvariablen in Faktorvariablen umwandeln</a></li>
+  <li><a href="#flights_test3" id="toc-flights_test3" class="nav-link" data-scroll-target="#flights_test3"><span class="header-section-number">10</span> flights_test3</a></li>
+  <li><a href="#flights_train4-faktorstufen-zusammenfassen" id="toc-flights_train4-faktorstufen-zusammenfassen" class="nav-link" data-scroll-target="#flights_train4-faktorstufen-zusammenfassen"><span class="header-section-number">11</span> flights_train4: Faktorstufen zusammenfassen</a></li>
+  <li><a href="#variante-mit-fact_lump_n" id="toc-variante-mit-fact_lump_n" class="nav-link" data-scroll-target="#variante-mit-fact_lump_n"><span class="header-section-number">12</span> Variante mit <code>fact_lump_n</code></a></li>
+  <li><a href="#flights_test4" id="toc-flights_test4" class="nav-link" data-scroll-target="#flights_test4"><span class="header-section-number">13</span> flights_test4</a></li>
+  <li><a href="#lm3-alle-zusammengefassten-faktorvariablen" id="toc-lm3-alle-zusammengefassten-faktorvariablen" class="nav-link" data-scroll-target="#lm3-alle-zusammengefassten-faktorvariablen"><span class="header-section-number">14</span> lm3: Alle zusammengefassten Faktorvariablen</a></li>
+  <li><a href="#lm4-alle-metrischen-variablen" id="toc-lm4-alle-metrischen-variablen" class="nav-link" data-scroll-target="#lm4-alle-metrischen-variablen"><span class="header-section-number">15</span> lm4: Alle metrischen Variablen</a></li>
+  <li><a href="#lm5-alle-metrischen-und-alle-zusammengefassten-nominalen-variablen" id="toc-lm5-alle-metrischen-und-alle-zusammengefassten-nominalen-variablen" class="nav-link" data-scroll-target="#lm5-alle-metrischen-und-alle-zusammengefassten-nominalen-variablen"><span class="header-section-number">16</span> lm5: Alle metrischen und alle (zusammengefassten) nominalen Variablen</a></li>
+  <li><a href="#flights_train5-fehlenden-werte-ersetzen" id="toc-flights_train5-fehlenden-werte-ersetzen" class="nav-link" data-scroll-target="#flights_train5-fehlenden-werte-ersetzen"><span class="header-section-number">17</span> flights_train5: Fehlenden Werte ersetzen</a></li>
+  <li><a href="#lm6-wie-lm5-aber-ohne-fehlende-werte" id="toc-lm6-wie-lm5-aber-ohne-fehlende-werte" class="nav-link" data-scroll-target="#lm6-wie-lm5-aber-ohne-fehlende-werte"><span class="header-section-number">18</span> lm6: Wie lm5, aber ohne fehlende Werte</a></li>
+  <li><a href="#flights_train6-extremwerte-entfernen" id="toc-flights_train6-extremwerte-entfernen" class="nav-link" data-scroll-target="#flights_train6-extremwerte-entfernen"><span class="header-section-number">19</span> flights_train6: Extremwerte entfernen</a></li>
+  <li><a href="#lm7-wie-lm5-aber-ohne-extremwerte-für-air_time" id="toc-lm7-wie-lm5-aber-ohne-extremwerte-für-air_time" class="nav-link" data-scroll-target="#lm7-wie-lm5-aber-ohne-extremwerte-für-air_time"><span class="header-section-number">20</span> lm7: Wie lm5, aber ohne Extremwerte für <code>air_time</code></a></li>
+  <li><a href="#r2-im-testsample" id="toc-r2-im-testsample" class="nav-link" data-scroll-target="#r2-im-testsample"><span class="header-section-number">21</span> R2 im Testsample</a></li>
+  <li><a href="#einreichen" id="toc-einreichen" class="nav-link" data-scroll-target="#einreichen"><span class="header-section-number">22</span> Einreichen</a></li>
+  <li><a href="#was-noch" id="toc-was-noch" class="nav-link" data-scroll-target="#was-noch"><span class="header-section-number">23</span> Was noch?</a>
+  <ul class="collapse">
+  <li><a href="#mehr-geht-immer" id="toc-mehr-geht-immer" class="nav-link" data-scroll-target="#mehr-geht-immer"><span class="header-section-number">23.1</span> Mehr geht immer…</a></li>
+  <li><a href="#tidymodels" id="toc-tidymodels" class="nav-link" data-scroll-target="#tidymodels"><span class="header-section-number">23.2</span> Tidymodels</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">flights-delay</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">lm</div>
+    <div class="quarto-category">regression</div>
+    <div class="quarto-category">interaction</div>
+    <div class="quarto-category">yacsda</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 22, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="hintergrund-und-forschungsfrage" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Hintergrund und Forschungsfrage</h1>
+<p>Wir untersuchen die Forschungsfrage <em>Was sind Prädiktoren von Flugverspätungen</em>. Dazu nutzen wir lineare Modelle als Modellierungsmethoden.</p>
+<p>Dieser Post knüpft an <a href="https://data-se.netlify.app/2021/03/08/eda-zu-flugversp%C3%A4tungen/">den Post zur explorativen Datenanalyse der Flugverspätungen</a> an (es gibt auch <a href="https://www.youtube.com/watch?v=t8i_qTonuLM">hier, Teil 1</a> und <a href="https://youtu.be/AeBqwr2U7MA">hier, Teil 2</a> ein Video zu diesem EDA-Post).</p>
+</section>
+<section id="setup" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Setup</h1>
+<section id="pakete-laden" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="pakete-laden"><span class="header-section-number">2.1</span> Pakete laden</h2>
+<p>Wirklich wichtig sind nur <code>tidymodels</code> und <code>tidyverse</code>. Die restlichen Pakete werden nur am Rande benötigt. Man sollte auch nur die Pakete laden, die man für die Analyse benötigt.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidymodels"</span>)  <span class="co"># Train- und Test-Sample aufteilen</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)  <span class="co"># data wrangling</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"conflicted"</span>)  <span class="co"># Name clashes finden</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"easystats"</span>)  <span class="co"># stats made easy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="daten-laden-flights-2023" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="daten-laden-flights-2023"><span class="header-section-number">2.2</span> Daten laden: Flights 2023</h2>
+<p>Aus Gründen der Datenökonomie nutzen wir eine kleinere Version des Datensatz <code>flights</code>. Wir nutzen nicht mehr die Daten aus dem 2013, sondern die neueren Daten aus dem Jahr 2023.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nycflights23)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(flights)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Reproduzierbarkeit</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>flights <span class="ot">&lt;-</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">|&gt;</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="fl">3e4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="flights2-nicht-benötigte-variablen-entfernen-und-id-hinzufügen" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> flights2: Nicht benötigte Variablen entfernen und ID hinzufügen</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>flights2 <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">%&gt;%</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(year, arr_delay)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(dep_delay) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">row_number</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, <span class="fu">everything</span>())  <span class="co"># id nach vorne ziehen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="aufteilung-in-train--und-testsample" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Aufteilung in Train- und Testsample</h1>
+<p>Der Hintergrund zur Idee der Aufteilung in Train- und Test-Stichprobe kann z.b. <a href="https://www.tmwr.org/splitting.html">hier</a> oder <a href="https://www.springer.com/de/book/9783658215866">hier</a>, Kapitel 15, nachgelesen werden.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flights_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(flights2, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">strata =</span> dep_delay)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="flights_train2-flights_test2" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> flights_train2, flights_test2</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Reproduzierbarkeit</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>flights_train2 <span class="ot">&lt;-</span> <span class="fu">training</span>(flights_split)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>flights_test2 <span class="ot">&lt;-</span> <span class="fu">testing</span>(flights_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Die “wirkliche Welt” (was immer das ist) besorgt die Aufteilung von Train- und Test-Sampel für Sie automatisch. Sagen wir, Sie arbeiten für die Flughafen-Aufsicht von New York. Dann haben Sie einen Erfahrungsschatz an Flügen aus der Vergangenheit in Ihrer Datenbank (Train-Sample). Einige Tages kommt Ihr Chef zu Ihnen und sagt: “Rechnen Sie mir mal die zu erwartende Verspätung der Flüge <em>im nächsten Monat</em> aus!”. Da <em>heute</em> nicht klar ist, wie die Verspätung der Flüge <em>in der Zukunft</em> (nächsten Monat) sein wird, stellen die Flüge des nächsten Monats das Test-Sample dar.</p>
+<p>Übrigens: In der Prüfung besorgt das Aufteilen von Train- und Test-Sample netterweise Ihr Dozent…</p>
+</section>
+<section id="lm0-nullmodell" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> lm0: Nullmodell</h1>
+<p>Eigentlich nicht nötig, das Nullmodell, primär aus didaktischen Gründen berechnet, um zu zeigen, dass in diesem Fall <span class="math inline">\(R^2\)</span> wirklich gleich Null ist.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>lm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(dep_delay <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> flights_train2)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">model_parameters</span>(lm0)  <span class="co"># model_parameters zeit die (geschätzten) Regressionsgewichte (Betas)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |   SE |         95% CI | t(21918) |      p
+---------------------------------------------------------------------
+(Intercept) |       13.89 | 0.37 | [13.16, 14.63] |    37.18 | &lt; .001</code></pre>
+</div>
+</div>
+<p>Wir könnten anstatt <code>model_parameters</code> auch <code>parameters</code> nutzen; das ist der gleiche Befehl.</p>
+<p>Allerdings gibt es den Befehl <code>parameters</code> in <em>zwei</em> Paketen, es käme also zu einem “Name Clash”. Das umgehen wir, indem wir <code>model_parameter</code> nutzen, und nicht <code>parameters</code>.</p>
+</section>
+<section id="lm1-origin" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> lm1: origin</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(dep_delay <span class="sc">~</span> origin, <span class="at">data =</span> flights_train2)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">model_parameters</span>(lm1)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter    | Coefficient |   SE |         95% CI | t(21916) |      p
+----------------------------------------------------------------------
+(Intercept)  |       15.11 | 0.66 | [13.82, 16.40] |    22.98 | &lt; .001
+origin [JFK] |        1.37 | 0.94 | [-0.47,  3.21] |     1.46 | 0.145 
+origin [LGA] |       -4.42 | 0.90 | [-6.19, -2.66] |    -4.92 | &lt; .001</code></pre>
+</div>
+</div>
+<p>Man vergleiche:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>flights_train2 <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(dep_delay) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">delay_avg =</span> <span class="fu">mean</span>(dep_delay)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delay_delta =</span> delay_avg <span class="sc">-</span> delay_avg[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  origin delay_avg delay_delta
+  &lt;chr&gt;      &lt;dbl&gt;       &lt;dbl&gt;
+1 EWR         15.1        0   
+2 JFK         16.5        1.37
+3 LGA         10.7       -4.42</code></pre>
+</div>
+</div>
+<p>Der Mittelwertsvergleich und das Modell <code>lm1</code> sind faktisch informationsgleich.</p>
+<p>Aber leider ist es um die Modellgüte nicht so gut bestellt (eigentlich eher “grottenschlecht”):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># R2 for Linear Regression
+       R2: 0.002
+  adj. R2: 0.002</code></pre>
+</div>
+</div>
+<p><code>lm1</code> ist so schlecht, wir löschen es gleich wieder…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="lm2-all-in" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> lm2: All in</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># NICHT AUSFÜHREN</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#lm2_all_in &lt;- lm(dep_delay ~ ., data = flights_train2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Modell <code>lm2_all_in</code> ist hier <em>keine</em> gute Idee, da nominale Prädiktoren in Indikatorvariablen umgewandelt werden. Hat ein nominaler Prädiktor sehr viele Stufen (wie hier), so resultieren sehr viele Indikatorvariablen, was dem Regressionsmodell Probleme bereiten kann (bei mir hängt sich R auf). Besser ist es in dem Fall, die Anzahl der Stufen von nominalskalierten Variablen vorab zu begrenzen.</p>
+<p>Bei kleineren Datensätzen (weniger Variablen, weniger Fälle) lohnt es sich aber oft, das “All-in-Modell” auszuprobieren, als Referenzmaßstab für andere Modelle.</p>
+</section>
+<section id="flights_train3-textvariablen-in-faktorvariablen-umwandeln" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> flights_train3: Textvariablen in Faktorvariablen umwandeln</h1>
+<p>Begrenzen wir zunächst die Anzahl der Stufen der nominal skalierten Variablen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="ot">&lt;-</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  flights_train2 <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="fu">where</span>(is.character),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns =</span> as.factor))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Wem das <code>across</code> zu kompliziert ist, der kann auch alternativ (synonym) jede Variable einzeln in einen Faktor umwandeln und zwar so:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>flights_train3a <span class="ot">&lt;-</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  flights_train2 <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tailnum =</span> <span class="fu">as.factor</span>(tailnum),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">origin =</span> <span class="fu">as.factor</span>(origin),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">dest =</span> <span class="fu">as.factor</span>(dest),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">carrier =</span> <span class="fu">as.factor</span>(carrier)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Das ist einfacher als mit <code>across</code>, aber dafür mehr Tipperei.</p>
+<p>Wir müssen die Transformationen, die wir auf das Train-Sample anwenden, auch auf das Test-Sample anwenden:</p>
+</section>
+<section id="flights_test3" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> flights_test3</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>flights_test3 <span class="ot">&lt;-</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  flights_test2 <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="fu">where</span>(is.character),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns =</span> as.factor))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.factor)) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "carrier" "tailnum" "origin"  "dest"   </code></pre>
+</div>
+</div>
+<p>Z.B. <code>dest</code> hat viele Stufen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dest, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 116 × 2
+   dest      n
+   &lt;fct&gt; &lt;int&gt;
+ 1 ORD     941
+ 2 BOS     933
+ 3 ATL     890
+ 4 MCO     860
+ 5 LAX     816
+ 6 MIA     806
+ 7 FLL     707
+ 8 CLT     673
+ 9 SFO     588
+10 DFW     581
+# ℹ 106 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dest) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">fct_reorder</span>(dest, n), <span class="at">x =</span> n) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="flights_train4-faktorstufen-zusammenfassen" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> flights_train4: Faktorstufen zusammenfassen</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="ot">&lt;-</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="fu">where</span>(is.factor),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns =</span> fct_lump_prop, <span class="at">prop =</span> .<span class="dv">025</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="variante-mit-fact_lump_n" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Variante mit <code>fact_lump_n</code></h1>
+<p>Sinngemäß bedeutet das:</p>
+<p>“Fasse die Faktorstufen von <code>dest</code> zu 8 Gruppen plus einer ‘<em>Lump</em>ensammler-Kategorie’ zusammen.”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dest_lump9 =</span> <span class="fu">fct_lump_n</span>(dest, <span class="at">n =</span> <span class="dv">8</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 21,919 × 19
+      id month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1    11     2    22      622            630        -8     1034           1020
+ 2    26     9    27     1137           1147       -10     1255           1317
+ 3    28    10     8     1751           1759        -8     2106           2110
+ 4    37     3    30      807            815        -8      917            930
+ 5    39     6    14     1019           1025        -6     1127           1151
+ 6    47     9    26     1045           1051        -6     1345           1357
+ 7    52     5     9      749            759       -10     1009           1014
+ 8    55     2    10      914            920        -6     1044           1115
+ 9    59    12    30     1402           1411        -9     1715           1724
+10    61    11    10     1434           1440        -6     1623           1641
+# ℹ 21,909 more rows
+# ℹ 11 more variables: carrier &lt;fct&gt;, flight &lt;int&gt;, tailnum &lt;fct&gt;,
+#   origin &lt;fct&gt;, dest &lt;fct&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;,
+#   minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, dest_lump9 &lt;fct&gt;</code></pre>
+</div>
+</div>
+<p>Hier sind die Faktorstufen von <code>dest</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>flights_train4<span class="sc">$</span>dest <span class="sc">|&gt;</span> <span class="fu">levels</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "ATL"   "BOS"   "CLT"   "DFW"   "FLL"   "LAX"   "MCO"   "MIA"   "ORD"  
+[10] "RDU"   "SFO"   "Other"</code></pre>
+</div>
+</div>
+<p>Visusalsieren wir die Häufigkeit der Faktorstufen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dest) <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">fct_reorder</span>(dest, n), <span class="at">x =</span> n) <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/plot-count-levels-dest-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="flights_test4" class="level1" data-number="13">
+<h1 data-number="13"><span class="header-section-number">13</span> flights_test4</h1>
+<p>Vergessen wir nicht, die Transformation auch auf das Test-Sample anzuwenden:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>flights_test4 <span class="ot">&lt;-</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  flights_test3 <span class="sc">%&gt;%</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="fu">where</span>(is.factor),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns =</span> fct_lump_prop, <span class="at">prop =</span> .<span class="dv">025</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Wichtig! Im Alle Faktorstufen, die im Test-Set vorkommen, müssen auch im Train-Set vorkommen. Sonst können wir das Regressionsmodell nicht berechnen.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(flights_test4<span class="sc">$</span>dest) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "ATL"   "BOS"   "CLT"   "DFW"   "FLL"   "LAX"   "MCO"   "MIA"   "ORD"  
+[10] "Other"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(flights_train4<span class="sc">$</span>dest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "ATL"   "BOS"   "CLT"   "DFW"   "FLL"   "LAX"   "MCO"   "MIA"   "ORD"  
+[10] "RDU"   "SFO"   "Other"</code></pre>
+</div>
+</div>
+<p>Das sieht gut aus: Alle Faktorstufen im Test-Set sind im Train-Set enthalten.</p>
+</section>
+<section id="lm3-alle-zusammengefassten-faktorvariablen" class="level1" data-number="14">
+<h1 data-number="14"><span class="header-section-number">14</span> lm3: Alle zusammengefassten Faktorvariablen</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>lm3 <span class="ot">&lt;-</span> flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, <span class="fu">where</span>(is.factor), <span class="sc">-</span>tailnum, <span class="sc">-</span>id) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(dep_delay <span class="sc">~</span> ., <span class="at">data =</span> .)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Achtung! Falls ein Faktor nur über eine einzige Faktorstufe verfügt, wird das Regressionsmodell zusammenbrechen mit einer Fehlermeldung. Adios!</p>
+<p>Der Punkt bei <code>dep_delay ~ .</code> meint “nimm alle Variablen im Datensatz (bis auf <code>dep_delay</code>)”.</p>
+<p>Der Punkt bei <code>data = .</code> nimm die Tabelle, wie sie dir im letzten Schritt mundgerecht aufbereitet wurde. Man hätte hier auch <code>flights_train4</code> schreiben können, aber dann hätten wir noch <code>tailnum</code> etc. entfernen müssen.</p>
+<p>Eigentlich brauchen wir nicht so viele Dezimalstellen …</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">model_parameters</span>(lm3)  <span class="co"># Modellkoeffizienten, also die Beta-Gewichte ("estimate")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter       | Coefficient |   SE |         95% CI | t(21897) |      p
+-------------------------------------------------------------------------
+(Intercept)     |        8.87 | 2.44 | [ 4.09, 13.66] |     3.63 | &lt; .001
+carrier [AA]    |        4.76 | 1.85 | [ 1.13,  8.38] |     2.57 | 0.010 
+carrier [B6]    |       15.25 | 1.53 | [12.24, 18.25] |     9.94 | &lt; .001
+carrier [DL]    |        5.90 | 1.54 | [ 2.88,  8.93] |     3.82 | &lt; .001
+carrier [NK]    |        5.98 | 2.42 | [ 1.23, 10.73] |     2.47 | 0.014 
+carrier [UA]    |        8.90 | 1.71 | [ 5.54, 12.25] |     5.20 | &lt; .001
+carrier [WN]    |        8.89 | 2.52 | [ 3.94, 13.83] |     3.52 | &lt; .001
+carrier [YX]    |       -4.18 | 1.40 | [-6.93, -1.43] |    -2.98 | 0.003 
+carrier [Other] |        9.39 | 2.27 | [ 4.93, 13.85] |     4.13 | &lt; .001
+origin [JFK]    |        0.42 | 1.25 | [-2.03,  2.87] |     0.34 | 0.735 
+origin [LGA]    |       -1.96 | 1.15 | [-4.21,  0.28] |    -1.71 | 0.087 
+dest [BOS]      |        0.60 | 2.67 | [-4.62,  5.83] |     0.23 | 0.821 
+dest [CLT]      |        1.41 | 3.00 | [-4.46,  7.29] |     0.47 | 0.637 
+dest [DFW]      |        2.07 | 3.07 | [-3.94,  8.08] |     0.68 | 0.500 
+dest [FLL]      |        2.30 | 2.84 | [-3.26,  7.86] |     0.81 | 0.418 
+dest [LAX]      |       -0.77 | 2.74 | [-6.14,  4.60] |    -0.28 | 0.778 
+dest [MCO]      |        6.49 | 2.68 | [ 1.23, 11.75] |     2.42 | 0.016 
+dest [MIA]      |       -1.99 | 2.83 | [-7.53,  3.55] |    -0.70 | 0.482 
+dest [ORD]      |        0.89 | 2.67 | [-4.35,  6.13] |     0.33 | 0.738 
+dest [RDU]      |        2.16 | 3.05 | [-3.82,  8.15] |     0.71 | 0.479 
+dest [SFO]      |       -1.05 | 3.01 | [-6.95,  4.85] |    -0.35 | 0.728 
+dest [Other]    |       -0.07 | 1.99 | [-3.97,  3.84] |    -0.03 | 0.974 </code></pre>
+</div>
+</div>
+<p>Wie man sieht, wird eine nominalskalierte Variable mit vielen Stufen in entsprechend (viele!) binäre Variablen umgewandelt, die jeweils einen Regressionskoeffizienten ergeben.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm3)  <span class="co"># R^2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># R2 for Linear Regression
+       R2: 0.016
+  adj. R2: 0.015</code></pre>
+</div>
+</div>
+<p>Ein mageres R-Quadrat.</p>
+</section>
+<section id="lm4-alle-metrischen-variablen" class="level1" data-number="15">
+<h1 data-number="15"><span class="header-section-number">15</span> lm4: Alle metrischen Variablen</h1>
+<p>Was sind noch mal unsere metrischen Variablen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "id"             "month"          "day"            "dep_time"      
+ [5] "sched_dep_time" "dep_delay"      "arr_time"       "sched_arr_time"
+ [9] "flight"         "air_time"       "distance"       "hour"          
+[13] "minute"        </code></pre>
+</div>
+</div>
+<p>Ok, jetzt eine Regression mit diesen Variablen (ober ohne die ID-Variable):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>lm4 <span class="ot">&lt;-</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, <span class="fu">where</span>(is.numeric), <span class="sc">-</span>id) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(dep_delay <span class="sc">~</span> ., <span class="at">data =</span> .)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># R2 for Linear Regression
+       R2: 0.061
+  adj. R2: 0.061</code></pre>
+</div>
+</div>
+<p>Tja, das <span class="math inline">\(R^2\)</span> hat einen nicht gerade um …</p>
+</section>
+<section id="lm5-alle-metrischen-und-alle-zusammengefassten-nominalen-variablen" class="level1" data-number="16">
+<h1 data-number="16"><span class="header-section-number">16</span> lm5: Alle metrischen und alle (zusammengefassten) nominalen Variablen</h1>
+<p>Welche Variablen sind jetzt alle an Bord?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "id"             "month"          "day"            "dep_time"      
+ [5] "sched_dep_time" "dep_delay"      "arr_time"       "sched_arr_time"
+ [9] "carrier"        "flight"         "tailnum"        "origin"        
+[13] "dest"           "air_time"       "distance"       "hour"          
+[17] "minute"         "time_hour"     </code></pre>
+</div>
+</div>
+<p><code>time_hour</code> nehmen wir noch einmal raus, da es zum einen redundant ist zu <code>hour</code> etc. und zum anderen noch zusätzlicher Aufbereitung bedarf.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(minute) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variable |  Mean |    SD | IQR |         Range | Skewness | Kurtosis |     n | n_Missing
+----------------------------------------------------------------------------------------
+minute   | 28.58 | 19.62 |  35 | [0.00, 59.00] |     0.02 |    -1.19 | 21919 |         0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="ot">&lt;-</span> </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>time_hour, <span class="sc">-</span>tailnum, <span class="sc">-</span>id, <span class="sc">-</span>minute)    <span class="co"># "minute" machte Probleme, besser rausnehmen</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>lm5 <span class="ot">&lt;-</span><span class="fu">lm</span>(dep_delay <span class="sc">~</span> ., <span class="at">data =</span> flights_train4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># R2 for Linear Regression
+       R2: 0.068
+  adj. R2: 0.067</code></pre>
+</div>
+</div>
+<p>Der Vorhersage-Gott ist nicht mit uns. Vielleicht sollten wir zu einem ehrlichen Metier als Schuhverkäufer umsatteln …</p>
+</section>
+<section id="flights_train5-fehlenden-werte-ersetzen" class="level1" data-number="17">
+<h1 data-number="17"><span class="header-section-number">17</span> flights_train5: Fehlenden Werte ersetzen</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">|&gt;</span> </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Variable, n_Missing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variable       | n_Missing
+--------------------------
+month          |         0
+day            |         0
+dep_time       |         0
+sched_dep_time |         0
+dep_delay      |         0
+arr_time       |        40
+sched_arr_time |         0
+flight         |         0
+air_time       |        98
+distance       |         0
+hour           |         0</code></pre>
+</div>
+</div>
+<p>Glücklicherweise haben wir nicht zu viele fehlende Werte. Bei der Größe der Stichprobe fällt die Anzahl wenig ins Gewicht. Aber zu Übungszwecken ersetzen wir mal die fehlenden Werte.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>flights_train5 <span class="ot">&lt;-</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  flights_train4 <span class="sc">|&gt;</span> </span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">air_time =</span> <span class="fu">replace_na</span>(air_time, <span class="fu">mean</span>(air_time, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="lm6-wie-lm5-aber-ohne-fehlende-werte" class="level1" data-number="18">
+<h1 data-number="18"><span class="header-section-number">18</span> lm6: Wie lm5, aber ohne fehlende Werte</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>lm6 <span class="ot">&lt;-</span><span class="fu">lm</span>(dep_delay <span class="sc">~</span> ., <span class="at">data =</span> flights_train5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># R2 for Linear Regression
+       R2: 0.068
+  adj. R2: 0.067</code></pre>
+</div>
+</div>
+</section>
+<section id="flights_train6-extremwerte-entfernen" class="level1" data-number="19">
+<h1 data-number="19"><span class="header-section-number">19</span> flights_train6: Extremwerte entfernen</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DataExplorer)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">|&gt;</span> </span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_density</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/plot-densities-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Es sieht so aus, als wäre <code>air_time</code> deutlich rechtsschief mit einigen Ausreißern.</p>
+<p>Betrachten wir noch Boxplots, die auch gut Extermwerte visualisieren.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric), <span class="st">"origin"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_boxplot</span>(<span class="at">by =</span> <span class="st">"origin"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/plot-boxplots-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Eine gängige Methode, mit Extermwerten umzugehen, ist, alle Datenpunkte, die im Boxplot als alleinstehende Punkte gezeigt werden, durch den Median zu ersetzen. Achtung: Diese Methode ist nicht perfekt! Es gibt viel sophistiziertere Methoden.</p>
+<p>Wir ersetzen dabei alle Werte von <code>air_time</code>, für die gilt, dass sie größer sind als Q3 + 1.5*IQR.</p>
+<p>Q3:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">iqr_airtime =</span> <span class="fu">quantile</span>(air_time, <span class="at">prob =</span> .<span class="dv">75</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  iqr_airtime
+        &lt;dbl&gt;
+1         177</code></pre>
+</div>
+</div>
+<p>IQR:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">iqr_airtime =</span> <span class="fu">IQR</span>(air_time))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  iqr_airtime
+        &lt;dbl&gt;
+1          99</code></pre>
+</div>
+</div>
+<p>Der Grenzwert ist also:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>(<span class="co"># Q3</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">iqr_airtime =</span> <span class="fu">quantile</span>(air_time, <span class="at">prob =</span> .<span class="dv">75</span>)) </span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1.5</span> <span class="sc">*</span> </span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a> (<span class="co"># IQR</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>  flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">iqr_airtime =</span> <span class="fu">IQR</span>(air_time)) </span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  iqr_airtime
+1         326</code></pre>
+</div>
+</div>
+<p>Der Median von <code>air_time</code> beträgt übrigens:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a> flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">iqr_airtime =</span> <span class="fu">median</span>(air_time)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  iqr_airtime
+        &lt;dbl&gt;
+1         122</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>flights_train6 <span class="ot">&lt;-</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  flights_train5 <span class="sc">|&gt;</span> </span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">air_time =</span> </span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">case_when</span>(air_time <span class="sc">&gt;</span> <span class="dv">326</span> <span class="sc">~</span> <span class="dv">122</span>,</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>                     <span class="cn">TRUE</span> <span class="sc">~</span> air_time))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Grob auf Deutsch übersetzt:</p>
+<blockquote class="blockquote">
+<p>Wenn ein Flug eine <code>air_time</code> von mehr als 326 Minuten hat, dann sei die airtime gleich 122, ansonsten immer (“TRUE”) ist airtime gleich <code>air_time</code>, bleibt also, wie sie war.</p>
+</blockquote>
+</section>
+<section id="lm7-wie-lm5-aber-ohne-extremwerte-für-air_time" class="level1" data-number="20">
+<h1 data-number="20"><span class="header-section-number">20</span> lm7: Wie lm5, aber ohne Extremwerte für <code>air_time</code></h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>lm7 <span class="ot">&lt;-</span><span class="fu">lm</span>(dep_delay <span class="sc">~</span> ., <span class="at">data =</span> flights_train6)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm7)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># R2 for Linear Regression
+       R2: 0.069
+  adj. R2: 0.067</code></pre>
+</div>
+</div>
+<p>Tja….</p>
+</section>
+<section id="r2-im-testsample" class="level1" data-number="21">
+<h1 data-number="21"><span class="header-section-number">21</span> R2 im Testsample</h1>
+<p><span class="math inline">\(R^2\)</span> kann man übrigens auch so berechnen:</p>
+<p>Zuerst fügen wir die Vorhersagen zum Datensatz hinzu:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>flights_train7_pred <span class="ot">&lt;-</span> </span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  flights_train6 <span class="sc">%&gt;%</span> </span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lm7_pred =</span> <span class="fu">predict</span>(lm7, <span class="at">newdata =</span> flights_train6))  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dann berechnen wir das R-Quadrat mit der Funktion <code>rsq</code> (wie “r squared”) anhand der beiden relevanten Spalten:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>flights_train7_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rsq</span>(<span class="at">truth =</span> dep_delay,</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">estimate =</span> lm7_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rsq     standard      0.0686</code></pre>
+</div>
+</div>
+<p>Berechnen wir jetzt die Modellgüte im Testsample.</p>
+<p>Fügen wir die Vorhersagewerte dem Testsample dazu:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>flights_test4_pred <span class="ot">&lt;-</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  flights_test4 <span class="sc">%&gt;%</span> </span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pred_lm7 =</span> <span class="fu">predict</span>(lm7, <span class="at">newdata =</span> flights_test4))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Check:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>flights_test4_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, dep_delay, pred_lm7) <span class="sc">%&gt;%</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+     id dep_delay pred_lm7
+  &lt;int&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1     1        -5    11.0 
+2     2        48    81.1 
+3     3        -1     4.31
+4     4       -10     6.30
+5     7        -3    18.0 
+6     8         5    27.9 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>test_rsq <span class="ot">&lt;-</span> </span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">tibble</span>(<span class="at">model =</span> <span class="st">"lm7"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rsq =</span> <span class="fu">rsq_vec</span>(<span class="at">truth =</span> flights_test4_pred<span class="sc">$</span>dep_delay,</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">estimate =</span> flights_test4_pred<span class="sc">$</span>pred_lm7))</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>test_rsq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  model    rsq
+  &lt;chr&gt;  &lt;dbl&gt;
+1 lm7   0.0824</code></pre>
+</div>
+</div>
+<p>Am schwierigsten ist es, bei den ganzen Nummerierungen nicht durcheinander zu kommen. Hier könnte es sich lohnen, ein übersichtlicheres Verfahren einzuführen (mit den Kosten höherer Komplexität).</p>
+<p>Prüfen wir noch, wie viele fehlende Werte es bei den vorhergesagten Werten gibt:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>flights_test4_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pred_isna =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(pred_lm7)),</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">pred_isna_prop =</span> pred_isna <span class="sc">/</span> <span class="fu">nrow</span>(flights_test4_pred))  <span class="co"># prop wie "proportion" (Anteil)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  pred_isna pred_isna_prop
+      &lt;int&gt;          &lt;dbl&gt;
+1        29        0.00397</code></pre>
+</div>
+</div>
+<p>Da fehlende Werte u.U. mit dem Mittelwert (der übrigen prognostizierten Werte) aufgefüllt werden, erledigen wir das gleich, um den Effekt auf <span class="math inline">\(R^2\)</span> abzuschätzen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>flights_test4_pred2 <span class="ot">&lt;-</span> </span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>flights_test4_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pred_lm7 =</span> <span class="fu">replace_na</span>(pred_lm7, <span class="fu">mean</span>(pred_lm7, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>flights_test4_pred2 <span class="sc">%&gt;%</span> </span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">sum</span>(<span class="fu">is.na</span>(pred_lm7)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  `sum(is.na(pred_lm7))`
+                   &lt;int&gt;
+1                      0</code></pre>
+</div>
+</div>
+<p>Keine fehlenden Werte mehr.</p>
+<p>Wie sieht <span class="math inline">\(R^2\)</span> jetzt aus?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>flights_test4_pred2 <span class="sc">%&gt;%</span> </span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rsq</span>(<span class="at">truth =</span> dep_delay, <span class="at">estimate =</span> pred_lm7)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rsq     standard      0.0803</code></pre>
+</div>
+</div>
+<p>Keine (nennenswerte) Veränderung.</p>
+</section>
+<section id="einreichen" class="level1" data-number="22">
+<h1 data-number="22"><span class="header-section-number">22</span> Einreichen</h1>
+<p>Das beste Modell im <em>Train-Sample</em> reichen wir ein; in diesem Fall <code>lm7</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>submission_df <span class="ot">&lt;-</span> </span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>flights_test4_pred2 <span class="sc">|&gt;</span> </span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, <span class="at">pred =</span> pred_lm7)  <span class="co"># gleich umbenennen in "pred"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(submission_df, <span class="at">file =</span> <span class="st">"Sauer_Sebastian_0123456_Prognose.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="was-noch" class="level1" data-number="23">
+<h1 data-number="23"><span class="header-section-number">23</span> Was noch?</h1>
+<section id="mehr-geht-immer" class="level2" data-number="23.1">
+<h2 data-number="23.1" class="anchored" data-anchor-id="mehr-geht-immer"><span class="header-section-number">23.1</span> Mehr geht immer…</h2>
+<p>Ein nächster Schritt könnte sein, sich folgende Punkte anzuschauen:</p>
+<ul>
+<li>Interaktionen</li>
+<li>Polynome</li>
+<li>Voraussetzungen</li>
+</ul>
+<p>Eine Faustregel zu Interaktionen lautet: Wenn zwei Variablen jeweils einen starken Haupteffekt haben, lohnt es sich u.U., den Interaktionseffekt anzuschauen (vgl. Gelman &amp; Hill, 2007, S. 69).</p>
+</section>
+<section id="tidymodels" class="level2" data-number="23.2">
+<h2 data-number="23.2" class="anchored" data-anchor-id="tidymodels"><span class="header-section-number">23.2</span> Tidymodels</h2>
+<p>Das ständige Updaten des Test-Datensatzes nervt; mit <code>tidymodels</code> wird es komfortabler und man hat Zugang zu leistungsfähigeren Prognosemodellen. <a href="https://www.tmwr.org/">Hier</a> findet sich ein Einstieg und hier eine <a href="https://www.tidymodels.org/start/models/">Fallstudie mit Tutorial</a>.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      return note.innerHTML;
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb89" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2024-06-22</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!</span></span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> flights-delay</span></span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span><span class="co"> </span></span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a><span class="co">  eval: true </span></span>
+<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
+<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a><span class="co">  freeze: true</span></span>
+<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a><span class="an">highlight-style:</span><span class="co"> arrow </span></span>
+<span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a><span class="an">cache:</span><span class="co"> true</span></span>
+<span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb89-12"><a href="#cb89-12" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb89-13"><a href="#cb89-13" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
+<span id="cb89-14"><a href="#cb89-14" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> ""</span></span>
+<span id="cb89-15"><a href="#cb89-15" aria-hidden="true" tabindex="-1"></a><span class="an">exshuffle:</span><span class="co"> no</span></span>
+<span id="cb89-16"><a href="#cb89-16" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb89-17"><a href="#cb89-17" aria-hidden="true" tabindex="-1"></a><span class="co">- lm  # ENTER CATEGORIES HERE</span></span>
+<span id="cb89-18"><a href="#cb89-18" aria-hidden="true" tabindex="-1"></a><span class="co">- regression</span></span>
+<span id="cb89-19"><a href="#cb89-19" aria-hidden="true" tabindex="-1"></a><span class="co">- interaction</span></span>
+<span id="cb89-20"><a href="#cb89-20" aria-hidden="true" tabindex="-1"></a><span class="co">- yacsda</span></span>
+<span id="cb89-21"><a href="#cb89-21" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb89-22"><a href="#cb89-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-23"><a href="#cb89-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-24"><a href="#cb89-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-25"><a href="#cb89-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-26"><a href="#cb89-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-27"><a href="#cb89-27" aria-hidden="true" tabindex="-1"></a><span class="fu"># Hintergrund und Forschungsfrage</span></span>
+<span id="cb89-28"><a href="#cb89-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-29"><a href="#cb89-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-30"><a href="#cb89-30" aria-hidden="true" tabindex="-1"></a>Wir untersuchen die Forschungsfrage *Was sind Prädiktoren von Flugverspätungen*. </span>
+<span id="cb89-31"><a href="#cb89-31" aria-hidden="true" tabindex="-1"></a>Dazu nutzen wir lineare Modelle als Modellierungsmethoden.</span>
+<span id="cb89-32"><a href="#cb89-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-33"><a href="#cb89-33" aria-hidden="true" tabindex="-1"></a>Dieser Post knüpft an <span class="co">[</span><span class="ot">den Post zur explorativen Datenanalyse der Flugverspätungen</span><span class="co">](https://data-se.netlify.app/2021/03/08/eda-zu-flugversp%C3%A4tungen/)</span> an (es gibt auch <span class="co">[</span><span class="ot">hier, Teil 1</span><span class="co">](https://www.youtube.com/watch?v=t8i_qTonuLM)</span> und <span class="co">[</span><span class="ot">hier, Teil 2</span><span class="co">](https://youtu.be/AeBqwr2U7MA)</span> ein Video zu diesem EDA-Post).</span>
+<span id="cb89-34"><a href="#cb89-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-35"><a href="#cb89-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-36"><a href="#cb89-36" aria-hidden="true" tabindex="-1"></a><span class="fu"># Setup</span></span>
+<span id="cb89-37"><a href="#cb89-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-38"><a href="#cb89-38" aria-hidden="true" tabindex="-1"></a><span class="fu">## Pakete laden</span></span>
+<span id="cb89-39"><a href="#cb89-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-40"><a href="#cb89-40" aria-hidden="true" tabindex="-1"></a>Wirklich wichtig sind nur <span class="in">`tidymodels`</span> und <span class="in">`tidyverse`</span>. Die restlichen Pakete werden nur am Rande benötigt. </span>
+<span id="cb89-41"><a href="#cb89-41" aria-hidden="true" tabindex="-1"></a>Man sollte auch nur die Pakete laden,</span>
+<span id="cb89-42"><a href="#cb89-42" aria-hidden="true" tabindex="-1"></a>die man für die Analyse benötigt.</span>
+<span id="cb89-43"><a href="#cb89-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-44"><a href="#cb89-44" aria-hidden="true" tabindex="-1"></a><span class="in">```{r load-libs, message = FALSE, warning = FALSE}</span></span>
+<span id="cb89-45"><a href="#cb89-45" aria-hidden="true" tabindex="-1"></a><span class="in">library("tidymodels")  # Train- und Test-Sample aufteilen</span></span>
+<span id="cb89-46"><a href="#cb89-46" aria-hidden="true" tabindex="-1"></a><span class="in">library("tidyverse")  # data wrangling</span></span>
+<span id="cb89-47"><a href="#cb89-47" aria-hidden="true" tabindex="-1"></a><span class="in">library("conflicted")  # Name clashes finden</span></span>
+<span id="cb89-48"><a href="#cb89-48" aria-hidden="true" tabindex="-1"></a><span class="in">library("easystats")  # stats made easy</span></span>
+<span id="cb89-49"><a href="#cb89-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-50"><a href="#cb89-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-51"><a href="#cb89-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-52"><a href="#cb89-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-53"><a href="#cb89-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Daten laden: Flights 2023</span></span>
+<span id="cb89-54"><a href="#cb89-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-55"><a href="#cb89-55" aria-hidden="true" tabindex="-1"></a>Aus Gründen der Datenökonomie nutzen wir eine kleinere Version des Datensatz <span class="in">`flights`</span>. </span>
+<span id="cb89-56"><a href="#cb89-56" aria-hidden="true" tabindex="-1"></a>Wir nutzen nicht mehr die Daten aus dem 2013, sondern die neueren Daten aus dem Jahr 2023.</span>
+<span id="cb89-57"><a href="#cb89-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-58"><a href="#cb89-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r sample-prop-flights}</span></span>
+<span id="cb89-59"><a href="#cb89-59" aria-hidden="true" tabindex="-1"></a><span class="in">library(nycflights23)</span></span>
+<span id="cb89-60"><a href="#cb89-60" aria-hidden="true" tabindex="-1"></a><span class="in">data(flights)</span></span>
+<span id="cb89-61"><a href="#cb89-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-62"><a href="#cb89-62" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(42)  # Reproduzierbarkeit</span></span>
+<span id="cb89-63"><a href="#cb89-63" aria-hidden="true" tabindex="-1"></a><span class="in">flights &lt;- </span></span>
+<span id="cb89-64"><a href="#cb89-64" aria-hidden="true" tabindex="-1"></a><span class="in">  flights |&gt; </span></span>
+<span id="cb89-65"><a href="#cb89-65" aria-hidden="true" tabindex="-1"></a><span class="in">  sample_n(size = 3e4)</span></span>
+<span id="cb89-66"><a href="#cb89-66" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-67"><a href="#cb89-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-68"><a href="#cb89-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-69"><a href="#cb89-69" aria-hidden="true" tabindex="-1"></a>Achtung: <span class="in">`flights`</span> ist recht groß; die Regressionsmodelle können leicht ein paar Hundert Megabyte groß werden. Das bringt u.U. auch einen modernen Computer irgendwann ins Straucheln.</span>
+<span id="cb89-70"><a href="#cb89-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-71"><a href="#cb89-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-72"><a href="#cb89-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-73"><a href="#cb89-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-74"><a href="#cb89-74" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights2: Nicht benötigte Variablen entfernen und ID hinzufügen</span></span>
+<span id="cb89-75"><a href="#cb89-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-76"><a href="#cb89-76" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights2}</span></span>
+<span id="cb89-77"><a href="#cb89-77" aria-hidden="true" tabindex="-1"></a><span class="in">flights2 &lt;-</span></span>
+<span id="cb89-78"><a href="#cb89-78" aria-hidden="true" tabindex="-1"></a><span class="in">  flights %&gt;% </span></span>
+<span id="cb89-79"><a href="#cb89-79" aria-hidden="true" tabindex="-1"></a><span class="in">  select(-c(year, arr_delay)) %&gt;% </span></span>
+<span id="cb89-80"><a href="#cb89-80" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na(dep_delay) %&gt;% </span></span>
+<span id="cb89-81"><a href="#cb89-81" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(id = row_number()) %&gt;% </span></span>
+<span id="cb89-82"><a href="#cb89-82" aria-hidden="true" tabindex="-1"></a><span class="in">  select(id, everything())  # id nach vorne ziehen</span></span>
+<span id="cb89-83"><a href="#cb89-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-84"><a href="#cb89-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-85"><a href="#cb89-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-86"><a href="#cb89-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-87"><a href="#cb89-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-88"><a href="#cb89-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-89"><a href="#cb89-89" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufteilung in Train- und Testsample</span></span>
+<span id="cb89-90"><a href="#cb89-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-91"><a href="#cb89-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-92"><a href="#cb89-92" aria-hidden="true" tabindex="-1"></a>Der Hintergrund zur Idee der Aufteilung in Train- und Test-Stichprobe kann z.b. <span class="co">[</span><span class="ot">hier</span><span class="co">](https://www.tmwr.org/splitting.html)</span> oder <span class="co">[</span><span class="ot">hier</span><span class="co">](https://www.springer.com/de/book/9783658215866)</span>, Kapitel 15, nachgelesen werden.</span>
+<span id="cb89-93"><a href="#cb89-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-94"><a href="#cb89-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-95"><a href="#cb89-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r initial-split}</span></span>
+<span id="cb89-96"><a href="#cb89-96" aria-hidden="true" tabindex="-1"></a><span class="in">flights_split &lt;- initial_split(flights2, </span></span>
+<span id="cb89-97"><a href="#cb89-97" aria-hidden="true" tabindex="-1"></a><span class="in">                               strata = dep_delay)</span></span>
+<span id="cb89-98"><a href="#cb89-98" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-99"><a href="#cb89-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-100"><a href="#cb89-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-101"><a href="#cb89-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-102"><a href="#cb89-102" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_train2, flights_test2</span></span>
+<span id="cb89-103"><a href="#cb89-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-104"><a href="#cb89-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{r train-test}</span></span>
+<span id="cb89-105"><a href="#cb89-105" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(42)  # Reproduzierbarkeit</span></span>
+<span id="cb89-106"><a href="#cb89-106" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train2 &lt;- training(flights_split)</span></span>
+<span id="cb89-107"><a href="#cb89-107" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test2 &lt;- testing(flights_split)</span></span>
+<span id="cb89-108"><a href="#cb89-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-109"><a href="#cb89-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-110"><a href="#cb89-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-111"><a href="#cb89-111" aria-hidden="true" tabindex="-1"></a>Die "wirkliche Welt" (was immer das ist) besorgt die Aufteilung von Train- und Test-Sampel für Sie automatisch. Sagen wir, Sie arbeiten für die Flughafen-Aufsicht von New York. Dann haben Sie einen Erfahrungsschatz an Flügen aus der Vergangenheit in Ihrer Datenbank (Train-Sample). Einige Tages kommt Ihr Chef zu Ihnen und sagt: "Rechnen Sie mir mal die zu erwartende Verspätung der Flüge *im nächsten Monat* aus!". Da *heute* nicht klar ist, wie die Verspätung der Flüge *in der Zukunft* (nächsten Monat) sein wird, stellen die Flüge des nächsten Monats das Test-Sample dar.</span>
+<span id="cb89-112"><a href="#cb89-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-113"><a href="#cb89-113" aria-hidden="true" tabindex="-1"></a>Übrigens: In der Prüfung besorgt das Aufteilen von Train- und Test-Sample netterweise Ihr Dozent...</span>
+<span id="cb89-114"><a href="#cb89-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-115"><a href="#cb89-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-116"><a href="#cb89-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-117"><a href="#cb89-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-118"><a href="#cb89-118" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm0: Nullmodell</span></span>
+<span id="cb89-119"><a href="#cb89-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-120"><a href="#cb89-120" aria-hidden="true" tabindex="-1"></a>Eigentlich nicht nötig, das Nullmodell, primär aus didaktischen Gründen berechnet, um zu zeigen, dass in diesem Fall $R^2$ wirklich gleich Null ist.</span>
+<span id="cb89-121"><a href="#cb89-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-122"><a href="#cb89-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-123"><a href="#cb89-123" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm0}</span></span>
+<span id="cb89-124"><a href="#cb89-124" aria-hidden="true" tabindex="-1"></a><span class="in">lm0 &lt;- lm(dep_delay ~ 1, data = flights_train2)</span></span>
+<span id="cb89-125"><a href="#cb89-125" aria-hidden="true" tabindex="-1"></a><span class="in">model_parameters(lm0)  # model_parameters zeit die (geschätzten) Regressionsgewichte (Betas)</span></span>
+<span id="cb89-126"><a href="#cb89-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-127"><a href="#cb89-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-128"><a href="#cb89-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-129"><a href="#cb89-129" aria-hidden="true" tabindex="-1"></a>Wir könnten anstatt <span class="in">`model_parameters`</span> auch <span class="in">`parameters`</span> nutzen; das ist der gleiche Befehl.</span>
+<span id="cb89-130"><a href="#cb89-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-131"><a href="#cb89-131" aria-hidden="true" tabindex="-1"></a>Allerdings gibt es den Befehl <span class="in">`parameters`</span> in *zwei* Paketen, es käme also zu einem "Name Clash".</span>
+<span id="cb89-132"><a href="#cb89-132" aria-hidden="true" tabindex="-1"></a>Das umgehen wir, indem wir <span class="in">`model_parameter`</span> nutzen, und nicht <span class="in">`parameters`</span>. </span>
+<span id="cb89-133"><a href="#cb89-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-134"><a href="#cb89-134" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm1: origin</span></span>
+<span id="cb89-135"><a href="#cb89-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-136"><a href="#cb89-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-137"><a href="#cb89-137" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm1}</span></span>
+<span id="cb89-138"><a href="#cb89-138" aria-hidden="true" tabindex="-1"></a><span class="in">lm1 &lt;- lm(dep_delay ~ origin, data = flights_train2)</span></span>
+<span id="cb89-139"><a href="#cb89-139" aria-hidden="true" tabindex="-1"></a><span class="in">model_parameters(lm1)  </span></span>
+<span id="cb89-140"><a href="#cb89-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-141"><a href="#cb89-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-142"><a href="#cb89-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-143"><a href="#cb89-143" aria-hidden="true" tabindex="-1"></a>Man vergleiche:</span>
+<span id="cb89-144"><a href="#cb89-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-145"><a href="#cb89-145" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights2-compare}</span></span>
+<span id="cb89-146"><a href="#cb89-146" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train2 %&gt;% </span></span>
+<span id="cb89-147"><a href="#cb89-147" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na(dep_delay) %&gt;% </span></span>
+<span id="cb89-148"><a href="#cb89-148" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) %&gt;% </span></span>
+<span id="cb89-149"><a href="#cb89-149" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(delay_avg = mean(dep_delay)) %&gt;% </span></span>
+<span id="cb89-150"><a href="#cb89-150" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(delay_delta = delay_avg - delay_avg[1])</span></span>
+<span id="cb89-151"><a href="#cb89-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-152"><a href="#cb89-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-153"><a href="#cb89-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-154"><a href="#cb89-154" aria-hidden="true" tabindex="-1"></a>Der Mittelwertsvergleich und das Modell <span class="in">`lm1`</span> sind faktisch informationsgleich.</span>
+<span id="cb89-155"><a href="#cb89-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-156"><a href="#cb89-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-157"><a href="#cb89-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-158"><a href="#cb89-158" aria-hidden="true" tabindex="-1"></a>Aber leider ist es um die Modellgüte nicht so gut bestellt (eigentlich eher "grottenschlecht"):</span>
+<span id="cb89-159"><a href="#cb89-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-160"><a href="#cb89-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r r2lm1}</span></span>
+<span id="cb89-161"><a href="#cb89-161" aria-hidden="true" tabindex="-1"></a><span class="in">r2(lm1)</span></span>
+<span id="cb89-162"><a href="#cb89-162" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-163"><a href="#cb89-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-164"><a href="#cb89-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-165"><a href="#cb89-165" aria-hidden="true" tabindex="-1"></a><span class="in">`lm1`</span> ist so schlecht, wir löschen es gleich wieder...</span>
+<span id="cb89-168"><a href="#cb89-168" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-169"><a href="#cb89-169" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(lm1)</span>
+<span id="cb89-170"><a href="#cb89-170" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-171"><a href="#cb89-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-172"><a href="#cb89-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-173"><a href="#cb89-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-174"><a href="#cb89-174" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm2: All in</span></span>
+<span id="cb89-175"><a href="#cb89-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-176"><a href="#cb89-176" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval = FALSE}</span></span>
+<span id="cb89-177"><a href="#cb89-177" aria-hidden="true" tabindex="-1"></a><span class="in"># NICHT AUSFÜHREN</span></span>
+<span id="cb89-178"><a href="#cb89-178" aria-hidden="true" tabindex="-1"></a><span class="in">#lm2_all_in &lt;- lm(dep_delay ~ ., data = flights_train2)</span></span>
+<span id="cb89-179"><a href="#cb89-179" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-180"><a href="#cb89-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-181"><a href="#cb89-181" aria-hidden="true" tabindex="-1"></a>Modell <span class="in">`lm2_all_in`</span> ist hier *keine* gute Idee, da nominale Prädiktoren in Indikatorvariablen umgewandelt werden. Hat ein nominaler Prädiktor sehr viele Stufen (wie hier), so resultieren sehr viele Indikatorvariablen, was dem Regressionsmodell Probleme bereiten kann (bei mir hängt sich R auf). Besser ist es in dem Fall, die Anzahl der Stufen von nominalskalierten Variablen vorab zu begrenzen.</span>
+<span id="cb89-182"><a href="#cb89-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-183"><a href="#cb89-183" aria-hidden="true" tabindex="-1"></a>Bei kleineren Datensätzen (weniger Variablen, weniger Fälle) lohnt es sich aber oft, das "All-in-Modell" auszuprobieren, als Referenzmaßstab für andere Modelle.</span>
+<span id="cb89-184"><a href="#cb89-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-185"><a href="#cb89-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-186"><a href="#cb89-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-187"><a href="#cb89-187" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_train3: Textvariablen in Faktorvariablen umwandeln</span></span>
+<span id="cb89-188"><a href="#cb89-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-189"><a href="#cb89-189" aria-hidden="true" tabindex="-1"></a>Begrenzen wir zunächst die Anzahl der Stufen der nominal skalierten Variablen:</span>
+<span id="cb89-190"><a href="#cb89-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-191"><a href="#cb89-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-192"><a href="#cb89-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights3}</span></span>
+<span id="cb89-193"><a href="#cb89-193" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train3 &lt;- </span></span>
+<span id="cb89-194"><a href="#cb89-194" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train2 %&gt;% </span></span>
+<span id="cb89-195"><a href="#cb89-195" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(</span></span>
+<span id="cb89-196"><a href="#cb89-196" aria-hidden="true" tabindex="-1"></a><span class="in">    .cols = where(is.character),</span></span>
+<span id="cb89-197"><a href="#cb89-197" aria-hidden="true" tabindex="-1"></a><span class="in">    .fns = as.factor))</span></span>
+<span id="cb89-198"><a href="#cb89-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-199"><a href="#cb89-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-200"><a href="#cb89-200" aria-hidden="true" tabindex="-1"></a>Wem das <span class="in">`across`</span> zu kompliziert ist, der kann auch alternativ (synonym) jede Variable einzeln in einen Faktor umwandeln und zwar so:</span>
+<span id="cb89-201"><a href="#cb89-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-202"><a href="#cb89-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r no-across}</span></span>
+<span id="cb89-203"><a href="#cb89-203" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train3a &lt;- </span></span>
+<span id="cb89-204"><a href="#cb89-204" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train2 %&gt;% </span></span>
+<span id="cb89-205"><a href="#cb89-205" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(tailnum = as.factor(tailnum),</span></span>
+<span id="cb89-206"><a href="#cb89-206" aria-hidden="true" tabindex="-1"></a><span class="in">         origin = as.factor(origin),</span></span>
+<span id="cb89-207"><a href="#cb89-207" aria-hidden="true" tabindex="-1"></a><span class="in">         dest = as.factor(dest),</span></span>
+<span id="cb89-208"><a href="#cb89-208" aria-hidden="true" tabindex="-1"></a><span class="in">         carrier = as.factor(carrier)</span></span>
+<span id="cb89-209"><a href="#cb89-209" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
+<span id="cb89-210"><a href="#cb89-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-211"><a href="#cb89-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-212"><a href="#cb89-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-213"><a href="#cb89-213" aria-hidden="true" tabindex="-1"></a>Das ist einfacher als mit <span class="in">`across`</span>, aber dafür mehr Tipperei.</span>
+<span id="cb89-214"><a href="#cb89-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-215"><a href="#cb89-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-216"><a href="#cb89-216" aria-hidden="true" tabindex="-1"></a>Wir müssen die Transformationen, die wir auf das Train-Sample anwenden, auch auf das Test-Sample anwenden:</span>
+<span id="cb89-217"><a href="#cb89-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-218"><a href="#cb89-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-219"><a href="#cb89-219" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_test3</span></span>
+<span id="cb89-220"><a href="#cb89-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-221"><a href="#cb89-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights-test3}</span></span>
+<span id="cb89-222"><a href="#cb89-222" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test3 &lt;- </span></span>
+<span id="cb89-223"><a href="#cb89-223" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_test2 %&gt;% </span></span>
+<span id="cb89-224"><a href="#cb89-224" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(</span></span>
+<span id="cb89-225"><a href="#cb89-225" aria-hidden="true" tabindex="-1"></a><span class="in">    .cols = where(is.character),</span></span>
+<span id="cb89-226"><a href="#cb89-226" aria-hidden="true" tabindex="-1"></a><span class="in">    .fns = as.factor))</span></span>
+<span id="cb89-227"><a href="#cb89-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-228"><a href="#cb89-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-229"><a href="#cb89-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-232"><a href="#cb89-232" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-233"><a href="#cb89-233" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb89-234"><a href="#cb89-234" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.factor)) <span class="sc">%&gt;%</span> </span>
+<span id="cb89-235"><a href="#cb89-235" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span>
+<span id="cb89-236"><a href="#cb89-236" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-237"><a href="#cb89-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-238"><a href="#cb89-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-239"><a href="#cb89-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-240"><a href="#cb89-240" aria-hidden="true" tabindex="-1"></a>Z.B. <span class="in">`dest`</span> hat viele Stufen:</span>
+<span id="cb89-241"><a href="#cb89-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-244"><a href="#cb89-244" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-245"><a href="#cb89-245" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb89-246"><a href="#cb89-246" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dest, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb89-247"><a href="#cb89-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-248"><a href="#cb89-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-251"><a href="#cb89-251" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-252"><a href="#cb89-252" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span></span>
+<span id="cb89-253"><a href="#cb89-253" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dest) <span class="sc">%&gt;%</span></span>
+<span id="cb89-254"><a href="#cb89-254" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb89-255"><a href="#cb89-255" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">fct_reorder</span>(dest, n), <span class="at">x =</span> n) <span class="sc">+</span></span>
+<span id="cb89-256"><a href="#cb89-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span>
+<span id="cb89-257"><a href="#cb89-257" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-258"><a href="#cb89-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-259"><a href="#cb89-259" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_train4: Faktorstufen zusammenfassen</span></span>
+<span id="cb89-260"><a href="#cb89-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-261"><a href="#cb89-261" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights-train4}</span></span>
+<span id="cb89-262"><a href="#cb89-262" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train4 &lt;-</span></span>
+<span id="cb89-263"><a href="#cb89-263" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train3 %&gt;% </span></span>
+<span id="cb89-264"><a href="#cb89-264" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(</span></span>
+<span id="cb89-265"><a href="#cb89-265" aria-hidden="true" tabindex="-1"></a><span class="in">    .cols = where(is.factor),</span></span>
+<span id="cb89-266"><a href="#cb89-266" aria-hidden="true" tabindex="-1"></a><span class="in">    .fns = fct_lump_prop, prop = .025</span></span>
+<span id="cb89-267"><a href="#cb89-267" aria-hidden="true" tabindex="-1"></a><span class="in">  ))</span></span>
+<span id="cb89-268"><a href="#cb89-268" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-269"><a href="#cb89-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-270"><a href="#cb89-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-271"><a href="#cb89-271" aria-hidden="true" tabindex="-1"></a><span class="fu"># Variante mit `fact_lump_n` </span></span>
+<span id="cb89-272"><a href="#cb89-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-273"><a href="#cb89-273" aria-hidden="true" tabindex="-1"></a>Sinngemäß bedeutet das:</span>
+<span id="cb89-274"><a href="#cb89-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-275"><a href="#cb89-275" aria-hidden="true" tabindex="-1"></a>"Fasse die Faktorstufen von <span class="in">`dest`</span> zu 8 Gruppen plus einer '*Lump*ensammler-Kategorie' zusammen."</span>
+<span id="cb89-276"><a href="#cb89-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-279"><a href="#cb89-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-280"><a href="#cb89-280" aria-hidden="true" tabindex="-1"></a>flights_train3 <span class="sc">%&gt;%</span> </span>
+<span id="cb89-281"><a href="#cb89-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dest_lump9 =</span> <span class="fu">fct_lump_n</span>(dest, <span class="at">n =</span> <span class="dv">8</span>)</span>
+<span id="cb89-282"><a href="#cb89-282" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb89-283"><a href="#cb89-283" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-284"><a href="#cb89-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-285"><a href="#cb89-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-286"><a href="#cb89-286" aria-hidden="true" tabindex="-1"></a>Hier sind die Faktorstufen von <span class="in">`dest`</span>:</span>
+<span id="cb89-287"><a href="#cb89-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-290"><a href="#cb89-290" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-291"><a href="#cb89-291" aria-hidden="true" tabindex="-1"></a>flights_train4<span class="sc">$</span>dest <span class="sc">|&gt;</span> <span class="fu">levels</span>()</span>
+<span id="cb89-292"><a href="#cb89-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-293"><a href="#cb89-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-294"><a href="#cb89-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-295"><a href="#cb89-295" aria-hidden="true" tabindex="-1"></a>Visusalsieren wir die Häufigkeit der Faktorstufen:</span>
+<span id="cb89-296"><a href="#cb89-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-297"><a href="#cb89-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{r plot-count-levels-dest}</span></span>
+<span id="cb89-298"><a href="#cb89-298" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train4 %&gt;%</span></span>
+<span id="cb89-299"><a href="#cb89-299" aria-hidden="true" tabindex="-1"></a><span class="in">  count(dest) %&gt;%</span></span>
+<span id="cb89-300"><a href="#cb89-300" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot() +</span></span>
+<span id="cb89-301"><a href="#cb89-301" aria-hidden="true" tabindex="-1"></a><span class="in">  aes(y = fct_reorder(dest, n), x = n) +</span></span>
+<span id="cb89-302"><a href="#cb89-302" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_col()</span></span>
+<span id="cb89-303"><a href="#cb89-303" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-304"><a href="#cb89-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-305"><a href="#cb89-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-306"><a href="#cb89-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-307"><a href="#cb89-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-308"><a href="#cb89-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-309"><a href="#cb89-309" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_test4</span></span>
+<span id="cb89-310"><a href="#cb89-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-311"><a href="#cb89-311" aria-hidden="true" tabindex="-1"></a>Vergessen wir nicht, die Transformation auch auf das Test-Sample anzuwenden:</span>
+<span id="cb89-312"><a href="#cb89-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-313"><a href="#cb89-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-314"><a href="#cb89-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-315"><a href="#cb89-315" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights-test4}</span></span>
+<span id="cb89-316"><a href="#cb89-316" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4 &lt;-</span></span>
+<span id="cb89-317"><a href="#cb89-317" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_test3 %&gt;% </span></span>
+<span id="cb89-318"><a href="#cb89-318" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(</span></span>
+<span id="cb89-319"><a href="#cb89-319" aria-hidden="true" tabindex="-1"></a><span class="in">    .cols = where(is.factor),</span></span>
+<span id="cb89-320"><a href="#cb89-320" aria-hidden="true" tabindex="-1"></a><span class="in">    .fns = fct_lump_prop, prop = .025</span></span>
+<span id="cb89-321"><a href="#cb89-321" aria-hidden="true" tabindex="-1"></a><span class="in">  ))</span></span>
+<span id="cb89-322"><a href="#cb89-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-323"><a href="#cb89-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-324"><a href="#cb89-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-325"><a href="#cb89-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-326"><a href="#cb89-326" aria-hidden="true" tabindex="-1"></a>Wichtig! Im Alle Faktorstufen, die im Test-Set vorkommen, müssen auch im Train-Set vorkommen. Sonst können wir das Regressionsmodell nicht berechnen.</span>
+<span id="cb89-327"><a href="#cb89-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-330"><a href="#cb89-330" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-331"><a href="#cb89-331" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(flights_test4<span class="sc">$</span>dest) </span>
+<span id="cb89-332"><a href="#cb89-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-333"><a href="#cb89-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-336"><a href="#cb89-336" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-337"><a href="#cb89-337" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(flights_train4<span class="sc">$</span>dest)</span>
+<span id="cb89-338"><a href="#cb89-338" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-339"><a href="#cb89-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-340"><a href="#cb89-340" aria-hidden="true" tabindex="-1"></a>Das sieht gut aus: Alle Faktorstufen im Test-Set sind im Train-Set enthalten.</span>
+<span id="cb89-341"><a href="#cb89-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-342"><a href="#cb89-342" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm3: Alle zusammengefassten Faktorvariablen</span></span>
+<span id="cb89-343"><a href="#cb89-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-344"><a href="#cb89-344" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm3}</span></span>
+<span id="cb89-345"><a href="#cb89-345" aria-hidden="true" tabindex="-1"></a><span class="in">#| error: true</span></span>
+<span id="cb89-346"><a href="#cb89-346" aria-hidden="true" tabindex="-1"></a><span class="in">lm3 &lt;- flights_train4 %&gt;% </span></span>
+<span id="cb89-347"><a href="#cb89-347" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, where(is.factor), -tailnum, -id) %&gt;% </span></span>
+<span id="cb89-348"><a href="#cb89-348" aria-hidden="true" tabindex="-1"></a><span class="in">  lm(dep_delay ~ ., data = .)</span></span>
+<span id="cb89-349"><a href="#cb89-349" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-350"><a href="#cb89-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-351"><a href="#cb89-351" aria-hidden="true" tabindex="-1"></a>Achtung! Falls ein Faktor nur über eine einzige Faktorstufe verfügt, wird das Regressionsmodell zusammenbrechen mit einer Fehlermeldung. Adios!</span>
+<span id="cb89-352"><a href="#cb89-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-353"><a href="#cb89-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-354"><a href="#cb89-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-355"><a href="#cb89-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-356"><a href="#cb89-356" aria-hidden="true" tabindex="-1"></a>Der Punkt bei <span class="in">`dep_delay ~ .`</span> meint "nimm alle Variablen im Datensatz (bis auf <span class="in">`dep_delay`</span>)".</span>
+<span id="cb89-357"><a href="#cb89-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-358"><a href="#cb89-358" aria-hidden="true" tabindex="-1"></a>Der Punkt bei <span class="in">`data = .`</span> nimm die Tabelle, wie sie dir im letzten Schritt mundgerecht aufbereitet wurde. Man hätte hier auch <span class="in">`flights_train4`</span> schreiben können, aber dann hätten wir noch <span class="in">`tailnum`</span> etc. entfernen müssen.</span>
+<span id="cb89-359"><a href="#cb89-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-360"><a href="#cb89-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-361"><a href="#cb89-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-362"><a href="#cb89-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-363"><a href="#cb89-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-364"><a href="#cb89-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-365"><a href="#cb89-365" aria-hidden="true" tabindex="-1"></a>Eigentlich brauchen wir nicht so viele Dezimalstellen ...</span>
+<span id="cb89-366"><a href="#cb89-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-367"><a href="#cb89-367" aria-hidden="true" tabindex="-1"></a><span class="in">```{r options-digits}</span></span>
+<span id="cb89-368"><a href="#cb89-368" aria-hidden="true" tabindex="-1"></a><span class="in">options(digits = 2)</span></span>
+<span id="cb89-369"><a href="#cb89-369" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-370"><a href="#cb89-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-371"><a href="#cb89-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-372"><a href="#cb89-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-373"><a href="#cb89-373" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm3-params}</span></span>
+<span id="cb89-374"><a href="#cb89-374" aria-hidden="true" tabindex="-1"></a><span class="in">model_parameters(lm3)  # Modellkoeffizienten, also die Beta-Gewichte ("estimate")</span></span>
+<span id="cb89-375"><a href="#cb89-375" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-376"><a href="#cb89-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-377"><a href="#cb89-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-378"><a href="#cb89-378" aria-hidden="true" tabindex="-1"></a>Wie man sieht, wird eine nominalskalierte Variable mit vielen Stufen in entsprechend (viele!) binäre Variablen umgewandelt, die jeweils einen Regressionskoeffizienten ergeben.</span>
+<span id="cb89-379"><a href="#cb89-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-380"><a href="#cb89-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-381"><a href="#cb89-381" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm3-r2}</span></span>
+<span id="cb89-382"><a href="#cb89-382" aria-hidden="true" tabindex="-1"></a><span class="in">r2(lm3)  # R^2</span></span>
+<span id="cb89-383"><a href="#cb89-383" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-384"><a href="#cb89-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-385"><a href="#cb89-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-386"><a href="#cb89-386" aria-hidden="true" tabindex="-1"></a>Ein mageres R-Quadrat.</span>
+<span id="cb89-387"><a href="#cb89-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-388"><a href="#cb89-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-389"><a href="#cb89-389" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm4: Alle metrischen Variablen</span></span>
+<span id="cb89-390"><a href="#cb89-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-391"><a href="#cb89-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-392"><a href="#cb89-392" aria-hidden="true" tabindex="-1"></a>Was sind noch mal unsere metrischen Variablen:</span>
+<span id="cb89-393"><a href="#cb89-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-396"><a href="#cb89-396" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-397"><a href="#cb89-397" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb89-398"><a href="#cb89-398" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
+<span id="cb89-399"><a href="#cb89-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span>
+<span id="cb89-400"><a href="#cb89-400" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-401"><a href="#cb89-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-402"><a href="#cb89-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-403"><a href="#cb89-403" aria-hidden="true" tabindex="-1"></a>Ok, jetzt eine Regression mit diesen Variablen (ober ohne die ID-Variable):</span>
+<span id="cb89-404"><a href="#cb89-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-405"><a href="#cb89-405" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm4}</span></span>
+<span id="cb89-406"><a href="#cb89-406" aria-hidden="true" tabindex="-1"></a><span class="in">lm4 &lt;- </span></span>
+<span id="cb89-407"><a href="#cb89-407" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train4 %&gt;% </span></span>
+<span id="cb89-408"><a href="#cb89-408" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, where(is.numeric), -id) %&gt;% </span></span>
+<span id="cb89-409"><a href="#cb89-409" aria-hidden="true" tabindex="-1"></a><span class="in">  lm(dep_delay ~ ., data = .)</span></span>
+<span id="cb89-410"><a href="#cb89-410" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-411"><a href="#cb89-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-412"><a href="#cb89-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-415"><a href="#cb89-415" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-416"><a href="#cb89-416" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm4)</span>
+<span id="cb89-417"><a href="#cb89-417" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-418"><a href="#cb89-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-419"><a href="#cb89-419" aria-hidden="true" tabindex="-1"></a>Tja, das $R^2$ hat einen nicht gerade um ...</span>
+<span id="cb89-420"><a href="#cb89-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-421"><a href="#cb89-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-422"><a href="#cb89-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-423"><a href="#cb89-423" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm5: Alle metrischen und alle (zusammengefassten) nominalen Variablen</span></span>
+<span id="cb89-424"><a href="#cb89-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-425"><a href="#cb89-425" aria-hidden="true" tabindex="-1"></a>Welche Variablen sind jetzt alle an Bord?</span>
+<span id="cb89-426"><a href="#cb89-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-429"><a href="#cb89-429" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-430"><a href="#cb89-430" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb89-431"><a href="#cb89-431" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span>
+<span id="cb89-432"><a href="#cb89-432" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-433"><a href="#cb89-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-434"><a href="#cb89-434" aria-hidden="true" tabindex="-1"></a><span class="in">`time_hour`</span> nehmen wir noch einmal raus, da es zum einen redundant ist zu <span class="in">`hour`</span> etc. und zum anderen noch zusätzlicher Aufbereitung bedarf.</span>
+<span id="cb89-435"><a href="#cb89-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-438"><a href="#cb89-438" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-439"><a href="#cb89-439" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">%&gt;%</span> </span>
+<span id="cb89-440"><a href="#cb89-440" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(minute) <span class="sc">%&gt;%</span> </span>
+<span id="cb89-441"><a href="#cb89-441" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span>
+<span id="cb89-442"><a href="#cb89-442" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-443"><a href="#cb89-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-444"><a href="#cb89-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-445"><a href="#cb89-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm5}</span></span>
+<span id="cb89-446"><a href="#cb89-446" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train4 &lt;- </span></span>
+<span id="cb89-447"><a href="#cb89-447" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train4 %&gt;% </span></span>
+<span id="cb89-448"><a href="#cb89-448" aria-hidden="true" tabindex="-1"></a><span class="in">  select(-time_hour, -tailnum, -id, -minute)    # "minute" machte Probleme, besser rausnehmen</span></span>
+<span id="cb89-449"><a href="#cb89-449" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb89-450"><a href="#cb89-450" aria-hidden="true" tabindex="-1"></a><span class="in">lm5 &lt;-lm(dep_delay ~ ., data = flights_train4)</span></span>
+<span id="cb89-451"><a href="#cb89-451" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-452"><a href="#cb89-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-453"><a href="#cb89-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-454"><a href="#cb89-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-457"><a href="#cb89-457" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-458"><a href="#cb89-458" aria-hidden="true" tabindex="-1"></a><span class="fu">r2</span>(lm5)</span>
+<span id="cb89-459"><a href="#cb89-459" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-460"><a href="#cb89-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-461"><a href="#cb89-461" aria-hidden="true" tabindex="-1"></a>Der Vorhersage-Gott ist nicht mit uns. Vielleicht sollten wir zu einem ehrlichen Metier als Schuhverkäufer umsatteln ...</span>
+<span id="cb89-462"><a href="#cb89-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-463"><a href="#cb89-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-464"><a href="#cb89-464" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_train5: Fehlenden Werte ersetzen</span></span>
+<span id="cb89-465"><a href="#cb89-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-466"><a href="#cb89-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-469"><a href="#cb89-469" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-470"><a href="#cb89-470" aria-hidden="true" tabindex="-1"></a>flights_train4 <span class="sc">|&gt;</span> </span>
+<span id="cb89-471"><a href="#cb89-471" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb89-472"><a href="#cb89-472" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Variable, n_Missing)</span>
+<span id="cb89-473"><a href="#cb89-473" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-474"><a href="#cb89-474" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-475"><a href="#cb89-475" aria-hidden="true" tabindex="-1"></a>Glücklicherweise haben wir nicht zu viele fehlende Werte.</span>
+<span id="cb89-476"><a href="#cb89-476" aria-hidden="true" tabindex="-1"></a>Bei der Größe der Stichprobe fällt die Anzahl wenig ins Gewicht.</span>
+<span id="cb89-477"><a href="#cb89-477" aria-hidden="true" tabindex="-1"></a>Aber zu Übungszwecken ersetzen wir mal die fehlenden Werte.</span>
+<span id="cb89-478"><a href="#cb89-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-479"><a href="#cb89-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-480"><a href="#cb89-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-483"><a href="#cb89-483" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-484"><a href="#cb89-484" aria-hidden="true" tabindex="-1"></a>flights_train5 <span class="ot">&lt;-</span></span>
+<span id="cb89-485"><a href="#cb89-485" aria-hidden="true" tabindex="-1"></a>  flights_train4 <span class="sc">|&gt;</span> </span>
+<span id="cb89-486"><a href="#cb89-486" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">air_time =</span> <span class="fu">replace_na</span>(air_time, <span class="fu">mean</span>(air_time, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb89-487"><a href="#cb89-487" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-488"><a href="#cb89-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-489"><a href="#cb89-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-490"><a href="#cb89-490" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-491"><a href="#cb89-491" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm6: Wie lm5, aber ohne fehlende Werte</span></span>
+<span id="cb89-492"><a href="#cb89-492" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-493"><a href="#cb89-493" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm6}</span></span>
+<span id="cb89-494"><a href="#cb89-494" aria-hidden="true" tabindex="-1"></a><span class="in">lm6 &lt;-lm(dep_delay ~ ., data = flights_train5)</span></span>
+<span id="cb89-495"><a href="#cb89-495" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-496"><a href="#cb89-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-497"><a href="#cb89-497" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm6r2}</span></span>
+<span id="cb89-498"><a href="#cb89-498" aria-hidden="true" tabindex="-1"></a><span class="in">r2(lm6)</span></span>
+<span id="cb89-499"><a href="#cb89-499" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-500"><a href="#cb89-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-501"><a href="#cb89-501" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-502"><a href="#cb89-502" aria-hidden="true" tabindex="-1"></a><span class="fu"># flights_train6: Extremwerte entfernen</span></span>
+<span id="cb89-503"><a href="#cb89-503" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-504"><a href="#cb89-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-505"><a href="#cb89-505" aria-hidden="true" tabindex="-1"></a><span class="in">```{r plot-densities}</span></span>
+<span id="cb89-506"><a href="#cb89-506" aria-hidden="true" tabindex="-1"></a><span class="in">library(DataExplorer)</span></span>
+<span id="cb89-507"><a href="#cb89-507" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-508"><a href="#cb89-508" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train5 |&gt; </span></span>
+<span id="cb89-509"><a href="#cb89-509" aria-hidden="true" tabindex="-1"></a><span class="in">  select(where(is.numeric)) |&gt; </span></span>
+<span id="cb89-510"><a href="#cb89-510" aria-hidden="true" tabindex="-1"></a><span class="in">  plot_density()</span></span>
+<span id="cb89-511"><a href="#cb89-511" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-512"><a href="#cb89-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-513"><a href="#cb89-513" aria-hidden="true" tabindex="-1"></a>Es sieht so aus, als wäre <span class="in">`air_time`</span> deutlich rechtsschief mit einigen Ausreißern.</span>
+<span id="cb89-514"><a href="#cb89-514" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-515"><a href="#cb89-515" aria-hidden="true" tabindex="-1"></a>Betrachten wir noch Boxplots, die auch gut Extermwerte visualisieren.</span>
+<span id="cb89-516"><a href="#cb89-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-517"><a href="#cb89-517" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-518"><a href="#cb89-518" aria-hidden="true" tabindex="-1"></a><span class="in">```{r plot-boxplots}</span></span>
+<span id="cb89-519"><a href="#cb89-519" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train5 |&gt; </span></span>
+<span id="cb89-520"><a href="#cb89-520" aria-hidden="true" tabindex="-1"></a><span class="in">  select(where(is.numeric), "origin") |&gt; </span></span>
+<span id="cb89-521"><a href="#cb89-521" aria-hidden="true" tabindex="-1"></a><span class="in">  plot_boxplot(by = "origin")</span></span>
+<span id="cb89-522"><a href="#cb89-522" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-523"><a href="#cb89-523" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-524"><a href="#cb89-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-525"><a href="#cb89-525" aria-hidden="true" tabindex="-1"></a>Eine gängige Methode, mit Extermwerten umzugehen, ist, alle Datenpunkte, die im Boxplot als alleinstehende Punkte gezeigt werden, durch den Median zu ersetzen.</span>
+<span id="cb89-526"><a href="#cb89-526" aria-hidden="true" tabindex="-1"></a>Achtung: Diese Methode ist nicht perfekt! Es gibt viel sophistiziertere Methoden.</span>
+<span id="cb89-527"><a href="#cb89-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-528"><a href="#cb89-528" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-529"><a href="#cb89-529" aria-hidden="true" tabindex="-1"></a>Wir ersetzen dabei alle Werte von <span class="in">` air_time`</span>, für die gilt, dass sie größer sind als Q3 + 1.5*IQR.</span>
+<span id="cb89-530"><a href="#cb89-530" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-531"><a href="#cb89-531" aria-hidden="true" tabindex="-1"></a>Q3:</span>
+<span id="cb89-532"><a href="#cb89-532" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-533"><a href="#cb89-533" aria-hidden="true" tabindex="-1"></a><span class="in">```{r comp-q3}</span></span>
+<span id="cb89-534"><a href="#cb89-534" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train5 |&gt; </span></span>
+<span id="cb89-535"><a href="#cb89-535" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(iqr_airtime = quantile(air_time, prob = .75))</span></span>
+<span id="cb89-536"><a href="#cb89-536" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-537"><a href="#cb89-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-538"><a href="#cb89-538" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-539"><a href="#cb89-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-540"><a href="#cb89-540" aria-hidden="true" tabindex="-1"></a>IQR:</span>
+<span id="cb89-541"><a href="#cb89-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-542"><a href="#cb89-542" aria-hidden="true" tabindex="-1"></a><span class="in">```{r comp-iqr}</span></span>
+<span id="cb89-543"><a href="#cb89-543" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train5 |&gt; </span></span>
+<span id="cb89-544"><a href="#cb89-544" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(iqr_airtime = IQR(air_time))</span></span>
+<span id="cb89-545"><a href="#cb89-545" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-546"><a href="#cb89-546" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-547"><a href="#cb89-547" aria-hidden="true" tabindex="-1"></a>Der Grenzwert ist also:</span>
+<span id="cb89-548"><a href="#cb89-548" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-549"><a href="#cb89-549" aria-hidden="true" tabindex="-1"></a><span class="in">```{r comp-threshold}</span></span>
+<span id="cb89-550"><a href="#cb89-550" aria-hidden="true" tabindex="-1"></a><span class="in">(# Q3</span></span>
+<span id="cb89-551"><a href="#cb89-551" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train5 |&gt; </span></span>
+<span id="cb89-552"><a href="#cb89-552" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(iqr_airtime = quantile(air_time, prob = .75)) </span></span>
+<span id="cb89-553"><a href="#cb89-553" aria-hidden="true" tabindex="-1"></a><span class="in">  ) +</span></span>
+<span id="cb89-554"><a href="#cb89-554" aria-hidden="true" tabindex="-1"></a><span class="in">  1.5 * </span></span>
+<span id="cb89-555"><a href="#cb89-555" aria-hidden="true" tabindex="-1"></a><span class="in"> (# IQR</span></span>
+<span id="cb89-556"><a href="#cb89-556" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train5 |&gt; </span></span>
+<span id="cb89-557"><a href="#cb89-557" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(iqr_airtime = IQR(air_time)) </span></span>
+<span id="cb89-558"><a href="#cb89-558" aria-hidden="true" tabindex="-1"></a><span class="in"> )</span></span>
+<span id="cb89-559"><a href="#cb89-559" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-560"><a href="#cb89-560" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-561"><a href="#cb89-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-562"><a href="#cb89-562" aria-hidden="true" tabindex="-1"></a>Der Median von <span class="in">`air_time`</span> beträgt übrigens:</span>
+<span id="cb89-563"><a href="#cb89-563" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-564"><a href="#cb89-564" aria-hidden="true" tabindex="-1"></a><span class="in">```{r comp-md}</span></span>
+<span id="cb89-565"><a href="#cb89-565" aria-hidden="true" tabindex="-1"></a><span class="in"> flights_train5 |&gt; </span></span>
+<span id="cb89-566"><a href="#cb89-566" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(iqr_airtime = median(air_time)) </span></span>
+<span id="cb89-567"><a href="#cb89-567" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-568"><a href="#cb89-568" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-569"><a href="#cb89-569" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-570"><a href="#cb89-570" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights-train6}</span></span>
+<span id="cb89-571"><a href="#cb89-571" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train6 &lt;-</span></span>
+<span id="cb89-572"><a href="#cb89-572" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train5 |&gt; </span></span>
+<span id="cb89-573"><a href="#cb89-573" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(air_time = </span></span>
+<span id="cb89-574"><a href="#cb89-574" aria-hidden="true" tabindex="-1"></a><span class="in">           case_when(air_time &gt; 326 ~ 122,</span></span>
+<span id="cb89-575"><a href="#cb89-575" aria-hidden="true" tabindex="-1"></a><span class="in">                     TRUE ~ air_time))</span></span>
+<span id="cb89-576"><a href="#cb89-576" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-577"><a href="#cb89-577" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-578"><a href="#cb89-578" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-579"><a href="#cb89-579" aria-hidden="true" tabindex="-1"></a>Grob auf Deutsch übersetzt:</span>
+<span id="cb89-580"><a href="#cb89-580" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-581"><a href="#cb89-581" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;    Wenn ein Flug eine </span><span class="in">`air_time`</span><span class="at"> von mehr als 326 Minuten hat, dann sei die airtime gleich 122, ansonsten immer ("TRUE") ist airtime gleich </span><span class="in">`air_time`</span><span class="at">, bleibt also, wie sie war.</span></span>
+<span id="cb89-582"><a href="#cb89-582" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-583"><a href="#cb89-583" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-584"><a href="#cb89-584" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-585"><a href="#cb89-585" aria-hidden="true" tabindex="-1"></a><span class="fu"># lm7: Wie lm5, aber ohne Extremwerte für `air_time`</span></span>
+<span id="cb89-586"><a href="#cb89-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-587"><a href="#cb89-587" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm7}</span></span>
+<span id="cb89-588"><a href="#cb89-588" aria-hidden="true" tabindex="-1"></a><span class="in">lm7 &lt;-lm(dep_delay ~ ., data = flights_train6)</span></span>
+<span id="cb89-589"><a href="#cb89-589" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-590"><a href="#cb89-590" aria-hidden="true" tabindex="-1"></a><span class="in">r2(lm7)</span></span>
+<span id="cb89-591"><a href="#cb89-591" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-592"><a href="#cb89-592" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-593"><a href="#cb89-593" aria-hidden="true" tabindex="-1"></a>Tja....</span>
+<span id="cb89-594"><a href="#cb89-594" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-595"><a href="#cb89-595" aria-hidden="true" tabindex="-1"></a><span class="fu"># R2 im Testsample </span></span>
+<span id="cb89-596"><a href="#cb89-596" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-597"><a href="#cb89-597" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-598"><a href="#cb89-598" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-599"><a href="#cb89-599" aria-hidden="true" tabindex="-1"></a>$R^2$ kann man übrigens auch so berechnen:</span>
+<span id="cb89-600"><a href="#cb89-600" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-601"><a href="#cb89-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-602"><a href="#cb89-602" aria-hidden="true" tabindex="-1"></a>Zuerst fügen wir die Vorhersagen zum Datensatz hinzu:</span>
+<span id="cb89-603"><a href="#cb89-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-604"><a href="#cb89-604" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm7-predict}</span></span>
+<span id="cb89-605"><a href="#cb89-605" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train7_pred &lt;- </span></span>
+<span id="cb89-606"><a href="#cb89-606" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_train6 %&gt;% </span></span>
+<span id="cb89-607"><a href="#cb89-607" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(lm7_pred = predict(lm7, newdata = flights_train6))  </span></span>
+<span id="cb89-608"><a href="#cb89-608" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-609"><a href="#cb89-609" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-610"><a href="#cb89-610" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-611"><a href="#cb89-611" aria-hidden="true" tabindex="-1"></a>Dann berechnen wir das R-Quadrat mit der Funktion <span class="in">`rsq`</span> (wie "r squared") anhand der beiden relevanten Spalten:</span>
+<span id="cb89-612"><a href="#cb89-612" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-613"><a href="#cb89-613" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights_train7_pred-r2}</span></span>
+<span id="cb89-614"><a href="#cb89-614" aria-hidden="true" tabindex="-1"></a><span class="in">flights_train7_pred %&gt;% </span></span>
+<span id="cb89-615"><a href="#cb89-615" aria-hidden="true" tabindex="-1"></a><span class="in">  rsq(truth = dep_delay,</span></span>
+<span id="cb89-616"><a href="#cb89-616" aria-hidden="true" tabindex="-1"></a><span class="in">      estimate = lm7_pred)</span></span>
+<span id="cb89-617"><a href="#cb89-617" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-618"><a href="#cb89-618" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-619"><a href="#cb89-619" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-620"><a href="#cb89-620" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-621"><a href="#cb89-621" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-622"><a href="#cb89-622" aria-hidden="true" tabindex="-1"></a>Berechnen wir jetzt die Modellgüte im Testsample.</span>
+<span id="cb89-623"><a href="#cb89-623" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-624"><a href="#cb89-624" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-625"><a href="#cb89-625" aria-hidden="true" tabindex="-1"></a>Fügen wir die Vorhersagewerte dem Testsample dazu:</span>
+<span id="cb89-626"><a href="#cb89-626" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-627"><a href="#cb89-627" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights_test4_pred}</span></span>
+<span id="cb89-628"><a href="#cb89-628" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred &lt;-</span></span>
+<span id="cb89-629"><a href="#cb89-629" aria-hidden="true" tabindex="-1"></a><span class="in">  flights_test4 %&gt;% </span></span>
+<span id="cb89-630"><a href="#cb89-630" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(pred_lm7 = predict(lm7, newdata = flights_test4))</span></span>
+<span id="cb89-631"><a href="#cb89-631" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-632"><a href="#cb89-632" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-633"><a href="#cb89-633" aria-hidden="true" tabindex="-1"></a>Check:</span>
+<span id="cb89-634"><a href="#cb89-634" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-637"><a href="#cb89-637" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb89-638"><a href="#cb89-638" aria-hidden="true" tabindex="-1"></a>flights_test4_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb89-639"><a href="#cb89-639" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, dep_delay, pred_lm7) <span class="sc">%&gt;%</span></span>
+<span id="cb89-640"><a href="#cb89-640" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb89-641"><a href="#cb89-641" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-642"><a href="#cb89-642" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-643"><a href="#cb89-643" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-644"><a href="#cb89-644" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-645"><a href="#cb89-645" aria-hidden="true" tabindex="-1"></a><span class="in">```{r test-r2}</span></span>
+<span id="cb89-646"><a href="#cb89-646" aria-hidden="true" tabindex="-1"></a><span class="in">test_rsq &lt;- </span></span>
+<span id="cb89-647"><a href="#cb89-647" aria-hidden="true" tabindex="-1"></a><span class="in"> tibble(model = "lm7") %&gt;% </span></span>
+<span id="cb89-648"><a href="#cb89-648" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(rsq = rsq_vec(truth = flights_test4_pred$dep_delay,</span></span>
+<span id="cb89-649"><a href="#cb89-649" aria-hidden="true" tabindex="-1"></a><span class="in">                       estimate = flights_test4_pred$pred_lm7))</span></span>
+<span id="cb89-650"><a href="#cb89-650" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-651"><a href="#cb89-651" aria-hidden="true" tabindex="-1"></a><span class="in">test_rsq</span></span>
+<span id="cb89-652"><a href="#cb89-652" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-653"><a href="#cb89-653" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-654"><a href="#cb89-654" aria-hidden="true" tabindex="-1"></a>Am schwierigsten ist es, bei den ganzen Nummerierungen nicht durcheinander zu kommen. Hier könnte es sich lohnen, ein übersichtlicheres Verfahren einzuführen (mit den Kosten höherer Komplexität).</span>
+<span id="cb89-655"><a href="#cb89-655" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-656"><a href="#cb89-656" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-657"><a href="#cb89-657" aria-hidden="true" tabindex="-1"></a>Prüfen wir noch, wie viele fehlende Werte es bei den vorhergesagten Werten gibt:</span>
+<span id="cb89-658"><a href="#cb89-658" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-659"><a href="#cb89-659" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-660"><a href="#cb89-660" aria-hidden="true" tabindex="-1"></a><span class="in">```{r count-na}</span></span>
+<span id="cb89-661"><a href="#cb89-661" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred %&gt;% </span></span>
+<span id="cb89-662"><a href="#cb89-662" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(pred_isna = sum(is.na(pred_lm7)),</span></span>
+<span id="cb89-663"><a href="#cb89-663" aria-hidden="true" tabindex="-1"></a><span class="in">            pred_isna_prop = pred_isna / nrow(flights_test4_pred))  # prop wie "proportion" (Anteil)</span></span>
+<span id="cb89-664"><a href="#cb89-664" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-665"><a href="#cb89-665" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-666"><a href="#cb89-666" aria-hidden="true" tabindex="-1"></a>Da fehlende Werte u.U. mit dem Mittelwert (der übrigen prognostizierten Werte) aufgefüllt werden, erledigen wir das gleich, um den Effekt auf $R^2$ abzuschätzen:</span>
+<span id="cb89-667"><a href="#cb89-667" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-668"><a href="#cb89-668" aria-hidden="true" tabindex="-1"></a><span class="in">```{r flights_test4_pred2}</span></span>
+<span id="cb89-669"><a href="#cb89-669" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred2 &lt;- </span></span>
+<span id="cb89-670"><a href="#cb89-670" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred %&gt;% </span></span>
+<span id="cb89-671"><a href="#cb89-671" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(pred_lm7 = replace_na(pred_lm7, mean(pred_lm7, na.rm = TRUE)))</span></span>
+<span id="cb89-672"><a href="#cb89-672" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-673"><a href="#cb89-673" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-674"><a href="#cb89-674" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-675"><a href="#cb89-675" aria-hidden="true" tabindex="-1"></a><span class="in">```{r count-na2}</span></span>
+<span id="cb89-676"><a href="#cb89-676" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred2 %&gt;% </span></span>
+<span id="cb89-677"><a href="#cb89-677" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(sum(is.na(pred_lm7)))</span></span>
+<span id="cb89-678"><a href="#cb89-678" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-679"><a href="#cb89-679" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-680"><a href="#cb89-680" aria-hidden="true" tabindex="-1"></a>Keine fehlenden Werte mehr.</span>
+<span id="cb89-681"><a href="#cb89-681" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-682"><a href="#cb89-682" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-683"><a href="#cb89-683" aria-hidden="true" tabindex="-1"></a>Wie sieht $R^2$ jetzt aus?</span>
+<span id="cb89-684"><a href="#cb89-684" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-685"><a href="#cb89-685" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lm7-r2-test}</span></span>
+<span id="cb89-686"><a href="#cb89-686" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred2 %&gt;% </span></span>
+<span id="cb89-687"><a href="#cb89-687" aria-hidden="true" tabindex="-1"></a><span class="in">  rsq(truth = dep_delay, estimate = pred_lm7)</span></span>
+<span id="cb89-688"><a href="#cb89-688" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-689"><a href="#cb89-689" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-690"><a href="#cb89-690" aria-hidden="true" tabindex="-1"></a>Keine (nennenswerte) Veränderung.</span>
+<span id="cb89-691"><a href="#cb89-691" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-692"><a href="#cb89-692" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-693"><a href="#cb89-693" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-694"><a href="#cb89-694" aria-hidden="true" tabindex="-1"></a><span class="in">```{r rm-all-lms}</span></span>
+<span id="cb89-695"><a href="#cb89-695" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
+<span id="cb89-696"><a href="#cb89-696" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-697"><a href="#cb89-697" aria-hidden="true" tabindex="-1"></a><span class="in">rm(lm2)</span></span>
+<span id="cb89-698"><a href="#cb89-698" aria-hidden="true" tabindex="-1"></a><span class="in">rm(lm3)</span></span>
+<span id="cb89-699"><a href="#cb89-699" aria-hidden="true" tabindex="-1"></a><span class="in">rm(lm4)</span></span>
+<span id="cb89-700"><a href="#cb89-700" aria-hidden="true" tabindex="-1"></a><span class="in">rm(lm5)</span></span>
+<span id="cb89-701"><a href="#cb89-701" aria-hidden="true" tabindex="-1"></a><span class="in">rm(lm6)</span></span>
+<span id="cb89-702"><a href="#cb89-702" aria-hidden="true" tabindex="-1"></a><span class="in">rm(lm7)</span></span>
+<span id="cb89-703"><a href="#cb89-703" aria-hidden="true" tabindex="-1"></a><span class="in">rm(flights)</span></span>
+<span id="cb89-704"><a href="#cb89-704" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-705"><a href="#cb89-705" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-706"><a href="#cb89-706" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-707"><a href="#cb89-707" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-708"><a href="#cb89-708" aria-hidden="true" tabindex="-1"></a><span class="fu"># Einreichen</span></span>
+<span id="cb89-709"><a href="#cb89-709" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-710"><a href="#cb89-710" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-711"><a href="#cb89-711" aria-hidden="true" tabindex="-1"></a>Das beste Modell im *Train-Sample* reichen wir ein; in diesem Fall <span class="in">`lm7`</span>.</span>
+<span id="cb89-712"><a href="#cb89-712" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-713"><a href="#cb89-713" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-714"><a href="#cb89-714" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-715"><a href="#cb89-715" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-716"><a href="#cb89-716" aria-hidden="true" tabindex="-1"></a><span class="in">```{r subm-df}</span></span>
+<span id="cb89-717"><a href="#cb89-717" aria-hidden="true" tabindex="-1"></a><span class="in">submission_df &lt;- </span></span>
+<span id="cb89-718"><a href="#cb89-718" aria-hidden="true" tabindex="-1"></a><span class="in">flights_test4_pred2 |&gt; </span></span>
+<span id="cb89-719"><a href="#cb89-719" aria-hidden="true" tabindex="-1"></a><span class="in">  select(id, pred = pred_lm7)  # gleich umbenennen in "pred"</span></span>
+<span id="cb89-720"><a href="#cb89-720" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-721"><a href="#cb89-721" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-722"><a href="#cb89-722" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-723"><a href="#cb89-723" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-724"><a href="#cb89-724" aria-hidden="true" tabindex="-1"></a><span class="in">```{r write-csv, eval = FALSE}</span></span>
+<span id="cb89-725"><a href="#cb89-725" aria-hidden="true" tabindex="-1"></a><span class="in">write_csv(submission_df, file = "Sauer_Sebastian_0123456_Prognose.csv")</span></span>
+<span id="cb89-726"><a href="#cb89-726" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb89-727"><a href="#cb89-727" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-728"><a href="#cb89-728" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-729"><a href="#cb89-729" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-730"><a href="#cb89-730" aria-hidden="true" tabindex="-1"></a><span class="fu"># Was noch?</span></span>
+<span id="cb89-731"><a href="#cb89-731" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-732"><a href="#cb89-732" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mehr geht immer...</span></span>
+<span id="cb89-733"><a href="#cb89-733" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-734"><a href="#cb89-734" aria-hidden="true" tabindex="-1"></a>Ein nächster Schritt könnte sein, sich folgende Punkte anzuschauen:</span>
+<span id="cb89-735"><a href="#cb89-735" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-736"><a href="#cb89-736" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Interaktionen</span>
+<span id="cb89-737"><a href="#cb89-737" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Polynome</span>
+<span id="cb89-738"><a href="#cb89-738" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Voraussetzungen</span>
+<span id="cb89-739"><a href="#cb89-739" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-740"><a href="#cb89-740" aria-hidden="true" tabindex="-1"></a>Eine Faustregel zu Interaktionen lautet: Wenn zwei Variablen jeweils einen starken Haupteffekt haben, lohnt es sich u.U., den Interaktionseffekt anzuschauen (vgl. Gelman &amp; Hill, 2007, S. 69).</span>
+<span id="cb89-741"><a href="#cb89-741" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-742"><a href="#cb89-742" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-743"><a href="#cb89-743" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tidymodels</span></span>
+<span id="cb89-744"><a href="#cb89-744" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-745"><a href="#cb89-745" aria-hidden="true" tabindex="-1"></a>Das ständige Updaten des Test-Datensatzes nervt; mit <span class="in">`tidymodels`</span> wird es komfortabler und man hat Zugang zu leistungsfähigeren Prognosemodellen. <span class="co">[</span><span class="ot">Hier</span><span class="co">](https://www.tmwr.org/)</span> findet sich ein Einstieg und hier eine <span class="co">[</span><span class="ot">Fallstudie mit Tutorial</span><span class="co">](https://www.tidymodels.org/start/models/)</span>.</span>
+<span id="cb89-746"><a href="#cb89-746" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-747"><a href="#cb89-747" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-748"><a href="#cb89-748" aria-hidden="true" tabindex="-1"></a></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

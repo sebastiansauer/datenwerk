@@ -1,0 +1,113 @@
+---
+date: 2024-06-14  # HEUTIGES DATUM EINTRAGEN
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: mario-compare-models 
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- lm  # ENTER CATEGORIES HERE
+- regression
+- interaction
+
+
+
+
+---
+
+
+
+# Aufgabe
+
+Variieren Sie das folgende Modell mit einer bzw. beiden UV bzw. mit Interaktionseffekt.
+Welches Modell ist am besten?
+
+
+`lm_mario_2uv <- lm(total_pr ~ start_pr + ship_pr, data = mariokart %>% filter(total_pr < 100))`
+
+Hinweise:
+
+- Nutzen Sie den Datensatz `mariokart`.
+- Bonus: Visualisieren Sie das Streudiagramm!
+
+
+Den Datensatz können Sie hier beziehen:
+
+```{r import-mariokart}
+mariokart <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv")
+```
+
+
+
+# Lösung
+
+```{r}
+library(easystats)
+library(tidyverse)
+```
+
+
+
+Modelle berechnen:
+
+```{r}
+library(easystats)
+
+# Modell a
+lm_mario_2uv <- lm(total_pr ~ start_pr + ship_pr, data = mariokart %>% filter(total_pr < 100))
+
+# Modell b
+lm_mario_start_pr <- lm(total_pr ~ start_pr, data = mariokart %>% filter(total_pr < 100))
+
+# Modell c
+lm_mario_ship_pr <- lm(total_pr ~  ship_pr, data = mariokart %>% filter(total_pr < 100))
+
+# Modell d
+lm_mario_2uv_interaktion <- lm(total_pr ~ start_pr + ship_pr + start_pr:ship_pr, data = mariokart %>% filter(total_pr < 100))
+
+```
+
+Modellgüten ausgeben lassen:
+
+```{r}
+r2(lm_mario_2uv)
+r2(lm_mario_start_pr)
+r2(lm_mario_ship_pr)
+r2(lm_mario_2uv_interaktion)
+```
+
+
+
+
+# BONUS
+
+Visualisieren Sie das Streudiagramm!
+
+
+```{r}
+library(DataExplorer)
+
+mariokart |> 
+  select(total_pr, ship_pr) |> 
+  filter(total_pr < 100) |> 
+  plot_scatterplot( "total_pr")
+
+
+library(ggpubr)
+
+ggscatter(mariokart |> filter(total_pr < 100),
+          x = "ship_pr",
+          y = "total_pr",
+          add = "reg.line")
+
+```
+
+
+
+

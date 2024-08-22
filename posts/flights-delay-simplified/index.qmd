@@ -1,0 +1,520 @@
+---
+date: 2024-06-29
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: flights-delay-simplified
+execute: 
+  eval: true 
+  cache: true
+  freeze: true
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- lm  # ENTER CATEGORIES HERE
+- regression
+- interaction
+- yacsda
+---
+
+
+
+
+
+# Hintergrund und Forschungsfrage
+
+
+Wir untersuchen die Forschungsfrage *Was sind Prädiktoren von Flugverspätungen*. 
+Wir nutzen `dep_delay` als AV (Zielvariable), also als die Variable, die wir vorhersagen wollen.
+
+Dazu verwenden wir lineare Modelle als Modellierungsmethoden.
+
+
+# Ressourcen und Vertiefung
+
+Dieser Post knüpft an [den Post zur explorativen Datenanalyse der Flugverspätungen](https://data-se.netlify.app/2021/03/08/eda-zu-flugversp%C3%A4tungen/) an (es gibt auch [hier, Teil 1](https://www.youtube.com/watch?v=t8i_qTonuLM) und [hier, Teil 2](https://youtu.be/AeBqwr2U7MA) ein Video zu diesem EDA-Post).
+[Dieser Post](https://datenwerk.netlify.app/posts/flights-delay/) ist eine längere (nicht-verkürzte) Version der vorliegenden Fallstudie.
+
+
+
+# Setup
+
+## Pakete laden
+
+Wirklich wichtig sind nur `tidymodels` und `tidyverse`. Die restlichen Pakete werden nur am Rande benötigt. 
+Man sollte auch nur die Pakete laden,
+die man für die Analyse benötigt.
+
+```{r load-libs, message = FALSE, warning = FALSE}
+library("tidymodels")  # Train- und Test-Sample aufteilen
+library("tidyverse")  # data wrangling
+library("conflicted")  # Name clashes finden
+library("easystats")  # stats made easy
+library("DataExplorer")  # Data Vis
+```
+
+
+
+## Daten laden: Flights 2023
+
+Aus Gründen der Datenökonomie nutzen wir eine kleinere Version des Datensatz `flights`. 
+Wir nutzen nicht mehr die Daten aus dem 2013, sondern die neueren Daten aus dem Jahr 2023.
+
+```{r sample-prop-flights}
+library(nycflights23)
+data(flights)
+
+set.seed(42)  # Reproduzierbarkeit
+flights <- 
+  flights |> 
+  sample_n(size = 3e4)  # "3e4" heißt "3 Mal 10 hoch 4"
+```
+
+
+Achtung: `flights` ist recht groß; die Regressionsmodelle können leicht ein paar Hundert Megabyte groß werden. Das bringt u.U. auch einen modernen Computer irgendwann ins Straucheln.
+Daher verringern wir aus Gründen der Einfachheit den Datensatz mit einem Zufallssample.
+Man beachte, dass die Präzision der Ergebnisse höher ist, wenn man nicht mit einem Zufallssample, sondern dem gesamten Datensatz arbeitet.
+
+
+
+
+
+# flights2: Nicht benötigte Variablen entfernen und ID hinzufügen
+
+```{r flights2}
+flights2 <-
+  flights %>% 
+  select(-c(year)) %>%   # "year" ist konstant und daher nutzlos
+  drop_na(dep_delay) %>% 
+  mutate(id = row_number()) %>%  # ID als fortlaufende Nummer
+  select(id, everything())  # id nach vorne ziehen
+```
+
+
+Die ID hilft uns, einzelne Flüge (Beobachtungen) zu identifizieren, z.B. wenn wir einen bestimmten Flug näher analysieren oder entfernen wolllen.
+
+
+Achtung: Die ID-Variable sollte man nicht als Prädiktor verwenden, da sie keine Information birgt.
+
+# Heimliche AVs entfernen
+
+`dep_delay` ist unsere AV (Zielvariable), die Variable also, die wir vorhersagen.
+
+`arr_delay` ist eine Variable, die uns *nicht* zur Verfügung steht, wenn es um die Vorhersage neuer, noch nicht gestarteter Flüge geht.
+Es wäre daher falsch, unser Modell auf einer Variable zu gründen, auf die wir später (beim Vorhersagen) nicht zurückgreifen können.
+Also raus damit.
+
+Ähnliches gilt für ein paar andere Variablen:
+
+```{r}
+heimliche_avs <- c("dep_time", "arr_time", "arr_delay", "air_time")
+```
+
+```{r}
+flights2_ohne_heimliche_avs <-
+  flights2 |> 
+  select(-any_of(heimliche_avs))
+```
+
+
+`any_of` ist nur eine Tipphilfe. Man hätte auch direkt die Namen der zu entfernenden Spalten eingeben können, etwa `select(-dep_time, ...)`.
+
+Check:
+
+```{r}
+names(flights2_ohne_heimliche_avs)
+```
+
+Eine vielleicht gute Nachricht ist, dass Sie sich in der Prüfung nicht um diese Frage kümmern müssen.
+
+
+# Aufteilung in Train- und Testsample
+
+
+Der Hintergrund zur Idee der Aufteilung in Train- und Test-Stichprobe kann z.b. [hier](https://www.tmwr.org/splitting.html) oder [hier](https://www.springer.com/de/book/9783658215866), Kapitel 15, nachgelesen werden.
+
+
+```{r initial-split}
+set.seed(42)  # Reproduzierbarkeit
+flights_split <- initial_split(flights2_ohne_heimliche_avs, 
+                               strata = dep_delay)
+```
+
+
+
+# flights_train2, flights_test2
+
+```{r train-test}
+set.seed(42)  # Reproduzierbarkeit
+flights_train2 <- training(flights_split)
+flights_test2 <- testing(flights_split)
+```
+
+
+Die "wirkliche Welt" (was immer das ist) besorgt die Aufteilung von Train- und Test-Sample für Sie automatisch. 
+Sagen wir, Sie arbeiten für die Flughafen-Aufsicht von New York. 
+Dann haben Sie einen Erfahrungsschatz an Flügen aus der Vergangenheit in Ihrer Datenbank (Train-Sample). Einige Tages kommt Ihr Chef zu Ihnen und sagt: "Rechnen Sie mir mal die zu erwartende Verspätung der Flüge *im nächsten Monat* aus!". 
+Da *heute* nicht klar ist, wie die Verspätung der Flüge *in der Zukunft* (nächsten Monat) sein wird, stellen die Flüge des nächsten Monats das Test-Sample dar.
+
+Übrigens: In der Prüfung besorgt das Aufteilen von Train- und Test-Sample netterweise Ihr Dozent...
+
+
+
+Check:
+
+```{r}
+names(flights_train2)
+```
+
+
+
+# lm0: Nullmodell
+
+Eigentlich nicht nötig, das Nullmodell, primär aus didaktischen Gründen berechnet, um zu zeigen, dass in diesem Fall $R^2$ wirklich gleich Null ist.
+
+
+```{r lm0}
+lm0 <- lm(dep_delay ~ 1, data = flights_train2)
+model_parameters(lm0)  # model_parameters zeit die (geschätzten) Regressionsgewichte (Betas)
+```
+
+
+Wir könnten anstatt `model_parameters` auch `parameters` nutzen; das ist der gleiche Befehl.
+
+Allerdings gibt es den Befehl `parameters` in *zwei* Paketen, es käme also zu einem "Name Clash".
+Das umgehen wir, indem wir `model_parameter` nutzen, und nicht `parameters`. 
+
+# lm1: origin
+
+
+```{r lm1}
+lm1 <- lm(dep_delay ~ origin, data = flights_train2)
+model_parameters(lm1)  
+```
+
+
+Man vergleiche:
+
+```{r flights2-compare}
+flights_train2 %>% 
+  drop_na(dep_delay) %>% 
+  group_by(origin) %>% 
+  summarise(delay_avg = mean(dep_delay)) %>% 
+  mutate(delay_delta = delay_avg - delay_avg[1])
+```
+
+
+Der Mittelwertsvergleich und das Modell `lm1` sind faktisch informationsgleich.
+
+
+
+Aber leider ist es um die Modellgüte nicht so gut bestellt (eigentlich eher "grottenschlecht"):
+
+```{r r2lm1}
+r2(lm1)
+```
+
+
+`lm1` ist so schlecht, wir löschen es gleich wieder...
+```{r}
+rm(lm1)
+```
+
+
+
+# lm2: All in
+
+```{r eval = FALSE}
+# NICHT AUSFÜHREN
+#lm2_all_in <- lm(dep_delay ~ ., data = flights_train2)
+```
+
+Modell `lm2_all_in` ist hier *keine* gute Idee, da nominale Prädiktoren in Indikatorvariablen umgewandelt werden. Hat ein nominaler Prädiktor sehr viele Stufen (wie hier), so resultieren sehr viele Indikatorvariablen, was dem Regressionsmodell Probleme bereiten kann (bei mir hängt sich R auf). Besser ist es in dem Fall, die Anzahl der Stufen von nominalskalierten Variablen vorab zu begrenzen.
+
+Bei kleineren Datensätzen (weniger Variablen, weniger Fälle) lohnt es sich aber oft, das "All-in-Modell" auszuprobieren, als Referenzmaßstab für andere Modelle.
+
+
+
+# lm3: Verlorenes Modell
+
+Dieses Modell ging verloren. Wo ist es hin? Wie geht es ihm? Leider gibt es keine Antwort in dieser Fallstudie; aber vielleicht in einer anderen...
+
+Einigen Datensätzen ging es leider ebenso.^[Hintergrund ist, dass diese Fallstudie eine vereinfachte und verkürzte Version einer ähnlichen Fallstudie ist.]
+
+
+# lm4: Alle metrischen Variablen
+
+
+Was sind noch mal unsere metrischen Variablen:
+
+```{r}
+flights_train4 <- 
+flights_train2 %>% 
+  select(where(is.numeric)) |> 
+  select(-month, -day, -flight)   # diese Variablen sind nicht wirklich metrisch
+
+
+flights_train4 %>% 
+  names()
+```
+
+
+Ok, jetzt eine Regression mit diesen Variablen (ober ohne die ID-Variable):
+
+```{r lm4}
+lm4 <- lm(dep_delay ~ ., 
+          data = (flights_train4 |> select(-id)))
+```
+
+
+```{r}
+r2(lm4)
+```
+
+Tja, das $R^2$ hat einen nicht gerade um ...
+
+
+```{r}
+model_parameters(lm4)
+```
+
+
+Die Distanz zum Ziel ist offenbar der interessanteste Prädiktor.
+
+
+# flights_train5: Fehlenden Werte ersetzen
+
+
+```{r}
+flights_train4 |> 
+  describe_distribution() |> 
+  select(Variable, n_Missing)
+```
+
+Glücklicherweise haben wir keine fehlende Werte.
+
+
+Nur rein zu Übungszwecken: Falls es fehlende Werte gibt,
+man könnte sie z.B. so mit dem Median ersetzen:
+
+```{r}
+flights_train5 <-
+  flights_train4 |> 
+  mutate(distance = replace_na(distance, median(distance, na.rm = TRUE)))
+```
+
+
+
+# lm6: Wie lm5, aber ohne fehlende Werte
+
+
+
+
+```{r lm6}
+lm6 <-lm(dep_delay ~ ., data = flights_train5 |> select(-id) )
+```
+
+```{r lm6r2}
+r2(lm6)
+```
+
+
+```{r}
+model_parameters(lm6)
+```
+
+
+# flights_train6: Extremwerte entfernen
+
+
+```{r plot-densities}
+flights_train5 |> 
+  select(where(is.numeric), -id) |> 
+  plot_density()
+```
+
+Es sieht so aus, als wäre `distance` deutlich rechtsschief mit einigen Ausreißern.
+
+Man könnte auch Boxplots betrachten, die auch gut Extremwerte visualisieren.
+
+
+
+
+Eine gängige Methode, mit Extremwerten umzugehen, ist, 
+alle Datenpunkte, die im Boxplot als alleinstehende Punkte gezeigt werden, durch den Median zu ersetzen.
+Achtung: Diese Methode ist nicht perfekt! 
+Es gibt viel sophistiziertere Methoden.
+
+
+Wir ersetzen dabei alle Werte von ` distance`, für die gilt, dass sie größer sind als Q3 + 1.5*IQR.
+
+Q3:
+
+```{r comp-q3}
+flights_train5 |> 
+  summarise(distance_q3 = quantile(distance, prob = .75))
+```
+
+
+
+IQR:
+
+```{r comp-iqr}
+flights_train5 |> 
+  summarise(distance_iqr = IQR(distance))
+```
+
+Der Grenzwert ist also:
+
+```{r comp-threshold}
+(# Q3
+  flights_train5 |> 
+  summarise(distance_iqr = quantile(distance, prob = .75)) 
+  ) +
+  1.5 * 
+ (# IQR
+  flights_train5 |> 
+  summarise(distance_iqr = IQR(distance)) 
+ )
+
+```
+
+
+Der Median von `distance` beträgt übrigens:
+
+```{r comp-md}
+ flights_train5 |> 
+  summarise(distance_md = median(distance)) 
+```
+
+
+```{r flights-train6}
+flights_train6 <-
+  flights_train5 |> 
+  mutate(distance = 
+           case_when(distance > 2239 ~ 762,
+                     TRUE ~ distance))
+```
+
+
+Grob auf Deutsch übersetzt:
+
+>    Wenn ein Flug eine `distance` von mehr als 326 Minuten hat, dann sei die airtime gleich 122, ansonsten immer ("TRUE") ist airtime gleich `distance`, bleibt also, wie sie war.
+
+
+
+# lm7: Wie lm5, aber ohne Extremwerte für `distance`
+
+```{r lm7}
+lm7 <-lm(dep_delay ~ ., data = flights_train6)
+
+r2(lm7)
+```
+
+Tja....
+
+# R2 im Testsample 
+
+
+
+$R^2$ kann man übrigens auch so berechnen:
+
+
+Zuerst fügen wir die Vorhersagen zum Datensatz hinzu:
+
+```{r lm7-predict}
+flights_train7_pred <- 
+  flights_train6 %>% 
+  mutate(lm7_pred = predict(lm7, newdata = flights_train6))  
+```
+
+
+Dann berechnen wir das R-Quadrat mit der Funktion `rsq` (wie "r squared", R-Quadrat) anhand der beiden relevanten Spalten:
+
+```{r flights_train7_pred-r2}
+flights_train7_pred %>% 
+  rsq(truth = dep_delay,
+      estimate = lm7_pred)
+```
+
+
+Das ist nützlich, wenn man R-Quadrat auf Basis eigener Vorhersagen, im Test-Sample also, berechnen will.
+
+Berechnen wir jetzt die Modellgüte im Testsample.
+
+
+Fügen wir die Vorhersagewerte dem Testsample dazu:
+
+```{r flights_test4_pred}
+flights_test4_pred <-
+  flights_test2 %>% 
+  mutate(pred_lm7 = predict(lm7, newdata = flights_test2))
+```
+
+Check:
+
+```{r}
+flights_test4_pred %>% 
+  select(id, dep_delay, pred_lm7) %>%
+  head()
+```
+
+
+
+```{r test-r2}
+flights_test4_pred |> 
+  rsq(truth = dep_delay,
+      estimate = pred_lm7)
+```
+
+Am schwierigsten ist es, bei den ganzen Nummerierungen nicht durcheinander zu kommen. Hier könnte es sich lohnen, ein übersichtlicheres Verfahren einzuführen (mit den Kosten höherer Komplexität).
+
+
+
+
+# Einreichen
+
+
+Das beste Modell im *Train-Sample* reichen wir ein; in diesem Fall `lm7`.
+
+
+
+
+```{r subm-df}
+submission_df <- 
+flights_test4_pred |> 
+  select(id, pred = pred_lm7)  # gleich umbenennen in "pred"
+```
+
+Check:
+
+```{r}
+head(submission_df)
+```
+
+Das sieht erstmal gut aus.
+
+```{r write-csv, eval = FALSE}
+write_csv(submission_df, file = "Sauer_Sebastian_0123456_Prognose.csv")
+```
+
+
+
+# Was noch?
+
+
+
+Ein nächster Schritt könnte sein, sich folgende Punkte anzuschauen:
+
+
+  - Nominale Variablen berücksichtigen
+  - Variablen mit der höchsten Korrelation berücksichtigen
+  - Interaktionseffekte berücksichtigen
+
+Eine Faustregel zu Interaktionen lautet: Wenn zwei Variablen jeweils einen starken Haupteffekt haben, lohnt es sich u.U., den Interaktionseffekt anzuschauen (vgl. Gelman & Hill, 2007, S. 69).
+
+
+
