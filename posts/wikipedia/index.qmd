@@ -1,0 +1,187 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-08-23  # HEUTIGES DATUM EINTRAGEN, nicht "today"
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: wikipedia 
+execute: 
+  eval: true 
+  
+  
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- simulation 
+- probability
+- story
+- nullhypothesis
+
+
+bibliography: "bib.bib"
+
+
+---
+
+
+
+# Aufgabe
+
+In Ihrem Buch "Active Statistics" beschreiben die Autoren eine Studie der Wikipedia-Organisation [@gelman_active_2024], vgl. S. 33f.
+
+In der Studie - ein kontrolliertes Experiment, auch "A/B-Test" genannt - wurde der Effekt von abgerundeten vs. quadratischen Ecken von Textboxen auf die Spendenbereitschaft untersucht (s. Abb. 2, S. 34). (Das Buch ist kostenfrei auf der [Webseite zum Buch](https://users.aalto.fi/~ave/ActiveStatistics.pdf) erhältlich.)
+
+
+Runde Ecken:
+{{< fa square >}}
+
+
+Quadratische Ecken:
+{{< fa square-full >}}
+
+
+Das Wikipedia-Team gab folgende Stichprobengrößen an:
+
+```{r}
+n_control_group <- 954630  # runde Ecken
+n_exp_group <- 1082180  # quadratische Ecken
+n_total <- n_control_group + n_exp_group
+```
+
+
+Damit liegt der Anteil der Experimentalgruppe am Gesamtstichprobenumfang bei 53%:
+
+```{r}
+n_exp_group / n_total
+```
+
+
+
+**Wie hoch ist die Wahrscheinlichkeit, einen so großen, d.h. 53% vs. 47%, (oder noch größeren) Unterschied in den Umfängen der beiden Stichproben zu erhalten, unter der Annahme einer zufälligen Aufteilung?**
+
+Hinweise:
+
+- Nutzen Sie Simulationstechniken.
+- Die Wahrscheinlichkeit ist auf 2 Dezimalen zu runden.
+
+
+
+# Lösung
+
+```{r}
+library(tidyverse)
+library(ggpubr)  # Visualisierung
+```
+
+
+Wir führen probehalber den Versuch einmal durch. 
+Hat jemand mal eben zwei Millionen Münzen?
+Anstelle von Münzen können wir auch den Computer nutzen.
+
+Wir bezeichnen die beiden Ausgänge des Münzwurfexperiments mit 0 (Kontrollgruppe) und 1 (Experimentalgruppe). Eine `1` bedeutet also, dass eine Person der Experimentalgruppe zugeordnet wurde und eine `0`, dass sie der Kontrollgruppe zugeordnet wurde.
+
+Den Münzwurf wiederholen wir `n_total` Mal:
+
+
+```{r}
+set.seed(42)  # Zufallszahlen festlegen, zur Reproduzierbarkeit
+wikipedia_experiment <- sample(
+  x = c(0,1),  # Ergebnisraum
+  size = n_total,  # Anzahl der Münzen
+  replace = TRUE)  # Ziehen mit Zurücklegen
+```
+
+
+Mit `sample` können wir Stichproben ziehen, z.B. von Münzwürfen.
+
+Das Ergebnis ist ein lange Reihe von 0 und 1, die die jeweiligen Ergebnisse der Münzwürfe darstellt. Hier sind die ersten paar Ergebnisse:
+
+```{r}
+head(wikipedia_experiment, n = 20)
+```
+
+Wenn wir jetzt den Mittelwert berechnen, haben wir damit den Anteil der Experimentalgruppe an der Gesamtstichprobe:
+
+```{r}
+anteil_exp_gruppe <- mean(wikipedia_experiment)
+anteil_exp_gruppe
+```
+
+Sehr nah dran an der exakten Hälfte! Dieser Versuchsausgang spricht dagegen, dass 53% dass Ergebnis einer Zufallsaufteilung (in Experimental- und Kontrollgruppe) ist.
+Aber vielleicht war es nur Pech bzw. Glück? Vielleicht würde das Experiment, wenn wir nochmal die ca. 2 Millionen Münzen werfen, zu einem ganz anderen Ergebnis kommen? 
+
+Probieren wir es aus! Wir wiederholen das Experiment sagen wir `n_reps = 100` Mal und notieren jedes Mal den Anteil der Experimentalgruppe am Stichprobenumfang.
+
+```{r}
+n_reps <- 100
+```
+
+
+Dazu hilft die Funktion `replicate`, die die Münzwurf (Funktion `sample` plus (danach) `mean`) beliebig oft wiederholt:
+
+```{r}
+set.seed(42)
+viele_versuche <- replicate(n_reps, 
+                            sample(x = c(0,1), 
+                                   size = n_total,
+                                   replace = TRUE) |> 
+                              mean())
+```
+
+Hier sind die Ergebnisse:
+
+```{r}
+viele_versuche
+```
+
+
+Ein paar Statistiken dazu:
+
+```{r}
+mean(viele_versuche)
+sd(viele_versuche)
+median(viele_versuche)
+IQR(viele_versuche)
+```
+
+Wie man sieht, ist die Streuung sehr gering: Alle Ergebnisse streuen sehr eng um 1/2 (50%). Von 3 Prozentpunkten Abweichung ist nichts zu sehen.
+
+Vielleicht ist es nützlich, wenn man diesen Vektor (`viele_versuche`) visualisiert, z.B. mit einem Histogramm aus `ggpubr`.
+
+
+
+Die Daten benötigen wir dazu als Dataframe:
+
+```{r}
+d <- tibble(viele_versuche)
+
+glimpse(d)
+```
+
+
+
+```{r}
+gghistogram(d, x = "viele_versuche",
+            add = "mean")
+```
+
+Hier noch ein Dichtediagramm, da sieht man die Verteilungsform besser:
+
+```{r}
+ggdensity(d, x = "viele_versuche")
+```
+
+
+Unter der Annahme einer Normalverteilung (was man als hinreichend gegeben betrachten kann), liegen ca. 95% der Werte zwischen MW ± 2 sd, bzw. ca. 99% nicht weiter als 3 sd vom MW entfernt.
+
+
+
+Fazit: Unsere Simulation zeigt, dass die Wahrscheinlichkeit für einen Stichprobenanteil von 53% sehr klein ist, kleiner als 1 von 100 in unserer Simulation (1%) und vermutlich noch deutlich kleiner als 1%.
+
+Wir können daraus schließen, dass die Zufallszuteilung (Randomisierung) nicht richtig funktioniert hat. Hätte sie funktioniert, wäre eine Aufteilung von 53% zu 47% kaum zu erwarten gewesen.
+
+
+Anders gesagt verwerfen wir die (Null-)Hypothese einer zufälligen Zuteilung zu den Gruppen.
