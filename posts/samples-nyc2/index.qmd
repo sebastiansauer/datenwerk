@@ -1,0 +1,335 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-09-11  # HEUTIGES DATUM EINTRAGEN, nicht "today"
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: samples-nyc 2
+execute: 
+  cache: true
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- inference  # ENTER CATEGORIES HERE
+- story
+- yacsda
+
+format:
+  html: 
+   df-print: kable
+
+bibliography: "../../library-ses.bib"
+
+
+---
+
+
+
+# Aufgabe
+
+
+Drei Studierende arbeiten für die New Yorker Flughafenbehörde als Werkstudenten.
+Fragt ihre Chefin eines Tages: 
+"Welcher der drei New Yorker Flughäfen hat im Schnitt die höchste Verspätung? Zieht mal eine kleine Stichprobe und gebt mir eine gute Antwort."
+
+
+
+*Studi A* überlegt: "Hm, ich schaue mir mal die ersten 1000 Flüge des Jahres und diesen Mittelwert nehme ich als Schätzwert für die Verspätung des ganzen Jahres."
+
+*Studi B* argumentiert so: "Hm, ich nehme die ersten 100 Flüge von jedem Monat, rechne davon den Mittelwert aus. Das ist dann mein Schätzwert für die Verspätung des ganzen Jahres, pro Flughafen."
+
+
+*Studi C* hingegen ist folgender Meinung: "Ich ziehe mal eine Zufallsstichprobe, habe ich in der Statistik-Vorlesung gelernt. N=100 sollte genügen."
+
+
+Die Chefin bezieht sich übrigens auf das Jahr 2023.
+
+
+**Aufgabe:** Welcher der drei Studis macht die beste Vorhersage? Rechnen Sie nach und begründen Sie Ihre Meinung!
+
+
+
+# Lösung
+
+
+## Setup
+
+```{r}
+library(nycflights23)  # Dataset "flights"
+data("flights")
+library(tidyverse)
+```
+
+Wie viele Flüge gab es?
+
+```{r}
+nrow(flights)
+```
+
+Viele!
+
+
+Welche Variablen gibt es im Datensatz?
+
+```{r}
+glimpse(flights)
+```
+
+Nehmen wir `dep_delay` als Zielvariable.
+Die Chefin hat nicht genau gesagt, welche Variable sie meint. Da sieht man es mal wieder: Man muss Annahmen treffen. Ist aber auch schön, denn man kann selber entscheiden, was einem besser gefällt.
+
+
+## Los geht's
+
+### Studentin A
+
+
+```{r stud-a}
+estimate_A <-
+flights |> 
+  select(dep_delay, origin) |> 
+  drop_na() |> 
+  slice(1:1000) |> 
+  group_by(origin) |> 
+  summarise(dep_delay = mean(dep_delay))
+
+estimate_A
+```
+
+
+"Klares (?) Ergebnis! EWR, also Newark, hat die größte Verspätung!"
+
+
+### Student B
+
+
+```{r stud-b}
+estimate_B <-
+flights |> 
+  select(dep_delay, origin, month) |> 
+  drop_na() |> 
+  group_by(month, origin) |> 
+  summarise(dep_delay = mean(dep_delay)) |> 
+  group_by(origin) |> 
+  summarise(dep_delay = mean(dep_delay))
+
+estimate_B
+```
+
+"Knapp! EWR hat fast so viel Verspätung wie JFK."
+
+
+### Studentin C
+
+
+```{r stud-c1}
+set.seed(73)
+
+estimate_C <-
+flights |> 
+  select(dep_delay, origin) |> 
+  drop_na() |> 
+  sample_n(size = 100)  |> 
+  group_by(origin) |> 
+  summarise(dep_delay = mean(dep_delay))
+
+estimate_C
+```
+
+
+"Glasklares (?) Ergebnis! JFK, also John-F-Kennedy, hat die größte Verspätung! Newark ist hingegen superpünktlich!"
+
+
+
+## Moment
+
+Leider entbrennt hier ein Streit.
+Vermutlich einige Eifersuchtsmomente hinter den Kulissen, aber wir wissen nichts Genaues.
+
+
+
+
+Studentin A: "So ein Quatsch, C, du hast die Zufallszahl auf 73 festgelegt, warum gerade diese Zahl?! Bei einer anderen Zahl könnte ein ganz andere Stichprobe und damit ein ganz anderes Ergebnis herauskommen!"
+
+
+Studentin C: "Ich habe kürzlich gelernt, dass [nicht 42, sondern 73 die beste Zahl ist](https://www.youtube.com/watch?v=hvn8-LzqKQo&t=7s). Also musste ich 73 nehmen!
+
+Student B: "Aber was *käme* heraus, wenn du 42 als Zufallszahl nehmen würdest, nur mal theoretisch?"
+
+
+Studentin C: "Äh..."
+
+
+```{r stud-c}
+set.seed(42)
+flights |> 
+  select(dep_delay, origin) |> 
+  drop_na() |> 
+  sample_n(size = 100)  |> 
+  group_by(origin) |> 
+  summarise(dep_delay = mean(dep_delay))
+```
+
+
+Studentin C: "Äh, also... Das spielt doch gar keine Rolle, was rauskommt, denn *bei jeder Zahl* kann ja was anderes rauskommen."
+
+
+A: "Du müsstest also dein Vorgehen ändern... Jede Zahl ausprobieren oder so."
+
+
+C: "Liebe A, du mit deinen Flügen vom Jahresbeginn, das ist doch totaler Quatsch, an deiner Stelle wäre ich lieber still."
+
+
+A: "Aber es kommt was Gutes raus mit meiner Methode!"
+
+B: "Woher willst du überhaupt wissen, ob es was Gutes ist?"
+
+A: "Wirst schon sehen!"
+
+
+C: "Puh, also gut, ich rechne noch mal. Ich zieh einfach ne Menge Stichproben, mit zufälligen Seed-Nummern ..."
+
+A: "Whatever!"
+
+C: "Moment.., hier kommt Newark, EWR."
+
+```{r ewr}
+n_reps <- 100  # Anzahl von Stichproben
+sample_size <- 100  # Umfang jeder Stichprobe
+
+ewr_viele_schaetzwerte <-
+ replicate(n_reps, flights |> 
+                      select(dep_delay, origin) |> 
+                      filter(origin == "EWR") |> 
+                      drop_na() |> 
+                      sample_n(size = sample_size) |> 
+                      summarise(dep_delay = mean(dep_delay))) |> 
+  as.numeric() |> 
+  mean()
+
+ewr_viele_schaetzwerte
+```
+
+
+B: "Wow, C, du bist halt schon die Statistik-Checkerin...".
+
+
+A: "Hey B, hör gefälligst auf, dich bei A einzuschmeicheln!"
+
+
+B: "Jedenfalls ist das Ergebnis von A ... anders als unsere!"
+
+
+C: "Hier noch mal mein Prinzip für die anderen Flughäfen. JFK:"
+
+```{r jfk}
+jfk_viele_schaetzwerte <-
+ replicate(n_reps, flights |> 
+                      select(dep_delay, origin) |> 
+                      filter(origin == "JFK") |> 
+                      drop_na() |> 
+                      sample_n(size = sample_size) |> 
+                      summarise(dep_delay = mean(dep_delay))) |> 
+  as.numeric() |> 
+  mean()
+
+jfk_viele_schaetzwerte
+```
+
+
+C: "Und LaGuardia:"
+
+```{r lga}
+lga_viele_schaetzwerte <-
+ replicate(n_reps, flights |> 
+                      select(dep_delay, origin) |> 
+                      filter(origin == "LGA") |> 
+                      drop_na() |> 
+                      sample_n(size = sample_size) |> 
+                      summarise(dep_delay = mean(dep_delay))) |> 
+  as.numeric() |> 
+  mean()
+
+lga_viele_schaetzwerte
+```
+
+C: "Also, unterm Strich, LGA rules! LGA hat die geringste Verspätung im Schnitt, nach meiner Rechnung."
+
+
+```{r}
+lga_viele_schaetzwerte
+ewr_viele_schaetzwerte
+jfk_viele_schaetzwerte
+```
+
+
+
+## Fazit?
+
+
+A: "Okay, meine Methode war ein bisschen zu einfach. Aber hat auch am wenigsten Arbeit gemacht. Das nennt man wirtschaftlich vorgehen, nur darum geht's im Business. Also hab ich trotzdem gewonnen!"
+
+
+
+B: "Nope, mein Vorgehen ist in Wirklichkeit das Beste. Ich hab von *jedem* Monat 100 Flüge genommen, so hat sich alles super ausgeglichen, Jahreszeiten und so, glaub ich. Und es wäre nicht so viel Aufwand wie die zich Tausend Stichproben, die C gezogen hat."
+
+
+
+C: "Kann ja alles sein, aber mein Vorgehen hat am meisten Spaß gemacht. Übrigens B, wir könnten uns, also unsere beiden Ideen, doch zusammenlegn, kombinieren. Das müsste ein super Ergebnis geben. Wollen wir zwei uns das mal zusammen anschauen, nur wir zwei?"
+
+
+## Die Chefin meldet sich zu Wort
+
+
+```{r}
+wahre_verspätung <- 
+  flights |> 
+  select(origin, dep_delay) |> 
+  drop_na() |> 
+  group_by(origin) |> 
+  summarise(dep_delay = mean(dep_delay))
+```
+
+
+"LaGuardia" hat am wenigsten Verspätung. JFK am meisten, aber dicht gefolgt von EWR.
+
+
+```{r}
+modellgueten <-
+  wahre_verspätung |> 
+  mutate(estimate_A = estimate_A$dep_delay,
+         estimate_B = estimate_B$dep_delay,
+         estimate_C = c(
+           ewr_viele_schaetzwerte,
+           jfk_viele_schaetzwerte,
+           lga_viele_schaetzwerte)
+  ) |> 
+  pivot_longer(contains("estimate"), 
+               names_to = "student", 
+               values_to = "estimate") |> 
+  mutate(error_abs = abs(dep_delay - estimate)) |>
+  group_by(student) |> 
+  summarise(error_abs = mean(error_abs)) |> 
+  arrange(error_abs)
+
+modellgueten
+```
+
+
+Chefin: "Sieht so aus, als hätte B knapp gewonnen, vor C. A ist leider weit abgeschlagen."
+
+
+A: "Mensch, B, du bist hier der Datenhecht!"
+
+B: "Ich glaub's ja nicht, ich meine, ich hab's immer gewusst!"
+
+C: "Moment, mein Vorgehen müsste in der Theorie das Beste sein?!"
+
+
+
+
+
