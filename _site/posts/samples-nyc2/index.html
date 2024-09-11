@@ -101,6 +101,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="../../site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="../../site_libs/datatables-binding-0.33/datatables.js"></script>
+<script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="../../site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="../../site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="../../site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="../../site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="../../site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
 
 
 <link rel="stylesheet" href="../../styles.css">
@@ -280,13 +289,31 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>estimate_A</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 2
-  origin dep_delay
-  &lt;chr&gt;      &lt;dbl&gt;
-1 EWR        26.1 
-2 JFK        19.9 
-3 LGA         9.41</code></pre>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">26.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">19.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">9.4</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <p>“Klares (?) Ergebnis! EWR, also Newark, hat die größte Verspätung!”</p>
@@ -294,23 +321,41 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <section id="student-b" class="level3" data-number="2.2.2">
 <h3 data-number="2.2.2" class="anchored" data-anchor-id="student-b"><span class="header-section-number">2.2.2</span> Student B</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>estimate_B <span class="ot">&lt;-</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, origin, month) <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month, origin) <span class="sc">|&gt;</span> </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>estimate_B</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 2
-  origin dep_delay
-  &lt;chr&gt;      &lt;dbl&gt;
-1 EWR         15.6
-2 JFK         16.0
-3 LGA         11.0</code></pre>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>estimate_B <span class="ot">&lt;-</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, origin, month) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month, origin) <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>estimate_B</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">11</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <p>“Knapp! EWR hat fast so viel Verspätung wie JFK.”</p>
@@ -318,24 +363,42 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <section id="studentin-c" class="level3" data-number="2.2.3">
 <h3 data-number="2.2.3" class="anchored" data-anchor-id="studentin-c"><span class="header-section-number">2.2.3</span> Studentin C</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">73</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>estimate_C <span class="ot">&lt;-</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)  <span class="sc">|&gt;</span> </span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>estimate_C</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 2
-  origin dep_delay
-  &lt;chr&gt;      &lt;dbl&gt;
-1 EWR         2.04
-2 JFK        14.3 
-3 LGA         8.85</code></pre>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">73</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>estimate_C <span class="ot">&lt;-</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)  <span class="sc">|&gt;</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>estimate_C</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">2.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">14.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">8.8</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <p>“Glasklares (?) Ergebnis! JFK, also John-F-Kennedy, hat die größte Verspätung! Newark ist hingegen superpünktlich!”</p>
@@ -349,20 +412,38 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <p>Student B: “Aber was <em>käme</em> heraus, wenn du 42 als Zufallszahl nehmen würdest, nur mal theoretisch?”</p>
 <p>Studentin C: “Äh…”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)  <span class="sc">|&gt;</span> </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 2
-  origin dep_delay
-  &lt;chr&gt;      &lt;dbl&gt;
-1 EWR        28.3 
-2 JFK         7.52
-3 LGA         9.94</code></pre>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)  <span class="sc">|&gt;</span> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">origin</th>
+<th style="text-align: right;">dep_delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">EWR</td>
+<td style="text-align: right;">28.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">JFK</td>
+<td style="text-align: right;">7.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LGA</td>
+<td style="text-align: right;">9.9</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <p>Studentin C: “Äh, also… Das spielt doch gar keine Rolle, was rauskommt, denn <em>bei jeder Zahl</em> kann ja was anderes rauskommen.”</p>
@@ -375,22 +456,22 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <p>A: “Whatever!”</p>
 <p>C: “Moment.., hier kommt Newark, EWR.”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>n_reps <span class="ot">&lt;-</span> <span class="dv">100</span>  <span class="co"># Anzahl von Stichproben</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>sample_size <span class="ot">&lt;-</span> <span class="dv">100</span>  <span class="co"># Umfang jeder Stichprobe</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte <span class="ot">&lt;-</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a> <span class="fu">replicate</span>(n_reps, flights <span class="sc">|&gt;</span> </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">filter</span>(origin <span class="sc">==</span> <span class="st">"EWR"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">sample_n</span>(<span class="at">size =</span> sample_size) <span class="sc">|&gt;</span> </span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))) <span class="sc">|&gt;</span> </span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>n_reps <span class="ot">&lt;-</span> <span class="dv">100</span>  <span class="co"># Anzahl von Stichproben</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sample_size <span class="ot">&lt;-</span> <span class="dv">100</span>  <span class="co"># Umfang jeder Stichprobe</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte <span class="ot">&lt;-</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a> <span class="fu">replicate</span>(n_reps, flights <span class="sc">|&gt;</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">filter</span>(origin <span class="sc">==</span> <span class="st">"EWR"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">sample_n</span>(<span class="at">size =</span> sample_size) <span class="sc">|&gt;</span> </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))) <span class="sc">|&gt;</span> </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 15.035</code></pre>
+<pre><code>[1] 15</code></pre>
 </div>
 </div>
 <p>B: “Wow, C, du bist halt schon die Statistik-Checkerin…”.</p>
@@ -398,49 +479,49 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <p>B: “Jedenfalls ist das Ergebnis von A … anders als unsere!”</p>
 <p>C: “Hier noch mal mein Prinzip für die anderen Flughäfen. JFK:”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte <span class="ot">&lt;-</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">replicate</span>(n_reps, flights <span class="sc">|&gt;</span> </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">filter</span>(origin <span class="sc">==</span> <span class="st">"JFK"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">sample_n</span>(<span class="at">size =</span> sample_size) <span class="sc">|&gt;</span> </span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))) <span class="sc">|&gt;</span> </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte <span class="ot">&lt;-</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">replicate</span>(n_reps, flights <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">filter</span>(origin <span class="sc">==</span> <span class="st">"JFK"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">sample_n</span>(<span class="at">size =</span> sample_size) <span class="sc">|&gt;</span> </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))) <span class="sc">|&gt;</span> </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 16.1487</code></pre>
 </div>
 </div>
 <p>C: “Und LaGuardia:”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte <span class="ot">&lt;-</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">replicate</span>(n_reps, flights <span class="sc">|&gt;</span> </span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">filter</span>(origin <span class="sc">==</span> <span class="st">"LGA"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">sample_n</span>(<span class="at">size =</span> sample_size) <span class="sc">|&gt;</span> </span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))) <span class="sc">|&gt;</span> </span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte <span class="ot">&lt;-</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">replicate</span>(n_reps, flights <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">select</span>(dep_delay, origin) <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">filter</span>(origin <span class="sc">==</span> <span class="st">"LGA"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">sample_n</span>(<span class="at">size =</span> sample_size) <span class="sc">|&gt;</span> </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))) <span class="sc">|&gt;</span> </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10.7901</code></pre>
 </div>
 </div>
 <p>C: “Also, unterm Strich, LGA rules! LGA hat die geringste Verspätung im Schnitt, nach meiner Rechnung.”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10.7901</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 15.035</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 16.1487</code></pre>
 </div>
@@ -456,14 +537,14 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 <h2 data-number="2.5" class="anchored" data-anchor-id="die-chefin-meldet-sich-zu-wort"><span class="header-section-number">2.5</span> Die Chefin meldet sich zu Wort</h2>
 <p>Chefin: “Lasst mich da mal ran.”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>wahre_verspätung <span class="ot">&lt;-</span> </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">|&gt;</span> </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(origin, dep_delay) <span class="sc">|&gt;</span> </span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>wahre_verspätung</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>wahre_verspätung <span class="ot">&lt;-</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(origin, dep_delay) <span class="sc">|&gt;</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>wahre_verspätung</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -493,108 +574,33 @@ $ time_hour      &lt;dttm&gt; 2023-01-01 20:00:00, 2023-01-01 23:00:00, 2023-01-
 </div>
 <p>“LaGuardia hat am wenigsten Verspätung. JFK am meisten, aber dicht gefolgt von EWR.”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>modellgueten <span class="ot">&lt;-</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  wahre_verspätung <span class="sc">|&gt;</span> </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">estimate_A =</span> estimate_A<span class="sc">$</span>dep_delay,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_B =</span> estimate_B<span class="sc">$</span>dep_delay,</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_C =</span> <span class="fu">c</span>(</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>           ewr_viele_schaetzwerte,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>           jfk_viele_schaetzwerte,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>           lga_viele_schaetzwerte)</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">contains</span>(<span class="st">"estimate"</span>), </span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"student"</span>, </span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"estimate"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">error_abs =</span> <span class="fu">abs</span>(dep_delay <span class="sc">-</span> estimate)) </span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>modellgueten</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="kable-table">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">origin</th>
-<th style="text-align: right;">dep_delay</th>
-<th style="text-align: left;">student</th>
-<th style="text-align: right;">estimate</th>
-<th style="text-align: right;">error_abs</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">EWR</td>
-<td style="text-align: right;">15.40407</td>
-<td style="text-align: left;">estimate_A</td>
-<td style="text-align: right;">26.07436</td>
-<td style="text-align: right;">10.6702907</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">EWR</td>
-<td style="text-align: right;">15.40407</td>
-<td style="text-align: left;">estimate_B</td>
-<td style="text-align: right;">15.61050</td>
-<td style="text-align: right;">0.2064293</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">EWR</td>
-<td style="text-align: right;">15.40407</td>
-<td style="text-align: left;">estimate_C</td>
-<td style="text-align: right;">15.03500</td>
-<td style="text-align: right;">0.3690683</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">JFK</td>
-<td style="text-align: right;">15.90416</td>
-<td style="text-align: left;">estimate_A</td>
-<td style="text-align: right;">19.85161</td>
-<td style="text-align: right;">3.9474578</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">JFK</td>
-<td style="text-align: right;">15.90416</td>
-<td style="text-align: left;">estimate_B</td>
-<td style="text-align: right;">15.99242</td>
-<td style="text-align: right;">0.0882690</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">JFK</td>
-<td style="text-align: right;">15.90416</td>
-<td style="text-align: left;">estimate_C</td>
-<td style="text-align: right;">16.14870</td>
-<td style="text-align: right;">0.2445449</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">LGA</td>
-<td style="text-align: right;">10.82417</td>
-<td style="text-align: left;">estimate_A</td>
-<td style="text-align: right;">9.41000</td>
-<td style="text-align: right;">1.4141665</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">LGA</td>
-<td style="text-align: right;">10.82417</td>
-<td style="text-align: left;">estimate_B</td>
-<td style="text-align: right;">11.00077</td>
-<td style="text-align: right;">0.1766025</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">LGA</td>
-<td style="text-align: right;">10.82417</td>
-<td style="text-align: left;">estimate_C</td>
-<td style="text-align: right;">10.79010</td>
-<td style="text-align: right;">0.0340665</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>modellgueten <span class="ot">&lt;-</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  wahre_verspätung <span class="sc">|&gt;</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">estimate_A =</span> estimate_A<span class="sc">$</span>dep_delay,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_B =</span> estimate_B<span class="sc">$</span>dep_delay,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_C =</span> <span class="fu">c</span>(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>           ewr_viele_schaetzwerte,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>           jfk_viele_schaetzwerte,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>           lga_viele_schaetzwerte)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">contains</span>(<span class="st">"estimate"</span>), </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"student"</span>, </span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"estimate"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">error_abs =</span> <span class="fu">abs</span>(dep_delay <span class="sc">-</span> estimate)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-78630b1e679c78751184" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-78630b1e679c78751184">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9"],["EWR","EWR","EWR","JFK","JFK","JFK","LGA","LGA","LGA"],[15.4,15.4,15.4,15.9,15.9,15.9,10.82,10.82,10.82],["estimate_A","estimate_B","estimate_C","estimate_A","estimate_B","estimate_C","estimate_A","estimate_B","estimate_C"],[26.07,15.61,15.04,19.85,15.99,16.15,9.41,11,10.79],[10.67,0.21,0.37,3.95,0.09,0.24,1.41,0.18,0.03]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>origin<\/th>\n      <th>dep_delay<\/th>\n      <th>student<\/th>\n      <th>estimate<\/th>\n      <th>error_abs<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,4,5]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"origin","targets":1},{"name":"dep_delay","targets":2},{"name":"student","targets":3},{"name":"estimate","targets":4},{"name":"error_abs","targets":5}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>Chefin: “And the winner is …”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>modellgueten_summ <span class="ot">&lt;-</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  modellgueten <span class="sc">|&gt;</span> </span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(student) <span class="sc">|&gt;</span> </span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">error_abs =</span> <span class="fu">mean</span>(error_abs)) <span class="sc">|&gt;</span> </span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(error_abs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>modellgueten_summ <span class="ot">&lt;-</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  modellgueten <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(student) <span class="sc">|&gt;</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">error_abs =</span> <span class="fu">mean</span>(error_abs)) <span class="sc">|&gt;</span> </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(error_abs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Chefin: “Sieht so aus, als hätte B knapp gewonnen, vor C. A ist leider weit abgeschlagen.”</p>
 <p>A: “Mensch, B, du bist hier der Datenhecht!”</p>
@@ -1079,352 +1085,366 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb29" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2024-09-11  # HEUTIGES DATUM EINTRAGEN, nicht "today"</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> samples-nyc 2</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span><span class="co"> </span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co">  eval: true </span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="an">highlight-style:</span><span class="co"> arrow </span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="an">cache:</span><span class="co"> true</span></span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> ""</span></span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="an">exshuffle:</span><span class="co"> no</span></span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="co">- inference  # ENTER CATEGORIES HERE</span></span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="co">- story</span></span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="co">- yacsda</span></span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="co">  html: </span></span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a><span class="co">   df-print: "kable"</span></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> "../../library-ses.bib"</span></span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
-<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>Drei Studierende arbeiten für die New Yorker Flughafenbehörde als Werkstudenten.</span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>Fragt ihre Chefin eines Tages: </span>
-<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>"Welcher der drei New Yorker Flughäfen hat im Schnitt die höchste Verspätung? Zieht mal eine kleine Stichprobe und gebt mir eine gute Antwort."</span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>*Studi A* überlegt: "Hm, ich schaue mir mal die ersten 1000 Flüge des Jahres und diesen Mittelwert nehme ich als Schätzwert für die Verspätung des ganzen Jahres."</span>
-<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>*Studi B* argumentiert so: "Hm, ich nehme die ersten 100 Flüge von jedem Monat, rechne davon den Mittelwert aus. Das ist dann mein Schätzwert für die Verspätung des ganzen Jahres, pro Flughafen."</span>
-<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>*Studi C* hingegen ist folgender Meinung: "Ich ziehe mal eine Zufallsstichprobe, habe ich in der Statistik-Vorlesung gelernt. N=100 sollte genügen."</span>
-<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>Die Chefin bezieht sich übrigens auf das Jahr 2023.</span>
-<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>**Aufgabe:** Welcher der drei Studis macht die beste Vorhersage? Rechnen Sie nach und begründen Sie Ihre Meinung!</span>
-<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
-<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a><span class="fu">## Setup</span></span>
-<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nycflights23)  <span class="co"># Dataset "flights"</span></span>
-<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"flights"</span>)</span>
-<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a>Wie viele Flüge gab es?</span>
-<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(flights)</span>
-<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a>Viele!</span>
-<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a>Welche Variablen gibt es im Datensatz?</span>
-<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(flights)</span>
-<span id="cb29-86"><a href="#cb29-86" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-87"><a href="#cb29-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-88"><a href="#cb29-88" aria-hidden="true" tabindex="-1"></a>Nehmen wir <span class="in">`dep_delay`</span> als Zielvariable.</span>
-<span id="cb29-89"><a href="#cb29-89" aria-hidden="true" tabindex="-1"></a>Die Chefin hat nicht genau gesagt, welche Variable sie meint. Da sieht man es mal wieder: Man muss Annahmen treffen. Ist aber auch schön, denn man kann selber entscheiden, was einem besser gefällt.</span>
-<span id="cb29-90"><a href="#cb29-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-91"><a href="#cb29-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-92"><a href="#cb29-92" aria-hidden="true" tabindex="-1"></a><span class="fu">## Los geht's</span></span>
-<span id="cb29-93"><a href="#cb29-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-94"><a href="#cb29-94" aria-hidden="true" tabindex="-1"></a><span class="fu">### Studentin A</span></span>
-<span id="cb29-95"><a href="#cb29-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-96"><a href="#cb29-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-97"><a href="#cb29-97" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-a}</span></span>
-<span id="cb29-98"><a href="#cb29-98" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_A &lt;-</span></span>
-<span id="cb29-99"><a href="#cb29-99" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
-<span id="cb29-100"><a href="#cb29-100" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin) |&gt; </span></span>
-<span id="cb29-101"><a href="#cb29-101" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
-<span id="cb29-102"><a href="#cb29-102" aria-hidden="true" tabindex="-1"></a><span class="in">  slice(1:1000) |&gt; </span></span>
-<span id="cb29-103"><a href="#cb29-103" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
-<span id="cb29-104"><a href="#cb29-104" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
-<span id="cb29-105"><a href="#cb29-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-106"><a href="#cb29-106" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_A</span></span>
-<span id="cb29-107"><a href="#cb29-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-108"><a href="#cb29-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-109"><a href="#cb29-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-110"><a href="#cb29-110" aria-hidden="true" tabindex="-1"></a>"Klares (?) Ergebnis! EWR, also Newark, hat die größte Verspätung!"</span>
-<span id="cb29-111"><a href="#cb29-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-112"><a href="#cb29-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-113"><a href="#cb29-113" aria-hidden="true" tabindex="-1"></a><span class="fu">### Student B</span></span>
-<span id="cb29-114"><a href="#cb29-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-115"><a href="#cb29-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-116"><a href="#cb29-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-b}</span></span>
-<span id="cb29-117"><a href="#cb29-117" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_B &lt;-</span></span>
-<span id="cb29-118"><a href="#cb29-118" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
-<span id="cb29-119"><a href="#cb29-119" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin, month) |&gt; </span></span>
-<span id="cb29-120"><a href="#cb29-120" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
-<span id="cb29-121"><a href="#cb29-121" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(month, origin) |&gt; </span></span>
-<span id="cb29-122"><a href="#cb29-122" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay)) |&gt; </span></span>
-<span id="cb29-123"><a href="#cb29-123" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
-<span id="cb29-124"><a href="#cb29-124" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
-<span id="cb29-125"><a href="#cb29-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-126"><a href="#cb29-126" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_B</span></span>
-<span id="cb29-127"><a href="#cb29-127" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-128"><a href="#cb29-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-129"><a href="#cb29-129" aria-hidden="true" tabindex="-1"></a>"Knapp! EWR hat fast so viel Verspätung wie JFK."</span>
-<span id="cb29-130"><a href="#cb29-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-131"><a href="#cb29-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-132"><a href="#cb29-132" aria-hidden="true" tabindex="-1"></a><span class="fu">### Studentin C</span></span>
-<span id="cb29-133"><a href="#cb29-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-134"><a href="#cb29-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-135"><a href="#cb29-135" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-c1}</span></span>
-<span id="cb29-136"><a href="#cb29-136" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(73)</span></span>
-<span id="cb29-137"><a href="#cb29-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-138"><a href="#cb29-138" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_C &lt;-</span></span>
-<span id="cb29-139"><a href="#cb29-139" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
-<span id="cb29-140"><a href="#cb29-140" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin) |&gt; </span></span>
-<span id="cb29-141"><a href="#cb29-141" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
-<span id="cb29-142"><a href="#cb29-142" aria-hidden="true" tabindex="-1"></a><span class="in">  sample_n(size = 100)  |&gt; </span></span>
-<span id="cb29-143"><a href="#cb29-143" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
-<span id="cb29-144"><a href="#cb29-144" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
-<span id="cb29-145"><a href="#cb29-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-146"><a href="#cb29-146" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_C</span></span>
-<span id="cb29-147"><a href="#cb29-147" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-148"><a href="#cb29-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-149"><a href="#cb29-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-150"><a href="#cb29-150" aria-hidden="true" tabindex="-1"></a>"Glasklares (?) Ergebnis! JFK, also John-F-Kennedy, hat die größte Verspätung! Newark ist hingegen superpünktlich!"</span>
-<span id="cb29-151"><a href="#cb29-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-152"><a href="#cb29-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-153"><a href="#cb29-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-154"><a href="#cb29-154" aria-hidden="true" tabindex="-1"></a><span class="fu">## Moment</span></span>
-<span id="cb29-155"><a href="#cb29-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-156"><a href="#cb29-156" aria-hidden="true" tabindex="-1"></a>Leider entbrennt hier ein Streit.</span>
-<span id="cb29-157"><a href="#cb29-157" aria-hidden="true" tabindex="-1"></a>Vermutlich einige Eifersuchtsmomente hinter den Kulissen, aber wir wissen nichts Genaues.</span>
-<span id="cb29-158"><a href="#cb29-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-159"><a href="#cb29-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-160"><a href="#cb29-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-161"><a href="#cb29-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-162"><a href="#cb29-162" aria-hidden="true" tabindex="-1"></a>Studentin A: "So ein Quatsch, C, du hast die Zufallszahl auf 73 festgelegt, warum gerade diese Zahl?! Bei einer anderen Zahl könnte ein ganz andere Stichprobe und damit ein ganz anderes Ergebnis herauskommen!"</span>
-<span id="cb29-163"><a href="#cb29-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-164"><a href="#cb29-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-165"><a href="#cb29-165" aria-hidden="true" tabindex="-1"></a>Studentin C: "Ich habe kürzlich gelernt, dass <span class="co">[</span><span class="ot">nicht 42, sondern 73 die beste Zahl ist</span><span class="co">](https://www.youtube.com/watch?v=hvn8-LzqKQo&amp;t=7s)</span>. Also musste ich 73 nehmen!</span>
-<span id="cb29-166"><a href="#cb29-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-167"><a href="#cb29-167" aria-hidden="true" tabindex="-1"></a>Student B: "Aber was *käme* heraus, wenn du 42 als Zufallszahl nehmen würdest, nur mal theoretisch?"</span>
-<span id="cb29-168"><a href="#cb29-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-169"><a href="#cb29-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-170"><a href="#cb29-170" aria-hidden="true" tabindex="-1"></a>Studentin C: "Äh..."</span>
-<span id="cb29-171"><a href="#cb29-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-172"><a href="#cb29-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-173"><a href="#cb29-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-c}</span></span>
-<span id="cb29-174"><a href="#cb29-174" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(42)</span></span>
-<span id="cb29-175"><a href="#cb29-175" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
-<span id="cb29-176"><a href="#cb29-176" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin) |&gt; </span></span>
-<span id="cb29-177"><a href="#cb29-177" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
-<span id="cb29-178"><a href="#cb29-178" aria-hidden="true" tabindex="-1"></a><span class="in">  sample_n(size = 100)  |&gt; </span></span>
-<span id="cb29-179"><a href="#cb29-179" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
-<span id="cb29-180"><a href="#cb29-180" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
-<span id="cb29-181"><a href="#cb29-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-182"><a href="#cb29-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-183"><a href="#cb29-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-184"><a href="#cb29-184" aria-hidden="true" tabindex="-1"></a>Studentin C: "Äh, also... Das spielt doch gar keine Rolle, was rauskommt, denn *bei jeder Zahl* kann ja was anderes rauskommen."</span>
-<span id="cb29-185"><a href="#cb29-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-186"><a href="#cb29-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-187"><a href="#cb29-187" aria-hidden="true" tabindex="-1"></a>A: "Du müsstest also dein Vorgehen ändern... Jede Zahl ausprobieren oder so."</span>
-<span id="cb29-188"><a href="#cb29-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-189"><a href="#cb29-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-190"><a href="#cb29-190" aria-hidden="true" tabindex="-1"></a>C: "Liebe A, du mit deinen Flügen vom Jahresbeginn, das ist doch totaler Quatsch, an deiner Stelle wäre ich lieber still."</span>
-<span id="cb29-191"><a href="#cb29-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-192"><a href="#cb29-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-193"><a href="#cb29-193" aria-hidden="true" tabindex="-1"></a>A: "Aber es kommt was Gutes raus mit meiner Methode!"</span>
-<span id="cb29-194"><a href="#cb29-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-195"><a href="#cb29-195" aria-hidden="true" tabindex="-1"></a>B: "Woher willst du überhaupt wissen, ob es was Gutes ist?"</span>
-<span id="cb29-196"><a href="#cb29-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-197"><a href="#cb29-197" aria-hidden="true" tabindex="-1"></a>A: "Wirst schon sehen!"</span>
-<span id="cb29-198"><a href="#cb29-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-199"><a href="#cb29-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-200"><a href="#cb29-200" aria-hidden="true" tabindex="-1"></a>C: "Puh, also gut, ich rechne noch mal. Ich zieh einfach ne Menge Stichproben, mit zufälligen Seed-Nummern ..."</span>
-<span id="cb29-201"><a href="#cb29-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-202"><a href="#cb29-202" aria-hidden="true" tabindex="-1"></a>A: "Whatever!"</span>
-<span id="cb29-203"><a href="#cb29-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-204"><a href="#cb29-204" aria-hidden="true" tabindex="-1"></a>C: "Moment.., hier kommt Newark, EWR."</span>
-<span id="cb29-205"><a href="#cb29-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-206"><a href="#cb29-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ewr}</span></span>
-<span id="cb29-207"><a href="#cb29-207" aria-hidden="true" tabindex="-1"></a><span class="in">n_reps &lt;- 100  # Anzahl von Stichproben</span></span>
-<span id="cb29-208"><a href="#cb29-208" aria-hidden="true" tabindex="-1"></a><span class="in">sample_size &lt;- 100  # Umfang jeder Stichprobe</span></span>
-<span id="cb29-209"><a href="#cb29-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-210"><a href="#cb29-210" aria-hidden="true" tabindex="-1"></a><span class="in">ewr_viele_schaetzwerte &lt;-</span></span>
-<span id="cb29-211"><a href="#cb29-211" aria-hidden="true" tabindex="-1"></a><span class="in"> replicate(n_reps, flights |&gt; </span></span>
-<span id="cb29-212"><a href="#cb29-212" aria-hidden="true" tabindex="-1"></a><span class="in">                      select(dep_delay, origin) |&gt; </span></span>
-<span id="cb29-213"><a href="#cb29-213" aria-hidden="true" tabindex="-1"></a><span class="in">                      filter(origin == "EWR") |&gt; </span></span>
-<span id="cb29-214"><a href="#cb29-214" aria-hidden="true" tabindex="-1"></a><span class="in">                      drop_na() |&gt; </span></span>
-<span id="cb29-215"><a href="#cb29-215" aria-hidden="true" tabindex="-1"></a><span class="in">                      sample_n(size = sample_size) |&gt; </span></span>
-<span id="cb29-216"><a href="#cb29-216" aria-hidden="true" tabindex="-1"></a><span class="in">                      summarise(dep_delay = mean(dep_delay))) |&gt; </span></span>
-<span id="cb29-217"><a href="#cb29-217" aria-hidden="true" tabindex="-1"></a><span class="in">  as.numeric() |&gt; </span></span>
-<span id="cb29-218"><a href="#cb29-218" aria-hidden="true" tabindex="-1"></a><span class="in">  mean()</span></span>
-<span id="cb29-219"><a href="#cb29-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-220"><a href="#cb29-220" aria-hidden="true" tabindex="-1"></a><span class="in">ewr_viele_schaetzwerte</span></span>
-<span id="cb29-221"><a href="#cb29-221" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-222"><a href="#cb29-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-223"><a href="#cb29-223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-224"><a href="#cb29-224" aria-hidden="true" tabindex="-1"></a>B: "Wow, C, du bist halt schon die Statistik-Checkerin...".</span>
-<span id="cb29-225"><a href="#cb29-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-226"><a href="#cb29-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-227"><a href="#cb29-227" aria-hidden="true" tabindex="-1"></a>A: "Hey B, hör gefälligst auf, dich bei A einzuschmeicheln!"</span>
-<span id="cb29-228"><a href="#cb29-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-229"><a href="#cb29-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-230"><a href="#cb29-230" aria-hidden="true" tabindex="-1"></a>B: "Jedenfalls ist das Ergebnis von A ... anders als unsere!"</span>
-<span id="cb29-231"><a href="#cb29-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-232"><a href="#cb29-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-233"><a href="#cb29-233" aria-hidden="true" tabindex="-1"></a>C: "Hier noch mal mein Prinzip für die anderen Flughäfen. JFK:"</span>
-<span id="cb29-234"><a href="#cb29-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-235"><a href="#cb29-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{r jfk}</span></span>
-<span id="cb29-236"><a href="#cb29-236" aria-hidden="true" tabindex="-1"></a><span class="in">jfk_viele_schaetzwerte &lt;-</span></span>
-<span id="cb29-237"><a href="#cb29-237" aria-hidden="true" tabindex="-1"></a><span class="in"> replicate(n_reps, flights |&gt; </span></span>
-<span id="cb29-238"><a href="#cb29-238" aria-hidden="true" tabindex="-1"></a><span class="in">                      select(dep_delay, origin) |&gt; </span></span>
-<span id="cb29-239"><a href="#cb29-239" aria-hidden="true" tabindex="-1"></a><span class="in">                      filter(origin == "JFK") |&gt; </span></span>
-<span id="cb29-240"><a href="#cb29-240" aria-hidden="true" tabindex="-1"></a><span class="in">                      drop_na() |&gt; </span></span>
-<span id="cb29-241"><a href="#cb29-241" aria-hidden="true" tabindex="-1"></a><span class="in">                      sample_n(size = sample_size) |&gt; </span></span>
-<span id="cb29-242"><a href="#cb29-242" aria-hidden="true" tabindex="-1"></a><span class="in">                      summarise(dep_delay = mean(dep_delay))) |&gt; </span></span>
-<span id="cb29-243"><a href="#cb29-243" aria-hidden="true" tabindex="-1"></a><span class="in">  as.numeric() |&gt; </span></span>
-<span id="cb29-244"><a href="#cb29-244" aria-hidden="true" tabindex="-1"></a><span class="in">  mean()</span></span>
-<span id="cb29-245"><a href="#cb29-245" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-246"><a href="#cb29-246" aria-hidden="true" tabindex="-1"></a><span class="in">jfk_viele_schaetzwerte</span></span>
-<span id="cb29-247"><a href="#cb29-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-248"><a href="#cb29-248" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-249"><a href="#cb29-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-250"><a href="#cb29-250" aria-hidden="true" tabindex="-1"></a>C: "Und LaGuardia:"</span>
-<span id="cb29-251"><a href="#cb29-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-252"><a href="#cb29-252" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lga}</span></span>
-<span id="cb29-253"><a href="#cb29-253" aria-hidden="true" tabindex="-1"></a><span class="in">lga_viele_schaetzwerte &lt;-</span></span>
-<span id="cb29-254"><a href="#cb29-254" aria-hidden="true" tabindex="-1"></a><span class="in"> replicate(n_reps, flights |&gt; </span></span>
-<span id="cb29-255"><a href="#cb29-255" aria-hidden="true" tabindex="-1"></a><span class="in">                      select(dep_delay, origin) |&gt; </span></span>
-<span id="cb29-256"><a href="#cb29-256" aria-hidden="true" tabindex="-1"></a><span class="in">                      filter(origin == "LGA") |&gt; </span></span>
-<span id="cb29-257"><a href="#cb29-257" aria-hidden="true" tabindex="-1"></a><span class="in">                      drop_na() |&gt; </span></span>
-<span id="cb29-258"><a href="#cb29-258" aria-hidden="true" tabindex="-1"></a><span class="in">                      sample_n(size = sample_size) |&gt; </span></span>
-<span id="cb29-259"><a href="#cb29-259" aria-hidden="true" tabindex="-1"></a><span class="in">                      summarise(dep_delay = mean(dep_delay))) |&gt; </span></span>
-<span id="cb29-260"><a href="#cb29-260" aria-hidden="true" tabindex="-1"></a><span class="in">  as.numeric() |&gt; </span></span>
-<span id="cb29-261"><a href="#cb29-261" aria-hidden="true" tabindex="-1"></a><span class="in">  mean()</span></span>
-<span id="cb29-262"><a href="#cb29-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-263"><a href="#cb29-263" aria-hidden="true" tabindex="-1"></a><span class="in">lga_viele_schaetzwerte</span></span>
-<span id="cb29-264"><a href="#cb29-264" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-265"><a href="#cb29-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-266"><a href="#cb29-266" aria-hidden="true" tabindex="-1"></a>C: "Also, unterm Strich, LGA rules! LGA hat die geringste Verspätung im Schnitt, nach meiner Rechnung."</span>
-<span id="cb29-267"><a href="#cb29-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-268"><a href="#cb29-268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-271"><a href="#cb29-271" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-272"><a href="#cb29-272" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte</span>
-<span id="cb29-273"><a href="#cb29-273" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte</span>
-<span id="cb29-274"><a href="#cb29-274" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte</span>
-<span id="cb29-275"><a href="#cb29-275" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-276"><a href="#cb29-276" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-277"><a href="#cb29-277" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-278"><a href="#cb29-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-279"><a href="#cb29-279" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fazit?</span></span>
-<span id="cb29-280"><a href="#cb29-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-281"><a href="#cb29-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-282"><a href="#cb29-282" aria-hidden="true" tabindex="-1"></a>A: "Okay, meine Methode war ein bisschen zu einfach. Aber hat auch am wenigsten Arbeit gemacht. Das nennt man wirtschaftlich vorgehen, nur darum geht's im Business. Also hab ich trotzdem gewonnen!"</span>
-<span id="cb29-283"><a href="#cb29-283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-284"><a href="#cb29-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-285"><a href="#cb29-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-286"><a href="#cb29-286" aria-hidden="true" tabindex="-1"></a>B: "Nope, mein Vorgehen ist in Wirklichkeit das Beste. Ich hab von *jedem* Monat 100 Flüge genommen, so hat sich alles super ausgeglichen, Jahreszeiten und so, glaub ich. Und es wäre nicht so viel Aufwand wie die zich Tausend Stichproben, die C gezogen hat."</span>
-<span id="cb29-287"><a href="#cb29-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-288"><a href="#cb29-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-289"><a href="#cb29-289" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-290"><a href="#cb29-290" aria-hidden="true" tabindex="-1"></a>C: "Kann ja alles sein, aber mein Vorgehen hat am meisten Spaß gemacht. Übrigens B, wir könnten uns, also unsere beiden Ideen, doch zusammenlegn, kombinieren. Das müsste ein super Ergebnis geben. Wollen wir zwei uns das mal zusammen anschauen, nur wir zwei?"</span>
-<span id="cb29-291"><a href="#cb29-291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-292"><a href="#cb29-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-293"><a href="#cb29-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Die Chefin meldet sich zu Wort</span></span>
-<span id="cb29-294"><a href="#cb29-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-295"><a href="#cb29-295" aria-hidden="true" tabindex="-1"></a>Chefin: "Lasst mich da mal ran."</span>
-<span id="cb29-296"><a href="#cb29-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-299"><a href="#cb29-299" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-300"><a href="#cb29-300" aria-hidden="true" tabindex="-1"></a>wahre_verspätung <span class="ot">&lt;-</span> </span>
-<span id="cb29-301"><a href="#cb29-301" aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">|&gt;</span> </span>
-<span id="cb29-302"><a href="#cb29-302" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(origin, dep_delay) <span class="sc">|&gt;</span> </span>
-<span id="cb29-303"><a href="#cb29-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb29-304"><a href="#cb29-304" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
-<span id="cb29-305"><a href="#cb29-305" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
-<span id="cb29-306"><a href="#cb29-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-307"><a href="#cb29-307" aria-hidden="true" tabindex="-1"></a>wahre_verspätung</span>
-<span id="cb29-308"><a href="#cb29-308" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-309"><a href="#cb29-309" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-310"><a href="#cb29-310" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-311"><a href="#cb29-311" aria-hidden="true" tabindex="-1"></a>"LaGuardia hat am wenigsten Verspätung. JFK am meisten, aber dicht gefolgt von EWR."</span>
-<span id="cb29-312"><a href="#cb29-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-313"><a href="#cb29-313" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-314"><a href="#cb29-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-315"><a href="#cb29-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-318"><a href="#cb29-318" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-319"><a href="#cb29-319" aria-hidden="true" tabindex="-1"></a>modellgueten <span class="ot">&lt;-</span></span>
-<span id="cb29-320"><a href="#cb29-320" aria-hidden="true" tabindex="-1"></a>  wahre_verspätung <span class="sc">|&gt;</span> </span>
-<span id="cb29-321"><a href="#cb29-321" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">estimate_A =</span> estimate_A<span class="sc">$</span>dep_delay,</span>
-<span id="cb29-322"><a href="#cb29-322" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_B =</span> estimate_B<span class="sc">$</span>dep_delay,</span>
-<span id="cb29-323"><a href="#cb29-323" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_C =</span> <span class="fu">c</span>(</span>
-<span id="cb29-324"><a href="#cb29-324" aria-hidden="true" tabindex="-1"></a>           ewr_viele_schaetzwerte,</span>
-<span id="cb29-325"><a href="#cb29-325" aria-hidden="true" tabindex="-1"></a>           jfk_viele_schaetzwerte,</span>
-<span id="cb29-326"><a href="#cb29-326" aria-hidden="true" tabindex="-1"></a>           lga_viele_schaetzwerte)</span>
-<span id="cb29-327"><a href="#cb29-327" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb29-328"><a href="#cb29-328" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">contains</span>(<span class="st">"estimate"</span>), </span>
-<span id="cb29-329"><a href="#cb29-329" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"student"</span>, </span>
-<span id="cb29-330"><a href="#cb29-330" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"estimate"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb29-331"><a href="#cb29-331" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">error_abs =</span> <span class="fu">abs</span>(dep_delay <span class="sc">-</span> estimate)) </span>
-<span id="cb29-332"><a href="#cb29-332" aria-hidden="true" tabindex="-1"></a>modellgueten</span>
-<span id="cb29-333"><a href="#cb29-333" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-334"><a href="#cb29-334" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-335"><a href="#cb29-335" aria-hidden="true" tabindex="-1"></a>Chefin: "And the winner is ..."</span>
-<span id="cb29-336"><a href="#cb29-336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-339"><a href="#cb29-339" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb29-340"><a href="#cb29-340" aria-hidden="true" tabindex="-1"></a>modellgueten_summ <span class="ot">&lt;-</span></span>
-<span id="cb29-341"><a href="#cb29-341" aria-hidden="true" tabindex="-1"></a>  modellgueten <span class="sc">|&gt;</span> </span>
-<span id="cb29-342"><a href="#cb29-342" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(student) <span class="sc">|&gt;</span> </span>
-<span id="cb29-343"><a href="#cb29-343" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">error_abs =</span> <span class="fu">mean</span>(error_abs)) <span class="sc">|&gt;</span> </span>
-<span id="cb29-344"><a href="#cb29-344" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(error_abs)</span>
-<span id="cb29-345"><a href="#cb29-345" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-346"><a href="#cb29-346" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb29-347"><a href="#cb29-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-348"><a href="#cb29-348" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-349"><a href="#cb29-349" aria-hidden="true" tabindex="-1"></a>Chefin: "Sieht so aus, als hätte B knapp gewonnen, vor C. A ist leider weit abgeschlagen."</span>
-<span id="cb29-350"><a href="#cb29-350" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-351"><a href="#cb29-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-352"><a href="#cb29-352" aria-hidden="true" tabindex="-1"></a>A: "Mensch, B, du bist hier der Datenhecht!"</span>
-<span id="cb29-353"><a href="#cb29-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-354"><a href="#cb29-354" aria-hidden="true" tabindex="-1"></a>B: "Ich glaub's ja nicht, ich meine, ich hab's immer gewusst!"</span>
-<span id="cb29-355"><a href="#cb29-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-356"><a href="#cb29-356" aria-hidden="true" tabindex="-1"></a>C: "Moment, mein Vorgehen müsste in der Theorie das Beste sein?!"</span>
-<span id="cb29-357"><a href="#cb29-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-358"><a href="#cb29-358" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-359"><a href="#cb29-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-360"><a href="#cb29-360" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb25" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2024-09-11  # HEUTIGES DATUM EINTRAGEN, nicht "today"</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> samples-nyc 2</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span><span class="co"> </span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">  eval: true </span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="an">highlight-style:</span><span class="co"> arrow </span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="an">cache:</span><span class="co"> true</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> ""</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="an">exshuffle:</span><span class="co"> no</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co">- inference  # ENTER CATEGORIES HERE</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co">- story</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co">- yacsda</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="co">  html: </span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="co">   df-print: "kable"</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> "../../library-ses.bib"</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a>Drei Studierende arbeiten für die New Yorker Flughafenbehörde als Werkstudenten.</span>
+<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a>Fragt ihre Chefin eines Tages: </span>
+<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a>"Welcher der drei New Yorker Flughäfen hat im Schnitt die höchste Verspätung? Zieht mal eine kleine Stichprobe und gebt mir eine gute Antwort."</span>
+<span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-47"><a href="#cb25-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-48"><a href="#cb25-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-49"><a href="#cb25-49" aria-hidden="true" tabindex="-1"></a>*Studi A* überlegt: "Hm, ich schaue mir mal die ersten 1000 Flüge des Jahres und diesen Mittelwert nehme ich als Schätzwert für die Verspätung des ganzen Jahres."</span>
+<span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a>*Studi B* argumentiert so: "Hm, ich nehme die ersten 100 Flüge von jedem Monat, rechne davon den Mittelwert aus. Das ist dann mein Schätzwert für die Verspätung des ganzen Jahres, pro Flughafen."</span>
+<span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a>*Studi C* hingegen ist folgender Meinung: "Ich ziehe mal eine Zufallsstichprobe, habe ich in der Statistik-Vorlesung gelernt. N=100 sollte genügen."</span>
+<span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-56"><a href="#cb25-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-57"><a href="#cb25-57" aria-hidden="true" tabindex="-1"></a>Die Chefin bezieht sich übrigens auf das Jahr 2023.</span>
+<span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a>**Aufgabe:** Welcher der drei Studis macht die beste Vorhersage? Rechnen Sie nach und begründen Sie Ihre Meinung!</span>
+<span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-62"><a href="#cb25-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-63"><a href="#cb25-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-64"><a href="#cb25-64" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
+<span id="cb25-65"><a href="#cb25-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-67"><a href="#cb25-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## Setup</span></span>
+<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-71"><a href="#cb25-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-72"><a href="#cb25-72" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nycflights23)  <span class="co"># Dataset "flights"</span></span>
+<span id="cb25-73"><a href="#cb25-73" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"flights"</span>)</span>
+<span id="cb25-74"><a href="#cb25-74" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-77"><a href="#cb25-77" aria-hidden="true" tabindex="-1"></a>Wie viele Flüge gab es?</span>
+<span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-81"><a href="#cb25-81" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-82"><a href="#cb25-82" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(flights)</span>
+<span id="cb25-83"><a href="#cb25-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-84"><a href="#cb25-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-85"><a href="#cb25-85" aria-hidden="true" tabindex="-1"></a>Viele!</span>
+<span id="cb25-86"><a href="#cb25-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-87"><a href="#cb25-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-88"><a href="#cb25-88" aria-hidden="true" tabindex="-1"></a>Welche Variablen gibt es im Datensatz?</span>
+<span id="cb25-89"><a href="#cb25-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-92"><a href="#cb25-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-93"><a href="#cb25-93" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(flights)</span>
+<span id="cb25-94"><a href="#cb25-94" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-95"><a href="#cb25-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-96"><a href="#cb25-96" aria-hidden="true" tabindex="-1"></a>Nehmen wir <span class="in">`dep_delay`</span> als Zielvariable.</span>
+<span id="cb25-97"><a href="#cb25-97" aria-hidden="true" tabindex="-1"></a>Die Chefin hat nicht genau gesagt, welche Variable sie meint. Da sieht man es mal wieder: Man muss Annahmen treffen. Ist aber auch schön, denn man kann selber entscheiden, was einem besser gefällt.</span>
+<span id="cb25-98"><a href="#cb25-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-99"><a href="#cb25-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-100"><a href="#cb25-100" aria-hidden="true" tabindex="-1"></a><span class="fu">## Los geht's</span></span>
+<span id="cb25-101"><a href="#cb25-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-102"><a href="#cb25-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Studentin A</span></span>
+<span id="cb25-103"><a href="#cb25-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-104"><a href="#cb25-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-105"><a href="#cb25-105" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-a}</span></span>
+<span id="cb25-106"><a href="#cb25-106" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_A &lt;-</span></span>
+<span id="cb25-107"><a href="#cb25-107" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
+<span id="cb25-108"><a href="#cb25-108" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin) |&gt; </span></span>
+<span id="cb25-109"><a href="#cb25-109" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
+<span id="cb25-110"><a href="#cb25-110" aria-hidden="true" tabindex="-1"></a><span class="in">  slice(1:1000) |&gt; </span></span>
+<span id="cb25-111"><a href="#cb25-111" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
+<span id="cb25-112"><a href="#cb25-112" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
+<span id="cb25-113"><a href="#cb25-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-114"><a href="#cb25-114" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_A</span></span>
+<span id="cb25-115"><a href="#cb25-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-116"><a href="#cb25-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-117"><a href="#cb25-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-118"><a href="#cb25-118" aria-hidden="true" tabindex="-1"></a>"Klares (?) Ergebnis! EWR, also Newark, hat die größte Verspätung!"</span>
+<span id="cb25-119"><a href="#cb25-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-120"><a href="#cb25-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-121"><a href="#cb25-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### Student B</span></span>
+<span id="cb25-122"><a href="#cb25-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-123"><a href="#cb25-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-124"><a href="#cb25-124" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-b}</span></span>
+<span id="cb25-125"><a href="#cb25-125" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_B &lt;-</span></span>
+<span id="cb25-126"><a href="#cb25-126" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
+<span id="cb25-127"><a href="#cb25-127" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin, month) |&gt; </span></span>
+<span id="cb25-128"><a href="#cb25-128" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
+<span id="cb25-129"><a href="#cb25-129" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(month, origin) |&gt; </span></span>
+<span id="cb25-130"><a href="#cb25-130" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay)) |&gt; </span></span>
+<span id="cb25-131"><a href="#cb25-131" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
+<span id="cb25-132"><a href="#cb25-132" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
+<span id="cb25-133"><a href="#cb25-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-134"><a href="#cb25-134" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_B</span></span>
+<span id="cb25-135"><a href="#cb25-135" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-136"><a href="#cb25-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-137"><a href="#cb25-137" aria-hidden="true" tabindex="-1"></a>"Knapp! EWR hat fast so viel Verspätung wie JFK."</span>
+<span id="cb25-138"><a href="#cb25-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-139"><a href="#cb25-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-140"><a href="#cb25-140" aria-hidden="true" tabindex="-1"></a><span class="fu">### Studentin C</span></span>
+<span id="cb25-141"><a href="#cb25-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-142"><a href="#cb25-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-143"><a href="#cb25-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-c1}</span></span>
+<span id="cb25-144"><a href="#cb25-144" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(73)</span></span>
+<span id="cb25-145"><a href="#cb25-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-146"><a href="#cb25-146" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_C &lt;-</span></span>
+<span id="cb25-147"><a href="#cb25-147" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
+<span id="cb25-148"><a href="#cb25-148" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin) |&gt; </span></span>
+<span id="cb25-149"><a href="#cb25-149" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
+<span id="cb25-150"><a href="#cb25-150" aria-hidden="true" tabindex="-1"></a><span class="in">  sample_n(size = 100)  |&gt; </span></span>
+<span id="cb25-151"><a href="#cb25-151" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
+<span id="cb25-152"><a href="#cb25-152" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
+<span id="cb25-153"><a href="#cb25-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-154"><a href="#cb25-154" aria-hidden="true" tabindex="-1"></a><span class="in">estimate_C</span></span>
+<span id="cb25-155"><a href="#cb25-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-156"><a href="#cb25-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-157"><a href="#cb25-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-158"><a href="#cb25-158" aria-hidden="true" tabindex="-1"></a>"Glasklares (?) Ergebnis! JFK, also John-F-Kennedy, hat die größte Verspätung! Newark ist hingegen superpünktlich!"</span>
+<span id="cb25-159"><a href="#cb25-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-160"><a href="#cb25-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-161"><a href="#cb25-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-162"><a href="#cb25-162" aria-hidden="true" tabindex="-1"></a><span class="fu">## Moment</span></span>
+<span id="cb25-163"><a href="#cb25-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-164"><a href="#cb25-164" aria-hidden="true" tabindex="-1"></a>Leider entbrennt hier ein Streit.</span>
+<span id="cb25-165"><a href="#cb25-165" aria-hidden="true" tabindex="-1"></a>Vermutlich einige Eifersuchtsmomente hinter den Kulissen, aber wir wissen nichts Genaues.</span>
+<span id="cb25-166"><a href="#cb25-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-167"><a href="#cb25-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-168"><a href="#cb25-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-169"><a href="#cb25-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-170"><a href="#cb25-170" aria-hidden="true" tabindex="-1"></a>Studentin A: "So ein Quatsch, C, du hast die Zufallszahl auf 73 festgelegt, warum gerade diese Zahl?! Bei einer anderen Zahl könnte ein ganz andere Stichprobe und damit ein ganz anderes Ergebnis herauskommen!"</span>
+<span id="cb25-171"><a href="#cb25-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-172"><a href="#cb25-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-173"><a href="#cb25-173" aria-hidden="true" tabindex="-1"></a>Studentin C: "Ich habe kürzlich gelernt, dass <span class="co">[</span><span class="ot">nicht 42, sondern 73 die beste Zahl ist</span><span class="co">](https://www.youtube.com/watch?v=hvn8-LzqKQo&amp;t=7s)</span>. Also musste ich 73 nehmen!</span>
+<span id="cb25-174"><a href="#cb25-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-175"><a href="#cb25-175" aria-hidden="true" tabindex="-1"></a>Student B: "Aber was *käme* heraus, wenn du 42 als Zufallszahl nehmen würdest, nur mal theoretisch?"</span>
+<span id="cb25-176"><a href="#cb25-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-177"><a href="#cb25-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-178"><a href="#cb25-178" aria-hidden="true" tabindex="-1"></a>Studentin C: "Äh..."</span>
+<span id="cb25-179"><a href="#cb25-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-180"><a href="#cb25-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-181"><a href="#cb25-181" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stud-c}</span></span>
+<span id="cb25-182"><a href="#cb25-182" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(42)</span></span>
+<span id="cb25-183"><a href="#cb25-183" aria-hidden="true" tabindex="-1"></a><span class="in">flights |&gt; </span></span>
+<span id="cb25-184"><a href="#cb25-184" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dep_delay, origin) |&gt; </span></span>
+<span id="cb25-185"><a href="#cb25-185" aria-hidden="true" tabindex="-1"></a><span class="in">  drop_na() |&gt; </span></span>
+<span id="cb25-186"><a href="#cb25-186" aria-hidden="true" tabindex="-1"></a><span class="in">  sample_n(size = 100)  |&gt; </span></span>
+<span id="cb25-187"><a href="#cb25-187" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(origin) |&gt; </span></span>
+<span id="cb25-188"><a href="#cb25-188" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(dep_delay = mean(dep_delay))</span></span>
+<span id="cb25-189"><a href="#cb25-189" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-190"><a href="#cb25-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-191"><a href="#cb25-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-192"><a href="#cb25-192" aria-hidden="true" tabindex="-1"></a>Studentin C: "Äh, also... Das spielt doch gar keine Rolle, was rauskommt, denn *bei jeder Zahl* kann ja was anderes rauskommen."</span>
+<span id="cb25-193"><a href="#cb25-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-194"><a href="#cb25-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-195"><a href="#cb25-195" aria-hidden="true" tabindex="-1"></a>A: "Du müsstest also dein Vorgehen ändern... Jede Zahl ausprobieren oder so."</span>
+<span id="cb25-196"><a href="#cb25-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-197"><a href="#cb25-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-198"><a href="#cb25-198" aria-hidden="true" tabindex="-1"></a>C: "Liebe A, du mit deinen Flügen vom Jahresbeginn, das ist doch totaler Quatsch, an deiner Stelle wäre ich lieber still."</span>
+<span id="cb25-199"><a href="#cb25-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-200"><a href="#cb25-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-201"><a href="#cb25-201" aria-hidden="true" tabindex="-1"></a>A: "Aber es kommt was Gutes raus mit meiner Methode!"</span>
+<span id="cb25-202"><a href="#cb25-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-203"><a href="#cb25-203" aria-hidden="true" tabindex="-1"></a>B: "Woher willst du überhaupt wissen, ob es was Gutes ist?"</span>
+<span id="cb25-204"><a href="#cb25-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-205"><a href="#cb25-205" aria-hidden="true" tabindex="-1"></a>A: "Wirst schon sehen!"</span>
+<span id="cb25-206"><a href="#cb25-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-207"><a href="#cb25-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-208"><a href="#cb25-208" aria-hidden="true" tabindex="-1"></a>C: "Puh, also gut, ich rechne noch mal. Ich zieh einfach ne Menge Stichproben, mit zufälligen Seed-Nummern ..."</span>
+<span id="cb25-209"><a href="#cb25-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-210"><a href="#cb25-210" aria-hidden="true" tabindex="-1"></a>A: "Whatever!"</span>
+<span id="cb25-211"><a href="#cb25-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-212"><a href="#cb25-212" aria-hidden="true" tabindex="-1"></a>C: "Moment.., hier kommt Newark, EWR."</span>
+<span id="cb25-213"><a href="#cb25-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-214"><a href="#cb25-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ewr}</span></span>
+<span id="cb25-215"><a href="#cb25-215" aria-hidden="true" tabindex="-1"></a><span class="in">n_reps &lt;- 100  # Anzahl von Stichproben</span></span>
+<span id="cb25-216"><a href="#cb25-216" aria-hidden="true" tabindex="-1"></a><span class="in">sample_size &lt;- 100  # Umfang jeder Stichprobe</span></span>
+<span id="cb25-217"><a href="#cb25-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-218"><a href="#cb25-218" aria-hidden="true" tabindex="-1"></a><span class="in">ewr_viele_schaetzwerte &lt;-</span></span>
+<span id="cb25-219"><a href="#cb25-219" aria-hidden="true" tabindex="-1"></a><span class="in"> replicate(n_reps, flights |&gt; </span></span>
+<span id="cb25-220"><a href="#cb25-220" aria-hidden="true" tabindex="-1"></a><span class="in">                      select(dep_delay, origin) |&gt; </span></span>
+<span id="cb25-221"><a href="#cb25-221" aria-hidden="true" tabindex="-1"></a><span class="in">                      filter(origin == "EWR") |&gt; </span></span>
+<span id="cb25-222"><a href="#cb25-222" aria-hidden="true" tabindex="-1"></a><span class="in">                      drop_na() |&gt; </span></span>
+<span id="cb25-223"><a href="#cb25-223" aria-hidden="true" tabindex="-1"></a><span class="in">                      sample_n(size = sample_size) |&gt; </span></span>
+<span id="cb25-224"><a href="#cb25-224" aria-hidden="true" tabindex="-1"></a><span class="in">                      summarise(dep_delay = mean(dep_delay))) |&gt; </span></span>
+<span id="cb25-225"><a href="#cb25-225" aria-hidden="true" tabindex="-1"></a><span class="in">  as.numeric() |&gt; </span></span>
+<span id="cb25-226"><a href="#cb25-226" aria-hidden="true" tabindex="-1"></a><span class="in">  mean()</span></span>
+<span id="cb25-227"><a href="#cb25-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-228"><a href="#cb25-228" aria-hidden="true" tabindex="-1"></a><span class="in">ewr_viele_schaetzwerte</span></span>
+<span id="cb25-229"><a href="#cb25-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-230"><a href="#cb25-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-231"><a href="#cb25-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-232"><a href="#cb25-232" aria-hidden="true" tabindex="-1"></a>B: "Wow, C, du bist halt schon die Statistik-Checkerin...".</span>
+<span id="cb25-233"><a href="#cb25-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-234"><a href="#cb25-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-235"><a href="#cb25-235" aria-hidden="true" tabindex="-1"></a>A: "Hey B, hör gefälligst auf, dich bei A einzuschmeicheln!"</span>
+<span id="cb25-236"><a href="#cb25-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-237"><a href="#cb25-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-238"><a href="#cb25-238" aria-hidden="true" tabindex="-1"></a>B: "Jedenfalls ist das Ergebnis von A ... anders als unsere!"</span>
+<span id="cb25-239"><a href="#cb25-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-240"><a href="#cb25-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-241"><a href="#cb25-241" aria-hidden="true" tabindex="-1"></a>C: "Hier noch mal mein Prinzip für die anderen Flughäfen. JFK:"</span>
+<span id="cb25-242"><a href="#cb25-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-243"><a href="#cb25-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{r jfk}</span></span>
+<span id="cb25-244"><a href="#cb25-244" aria-hidden="true" tabindex="-1"></a><span class="in">jfk_viele_schaetzwerte &lt;-</span></span>
+<span id="cb25-245"><a href="#cb25-245" aria-hidden="true" tabindex="-1"></a><span class="in"> replicate(n_reps, flights |&gt; </span></span>
+<span id="cb25-246"><a href="#cb25-246" aria-hidden="true" tabindex="-1"></a><span class="in">                      select(dep_delay, origin) |&gt; </span></span>
+<span id="cb25-247"><a href="#cb25-247" aria-hidden="true" tabindex="-1"></a><span class="in">                      filter(origin == "JFK") |&gt; </span></span>
+<span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a><span class="in">                      drop_na() |&gt; </span></span>
+<span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a><span class="in">                      sample_n(size = sample_size) |&gt; </span></span>
+<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a><span class="in">                      summarise(dep_delay = mean(dep_delay))) |&gt; </span></span>
+<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a><span class="in">  as.numeric() |&gt; </span></span>
+<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a><span class="in">  mean()</span></span>
+<span id="cb25-253"><a href="#cb25-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-254"><a href="#cb25-254" aria-hidden="true" tabindex="-1"></a><span class="in">jfk_viele_schaetzwerte</span></span>
+<span id="cb25-255"><a href="#cb25-255" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-256"><a href="#cb25-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-257"><a href="#cb25-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-258"><a href="#cb25-258" aria-hidden="true" tabindex="-1"></a>C: "Und LaGuardia:"</span>
+<span id="cb25-259"><a href="#cb25-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lga}</span></span>
+<span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a><span class="in">lga_viele_schaetzwerte &lt;-</span></span>
+<span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a><span class="in"> replicate(n_reps, flights |&gt; </span></span>
+<span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a><span class="in">                      select(dep_delay, origin) |&gt; </span></span>
+<span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a><span class="in">                      filter(origin == "LGA") |&gt; </span></span>
+<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a><span class="in">                      drop_na() |&gt; </span></span>
+<span id="cb25-266"><a href="#cb25-266" aria-hidden="true" tabindex="-1"></a><span class="in">                      sample_n(size = sample_size) |&gt; </span></span>
+<span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a><span class="in">                      summarise(dep_delay = mean(dep_delay))) |&gt; </span></span>
+<span id="cb25-268"><a href="#cb25-268" aria-hidden="true" tabindex="-1"></a><span class="in">  as.numeric() |&gt; </span></span>
+<span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a><span class="in">  mean()</span></span>
+<span id="cb25-270"><a href="#cb25-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a><span class="in">lga_viele_schaetzwerte</span></span>
+<span id="cb25-272"><a href="#cb25-272" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-273"><a href="#cb25-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-274"><a href="#cb25-274" aria-hidden="true" tabindex="-1"></a>C: "Also, unterm Strich, LGA rules! LGA hat die geringste Verspätung im Schnitt, nach meiner Rechnung."</span>
+<span id="cb25-275"><a href="#cb25-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-276"><a href="#cb25-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-279"><a href="#cb25-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-280"><a href="#cb25-280" aria-hidden="true" tabindex="-1"></a>lga_viele_schaetzwerte</span>
+<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a>ewr_viele_schaetzwerte</span>
+<span id="cb25-282"><a href="#cb25-282" aria-hidden="true" tabindex="-1"></a>jfk_viele_schaetzwerte</span>
+<span id="cb25-283"><a href="#cb25-283" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-284"><a href="#cb25-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-285"><a href="#cb25-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-286"><a href="#cb25-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-287"><a href="#cb25-287" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fazit?</span></span>
+<span id="cb25-288"><a href="#cb25-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-289"><a href="#cb25-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a>A: "Okay, meine Methode war ein bisschen zu einfach. Aber hat auch am wenigsten Arbeit gemacht. Das nennt man wirtschaftlich vorgehen, nur darum geht's im Business. Also hab ich trotzdem gewonnen!"</span>
+<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-292"><a href="#cb25-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-293"><a href="#cb25-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-294"><a href="#cb25-294" aria-hidden="true" tabindex="-1"></a>B: "Nope, mein Vorgehen ist in Wirklichkeit das Beste. Ich hab von *jedem* Monat 100 Flüge genommen, so hat sich alles super ausgeglichen, Jahreszeiten und so, glaub ich. Und es wäre nicht so viel Aufwand wie die zich Tausend Stichproben, die C gezogen hat."</span>
+<span id="cb25-295"><a href="#cb25-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-296"><a href="#cb25-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-297"><a href="#cb25-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-298"><a href="#cb25-298" aria-hidden="true" tabindex="-1"></a>C: "Kann ja alles sein, aber mein Vorgehen hat am meisten Spaß gemacht. Übrigens B, wir könnten uns, also unsere beiden Ideen, doch zusammenlegn, kombinieren. Das müsste ein super Ergebnis geben. Wollen wir zwei uns das mal zusammen anschauen, nur wir zwei?"</span>
+<span id="cb25-299"><a href="#cb25-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-301"><a href="#cb25-301" aria-hidden="true" tabindex="-1"></a><span class="fu">## Die Chefin meldet sich zu Wort</span></span>
+<span id="cb25-302"><a href="#cb25-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a>Chefin: "Lasst mich da mal ran."</span>
+<span id="cb25-304"><a href="#cb25-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-307"><a href="#cb25-307" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-308"><a href="#cb25-308" aria-hidden="true" tabindex="-1"></a>wahre_verspätung <span class="ot">&lt;-</span> </span>
+<span id="cb25-309"><a href="#cb25-309" aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">|&gt;</span> </span>
+<span id="cb25-310"><a href="#cb25-310" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(origin, dep_delay) <span class="sc">|&gt;</span> </span>
+<span id="cb25-311"><a href="#cb25-311" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-312"><a href="#cb25-312" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span> </span>
+<span id="cb25-313"><a href="#cb25-313" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dep_delay =</span> <span class="fu">mean</span>(dep_delay))</span>
+<span id="cb25-314"><a href="#cb25-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-315"><a href="#cb25-315" aria-hidden="true" tabindex="-1"></a>wahre_verspätung</span>
+<span id="cb25-316"><a href="#cb25-316" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-317"><a href="#cb25-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-318"><a href="#cb25-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-319"><a href="#cb25-319" aria-hidden="true" tabindex="-1"></a>"LaGuardia hat am wenigsten Verspätung. JFK am meisten, aber dicht gefolgt von EWR."</span>
+<span id="cb25-320"><a href="#cb25-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-321"><a href="#cb25-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-322"><a href="#cb25-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-323"><a href="#cb25-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-326"><a href="#cb25-326" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-327"><a href="#cb25-327" aria-hidden="true" tabindex="-1"></a>modellgueten <span class="ot">&lt;-</span></span>
+<span id="cb25-328"><a href="#cb25-328" aria-hidden="true" tabindex="-1"></a>  wahre_verspätung <span class="sc">|&gt;</span> </span>
+<span id="cb25-329"><a href="#cb25-329" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">estimate_A =</span> estimate_A<span class="sc">$</span>dep_delay,</span>
+<span id="cb25-330"><a href="#cb25-330" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_B =</span> estimate_B<span class="sc">$</span>dep_delay,</span>
+<span id="cb25-331"><a href="#cb25-331" aria-hidden="true" tabindex="-1"></a>         <span class="at">estimate_C =</span> <span class="fu">c</span>(</span>
+<span id="cb25-332"><a href="#cb25-332" aria-hidden="true" tabindex="-1"></a>           ewr_viele_schaetzwerte,</span>
+<span id="cb25-333"><a href="#cb25-333" aria-hidden="true" tabindex="-1"></a>           jfk_viele_schaetzwerte,</span>
+<span id="cb25-334"><a href="#cb25-334" aria-hidden="true" tabindex="-1"></a>           lga_viele_schaetzwerte)</span>
+<span id="cb25-335"><a href="#cb25-335" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb25-336"><a href="#cb25-336" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">contains</span>(<span class="st">"estimate"</span>), </span>
+<span id="cb25-337"><a href="#cb25-337" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"student"</span>, </span>
+<span id="cb25-338"><a href="#cb25-338" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"estimate"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-339"><a href="#cb25-339" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">error_abs =</span> <span class="fu">abs</span>(dep_delay <span class="sc">-</span> estimate)) </span>
+<span id="cb25-340"><a href="#cb25-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-341"><a href="#cb25-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-342"><a href="#cb25-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-345"><a href="#cb25-345" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-346"><a href="#cb25-346" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb25-347"><a href="#cb25-347" aria-hidden="true" tabindex="-1"></a>modellgueten <span class="sc">|&gt;</span> </span>
+<span id="cb25-348"><a href="#cb25-348" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), \(x) (<span class="fu">round</span>(x, <span class="dv">2</span>)))) <span class="sc">|&gt;</span> </span>
+<span id="cb25-349"><a href="#cb25-349" aria-hidden="true" tabindex="-1"></a>  DT<span class="sc">::</span><span class="fu">datatable</span>()</span>
+<span id="cb25-350"><a href="#cb25-350" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-351"><a href="#cb25-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-352"><a href="#cb25-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-353"><a href="#cb25-353" aria-hidden="true" tabindex="-1"></a>Chefin: "And the winner is ..."</span>
+<span id="cb25-354"><a href="#cb25-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-357"><a href="#cb25-357" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-358"><a href="#cb25-358" aria-hidden="true" tabindex="-1"></a>modellgueten_summ <span class="ot">&lt;-</span></span>
+<span id="cb25-359"><a href="#cb25-359" aria-hidden="true" tabindex="-1"></a>  modellgueten <span class="sc">|&gt;</span> </span>
+<span id="cb25-360"><a href="#cb25-360" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(student) <span class="sc">|&gt;</span> </span>
+<span id="cb25-361"><a href="#cb25-361" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">error_abs =</span> <span class="fu">mean</span>(error_abs)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-362"><a href="#cb25-362" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(error_abs)</span>
+<span id="cb25-363"><a href="#cb25-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-364"><a href="#cb25-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-365"><a href="#cb25-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-366"><a href="#cb25-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-367"><a href="#cb25-367" aria-hidden="true" tabindex="-1"></a>Chefin: "Sieht so aus, als hätte B knapp gewonnen, vor C. A ist leider weit abgeschlagen."</span>
+<span id="cb25-368"><a href="#cb25-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-369"><a href="#cb25-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-370"><a href="#cb25-370" aria-hidden="true" tabindex="-1"></a>A: "Mensch, B, du bist hier der Datenhecht!"</span>
+<span id="cb25-371"><a href="#cb25-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-372"><a href="#cb25-372" aria-hidden="true" tabindex="-1"></a>B: "Ich glaub's ja nicht, ich meine, ich hab's immer gewusst!"</span>
+<span id="cb25-373"><a href="#cb25-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-374"><a href="#cb25-374" aria-hidden="true" tabindex="-1"></a>C: "Moment, mein Vorgehen müsste in der Theorie das Beste sein?!"</span>
+<span id="cb25-375"><a href="#cb25-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-376"><a href="#cb25-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-377"><a href="#cb25-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-378"><a href="#cb25-378" aria-hidden="true" tabindex="-1"></a></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
