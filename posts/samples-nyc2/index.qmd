@@ -289,7 +289,7 @@ B: "Nope, mein Vorgehen ist in Wirklichkeit das Beste. Ich hab von *jedem* Monat
 C: "Kann ja alles sein, aber mein Vorgehen hat am meisten Spaß gemacht. Übrigens B, wir könnten uns, also unsere beiden Ideen, doch zusammenlegn, kombinieren. Das müsste ein super Ergebnis geben. Wollen wir zwei uns das mal zusammen anschauen, nur wir zwei?"
 
 
-## Die Chefin meldet sich zu Wort
+# Die Chefin meldet sich zu Wort
 
 Chefin: "Lasst mich da mal ran."
 
@@ -299,14 +299,14 @@ Chefin: "Lasst mich da mal ran."
 Die Chefin berechnet die wahre Verspätung über alle Flüge 2023 (in YNC) insgeamt (also in der Population der NYC-Flüge von 2023):
 
 ```{r}
-wahre_verspätung <- 
+wahre_verspaetung <- 
   flights |> 
   select(origin, dep_delay) |> 
   drop_na() |> 
   group_by(origin) |> 
   summarise(dep_delay = mean(dep_delay))
 
-wahre_verspätung
+wahre_verspaetung
 ```
 
 
@@ -332,6 +332,24 @@ modellgueten <-
 ```
 
 
+
+
+```{r}
+modellgueten |> 
+  ggplot(aes(y = estimate, x = origin)) +
+ # geom_line() +
+  geom_col(data = wahre_verspaetung,
+    aes(x = origin, y = dep_delay)) +
+  geom_col(aes(fill = student),
+    position = "dodge",
+    alpha = .8) +
+  labs(caption = "black bars show true delay",
+       y = "estimated delay",
+       fill = "students' estimates")
+```
+
+
+
 ```{r}
 #| echo: false
 modellgueten |> 
@@ -340,7 +358,20 @@ modellgueten |>
 ```
 
 
+
+
+
+## And the winner is ...
+
 Chefin: "And the winner is ..."
+
+
+```{r}
+modellgueten |> 
+  ggplot(aes(x = student, y = error_abs)) +
+  geom_col()
+```
+
 
 ```{r}
 modellgueten_summ <-
