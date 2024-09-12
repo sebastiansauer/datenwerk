@@ -2,7 +2,7 @@
 # gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
 date: 2024-09-11  # HEUTIGES DATUM EINTRAGEN, nicht "today"
 draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
-title: samples-nyc 2
+title: samples-nyc2
 execute: 
   cache: true
   eval: true 
@@ -119,6 +119,7 @@ flights |>
   select(dep_delay, origin, month) |> 
   drop_na() |> 
   group_by(month, origin) |> 
+  slice(1:100) |> 
   summarise(dep_delay = mean(dep_delay)) |> 
   group_by(origin) |> 
   summarise(dep_delay = mean(dep_delay))
@@ -292,6 +293,11 @@ C: "Kann ja alles sein, aber mein Vorgehen hat am meisten Spaß gemacht. Übrige
 
 Chefin: "Lasst mich da mal ran."
 
+
+## Wahre Verspätung
+
+Die Chefin berechnet die wahre Verspätung über alle Flüge 2023 (in YNC) insgeamt (also in der Population der NYC-Flüge von 2023):
+
 ```{r}
 wahre_verspätung <- 
   flights |> 
@@ -343,6 +349,7 @@ modellgueten_summ <-
   summarise(error_abs = mean(error_abs)) |> 
   arrange(error_abs)
 
+modellgueten_summ
 ```
 
 

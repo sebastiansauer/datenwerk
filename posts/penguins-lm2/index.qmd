@@ -1,0 +1,115 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-09-12  # HEUTIGES DATUM EINTRAGEN, nicht "today"
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: penguins-lm2  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- lm  # ENTER CATEGORIES HERE
+- en
+- regression
+- penguins
+
+
+bibliography: "../../library-ses.bib"
+
+
+---
+
+
+
+
+
+```{r}
+#| include: false
+
+options(digits = 2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Exercise
+
+
+Consider the dataset `penguins`. 
+Compute a linear model with *body mass* as output variable (DV) and a) *flipper length* and b) *sex* as input (IV). 
+
+
+1. Tidy up the data set, if and where needed.
+2. Report the coefficients and interpret them.
+3. Plot the model and the coefficients.
+4. Report the model fit (R squared).
+5. BONUS: `predict()` the weight of an average flipper-seized animal (male and female).  Check out the internet for examples of how to do so in case you need support.
+
+
+
+# Solution
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(easystats)
+library(ggpubr)  # visualization
+
+# import data:
+penguins <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")
+```
+
+
+## Tidy up
+
+```{r}
+penguins_tidier <-
+  penguins |> 
+  select(body_mass_g, flipper_length_mm, sex) |> 
+  drop_na() |> 
+  filter(sex != "")  # maybe better to be excluded
+```
+
+
+Note that, strangely, there are some animals for which the sex is reported as `""`, an empty string value. This is not the same as `NA`. However, we may want the exclude such animals of unclear sex.
+
+## Let's go
+
+
+```{r}
+lm2 <- 
+  lm(body_mass_g ~ flipper_length_mm + sex, 
+          data = penguins_tidier)
+```
+
+
+
+Plot the model:
+
+
+```{r}
+plot(estimate_relation(lm2))
+```
+
