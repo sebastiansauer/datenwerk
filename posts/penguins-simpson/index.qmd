@@ -14,7 +14,10 @@ extype: string
 exsolution: ""
 exshuffle: no
 categories:
-- DUMMY  # ENTER CATEGORIES HERE
+- lm
+- bayes
+- regression
+- causal
 
 
 bibliography: "../../library-ses.bib"
@@ -118,7 +121,7 @@ Achtung: Das Paket muss installiert sein.
 Pakete starten:
 
 
-```{r}
+```{r setup}
 library(tidyverse)
 library(easystats)
 ```
@@ -126,7 +129,7 @@ library(easystats)
 
 Modell berechnen mit `lm`, d.h. "frequentistisch":
 
-```{r}
+```{r m1-f}
 m1_freq <- 
   lm(body_mass_g ~ bill_depth_mm, data = penguins)
 ```
@@ -135,7 +138,7 @@ m1_freq <-
 Mit Bayes:
 
 
-```{r}
+```{r m1-b}
 library(rstanarm)  # Paket muss installiert sein
 m1_bayes <- 
   stan_glm(body_mass_g ~ bill_depth_mm, data = penguins,
@@ -146,7 +149,7 @@ m1_bayes <-
 
 Modellparameter:
 
-```{r}
+```{r m1-freq-params}
 parameters(m1_freq)
 ```
 
@@ -160,7 +163,7 @@ Allerdings sind wir nicht sicher, ob das ein Scheinzusammenhang ist oder ein "ec
 
 
 
-```{r}
+```{r m1-b-params}
 parameters(m1_bayes)
 ```
 
@@ -180,7 +183,7 @@ Frequentistische Interpretation:
 Modell visualisieren:
 
 
-```{r}
+```{r m1-plot}
 estimate_relation(m1_freq) |> plot()
 ```
 
@@ -193,7 +196,7 @@ estimate_relation(m1_freq) |> plot()
 
 Modell berechnen mit `lm`, d.h. "frequentistisch":
 
-```{r}
+```{r m2-fre}
 m2_freq <- 
   lm(body_mass_g ~ bill_depth_mm + species, data = penguins)
 ```
@@ -202,7 +205,7 @@ m2_freq <-
 Mit Bayes:
 
 
-```{r}
+```{r m2-b}
 library(rstanarm)  # Paket muss installiert sein
 m2_bayes <- 
   stan_glm(body_mass_g ~ bill_depth_mm + species, data = penguins, refresh = 0)
@@ -212,7 +215,7 @@ m2_bayes <-
 
 Modellparameter:
 
-```{r}
+```{r m2-params}
 parameters(m2_freq)
 parameters(m2_bayes)
 ```
@@ -224,7 +227,7 @@ parameters(m2_bayes)
 Ein Bild zur Hilfe:
 
 
-```{r}
+```{r m2-plot}
 m2_freq |> estimate_relation() |> plot()
 ```
 
