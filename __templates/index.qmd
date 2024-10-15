@@ -1,8 +1,8 @@
 ---
 # gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
-date: 2024-10-10
+date: TODAYSDATE
 draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
-title: penguins-simpson  # HIER TITEL DES POSTS EINGEBEN.
+title: HIERSTEHTDERNAME  # HIER TITEL DES POSTS EINGEBEN.
 execute: 
   
   eval: true 
@@ -26,49 +26,7 @@ bibliography: "../../library-ses.bib"
 
 
 
-# Aufgabe 1
-
-Laden Sie den Datensatz `penguins` (Palmerpenguins). Tipp: Es gibt ein R-Paket, in dem diese Daten wohnen. Im Skript [QM2](https://start-bayes.netlify.app/1050-schaetzen-testen#ben%C3%B6tigte-daten) finden sich diese Daten auch. 
-Oder im weiten Internet.
-
-
-## Modell 1
-
-### Modell berechnen
-
-Berechnen Sie ein Modell, um den Zusammenhang zwischen 
-Schnabeltiefe (UV) und Körpergewicht (AV) statistisch zu schätzen.
-
-
-### Visualisieren Sie das Modell
-
-Tipp 1: `estimate_relation()` aus dem Paket `easystats`, s. [QM1](https://statistik1.netlify.app/) oder QM2. Aber es gibt auch andere Wege. 
-
-Tipp 2: Fragen Sie ChatGPT.
-
-### Präzision der Koeffizienten
-
-Geben Sie die Präzision der Regressionskoeffizienten an. 
-Interpretieren Sie das Ergebnis.
-
-
-## Modell 2: Gewicht als Funktion von Schnabeltiefe und von Spezies
-
-
-### Modell berechnen
-
-Berechnen Sie folgendes Modell: Gewicht als Funktion von Schnabeltiefe und von Spezies
-
-
-### Visualisieren Sie das Modell
-
-wie oben
-
-
-### Präzision der Koeffizienten
-
-Vergleichen Sie die Präzision der Regressionskoeffizienten mit dem Modell 1. Interpretieren Sie das Ergebnis.
-
+# Aufgabe 
 
 
 
@@ -99,153 +57,7 @@ Vergleichen Sie die Präzision der Regressionskoeffizienten mit dem Modell 1. In
 
 
 
-# Lösung zu Aufgabe 1
-
-
-## Modell 1
-
-
-Daten importieren:
-
-```{r}
-data("penguins", package = "palmerpenguins")
-```
-
-Achtung: Das Paket muss installiert sein.
-
-
-
-Pakete starten:
-
-
-```{r}
-library(tidyverse)
-library(easystats)
-```
-
-
-Modell berechnen mit `lm`, d.h. "frequentistisch":
-
-```{r}
-m1_freq <- 
-  lm(body_mass_g ~ bill_depth_mm, data = penguins)
-```
-
-
-Mit Bayes:
-
-
-```{r}
-library(rstanarm)  # Paket muss installiert sein
-m1_bayes <- 
-  stan_glm(body_mass_g ~ bill_depth_mm, data = penguins,
-           refresh = 0)
-```
-
-
-
-Modellparameter:
-
-```{r}
-parameters(m1_freq)
-```
-
-Pro Millimeter Schnabeltiefe sinkt das Gewicht um knapp 200g, im Schnitt, laut Modell.
-
-Die Null ist NICHT im Schätzbereich enthalten, also können wir die Hypothese, dass der Zusammenhang zwischen Schnabeltiefe und Gewicht 0 ist, verwerfen.
-
-Wir entscheiden uns also zu glauben, dass es einen Zusammenhang gibt. Wir können nicht ganz sicher sein, aber das Modell befürwortet diese Entscheidung.
-
-Allerdings sind wir nicht sicher, ob das ein Scheinzusammenhang ist oder ein "echter", d.h. kausaler Zusammenhang.
-
-
-
-```{r}
-parameters(m1_bayes)
-```
-
-Ein typischer Befund: Frequentistische und Bayes-Ergebnisse sind - bei genügend großen Stichproben - sehr ähnlich, was die Zahlen betrifft. Sehr unterschiedlich ist aber die Interpretation.
-
-Bayes-Interpretation:
-
-"Mit 95% Wahrscheinlichkeit liegt der Effekt zwischen -230g und 150g pro Millimeter Schnabeltiefe, laut dem Modell."
-
-Frequentistische Interpretation:
-
-
-"Würde man sehhhr viele Stichproben aus der zugrundeliegenden Population ziehen und für jede Stichprobe ein 95%-Konfindenzintervall berechnen würde, dann würde in 95% der Fälle das wahre Populationsmittel in diesem Intervall liegen. In unserer konkreten Stichprobe lagen die Grenzen bei ca. -230 bis -150. Ob der wahre Wert in diesem bestimmten Intervall liegt, können wir aber nicht sagen."
-
-
-
-Modell visualisieren:
-
-
-```{r}
-estimate_relation(m1_freq) |> plot()
-```
-
-
-
-## Modell 2
-
-
-
-
-Modell berechnen mit `lm`, d.h. "frequentistisch":
-
-```{r}
-m2_freq <- 
-  lm(body_mass_g ~ bill_depth_mm + species, data = penguins)
-```
-
-
-Mit Bayes:
-
-
-```{r}
-library(rstanarm)  # Paket muss installiert sein
-m2_bayes <- 
-  stan_glm(body_mass_g ~ bill_depth_mm + species, data = penguins, refresh = 0)
-```
-
-
-
-Modellparameter:
-
-```{r}
-parameters(m2_freq)
-parameters(m2_bayes)
-```
-
-Äh, Moment ... Jetzt ist der Zusammenhang zwischen Schnabeltiefe und Gewicht nicht mehr *negativ*, sondern *POSITIV*?! Der Effekt geht in die entgegengesetzte Richtung? Kann das sein?!
-
-
-
-Ein Bild zur Hilfe:
-
-
-```{r}
-m2_freq |> estimate_relation() |> plot()
-```
-
-
-Tatsächlich! Jetzt ist der Zusammenhang *innerhalb jeder Gruppe* (Spezies) *POSITIV*.
-
-
-Das bedeutet: Wenn wir die Spezies berücksichtigen, dann ist der Zusammenhang zwischen Schnabeltiefe und Gewicht *positiv*.
-
-Diesen Vorzeichenwechsel nennt man "Simpson-Paradox".
-
-
-
-### Fazit: Welches Modell ist jetzt richtig?
-
-
-Da sich die Effekte komplett widersprechen (negativ vs. positiver Zusammenhang) stellt sich die Frage:
-Welchem Modell - Modell 1 oder Modell 2 - glauben wir jetzt?
-
-Die Antwort ist ein klares: Kommt drauf an.
-Kommt drauf an, welcher Theorie zum kausalen Zusammenhang der betreffenden Variablen wir glauben.
+# Lösung 
 
 
 
