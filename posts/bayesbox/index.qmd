@@ -1,0 +1,183 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-11-03
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: bayesbox  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- bayes  # ENTER CATEGORIES HERE
+- probability
+
+bibliography: "../../library-ses.bib"
+
+
+---
+
+
+# Setup
+
+```{r}
+#| message: false
+library(tidyverse)
+```
+
+
+
+
+# Aufgabe 
+
+Sie führen ein zweiwertiges (binomiales)
+ Zufallsexperiment $n$-mal durch,
+ dabei erzielen Sie $k$ Treffer.
+ Die Wiederholungen sind unabhängig voneinander, und die Trefferwahrscheinlichkeit $\pi$ bleibt konstant.
+ 
+(Eine Münze wiederholt werfen wäre das typische Beispiel für ein solches Zufallexperiment.)
+
+Gehen Sie von folgenden Parameterwerten aus:
+
+```{r}
+n <- 8
+k <- 5
+```
+
+Welcher Parameterwert $\pi$ ist am wahrscheinlichsten, wenn Sie keine weiteren Informationen haben?
+
+Sie überprüfen alle 11 Parameterwerte für $\pi$ von 0 bis 1 in Schritten von 0.1.
+
+Um diese Frage zu beantworten, 
+berechnen Sie die Wahrscheinlichkeiten für alle möglichen Parameterwerte $\pi$ von 0 bis 1 in Schritten von 0.1 anhand einer Bayesbox.
+Dabei gehen wir von einer Binomialverteilung aus:
+
+$k \sim Bin(n, \pi)$.
+
+
+
+
+
+
+```{r p-gitter}
+#| lst-label: lst-wasseranteile
+#| lst-cap: "Parameterwerte (Gitter) für Trefferwahrscheinlichkeit: 0, 0.1, 0.2, ..., 1"
+pis <- seq(from = 0, to = 1, by = 0.1)  # Parameterwerte
+pis
+```
+
+
+Dann berechnen wir schon mal die Wahrscheinlichkeit der Daten  gegeben jeweils eines Parameterwerts:
+
+```{r lik-69}
+Likelihood <- dbinom(k, size = n, prob = pis)
+Likelihood
+```
+
+Auf dieser Basis erstellen wir eine Bayes-Box, um die Posteriori-Wahrscheinlichkeiten für alle Parameterwerte zu berechnen,
+s. @list-gitter1.
+
+
+```{r QM2-Thema2-kleineModelle-28, echo = TRUE}
+#| lst-cap: "Wir basteln uns eine Bayes-Box"
+#| lst-label: lst-gitter1
+
+d <-
+  tibble(
+    # definiere die Hypothesen (die Parameterwerte, p): 
+    p = pis,
+    # Lege den Priori-Wert fest:
+    Priori  = 1/11) |> 
+    mutate(
+      # berechne Likelihood für jeden Wasseranteil (Parameterwert):
+      Likelihood = Likelihood,
+      # berechne unstand. Posteriori-Werte:
+      unstd_Post = Likelihood * Priori,
+      # berechne Evidenz, d.i. die Summe aller unstand. Post-Werte:
+      Evidenz = sum(unstd_Post),
+      # berechne stand. Posteriori-Werte (summiert zu 1):
+      Post = unstd_Post / Evidenz)  
+```
+
+Die Bayes-Box (@tbl-globus) zeigt, wie sich die Post-Verteilung berechnet.
+
+Leider ist die zentrale Spalte, die die Posteriors enthält, ausgeblendet. 🤬
+
+
+
+```{r QM2-Thema2-kleineModelle-29}
+#| label: tbl-globus
+#| tbl-cap: "Die Bayes-Box"
+#| echo: false
+d %>% 
+  mutate(id = 1:nrow(d)) %>% 
+  relocate(id, .before = 1) %>% 
+  select(-Post) |> 
+  knitr::kable(digits = 2) 
+```
+
+
+**Aufgabe:** 
+Welcher Parameterwert $\pi$ ist am wahrscheinlichsten laut der Bayesbox?
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+Der wahrscheinlichste Parameterwert $\pi$ ist derjenige, der die höchste Posteriori-Wahrscheinlichkeit hat.
+Die Posteriori-Wahrscheinlichkeit ist proportional zur unstandardisierten Posteriori-Wahrscheinlichkeit.
+Das bedeutet, dass der Parameterwert $\pi$, der die höchste unstandardisierte Posteriori-Wahrscheinlichkeit hat, auch die höchste Posteriori-Wahrscheinlichkeit hat.
+
+
+
+```{r}
+#| echo: false
+d %>% 
+  mutate(id = 1:nrow(d)) %>% 
+  relocate(id, .before = 1) %>% 
+  knitr::kable(digits = 2) 
+```
+
+
+In diesem Fall ist das der folgende Parameterwert:
+
+
+
+
+
+```{r}
+#| echo: false
+d %>% 
+  mutate(id = 1:nrow(d)) %>% 
+  relocate(id, .before = 1) %>% 
+  filter(Post == max(Post)) |> 
+  pull(p)
+```
