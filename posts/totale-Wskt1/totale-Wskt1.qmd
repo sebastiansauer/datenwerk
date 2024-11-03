@@ -48,6 +48,8 @@ $Pr(T|\neg K) = 99/891$, das ist die "Fehlalarm-Quote" des Tests.
 
 Die Grundrate von Krebs sei $Pr(K) = .01$.
 
+**Aufgabe** Berechnen Sie die Wahrscheinlichkeit $Pr(T)$, dass ein positives Testergebnis vorliegt.
+
 
 
 Hinweise:
@@ -70,7 +72,7 @@ Hinweise:
 
 # Lösung
 
-Die Ereignisse $K$ und \neg K$ bilden ein *vollständiges Ereignissystem*.
+Die Ereignisse $K$ und $\neg K$ bilden ein *vollständiges Ereignissystem*.
 Daher ist der Satz von der *totalen Wahrscheinlichkeit* anzuwenden.
 
 $Pr(T) = Pr(T|K) \cdot Pr(K) + Pr(T| \neg K) \cdot Pr(\neg K)$.
@@ -80,10 +82,15 @@ $Pr(T) = Pr(T|K) \cdot Pr(K) + Pr(T| \neg K) \cdot Pr(\neg K)$.
 Pr_T_geg_K <- 9/10
 Pr_K <- .01
 Pr_NK <- 1 - Pr_K  # Wskt für Nicht-Krebs
-Pr_T_geg_NK <- 99/891  # ca. 10 Fehlerrate
+Pr_T_geg_NK <- 99/990  # 10% Fehlerrate (falsch positiv)
 Pr_T <- Pr_T_geg_K * Pr_K + Pr_T_geg_NK * Pr_NK
 Pr_T
 ```
+
+
+- T: Test (auf Krebs) ist positiv
+- K: Krebs liegt vor
+- NK:  Krebs liegt *nicht* vor
 
 
 ```{r}
@@ -96,7 +103,30 @@ Die Lösung lautet ``r sol``.
 
 
 
+Einfacher vielleicht ist ein Baumdiagramm:
 
+
+
+
+
+```{mermaid}
+%%| fig-cap: Günstige Pfade
+%%| label: fig-tot-wskt2
+flowchart LR
+  A[1000 Personen] -. K_Pos .-> B[10]
+  A -. K_neg .-> C[990]
+  B -. T_pos .-> D[9]
+  B -. T_neg .-> E[1]
+  C -. T_pos .-> F[99]
+  C -. T_neg .-> G[891]
+  D --- H[9/10 richtig positiv]
+  E --- I[1/10 falsch negativ]
+  F --- J[99/990 falsch positiv]
+  G --- K[891/990 richtig negativ]
+```
+
+Insgesamt bekommen also 9+99 = 108 Personen (von 1000), d.h. ca. 11%, ein positives Testergebnis, 
+davon sind 9 tatsächlich krank und 99 sind gesund.
 
 
 
