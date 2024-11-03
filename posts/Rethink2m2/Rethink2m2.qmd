@@ -48,7 +48,8 @@ knitr::opts_chunk$set(fig.pos = 'H',
 This question is taken from McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Ed.). Taylor and Francis, CRC Press.
 
 
-Recall the globe tossing model from the chapter. Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for *p*.
+Recall the globe tossing model from the chapter (also see [exercise globus1](https://datenwerk.netlify.app/posts/globus1/index.html)).
+Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for *p*.
 
 Data: 
 
@@ -93,8 +94,8 @@ dist <-
     p_grid = seq(from = 0, to = 1, length.out = 21),
     # Priori-Wskt bestimmen:
     prior  = case_when(
-      p_grid < 0.5 ~ 0,
-      p_grid >= 0.5 ~ 1)) %>%
+      p_grid < 0.5 ~ 0,  # Null, wenn p < 0.5 
+      p_grid >= 0.5 ~ 1)) %>%  # 1, wenn p >= 0.5
   mutate(
     # Likelihood berechnen:
     likelihood_1 = dbinom(3, size = 3, prob = p_grid),
@@ -124,6 +125,7 @@ Mit `ggpubr`:
 
 
 ```{r}
+#| out-width: 100%
 library(ggpubr)
 ggline(dist, 
        x = "p_grid", 

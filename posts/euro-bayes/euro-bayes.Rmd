@@ -25,7 +25,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
                       fig.width = 4,
                       fig.cap = "", 
                       fig.path = "",
-                      echo = FALSE,
+                      echo = TRUE,
                       message = FALSE,
                       fig.show = "hold")
 ```
@@ -74,6 +74,7 @@ Hinweise:
 ```{r}
 #| message: false
 library(tidyverse)
+library(ggpubr)
 ```
 
 
@@ -100,11 +101,20 @@ d %>%
 ```
 
 
+Plotten mit `ggplot`:
+
 ```{r}
 d %>% 
   ggplot(aes(x=p_Gitter, y = Post)) +
   geom_line()
 ```
+Oder mit `ggpubr` plotten:
+
+```{r out.width="75%"}
+ggline(d, x = "p_Gitter", y = "Post", add = "mean_se", 
+       xlab = "Trefferwahrscheinlichkeit", ylab = "Posteriori-Wahrscheinlichkeit")
+```
+
 
 
 Die Wahrscheinlichkeit $Pr(\pi = 1/2 \, | \, X=140)$ wenn $X \sim Bin(250, 1/2)$ beträgt ca. 27% oder .27.
@@ -124,7 +134,8 @@ Der 126. Wert in der Liste `0:250` ist der wahrscheinlichste (also 125 Treffer).
 Wenn die Münze fair ist, dann wären doch 15 Treffer *mehr* als 125 genauso so unwahrscheinlich wie 15 Treffer *weniger* als 125 Treffer.
 Beide Ereignisse - 110 und 140 Treffer - sind ja gleich weit entfernt von denjenigen Wert, der am wahrscheinlichsten ist, wenn die Münze fair ist.
 
-Ei typischi Statistiki würde also eher fragen: "Wie wahrscheinlich ist es, dass man ein Ergebnis erhält, dass mind. 15 Treffer *entfernt* ist von der Trefferzahl, die bei einer fairen Münze zu erwarten ist?".
+Eine Statistikerin würde also eher fragen: 
+"Wie wahrscheinlich ist es, dass man ein Ergebnis erhält, dass mind. 15 Treffer *entfernt* ist von der Trefferzahl, die bei einer fairen Münze zu erwarten ist?".
 Aber genug davon für diese Aufgabe :-)
 
 
