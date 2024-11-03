@@ -1,0 +1,132 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-11-03
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: globus2  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- bayes  # ENTER CATEGORIES HERE
+- probability
+- distributions
+
+bibliography: "../../library-ses.bib"
+
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Wir werfen einen Globus $n=9$ Mal und erzielen $W=9$ mal das Ereignis "Wasser".
+
+Was ist die Wahrscheinlichkeit dieses Ereignisses,
+wenn wir von einer Wasseranteil, d.h. Wahrscheinlichkeit, von $\pi=.7$ ausgehen?
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+Hier sind die gegebenen Werte:
+
+
+```{r}
+W <- 9
+n <- 9
+pi <- .7
+```
+
+Wir suchen also diese Größe:
+
+$$Pr(W=`r W` | \pi=`r pi`, n=`r n`) = ?$$
+
+
+
+
+Wir können R die Arbeit machen lassen:
+
+```{r QM2-Thema2-kleineModelle-21a, echo = TRUE}
+#| lst-cap: "Binomialverteilung mit R "
+#| lst-label: lst-dbinom1
+loesung <- dbinom(x = W, size = n, prob = pi)
+loesung
+```
+
+
+
+
+Oder den Taschenrechner nutzen:
+
+
+```{r}
+loesung <- choose(n,W) * pi^W * (1-pi)^(n-W)
+loesung
+```
+
+
+Die Harten unter uns rechnen es per Hand aus.
+
+Dafür kann man zunächst die Anzahl der Pfade mit dem Binomialkoeffizienten berechnen:
+
+
+```{r}
+anzahl_pfade <- factorial(n) / (factorial(W) * factorial(n-W))
+anzahl_pfade
+```
+
+`factorial(W)` liefert die Fakultät von $W$ zurück.
+
+
+Dann berechnet man die Wahrscheinlichkeit eines einzelnen Pfades:
+
+```{r}
+pfad_wskt <-  pi^W * (1-pi)^(n-W)
+pfad_wskt
+```
+
+Multipliziert man die beiden vorherigen Zwischenergebnisse, 
+so erhält man die Lösung:
+
+```{r}
+loesung <-  anzahl_pfade * pfad_wskt
+loesung
+```
+
+
+
+
