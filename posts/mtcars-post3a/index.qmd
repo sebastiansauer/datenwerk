@@ -1,0 +1,174 @@
+---
+extype: schoice
+exsolution: 8
+exname: mtcars-post3a
+categories:
+- bayes
+- regression
+- post
+- exam-22
+- qm2
+- paper
+- mtcars
+date: '2024-11-11'
+slug: mtcars-post3a
+title: mtcars-post3a
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+
+
+
+# Aufgabe
+
+
+
+Im Datensatz `mtcars`: Wie groß ist die Wahrscheinlichkeit, dass der  Effekt der UV `vs`  auf die AV `mpg` positiv ist?
+Berechnen Sie das dazu passende Modell mit Methoden der Bayes-Statistik.
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+Dafür wird folgende Modell berechnet.
+
+
+Setup:
+
+```{r message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)
+library(easystats) 
+library(ggpubr)
+```
+
+
+
+
+Modell berechnen:
+
+```{r}
+m1 <- stan_glm(mpg ~ vs, data = mtcars,
+               seed = 42,
+               refresh = 0)
+```
+
+
+
+```{r}
+post_m1_vs <- parameters(m1)
+post_m1_vs
+```
+
+
+Hier ist die Post-Verteilung visualisiert.
+
+```{r}
+m1 %>% 
+  as_tibble() %>% 
+  ggdensity(x = "vs", fill = "skyblue", color = "black")
+```
+
+
+
+**Aufgabe** Wählen Sie die am besten passende Option:
+
+Answerlist
+----------
+
+* .42
+* .73
+* .23
+* 1
+* 0
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Man sieht in der Tabelle und im Diagramm,
+dass die Wahrscheinlichkeit, dass der Effekt der UV `vs` auf die AV `mpg` positiv ist, 1 ist bzw. gegen 1 geht.
+
+
+Die Statistik `pd` in der Ausgabe von `parameters` gibt uns den gesuchten Wert, die "Effektwahrscheinlichkeit".
+
+
+
+```{r}
+post_m1_vs <- parameters(m1)
+post_m1_vs
+```
+
+Weitere Information zu `pd` findet sich z.B. [hier](https://easystats.github.io/bayestestR/reference/p_direction.html).
+
+Wir könnten auch von Hand die Postverteilungs-Stichproben filtern und dann die
+Anzahl der Stichproben zählen, die diese Bedingung (vs>0) erfüllt:
+
+```{r}
+m1 %>% 
+  as_tibble() %>% 
+  count(vs > 0)
+```
+
+Das sind alle (4000 von 4000), also 100%.
+
+
+Die Antwort für lautet also 1.
+
+
+
+Answerlist
+----------
+
+* Falsch
+* Falsch
+* Falsch
+* Wahr
+* Falsch
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+- post
+- exam-22
+

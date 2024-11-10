@@ -1,0 +1,181 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: TODAYSDATE
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: eti-hdi  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- paper  # ENTER CATEGORIES HERE
+- bayes
+- bayesbox
+- probability
+
+
+bibliography: "../../library-ses.bib"
+
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Eine Personalberatung prüft Kandidatinnen für eine Führungsposition.
+
+Es wurden 10 Kandidatinnen geprüft. Davon haben 10 die Prüfung bestanden.
+
+
+## Setup
+
+```{r}
+library(prada)  # für bayesbox
+library(tidyverse)
+library(knitr)  # schöne HTML-Tabellen
+library(ggpubr)
+library(easystats)  # für hdi, eti
+```
+
+
+
+```{r}
+n_success <- 10
+n_trials  <- 10
+p_grid <- 
+  seq(from = 0, to = 1, length.out = 101) |> 
+  # auf zwei Dezimalen runden
+  round(2)
+
+p_grid
+```
+
+
+Hier sind die Likelihoods:
+
+```{r}
+L <- dbinom(n_success, size = n_trials, prob = p_grid)
+L
+```
+
+Und hier ist die Bayesbox:
+
+
+```{r}
+bb <- bayesbox(hyps = p_grid, priors = 1, liks = L)  # aus "prada"
+
+bb |>   
+  kable(digits = 2)
+```
+
+
+
+
+
+Und hier ist die Post-Verteilung:
+
+
+```{r}
+ggline(bb, x = "hyps", y = "post_std") 
+```
+
+
+
+Daraus ziehen wir Stichproben:
+
+
+```{r}
+post_samples <-
+  bb |> 
+  slice_sample(n = 10000,
+               weight_by = post_std,
+               replace = TRUE)
+```
+
+
+Und hier ist die Post-Verteilung auf Basis der Stichproben visualisiert:
+
+```{r}
+post_samples |> 
+  count(hyps) |> 
+  ggbarplot(x = "hyps", y = "n")
+```
+
+
+Man könnte auch ein Dichtediagramm verwenden:
+
+```{r}
+post_samples |> 
+  select(hyps) |> 
+  ggdensity(x="hyps")
+```
+
+
+In diesem Fall ist die Posterior-Verteilung schief (rechtssteil),
+wie man im Diagramm sieht.
+
+**Aufgabe** Würden in diesem Fall eine ETI- bzw. ein HDI zum gleichen Ergebnis kommen? Welches von beiden Intervallen würden Sie vorziehen? Begründen Sie.
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+In diesem Fall können die ETI und das HDI *nicht* zum gleichen Ergebnis kommen, da die Posterior-Verteilung *nicht* symmetrisch ist, sondern schief.
+
+
+```{r}
+post_samples |> 
+  select(hyps) |> 
+  eti(ci = .5)
+
+post_samples |> 
+  select(hyps) |> 
+  hdi(ci = .5)
+```
+
+In dem Maße, wie eine Verteilung schief ist (nicht symmetrisch), 
+weicht das ETI vom HDI ab.
+
+Da bei schiefen Verteilungen der Bereich mit der höchsten Wahrscheinlichkeit (Dichte)
+nicht im ETI liegen kann, würde ich in diesem Fall das HDI vorziehen.
+
+
+
+
+
+
+

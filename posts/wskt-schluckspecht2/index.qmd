@@ -1,0 +1,181 @@
+---
+date: 2024-11-10
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: Wskt-Schluckspecht2 
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- post  # ENTER CATEGORIES HERE
+- bayes
+- mtcars
+- paper
+
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Geprüft werden soll folgende Hypothese:
+
+>    Autos mit viel PS haben einen höheren Spritverbrauch als Autos mit wenig PS.
+
+
+Dafür ist folgende Analyse gegeben.
+
+
+
+## Setup
+
+```{r}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+library(ggpubr)
+```
+
+```{r}
+data(mtcars)
+```
+
+
+## Modell und Hypothese
+
+Die Hypothese kann man wie folgt formalisieren:
+
+$$\text{mpg}_{PS=1} > \text{mpg}_{PS=0},$$
+
+wobei $PS=0$ die Autos mit wenig PS meint (und $Ps=1$ die Autos mit viel PS).
+
+Die Prioris übernehmen wir vom Stan-Golem.🤖
+
+>     🤖 Beep, beep!
+
+>   👩‍🏫 An die Arbeit, Stan-Golem!
+
+
+## Vorverarbeitung
+
+Wir definieren PS als eine binäre Variable, die angibt, ob ein Auto mehr oder weniger PS hat als der Median der PS-Werte.
+
+
+```{r}
+mtcars <-
+  mtcars |> 
+  mutate(PS = case_when(
+    mpg > median(mpg) ~ 1,
+    mpg <= median(mpg) ~ 0
+  ))
+```
+
+
+## Modell berechnen
+
+
+```{r}
+m <- stan_glm(mpg ~ PS,  # Regressionsformel
+              data = mtcars,  # Datensatz
+              refresh = 0,  # Nicht so viel Detail-Ausgabe
+              seed = 42)  # Reproduzierbarkeit
+```
+
+
+Hier sind die Modellparameter:
+
+```{r}
+parameters(m)
+```
+
+
+
+
+## Post-Verteilung auslesen
+
+```{r}
+m_post <-
+  m |>
+  as_tibble()
+
+
+ggdensity(m_post, x = "PS", fill = "skyblue", title = "Posterior-Verteilung laut unserem Modell und den Daten")
+```
+
+
+
+**Aufgabe**
+
+1. Sprechen die Ergebnisse dafür, dass Autos mit viel PS einen höheren Spritverbrauch haben als Autos mit wenig PS? Begründen Sie.
+2. Wie hoch ist die Wahrscheinlichkeit, dass die Hypothese wahr ist (laut unserem Modell)?
+3. Was ist Ihr Punktschätzer für den Unterschied im Spritverbrauch zwischen Autos mit viel und wenig PS? 
+4. Mit einer Wahrscheinlichkeit von 95% liegt der Unterschied im Spritverbrauch zwischen Autos mit viel und wenig PS zwischen welchen Werten (laut unserem Modell)? 
+5. Geben Sie die Skalenniveaus der Variablen in der Regressionsformel an.
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+1. Ja, die Ergebnisse sprechen dafür, dass Autos mit viel PS einen höheren Spritverbrauch haben als Autos mit wenig PS. Die Posterior-Verteilung zeigt, dass die Wahrscheinlichkeit für die Hypothese sehr hoch ist: Alle Stichproben bzw. die gesamte Wahrscheinlichkeitsmasse ist größer als Null.
+
+Der Parameter für `PS` ist positiv, was bedeutet, dass Autos mit viel PS einen höheren Spritverbrauch haben als Autos mit wenig PS. Das sieht man schon in den Stichprobendaten:
+
+
+```{r}
+ggboxplot(mtcars, 
+          x = "PS", y = "mpg", 
+          title = "Spritverbrauch nach PS: Autos mit viel PS brauchen mehr Sprit als Autos mit wenig PS",
+          subtitle = "rote Punkte: Mittelwert der Gruppe",
+          add = "mean", 
+          add.params = list(size = 1.5, color = "red"))
+```
+
+2. Man sieht in der Visualisierung der Post-Verteilung, dass die komplette Wahrscheinlichkeitsmasse größer als Null ist. Das bedeutet, dass die Wahrscheinlichkeit, dass die Hypothese wahr ist, sehr hoch ist, gegen 1 geht.
+
+3. Ca. 9 bis 10 mpg-Einheiten ist ein guter Punktschätzer für den Unterschied im Spritverbrauch zwischen Autos mit viel und wenig PS, wenn auch nur grob mit dem Auge geschätzt.
+In der Ausgabetabelle (`parameters()`) ist ein ähnlicher Wert angegeben.
+
+4. Der Unterschied im Spritverbrauch zwischen Autos mit viel und wenig PS liegt mit einer Wahrscheinlichkeit von 95% zwischen 4.5 und 13.5 mpg-Einheiten, wie man der Parameter-    Tabelle entnehmen kann. Man sieht es auch im Diagramm recht gut.
+
+5. UV: binär, AV: kontinuierlich
+

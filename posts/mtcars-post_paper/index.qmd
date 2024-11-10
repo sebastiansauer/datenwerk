@@ -1,0 +1,143 @@
+---
+extype: num
+exsolution: 3.38
+exname: mtcars-post
+extol: 0.5
+categories:
+- bayes
+- post
+- estimation
+- exam-22
+- qm2
+- mtcars
+- paper
+date: '2024-11-11'
+slug: mtcars-post
+title: mtcars-post
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+```
+
+
+
+
+
+# Aufgabe
+
+
+
+Im Datensatz `mtcars`: 
+Berichten Sie die Breite eines Schätzintervalls (89%, HDI) zum mittleren Spritverbrauch!
+Nutzen Sie Methoden der Bayes-Statistik.
+
+
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+Dazu sei folgendes Modell gegeben.
+
+
+Setup:
+
+```{r message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)
+library(easystats)
+library(ggpubr)
+```
+
+
+
+
+
+Modell berechnen:
+
+```{r m1-stan}
+m1 <- stan_glm(mpg ~ 1, 
+               data = mtcars,
+               seed = 42,
+               refresh = 0)
+```
+
+
+Dann gibt es verschiedene Einstellungen für die Funktion `parameters()`:
+
+```{r}
+parameters(m1, ci = .89, ci_method = "hdi")
+```
+
+
+
+```{r}
+parameters(m1)
+```
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+
+
+Im Standard wird ein 95%-Perzentilintervall berechnet, s. die Dokumentation zur Funktion [hier](https://easystats.github.io/parameters/reference/model_parameters.default.html).
+
+Daher müssen wir explizit das 90%-HDI anfordern.
+
+Die Lösung lautet also wie folgt.
+
+
+
+
+```{r}
+breite <- parameters(m1)$CI_high[parameters(m1)$Parameter=="(Intercept)"] - parameters(m1)$CI_low[parameters(m1)$Parameter=="(Intercept)"] 
+breite
+```
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- post
+- estimation
+- exam-22
+
