@@ -36,6 +36,15 @@ Eine Personalberatung prüft Kandidatinnen für eine Führungsposition.
 Es wurden 10 Kandidatinnen geprüft. Davon haben 10 die Prüfung bestanden.
 
 
+
+
+```{r}
+n_success <- 10
+n_trials  <- 10
+```
+
+
+
 ## Setup
 
 ```{r}
@@ -48,9 +57,10 @@ library(easystats)  # für hdi, eti
 
 
 
+
+Es werden alle Parameterwerte von 0 bis 1 untersucht, mit einer Auflösung von 1%-Schritten:
+
 ```{r}
-n_success <- 10
-n_trials  <- 10
 p_grid <- 
   seq(from = 0, to = 1, length.out = 101) |> 
   # auf zwei Dezimalen runden
@@ -60,7 +70,7 @@ p_grid
 ```
 
 
-Hier sind die Likelihoods:
+Hier sind die Likelihoods, also die Wahrscheinlichkeiten der Daten gegeben jeweils eines Parameterwerts (einer Hypothese):
 
 ```{r}
 L <- dbinom(n_success, size = n_trials, prob = p_grid)
@@ -111,19 +121,21 @@ post_samples |>
 ```
 
 
-Man könnte auch ein Dichtediagramm verwenden:
+<!-- Man könnte auch ein Dichtediagramm verwenden: -->
 
-```{r}
-post_samples |> 
-  select(hyps) |> 
-  ggdensity(x="hyps")
-```
+<!-- ```{r} -->
+<!-- post_samples |>  -->
+<!--   select(hyps) |>  -->
+<!--   ggdensity(x="hyps") -->
+<!-- ``` -->
 
 
 In diesem Fall ist die Posterior-Verteilung schief (rechtssteil),
 wie man im Diagramm sieht.
 
 **Aufgabe** Würden in diesem Fall eine ETI- bzw. ein HDI zum gleichen Ergebnis kommen? Welches von beiden Intervallen würden Sie vorziehen? Begründen Sie.
+
+Tipp: Nutzen Sie das Diagramm der Post-Verteilung zur Lösung der Aufgabe.
 
 </br>
 </br>
@@ -157,13 +169,15 @@ wie man im Diagramm sieht.
 In diesem Fall können die ETI und das HDI *nicht* zum gleichen Ergebnis kommen, da die Posterior-Verteilung *nicht* symmetrisch ist, sondern schief.
 
 
-```{r}
+```{r eti-hdi}
 post_samples |> 
   select(hyps) |> 
+  mutate(hyps = as.numeric(hyps)) |> 
   eti(ci = .5)
 
 post_samples |> 
   select(hyps) |> 
+  mutate(hyps = as.numeric(hyps)) |> 
   hdi(ci = .5)
 ```
 
