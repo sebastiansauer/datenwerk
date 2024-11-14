@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-05-17">
+
+<title>tmdb02 – datenwerk</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">datenwerk</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Ans Werk, Daten!</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Hinweise.html"> 
+<span class="menu-text">Hinweise</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../English.html"> 
+<span class="menu-text">English</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/sebastiansauer/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">tmdb02</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">ds1</div>
+    <div class="quarto-category">tidymodels</div>
+    <div class="quarto-category">statlearning</div>
+    <div class="quarto-category">tmdb</div>
+    <div class="quarto-category">trees</div>
+    <div class="quarto-category">num</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 17, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- ```{r read-supplement} -->
+<!-- result_obj_path <- "tmbd_rf_fit1.rds" -->
+<!-- #file.exists(here::here("objects", result_obj_path)) -->
+<!-- exams::include_supplement(file = result_obj_path, -->
+<!--                    recursive = TRUE) -->
+<!-- #rf_fit <- readr::read_rds("/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmbd_rf_fit1.rds") -->
+<!-- ``` -->
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
+<p>Wir bearbeiten hier die Fallstudie <a href="https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview">TMDB Box Office Prediction - Can you predict a movie’s worldwide box office revenue?</a>, ein <a href="https://www.kaggle.com/">Kaggle</a>-Prognosewettbewerb.</p>
+<p>Ziel ist es, genaue Vorhersagen zu machen, in diesem Fall für Filme.</p>
+<p>Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>d_train_path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d_test_path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="aufgabe-1" class="level5">
+<h5 class="anchored" data-anchor-id="aufgabe-1">Aufgabe</h5>
+<p>Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Kaggle-Score</p>
+<p>Hinweise:</p>
+<ul>
+<li>Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.</li>
+<li>Berechnen Sie einen <em>Entscheidungsbaum</em> und einen <em>Random-Forest</em>.</li>
+<li>Tunen Sie nach Bedarf; verwenden Sie aber Default-Werte.</li>
+<li>Verwenden Sie Tidymodels.</li>
+</ul>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</section>
+</section>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
+<section id="vorbereitung" class="level2">
+<h2 class="anchored" data-anchor-id="vorbereitung">Vorbereitung</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)  <span class="co"># mehrere CPUs nutzen</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(finetune)  <span class="co"># Tune Anova</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_train_path)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_test_path)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(d_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 3,000
+Columns: 23
+$ id                    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+$ belongs_to_collection &lt;chr&gt; "[{'id': 313576, 'name': 'Hot Tub Time Machine C…
+$ budget                &lt;dbl&gt; 1.40e+07, 4.00e+07, 3.30e+06, 1.20e+06, 0.00e+00…
+$ genres                &lt;chr&gt; "[{'id': 35, 'name': 'Comedy'}]", "[{'id': 35, '…
+$ homepage              &lt;chr&gt; NA, NA, "http://sonyclassics.com/whiplash/", "ht…
+$ imdb_id               &lt;chr&gt; "tt2637294", "tt0368933", "tt2582802", "tt182148…
+$ original_language     &lt;chr&gt; "en", "en", "en", "hi", "ko", "en", "en", "en", …
+$ original_title        &lt;chr&gt; "Hot Tub Time Machine 2", "The Princess Diaries …
+$ overview              &lt;chr&gt; "When Lou, who has become the \"father of the In…
+$ popularity            &lt;dbl&gt; 6.575393, 8.248895, 64.299990, 3.174936, 1.14807…
+$ poster_path           &lt;chr&gt; "/tQtWuwvMf0hCc2QR2tkolwl7c3c.jpg", "/w9Z7A0GHEh…
+$ production_companies  &lt;chr&gt; "[{'name': 'Paramount Pictures', 'id': 4}, {'nam…
+$ production_countries  &lt;chr&gt; "[{'iso_3166_1': 'US', 'name': 'United States of…
+$ release_date          &lt;chr&gt; "2/20/15", "8/6/04", "10/10/14", "3/9/12", "2/5/…
+$ runtime               &lt;dbl&gt; 93, 113, 105, 122, 118, 83, 92, 84, 100, 91, 119…
+$ spoken_languages      &lt;chr&gt; "[{'iso_639_1': 'en', 'name': 'English'}]", "[{'…
+$ status                &lt;chr&gt; "Released", "Released", "Released", "Released", …
+$ tagline               &lt;chr&gt; "The Laws of Space and Time are About to be Viol…
+$ title                 &lt;chr&gt; "Hot Tub Time Machine 2", "The Princess Diaries …
+$ Keywords              &lt;chr&gt; "[{'id': 4379, 'name': 'time travel'}, {'id': 96…
+$ cast                  &lt;chr&gt; "[{'cast_id': 4, 'character': 'Lou', 'credit_id'…
+$ crew                  &lt;chr&gt; "[{'credit_id': '59ac067c92514107af02c8c8', 'dep…
+$ revenue               &lt;dbl&gt; 12314651, 95149435, 13092000, 16000000, 3923970,…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(d_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 4,398
+Columns: 22
+$ id                    &lt;dbl&gt; 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, …
+$ belongs_to_collection &lt;chr&gt; "[{'id': 34055, 'name': 'Pokémon Collection', 'p…
+$ budget                &lt;dbl&gt; 0.00e+00, 8.80e+04, 0.00e+00, 6.80e+06, 2.00e+06…
+$ genres                &lt;chr&gt; "[{'id': 12, 'name': 'Adventure'}, {'id': 16, 'n…
+$ homepage              &lt;chr&gt; "http://www.pokemon.com/us/movies/movie-pokemon-…
+$ imdb_id               &lt;chr&gt; "tt1226251", "tt0051380", "tt0118556", "tt125595…
+$ original_language     &lt;chr&gt; "ja", "en", "en", "fr", "en", "en", "de", "en", …
+$ original_title        &lt;chr&gt; "ディアルガVSパルキアVSダークライ", "Attack of t…
+$ overview              &lt;chr&gt; "Ash and friends (this time accompanied by newco…
+$ popularity            &lt;dbl&gt; 3.851534, 3.559789, 8.085194, 8.596012, 3.217680…
+$ poster_path           &lt;chr&gt; "/tnftmLMemPLduW6MRyZE0ZUD19z.jpg", "/9MgBNBqlH1…
+$ production_companies  &lt;chr&gt; NA, "[{'name': 'Woolner Brothers Pictures Inc.',…
+$ production_countries  &lt;chr&gt; "[{'iso_3166_1': 'JP', 'name': 'Japan'}, {'iso_3…
+$ release_date          &lt;chr&gt; "7/14/07", "5/19/58", "5/23/97", "9/4/10", "2/11…
+$ runtime               &lt;dbl&gt; 90, 65, 100, 130, 92, 121, 119, 77, 120, 92, 88,…
+$ spoken_languages      &lt;chr&gt; "[{'iso_639_1': 'en', 'name': 'English'}, {'iso_…
+$ status                &lt;chr&gt; "Released", "Released", "Released", "Released", …
+$ tagline               &lt;chr&gt; "Somewhere Between Time &amp; Space... A Legend Is B…
+$ title                 &lt;chr&gt; "Pokémon: The Rise of Darkrai", "Attack of the 5…
+$ Keywords              &lt;chr&gt; "[{'id': 11451, 'name': 'pok√©mon'}, {'id': 1155…
+$ cast                  &lt;chr&gt; "[{'cast_id': 3, 'character': 'Tonio', 'credit_i…
+$ crew                  &lt;chr&gt; "[{'credit_id': '52fe44e7c3a368484e03d683', 'dep…</code></pre>
+</div>
+</div>
+</section>
+<section id="rezept" class="level2">
+<h2 class="anchored" data-anchor-id="rezept">Rezept</h2>
+<section id="rezept-definieren" class="level3">
+<h3 class="anchored" data-anchor-id="rezept-definieren">Rezept definieren</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(revenue <span class="sc">~</span> ., <span class="at">data =</span> d_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(<span class="fu">all_predictors</span>(), <span class="at">new_role =</span> <span class="st">"id"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(popularity, runtime, revenue, budget) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(revenue, <span class="at">new_role =</span> <span class="st">"outcome"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">budget =</span> <span class="fu">ifelse</span>(budget <span class="sc">&lt;</span> <span class="dv">10</span>, <span class="dv">10</span>, budget)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_log</span>(budget) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_knn</span>(<span class="fu">all_predictors</span>())</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>rec1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="check-das-rezept" class="level3">
+<h3 class="anchored" data-anchor-id="check-das-rezept">Check das Rezept</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>rec1_prepped <span class="ot">&lt;-</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>(rec1, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>oper 1 step mutate [training] 
+oper 2 step log [training] 
+oper 3 step impute knn [training] 
+The retained training set is ~ 28.71 Mb  in memory.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rec1_prepped</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="ot">&lt;-</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  rec1_prepped <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d_train_baked)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 23
+     id belongs_to_collection   budget genres homepage imdb_id original_language
+  &lt;dbl&gt; &lt;fct&gt;                    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;            
+1     1 [{'id': 313576, 'name'…  16.5  [{'id… &lt;NA&gt;     tt2637… en               
+2     2 [{'id': 107674, 'name'…  17.5  [{'id… &lt;NA&gt;     tt0368… en               
+3     3 &lt;NA&gt;                     15.0  [{'id… http://… tt2582… en               
+4     4 &lt;NA&gt;                     14.0  [{'id… http://… tt1821… hi               
+5     5 &lt;NA&gt;                      2.30 [{'id… &lt;NA&gt;     tt1380… ko               
+6     6 &lt;NA&gt;                     15.9  [{'id… &lt;NA&gt;     tt0093… en               
+# ℹ 16 more variables: original_title &lt;fct&gt;, overview &lt;fct&gt;, popularity &lt;dbl&gt;,
+#   poster_path &lt;fct&gt;, production_companies &lt;fct&gt;, production_countries &lt;fct&gt;,
+#   release_date &lt;fct&gt;, runtime &lt;dbl&gt;, spoken_languages &lt;fct&gt;, status &lt;fct&gt;,
+#   tagline &lt;fct&gt;, title &lt;fct&gt;, Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;,
+#   revenue &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Die AV-Spalte sollte leer sein:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> <span class="fu">head</span>(d_test), <span class="fu">all_outcomes</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_df</span>(<span class="sc">~</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 23
+     id belongs_to_collection budget genres homepage imdb_id original_language
+  &lt;int&gt;                 &lt;int&gt;  &lt;int&gt;  &lt;int&gt;    &lt;int&gt;   &lt;int&gt;             &lt;int&gt;
+1     0                  2396      0      7     2054       0                 0
+# ℹ 16 more variables: original_title &lt;int&gt;, overview &lt;int&gt;, popularity &lt;int&gt;,
+#   poster_path &lt;int&gt;, production_companies &lt;int&gt;, production_countries &lt;int&gt;,
+#   release_date &lt;int&gt;, runtime &lt;int&gt;, spoken_languages &lt;int&gt;, status &lt;int&gt;,
+#   tagline &lt;int&gt;, title &lt;int&gt;, Keywords &lt;int&gt;, cast &lt;int&gt;, crew &lt;int&gt;,
+#   revenue &lt;int&gt;</code></pre>
+</div>
+</div>
+<p>Keine fehlenden Werte mehr <em>in den Prädiktoren</em>.</p>
+<p>Nach fehlenden Werten könnte man z.B. auch so suchen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>datawizard<span class="sc">::</span><span class="fu">describe_distribution</span>(d_train_baked)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variable   |     Mean |       SD |      IQR |              Range | Skewness | Kurtosis |    n | n_Missing
+---------------------------------------------------------------------------------------------------------
+id         |  1500.50 |   866.17 |  1500.50 |    [1.00, 3000.00] |     0.00 |    -1.20 | 3000 |         0
+budget     |    12.51 |     6.44 |    14.88 |      [2.30, 19.76] |    -0.87 |    -1.09 | 3000 |         0
+popularity |     8.46 |    12.10 |     6.88 | [1.00e-06, 294.34] |    14.38 |   280.10 | 3000 |         0
+runtime    |   107.85 |    22.08 |    24.00 |     [0.00, 338.00] |     1.02 |     8.20 | 3000 |         0
+revenue    | 6.67e+07 | 1.38e+08 | 6.66e+07 |   [1.00, 1.52e+09] |     4.54 |    27.78 | 3000 |         0</code></pre>
+</div>
+</div>
+<p>So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.</p>
+<p>Das Test-Sample backen wir auch mal:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>d_test_baked <span class="ot">&lt;-</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> d_test)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>d_test_baked <span class="sc">%&gt;%</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 22
+     id belongs_to_collection   budget genres homepage imdb_id original_language
+  &lt;dbl&gt; &lt;fct&gt;                    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;            
+1  3001 [{'id': 34055, 'name':…   2.30 [{'id… &lt;NA&gt;     &lt;NA&gt;    ja               
+2  3002 &lt;NA&gt;                     11.4  [{'id… &lt;NA&gt;     &lt;NA&gt;    en               
+3  3003 &lt;NA&gt;                      2.30 [{'id… &lt;NA&gt;     &lt;NA&gt;    en               
+4  3004 &lt;NA&gt;                     15.7  &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;    fr               
+5  3005 &lt;NA&gt;                     14.5  [{'id… &lt;NA&gt;     &lt;NA&gt;    en               
+6  3006 &lt;NA&gt;                      2.30 [{'id… &lt;NA&gt;     &lt;NA&gt;    en               
+# ℹ 15 more variables: original_title &lt;fct&gt;, overview &lt;fct&gt;, popularity &lt;dbl&gt;,
+#   poster_path &lt;fct&gt;, production_companies &lt;fct&gt;, production_countries &lt;fct&gt;,
+#   release_date &lt;fct&gt;, runtime &lt;dbl&gt;, spoken_languages &lt;fct&gt;, status &lt;fct&gt;,
+#   tagline &lt;fct&gt;, title &lt;fct&gt;, Keywords &lt;fct&gt;, cast &lt;fct&gt;, crew &lt;fct&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="kreuzvalidierung" class="level2">
+<h2 class="anchored" data-anchor-id="kreuzvalidierung">Kreuzvalidierung</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>cv_scheme <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(d_train,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">v =</span> <span class="dv">5</span>, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">repeats =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="modelle" class="level2">
+<h2 class="anchored" data-anchor-id="modelle">Modelle</h2>
+<section id="baum" class="level3">
+<h3 class="anchored" data-anchor-id="baum">Baum</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>mod_tree <span class="ot">&lt;-</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">decision_tree</span>(<span class="at">cost_complexity =</span> <span class="fu">tune</span>(),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">tree_depth =</span> <span class="fu">tune</span>(),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">mode =</span> <span class="st">"regression"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="random-forest" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest">Random Forest</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mod_rf <span class="ot">&lt;-</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>(),</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">min_n =</span> <span class="fu">tune</span>(),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">trees =</span> <span class="dv">1000</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">mode =</span> <span class="st">"regression"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">num.threads =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="workflows" class="level2">
+<h2 class="anchored" data-anchor-id="workflows">Workflows</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>wf_tree <span class="ot">&lt;-</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod_tree) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>wf_rf <span class="ot">&lt;-</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod_rf) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fitten-und-tunen" class="level2">
+<h2 class="anchored" data-anchor-id="fitten-und-tunen">Fitten und tunen</h2>
+<p>Um Rechenzeit zu sparen, kann man den Parameter <code>grid</code> bei <code>tune_grid()</code> auf einen kleinen Wert setzen. Der Default ist 10. Um gute Vorhersagen zu erzielen, sollte man den Wert tendenziell noch über 10 erhöhen.</p>
+<section id="tree" class="level3">
+<h3 class="anchored" data-anchor-id="tree">Tree</h3>
+<p>Parallele Verarbeitung starten:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">makePSOCKcluster</span>(<span class="dv">4</span>)  <span class="co"># Create 4 clusters</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">registerDoParallel</span>(cl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>tree_fit <span class="ot">&lt;-</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  wf_tree <span class="sc">%&gt;%</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_race_anova</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> cv_scheme,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">#grid = 2</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>37.736 sec elapsed</code></pre>
+</div>
+</div>
+<p>Hilfe zu <code>tune_grid()</code> bekommt man <a href="https://www.rdocumentation.org/packages/tune/versions/0.2.0/topics/tune_grid">hier</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>tree_fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Tuning results
+# 5-fold cross-validation 
+# A tibble: 5 × 5
+  splits             id    .order .metrics          .notes          
+  &lt;list&gt;             &lt;chr&gt;  &lt;int&gt; &lt;list&gt;            &lt;list&gt;          
+1 &lt;split [2400/600]&gt; Fold1      3 &lt;tibble [20 × 6]&gt; &lt;tibble [0 × 3]&gt;
+2 &lt;split [2400/600]&gt; Fold2      1 &lt;tibble [20 × 6]&gt; &lt;tibble [0 × 3]&gt;
+3 &lt;split [2400/600]&gt; Fold3      2 &lt;tibble [20 × 6]&gt; &lt;tibble [0 × 3]&gt;
+4 &lt;split [2400/600]&gt; Fold5      4 &lt;tibble [16 × 6]&gt; &lt;tibble [0 × 3]&gt;
+5 &lt;split [2400/600]&gt; Fold4      5 &lt;tibble [14 × 6]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
+</div>
+</div>
+<p>Steht was in den <code>.notes</code>?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>tree_fit[[<span class="st">".notes"</span>]][[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: location &lt;chr&gt;, type &lt;chr&gt;, note &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>Nein.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(tree_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 14 × 8
+   cost_complexity tree_depth .metric .estimator      mean     n std_err .config
+             &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
+ 1        1.56e- 5         14 rmse    standard     8.95e+7     5 4.65e+6 Prepro…
+ 2        1.56e- 5         14 rsq     standard     5.82e-1     5 3.16e-2 Prepro…
+ 3        9.32e- 5         10 rmse    standard     8.91e+7     5 4.66e+6 Prepro…
+ 4        9.32e- 5         10 rsq     standard     5.85e-1     5 3.11e-2 Prepro…
+ 5        2.36e-10          5 rmse    standard     8.80e+7     5 4.57e+6 Prepro…
+ 6        2.36e-10          5 rsq     standard     5.92e-1     5 3.20e-2 Prepro…
+ 7        2.29e- 8         11 rmse    standard     8.93e+7     5 4.67e+6 Prepro…
+ 8        2.29e- 8         11 rsq     standard     5.83e-1     5 3.10e-2 Prepro…
+ 9        9.60e- 4          9 rmse    standard     8.84e+7     5 5.00e+6 Prepro…
+10        9.60e- 4          9 rsq     standard     5.90e-1     5 3.22e-2 Prepro…
+11        1.94e- 9         12 rmse    standard     8.95e+7     5 4.64e+6 Prepro…
+12        1.94e- 9         12 rsq     standard     5.82e-1     5 3.10e-2 Prepro…
+13        5.72e- 7          7 rmse    standard     8.83e+7     5 4.73e+6 Prepro…
+14        5.72e- 7          7 rsq     standard     5.91e-1     5 3.38e-2 Prepro…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">show_best</span>(tree_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No value of `metric` was given; metric 'rmse' will be used.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 8
+  cost_complexity tree_depth .metric .estimator      mean     n  std_err .config
+            &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;chr&gt;  
+1        2.36e-10          5 rmse    standard   88038619.     5 4572618. Prepro…
+2        5.72e- 7          7 rmse    standard   88262344.     5 4734314. Prepro…
+3        9.60e- 4          9 rmse    standard   88397994.     5 5003102. Prepro…
+4        9.32e- 5         10 rmse    standard   89140111.     5 4663576. Prepro…
+5        2.29e- 8         11 rmse    standard   89330466.     5 4668641. Prepro…</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="finalisieren" class="level2">
+<h2 class="anchored" data-anchor-id="finalisieren">Finalisieren</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>best_tree_wf <span class="ot">&lt;-</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  wf_tree <span class="sc">%&gt;%</span> </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(<span class="fu">select_best</span>(tree_fit))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No value of `metric` was given; metric 'rmse' will be used.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>best_tree_wf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: decision_tree()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+3 Recipe Steps
+
+• step_mutate()
+• step_log()
+• step_impute_knn()
+
+── Model ───────────────────────────────────────────────────────────────────────
+Decision Tree Model Specification (regression)
+
+Main Arguments:
+  cost_complexity = 2.36005153743282e-10
+  tree_depth = 5
+
+Computational engine: rpart </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>tree_last_fit <span class="ot">&lt;-</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(best_tree_wf, <span class="at">data =</span> d_train)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>tree_last_fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: decision_tree()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+3 Recipe Steps
+
+• step_mutate()
+• step_log()
+• step_impute_knn()
+
+── Model ───────────────────────────────────────────────────────────────────────
+n= 3000 
+
+node), split, n, deviance, yval
+      * denotes terminal node
+
+ 1) root 3000 5.672651e+19   66725850  
+   2) budget&lt; 18.32631 2845 1.958584e+19   46935270  
+     4) budget&lt; 17.19976 2252 5.443953e+18   25901120  
+       8) popularity&lt; 9.734966 1745 1.665118e+18   17076460  
+        16) popularity&lt; 5.761331 1019 3.184962e+17    8793730  
+          32) budget&lt; 15.44456 782 1.408243e+17    6074563 *
+          33) budget&gt;=15.44456 237 1.528117e+17   17765830 *
+        17) popularity&gt;=5.761331 726 1.178595e+18   28701940  
+          34) budget&lt; 16.15249 484 6.504138e+17   21093220 *
+          35) budget&gt;=16.15249 242 4.441208e+17   43919380 *
+       9) popularity&gt;=9.734966 507 3.175231e+18   56273980  
+        18) budget&lt; 15.36217 186 3.092335e+17   24880850  
+          36) popularity&lt; 14.04031 151 1.743659e+17   20728170 *
+          37) popularity&gt;=14.04031 35 1.210294e+17   42796710 *
+        19) budget&gt;=15.36217 321 2.576473e+18   74464390  
+          38) popularity&lt; 19.64394 300 2.025184e+18   68010500 *
+          39) popularity&gt;=19.64394 21 3.602808e+17  166662900 *
+     5) budget&gt;=17.19976 593 9.361685e+18  126815400  
+      10) popularity&lt; 19.63372 570 6.590372e+18  117422100  
+        20) budget&lt; 17.86726 374 2.692151e+18   94469490  
+          40) popularity&lt; 8.444193 149 6.363495e+17   68256660 *
+          41) popularity&gt;=8.444193 225 1.885623e+18  111828200 *
+        21) budget&gt;=17.86726 196 3.325222e+18  161219400  
+          42) popularity&lt; 11.60513 126 1.693483e+18  136587100 *
+          43) popularity&gt;=11.60513 70 1.417677e+18  205557600 *
+      11) popularity&gt;=19.63372 23 1.474624e+18  359605200  
+        22) runtime&gt;=109.5 16 9.882757e+17  299077200 *
+        23) runtime&lt; 109.5 7 2.937458e+17  497955000 *
+   3) budget&gt;=18.32631 155 1.557371e+19  429978800  
+     6) popularity&lt; 17.26579 101 4.711450e+18  299997300  
+      12) budget&lt; 18.73897 67 1.671489e+18  230290900  
+        24) popularity&lt; 12.66146 40 5.426991e+17  174328700  
+          48) budget&lt; 18.44536 18 1.099070e+17  134734600 *
+          49) budget&gt;=18.44536 22 3.814856e+17  206724000 *
+        25) popularity&gt;=12.66146 27 8.179336e+17  313197700  
+          50) budget&lt; 18.52944 13 1.273606e+17  234797100 *
+          51) budget&gt;=18.52944 14 5.364675e+17  385998300 *
+      13) budget&gt;=18.73897 34 2.072879e+18  437360100  
+        26) runtime&lt; 132.5 26 1.123840e+18  391271100  
+          52) popularity&lt; 11.34182 9 9.729505e+16  248614500 *
+          53) popularity&gt;=11.34182 17 7.464210e+17  466795200 *
+        27) runtime&gt;=132.5 8 7.143147e+17  587149400 *
+     7) popularity&gt;=17.26579 54 5.964228e+18  673092200  
+      14) budget&lt; 18.99438 33 2.082469e+18  534404700  
+        28) popularity&lt; 25.35778 19 5.425201e+17  416871200 *
+
+...
+and 4 more lines.</code></pre>
+</div>
+</div>
+</section>
+<section id="vorhersage-test-sample" class="level2">
+<h2 class="anchored" data-anchor-id="vorhersage-test-sample">Vorhersage Test-Sample</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(tree_last_fit, <span class="at">new_data =</span> d_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4,398 × 1
+        .pred
+        &lt;dbl&gt;
+ 1   6074563.
+ 2   6074563.
+ 3  21093221.
+ 4  21093221.
+ 5   6074563.
+ 6  21093221.
+ 7   6074563.
+ 8  68256659.
+ 9  43919378.
+10 205557624.
+# ℹ 4,388 more rows</code></pre>
+</div>
+</div>
+<section id="rf" class="level3">
+<h3 class="anchored" data-anchor-id="rf">RF</h3>
+</section>
+</section>
+<section id="fitten-und-tunen-1" class="level2">
+<h2 class="anchored" data-anchor-id="fitten-und-tunen-1">Fitten und Tunen</h2>
+<p>Um Rechenzeit zu sparen, kann man das Objekt, wenn einmal berechnet, abspeichern unter <code>result_obj_path</code> auf der Festplatte und beim nächsten Mal importieren, das geht schneller als neu berechnen.</p>
+<p>Das könnte dann z.B. so aussehen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(result_obj_path)) {</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  rf_fit <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(result_obj_path)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tic</span>()</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  rf_fit <span class="ot">&lt;-</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    wf_rf <span class="sc">%&gt;%</span> </span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tune_grid</span>(</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">resamples =</span> cv_scheme)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">toc</span>()</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><em>Achtung</em> Ein Ergebnisobjekt von der Festplatte zu laden ist <em>gefährlich</em>. Wenn Sie Ihr Modell verändern, aber vergessen, das Objekt auf der Festplatte zu aktualisieren, werden Ihre Ergebnisse falsch sein (da auf dem veralteten Objekt beruhend), ohne dass Sie durch eine Fehlermeldung von R gewarnt würden!</p>
+<p>So kann man das Ergebnisobjekt auf die Festplatte schreiben:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write_rds(rf_fit, file = "objects/tmbd_rf_fit1.rds")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Aber wir berechnen lieber neu:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>rf_fit <span class="ot">&lt;-</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  wf_rf <span class="sc">%&gt;%</span> </span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> cv_scheme</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">#grid = 2</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>34.282 sec elapsed</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(rf_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 20 × 8
+    mtry min_n .metric .estimator         mean     n      std_err .config       
+   &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt; &lt;chr&gt;         
+ 1     3    26 rmse    standard   81496992.        5 4420334.     Preprocessor1…
+ 2     3    26 rsq     standard          0.647     5       0.0319 Preprocessor1…
+ 3     1     8 rmse    standard   81104914.        5 4249148.     Preprocessor1…
+ 4     1     8 rsq     standard          0.651     5       0.0270 Preprocessor1…
+ 5     3    13 rmse    standard   82253761.        5 4204371.     Preprocessor1…
+ 6     3    13 rsq     standard          0.639     5       0.0316 Preprocessor1…
+ 7     2    16 rmse    standard   81466291.        5 4103501.     Preprocessor1…
+ 8     2    16 rsq     standard          0.646     5       0.0298 Preprocessor1…
+ 9     2    36 rmse    standard   81355080.        5 4051776.     Preprocessor1…
+10     2    36 rsq     standard          0.649     5       0.0281 Preprocessor1…
+11     3     5 rmse    standard   84125788.        5 4113181.     Preprocessor1…
+12     3     5 rsq     standard          0.623     5       0.0347 Preprocessor1…
+13     1    32 rmse    standard   82381636.        5 4069505.     Preprocessor1…
+14     1    32 rsq     standard          0.645     5       0.0230 Preprocessor1…
+15     1    33 rmse    standard   82130106.        5 3978566.     Preprocessor1…
+16     1    33 rsq     standard          0.647     5       0.0231 Preprocessor1…
+17     2    20 rmse    standard   81547269.        5 4189669.     Preprocessor1…
+18     2    20 rsq     standard          0.647     5       0.0294 Preprocessor1…
+19     2    23 rmse    standard   81351141.        5 4073682.     Preprocessor1…
+20     2    23 rsq     standard          0.648     5       0.0285 Preprocessor1…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">select_best</span>(rf_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No value of `metric` was given; metric 'rmse' will be used.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+   mtry min_n .config              
+  &lt;int&gt; &lt;int&gt; &lt;chr&gt;                
+1     1     8 Preprocessor1_Model02</code></pre>
+</div>
+</div>
+</section>
+<section id="finalisieren-1" class="level2">
+<h2 class="anchored" data-anchor-id="finalisieren-1">Finalisieren</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>final_wf <span class="ot">&lt;-</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  wf_rf <span class="sc">%&gt;%</span> </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(<span class="fu">select_best</span>(rf_fit))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No value of `metric` was given; metric 'rmse' will be used.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>final_fit <span class="ot">&lt;-</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(final_wf, <span class="at">data =</span> d_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>final_preds <span class="ot">&lt;-</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  final_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(<span class="at">new_data =</span> d_test) <span class="sc">%&gt;%</span> </span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(d_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>submission <span class="ot">&lt;-</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  final_preds <span class="sc">%&gt;%</span> </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, <span class="at">revenue =</span> .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Abspeichern und einreichen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(submission, <span class="at">file =</span> <span class="st">"submission.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="kaggle-score" class="level2">
+<h2 class="anchored" data-anchor-id="kaggle-score">Kaggle Score</h2>
+<p>Diese Submission erzielte einen Score von <strong>2.7664</strong> (RMSLE).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>sol <span class="ot">&lt;-</span> <span class="fl">2.7664</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+<p>Categories:</p>
+<ul>
+<li>ds1</li>
+<li>tidymodels</li>
+<li>statlearning</li>
+<li>tmdb</li>
+<li>trees</li>
+<li>num</li>
+</ul>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb61" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> tmdb02</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> num</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> r sol</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="an">extol:</span><span class="co"> 0.2</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a><span class="co">- ds1</span></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a><span class="co">- tidymodels</span></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a><span class="co">- statlearning</span></span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a><span class="co">- tmdb</span></span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a><span class="co">- trees</span></span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a><span class="co">- num</span></span>
+<span id="cb61-14"><a href="#cb61-14" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2023-05-17'</span></span>
+<span id="cb61-15"><a href="#cb61-15" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> tmdb02</span></span>
+<span id="cb61-16"><a href="#cb61-16" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> tmdb02</span></span>
+<span id="cb61-17"><a href="#cb61-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-18"><a href="#cb61-18" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb61-19"><a href="#cb61-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-20"><a href="#cb61-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-21"><a href="#cb61-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-22"><a href="#cb61-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-23"><a href="#cb61-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r libs, include = FALSE}</span></span>
+<span id="cb61-24"><a href="#cb61-24" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb61-25"><a href="#cb61-25" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-26"><a href="#cb61-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-27"><a href="#cb61-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-28"><a href="#cb61-28" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE}</span></span>
+<span id="cb61-29"><a href="#cb61-29" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(fig.pos = 'H',</span></span>
+<span id="cb61-30"><a href="#cb61-30" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.asp = 0.618,</span></span>
+<span id="cb61-31"><a href="#cb61-31" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.width = 4,</span></span>
+<span id="cb61-32"><a href="#cb61-32" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.cap = "", </span></span>
+<span id="cb61-33"><a href="#cb61-33" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.path = "",</span></span>
+<span id="cb61-34"><a href="#cb61-34" aria-hidden="true" tabindex="-1"></a><span class="in">                      echo = TRUE,</span></span>
+<span id="cb61-35"><a href="#cb61-35" aria-hidden="true" tabindex="-1"></a><span class="in">                      message = FALSE,</span></span>
+<span id="cb61-36"><a href="#cb61-36" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.show = "hold")</span></span>
+<span id="cb61-37"><a href="#cb61-37" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-38"><a href="#cb61-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-39"><a href="#cb61-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-40"><a href="#cb61-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-41"><a href="#cb61-41" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- ```{r read-supplement} --&gt;</span></span>
+<span id="cb61-42"><a href="#cb61-42" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- result_obj_path &lt;- "tmbd_rf_fit1.rds" --&gt;</span></span>
+<span id="cb61-43"><a href="#cb61-43" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- #file.exists(here::here("objects", result_obj_path)) --&gt;</span></span>
+<span id="cb61-44"><a href="#cb61-44" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- exams::include_supplement(file = result_obj_path, --&gt;</span></span>
+<span id="cb61-45"><a href="#cb61-45" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--                    recursive = TRUE) --&gt;</span></span>
+<span id="cb61-46"><a href="#cb61-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-47"><a href="#cb61-47" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- #rf_fit &lt;- readr::read_rds("/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmbd_rf_fit1.rds") --&gt;</span></span>
+<span id="cb61-48"><a href="#cb61-48" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- ``` --&gt;</span></span>
+<span id="cb61-49"><a href="#cb61-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-50"><a href="#cb61-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-51"><a href="#cb61-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-52"><a href="#cb61-52" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
+<span id="cb61-53"><a href="#cb61-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-54"><a href="#cb61-54" aria-hidden="true" tabindex="-1"></a>Wir bearbeiten hier die Fallstudie [TMDB Box Office Prediction - </span>
+<span id="cb61-55"><a href="#cb61-55" aria-hidden="true" tabindex="-1"></a>Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview),</span>
+<span id="cb61-56"><a href="#cb61-56" aria-hidden="true" tabindex="-1"></a>ein <span class="co">[</span><span class="ot">Kaggle</span><span class="co">](https://www.kaggle.com/)</span>-Prognosewettbewerb.</span>
+<span id="cb61-57"><a href="#cb61-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-58"><a href="#cb61-58" aria-hidden="true" tabindex="-1"></a>Ziel ist es, genaue Vorhersagen zu machen,</span>
+<span id="cb61-59"><a href="#cb61-59" aria-hidden="true" tabindex="-1"></a>in diesem Fall für Filme.</span>
+<span id="cb61-60"><a href="#cb61-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-61"><a href="#cb61-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-62"><a href="#cb61-62" aria-hidden="true" tabindex="-1"></a>Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:</span>
+<span id="cb61-63"><a href="#cb61-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-66"><a href="#cb61-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-67"><a href="#cb61-67" aria-hidden="true" tabindex="-1"></a>d_train_path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"</span></span>
+<span id="cb61-68"><a href="#cb61-68" aria-hidden="true" tabindex="-1"></a>d_test_path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"</span></span>
+<span id="cb61-69"><a href="#cb61-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-70"><a href="#cb61-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-71"><a href="#cb61-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-72"><a href="#cb61-72" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Aufgabe</span></span>
+<span id="cb61-73"><a href="#cb61-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-74"><a href="#cb61-74" aria-hidden="true" tabindex="-1"></a>Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Kaggle-Score</span>
+<span id="cb61-75"><a href="#cb61-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-76"><a href="#cb61-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-77"><a href="#cb61-77" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
+<span id="cb61-78"><a href="#cb61-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-79"><a href="#cb61-79" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.</span>
+<span id="cb61-80"><a href="#cb61-80" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Berechnen Sie einen *Entscheidungsbaum* und einen *Random-Forest*.</span>
+<span id="cb61-81"><a href="#cb61-81" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tunen Sie nach Bedarf; verwenden Sie aber Default-Werte.</span>
+<span id="cb61-82"><a href="#cb61-82" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Verwenden Sie Tidymodels.</span>
+<span id="cb61-83"><a href="#cb61-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-84"><a href="#cb61-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-85"><a href="#cb61-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-86"><a href="#cb61-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-87"><a href="#cb61-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-88"><a href="#cb61-88" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-89"><a href="#cb61-89" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-90"><a href="#cb61-90" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-91"><a href="#cb61-91" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-92"><a href="#cb61-92" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-93"><a href="#cb61-93" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-94"><a href="#cb61-94" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-95"><a href="#cb61-95" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-96"><a href="#cb61-96" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-97"><a href="#cb61-97" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb61-98"><a href="#cb61-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-99"><a href="#cb61-99" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
+<span id="cb61-100"><a href="#cb61-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-101"><a href="#cb61-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-102"><a href="#cb61-102" aria-hidden="true" tabindex="-1"></a><span class="fu">## Vorbereitung</span></span>
+<span id="cb61-103"><a href="#cb61-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-106"><a href="#cb61-106" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-107"><a href="#cb61-107" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb61-108"><a href="#cb61-108" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb61-109"><a href="#cb61-109" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
+<span id="cb61-110"><a href="#cb61-110" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)  <span class="co"># mehrere CPUs nutzen</span></span>
+<span id="cb61-111"><a href="#cb61-111" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(finetune)  <span class="co"># Tune Anova</span></span>
+<span id="cb61-112"><a href="#cb61-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-113"><a href="#cb61-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-114"><a href="#cb61-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-115"><a href="#cb61-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-118"><a href="#cb61-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-119"><a href="#cb61-119" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_train_path)</span>
+<span id="cb61-120"><a href="#cb61-120" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(d_test_path)</span>
+<span id="cb61-121"><a href="#cb61-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-122"><a href="#cb61-122" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(d_train)</span>
+<span id="cb61-123"><a href="#cb61-123" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(d_test)</span>
+<span id="cb61-124"><a href="#cb61-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-125"><a href="#cb61-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-126"><a href="#cb61-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rezept</span></span>
+<span id="cb61-127"><a href="#cb61-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-128"><a href="#cb61-128" aria-hidden="true" tabindex="-1"></a><span class="fu">### Rezept definieren</span></span>
+<span id="cb61-129"><a href="#cb61-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-130"><a href="#cb61-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-133"><a href="#cb61-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-134"><a href="#cb61-134" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
+<span id="cb61-135"><a href="#cb61-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(revenue <span class="sc">~</span> ., <span class="at">data =</span> d_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-136"><a href="#cb61-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(<span class="fu">all_predictors</span>(), <span class="at">new_role =</span> <span class="st">"id"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-137"><a href="#cb61-137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(popularity, runtime, revenue, budget) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-138"><a href="#cb61-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(revenue, <span class="at">new_role =</span> <span class="st">"outcome"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-139"><a href="#cb61-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">budget =</span> <span class="fu">ifelse</span>(budget <span class="sc">&lt;</span> <span class="dv">10</span>, <span class="dv">10</span>, budget)) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-140"><a href="#cb61-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_log</span>(budget) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-141"><a href="#cb61-141" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_knn</span>(<span class="fu">all_predictors</span>())</span>
+<span id="cb61-142"><a href="#cb61-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-143"><a href="#cb61-143" aria-hidden="true" tabindex="-1"></a>rec1</span>
+<span id="cb61-144"><a href="#cb61-144" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-145"><a href="#cb61-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-146"><a href="#cb61-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-147"><a href="#cb61-147" aria-hidden="true" tabindex="-1"></a><span class="fu">### Check das Rezept </span></span>
+<span id="cb61-148"><a href="#cb61-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-149"><a href="#cb61-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-152"><a href="#cb61-152" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-153"><a href="#cb61-153" aria-hidden="true" tabindex="-1"></a>rec1_prepped <span class="ot">&lt;-</span></span>
+<span id="cb61-154"><a href="#cb61-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>(rec1, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb61-155"><a href="#cb61-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-156"><a href="#cb61-156" aria-hidden="true" tabindex="-1"></a>rec1_prepped</span>
+<span id="cb61-157"><a href="#cb61-157" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-158"><a href="#cb61-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-159"><a href="#cb61-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-162"><a href="#cb61-162" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-163"><a href="#cb61-163" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="ot">&lt;-</span></span>
+<span id="cb61-164"><a href="#cb61-164" aria-hidden="true" tabindex="-1"></a>  rec1_prepped <span class="sc">%&gt;%</span> </span>
+<span id="cb61-165"><a href="#cb61-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) </span>
+<span id="cb61-166"><a href="#cb61-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-167"><a href="#cb61-167" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d_train_baked)</span>
+<span id="cb61-168"><a href="#cb61-168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-169"><a href="#cb61-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-170"><a href="#cb61-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-171"><a href="#cb61-171" aria-hidden="true" tabindex="-1"></a>Die AV-Spalte sollte leer sein:</span>
+<span id="cb61-172"><a href="#cb61-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-175"><a href="#cb61-175" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-176"><a href="#cb61-176" aria-hidden="true" tabindex="-1"></a><span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> <span class="fu">head</span>(d_test), <span class="fu">all_outcomes</span>())</span>
+<span id="cb61-177"><a href="#cb61-177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-178"><a href="#cb61-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-179"><a href="#cb61-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-182"><a href="#cb61-182" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-183"><a href="#cb61-183" aria-hidden="true" tabindex="-1"></a>d_train_baked <span class="sc">%&gt;%</span> </span>
+<span id="cb61-184"><a href="#cb61-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_df</span>(<span class="sc">~</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.)))</span>
+<span id="cb61-185"><a href="#cb61-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-186"><a href="#cb61-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-187"><a href="#cb61-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-188"><a href="#cb61-188" aria-hidden="true" tabindex="-1"></a>Keine fehlenden Werte mehr *in den Prädiktoren*.</span>
+<span id="cb61-189"><a href="#cb61-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-190"><a href="#cb61-190" aria-hidden="true" tabindex="-1"></a>Nach fehlenden Werten könnte man z.B. auch so suchen:</span>
+<span id="cb61-191"><a href="#cb61-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-192"><a href="#cb61-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{r }</span></span>
+<span id="cb61-193"><a href="#cb61-193" aria-hidden="true" tabindex="-1"></a><span class="in">datawizard::describe_distribution(d_train_baked)</span></span>
+<span id="cb61-194"><a href="#cb61-194" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-195"><a href="#cb61-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-196"><a href="#cb61-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-197"><a href="#cb61-197" aria-hidden="true" tabindex="-1"></a>So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.</span>
+<span id="cb61-198"><a href="#cb61-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-199"><a href="#cb61-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-200"><a href="#cb61-200" aria-hidden="true" tabindex="-1"></a>Das Test-Sample backen wir auch mal:</span>
+<span id="cb61-201"><a href="#cb61-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-204"><a href="#cb61-204" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-205"><a href="#cb61-205" aria-hidden="true" tabindex="-1"></a>d_test_baked <span class="ot">&lt;-</span></span>
+<span id="cb61-206"><a href="#cb61-206" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(rec1_prepped, <span class="at">new_data =</span> d_test)</span>
+<span id="cb61-207"><a href="#cb61-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-208"><a href="#cb61-208" aria-hidden="true" tabindex="-1"></a>d_test_baked <span class="sc">%&gt;%</span> </span>
+<span id="cb61-209"><a href="#cb61-209" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb61-210"><a href="#cb61-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-211"><a href="#cb61-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-212"><a href="#cb61-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-213"><a href="#cb61-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-214"><a href="#cb61-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-215"><a href="#cb61-215" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kreuzvalidierung</span></span>
+<span id="cb61-216"><a href="#cb61-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-217"><a href="#cb61-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-220"><a href="#cb61-220" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-221"><a href="#cb61-221" aria-hidden="true" tabindex="-1"></a>cv_scheme <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(d_train,</span>
+<span id="cb61-222"><a href="#cb61-222" aria-hidden="true" tabindex="-1"></a>                      <span class="at">v =</span> <span class="dv">5</span>, </span>
+<span id="cb61-223"><a href="#cb61-223" aria-hidden="true" tabindex="-1"></a>                      <span class="at">repeats =</span> <span class="dv">1</span>)</span>
+<span id="cb61-224"><a href="#cb61-224" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-225"><a href="#cb61-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-226"><a href="#cb61-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-227"><a href="#cb61-227" aria-hidden="true" tabindex="-1"></a><span class="fu">## Modelle</span></span>
+<span id="cb61-228"><a href="#cb61-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-229"><a href="#cb61-229" aria-hidden="true" tabindex="-1"></a><span class="fu">### Baum</span></span>
+<span id="cb61-230"><a href="#cb61-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-231"><a href="#cb61-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-232"><a href="#cb61-232" aria-hidden="true" tabindex="-1"></a><span class="in">```{r def-tree}</span></span>
+<span id="cb61-233"><a href="#cb61-233" aria-hidden="true" tabindex="-1"></a><span class="in">mod_tree &lt;-</span></span>
+<span id="cb61-234"><a href="#cb61-234" aria-hidden="true" tabindex="-1"></a><span class="in">  decision_tree(cost_complexity = tune(),</span></span>
+<span id="cb61-235"><a href="#cb61-235" aria-hidden="true" tabindex="-1"></a><span class="in">                tree_depth = tune(),</span></span>
+<span id="cb61-236"><a href="#cb61-236" aria-hidden="true" tabindex="-1"></a><span class="in">                mode = "regression")</span></span>
+<span id="cb61-237"><a href="#cb61-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-238"><a href="#cb61-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-239"><a href="#cb61-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-240"><a href="#cb61-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-241"><a href="#cb61-241" aria-hidden="true" tabindex="-1"></a><span class="fu">### Random Forest</span></span>
+<span id="cb61-242"><a href="#cb61-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-243"><a href="#cb61-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-244"><a href="#cb61-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-245"><a href="#cb61-245" aria-hidden="true" tabindex="-1"></a><span class="in">```{r def-rf}</span></span>
+<span id="cb61-246"><a href="#cb61-246" aria-hidden="true" tabindex="-1"></a><span class="in">mod_rf &lt;-</span></span>
+<span id="cb61-247"><a href="#cb61-247" aria-hidden="true" tabindex="-1"></a><span class="in">  rand_forest(mtry = tune(),</span></span>
+<span id="cb61-248"><a href="#cb61-248" aria-hidden="true" tabindex="-1"></a><span class="in">              min_n = tune(),</span></span>
+<span id="cb61-249"><a href="#cb61-249" aria-hidden="true" tabindex="-1"></a><span class="in">              trees = 1000,</span></span>
+<span id="cb61-250"><a href="#cb61-250" aria-hidden="true" tabindex="-1"></a><span class="in">              mode = "regression") %&gt;% </span></span>
+<span id="cb61-251"><a href="#cb61-251" aria-hidden="true" tabindex="-1"></a><span class="in">  set_engine("ranger", num.threads = 4)</span></span>
+<span id="cb61-252"><a href="#cb61-252" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-253"><a href="#cb61-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-254"><a href="#cb61-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-255"><a href="#cb61-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Workflows</span></span>
+<span id="cb61-256"><a href="#cb61-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-257"><a href="#cb61-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-258"><a href="#cb61-258" aria-hidden="true" tabindex="-1"></a><span class="in">```{r wfs}</span></span>
+<span id="cb61-259"><a href="#cb61-259" aria-hidden="true" tabindex="-1"></a><span class="in">wf_tree &lt;-</span></span>
+<span id="cb61-260"><a href="#cb61-260" aria-hidden="true" tabindex="-1"></a><span class="in">  workflow() %&gt;% </span></span>
+<span id="cb61-261"><a href="#cb61-261" aria-hidden="true" tabindex="-1"></a><span class="in">  add_model(mod_tree) %&gt;% </span></span>
+<span id="cb61-262"><a href="#cb61-262" aria-hidden="true" tabindex="-1"></a><span class="in">  add_recipe(rec1)</span></span>
+<span id="cb61-263"><a href="#cb61-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-264"><a href="#cb61-264" aria-hidden="true" tabindex="-1"></a><span class="in">wf_rf &lt;-</span></span>
+<span id="cb61-265"><a href="#cb61-265" aria-hidden="true" tabindex="-1"></a><span class="in">  workflow() %&gt;% </span></span>
+<span id="cb61-266"><a href="#cb61-266" aria-hidden="true" tabindex="-1"></a><span class="in">  add_model(mod_rf) %&gt;% </span></span>
+<span id="cb61-267"><a href="#cb61-267" aria-hidden="true" tabindex="-1"></a><span class="in">  add_recipe(rec1)</span></span>
+<span id="cb61-268"><a href="#cb61-268" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-269"><a href="#cb61-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-270"><a href="#cb61-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-271"><a href="#cb61-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fitten und tunen</span></span>
+<span id="cb61-272"><a href="#cb61-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-273"><a href="#cb61-273" aria-hidden="true" tabindex="-1"></a>Um Rechenzeit zu sparen,</span>
+<span id="cb61-274"><a href="#cb61-274" aria-hidden="true" tabindex="-1"></a>kann man den Parameter <span class="in">`grid`</span> bei <span class="in">`tune_grid()`</span> auf einen kleinen Wert setzen.</span>
+<span id="cb61-275"><a href="#cb61-275" aria-hidden="true" tabindex="-1"></a>Der Default ist 10.</span>
+<span id="cb61-276"><a href="#cb61-276" aria-hidden="true" tabindex="-1"></a>Um gute Vorhersagen zu erzielen,</span>
+<span id="cb61-277"><a href="#cb61-277" aria-hidden="true" tabindex="-1"></a>sollte man den Wert tendenziell noch über 10 erhöhen.</span>
+<span id="cb61-278"><a href="#cb61-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-279"><a href="#cb61-279" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tree</span></span>
+<span id="cb61-280"><a href="#cb61-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-281"><a href="#cb61-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-282"><a href="#cb61-282" aria-hidden="true" tabindex="-1"></a>Parallele Verarbeitung starten:</span>
+<span id="cb61-283"><a href="#cb61-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-286"><a href="#cb61-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-287"><a href="#cb61-287" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">makePSOCKcluster</span>(<span class="dv">4</span>)  <span class="co"># Create 4 clusters</span></span>
+<span id="cb61-288"><a href="#cb61-288" aria-hidden="true" tabindex="-1"></a><span class="fu">registerDoParallel</span>(cl)</span>
+<span id="cb61-289"><a href="#cb61-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-290"><a href="#cb61-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-291"><a href="#cb61-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-292"><a href="#cb61-292" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fit-tree}</span></span>
+<span id="cb61-293"><a href="#cb61-293" aria-hidden="true" tabindex="-1"></a><span class="in">tic()</span></span>
+<span id="cb61-294"><a href="#cb61-294" aria-hidden="true" tabindex="-1"></a><span class="in">tree_fit &lt;-</span></span>
+<span id="cb61-295"><a href="#cb61-295" aria-hidden="true" tabindex="-1"></a><span class="in">  wf_tree %&gt;% </span></span>
+<span id="cb61-296"><a href="#cb61-296" aria-hidden="true" tabindex="-1"></a><span class="in">  tune_race_anova(</span></span>
+<span id="cb61-297"><a href="#cb61-297" aria-hidden="true" tabindex="-1"></a><span class="in">    resamples = cv_scheme,</span></span>
+<span id="cb61-298"><a href="#cb61-298" aria-hidden="true" tabindex="-1"></a><span class="in">    #grid = 2</span></span>
+<span id="cb61-299"><a href="#cb61-299" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
+<span id="cb61-300"><a href="#cb61-300" aria-hidden="true" tabindex="-1"></a><span class="in">toc()</span></span>
+<span id="cb61-301"><a href="#cb61-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-302"><a href="#cb61-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-303"><a href="#cb61-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-304"><a href="#cb61-304" aria-hidden="true" tabindex="-1"></a>Hilfe zu <span class="in">`tune_grid()`</span> bekommt man <span class="co">[</span><span class="ot">hier</span><span class="co">](https://www.rdocumentation.org/packages/tune/versions/0.2.0/topics/tune_grid)</span>.</span>
+<span id="cb61-305"><a href="#cb61-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-306"><a href="#cb61-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-309"><a href="#cb61-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-310"><a href="#cb61-310" aria-hidden="true" tabindex="-1"></a>tree_fit</span>
+<span id="cb61-311"><a href="#cb61-311" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-312"><a href="#cb61-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-313"><a href="#cb61-313" aria-hidden="true" tabindex="-1"></a>Steht was in den <span class="in">`.notes`</span>?</span>
+<span id="cb61-314"><a href="#cb61-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-315"><a href="#cb61-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-316"><a href="#cb61-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-319"><a href="#cb61-319" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-320"><a href="#cb61-320" aria-hidden="true" tabindex="-1"></a>tree_fit[[<span class="st">".notes"</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb61-321"><a href="#cb61-321" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-322"><a href="#cb61-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-323"><a href="#cb61-323" aria-hidden="true" tabindex="-1"></a>Nein.</span>
+<span id="cb61-324"><a href="#cb61-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-325"><a href="#cb61-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-328"><a href="#cb61-328" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-329"><a href="#cb61-329" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(tree_fit)</span>
+<span id="cb61-330"><a href="#cb61-330" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-331"><a href="#cb61-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-334"><a href="#cb61-334" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-335"><a href="#cb61-335" aria-hidden="true" tabindex="-1"></a><span class="fu">show_best</span>(tree_fit)</span>
+<span id="cb61-336"><a href="#cb61-336" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-337"><a href="#cb61-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-338"><a href="#cb61-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-339"><a href="#cb61-339" aria-hidden="true" tabindex="-1"></a><span class="fu">## Finalisieren</span></span>
+<span id="cb61-340"><a href="#cb61-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-341"><a href="#cb61-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-342"><a href="#cb61-342" aria-hidden="true" tabindex="-1"></a><span class="in">```{r best-tree}</span></span>
+<span id="cb61-343"><a href="#cb61-343" aria-hidden="true" tabindex="-1"></a><span class="in">best_tree_wf &lt;-</span></span>
+<span id="cb61-344"><a href="#cb61-344" aria-hidden="true" tabindex="-1"></a><span class="in">  wf_tree %&gt;% </span></span>
+<span id="cb61-345"><a href="#cb61-345" aria-hidden="true" tabindex="-1"></a><span class="in">  finalize_workflow(select_best(tree_fit))</span></span>
+<span id="cb61-346"><a href="#cb61-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-347"><a href="#cb61-347" aria-hidden="true" tabindex="-1"></a><span class="in">best_tree_wf</span></span>
+<span id="cb61-348"><a href="#cb61-348" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-349"><a href="#cb61-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-350"><a href="#cb61-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-353"><a href="#cb61-353" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-354"><a href="#cb61-354" aria-hidden="true" tabindex="-1"></a>tree_last_fit <span class="ot">&lt;-</span></span>
+<span id="cb61-355"><a href="#cb61-355" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(best_tree_wf, <span class="at">data =</span> d_train)</span>
+<span id="cb61-356"><a href="#cb61-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-357"><a href="#cb61-357" aria-hidden="true" tabindex="-1"></a>tree_last_fit</span>
+<span id="cb61-358"><a href="#cb61-358" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-359"><a href="#cb61-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-360"><a href="#cb61-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-361"><a href="#cb61-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-362"><a href="#cb61-362" aria-hidden="true" tabindex="-1"></a><span class="fu">## Vorhersage Test-Sample</span></span>
+<span id="cb61-363"><a href="#cb61-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-364"><a href="#cb61-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-367"><a href="#cb61-367" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-368"><a href="#cb61-368" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(tree_last_fit, <span class="at">new_data =</span> d_test)</span>
+<span id="cb61-369"><a href="#cb61-369" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-370"><a href="#cb61-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-371"><a href="#cb61-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-372"><a href="#cb61-372" aria-hidden="true" tabindex="-1"></a><span class="fu">### RF</span></span>
+<span id="cb61-373"><a href="#cb61-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-374"><a href="#cb61-374" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fitten und Tunen</span></span>
+<span id="cb61-375"><a href="#cb61-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-376"><a href="#cb61-376" aria-hidden="true" tabindex="-1"></a>Um Rechenzeit zu sparen,</span>
+<span id="cb61-377"><a href="#cb61-377" aria-hidden="true" tabindex="-1"></a>kann man das Objekt, wenn einmal berechnet,</span>
+<span id="cb61-378"><a href="#cb61-378" aria-hidden="true" tabindex="-1"></a>abspeichern unter <span class="in">`result_obj_path`</span> auf der Festplatte und beim nächsten Mal importieren,</span>
+<span id="cb61-379"><a href="#cb61-379" aria-hidden="true" tabindex="-1"></a>das geht schneller als neu berechnen.</span>
+<span id="cb61-380"><a href="#cb61-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-381"><a href="#cb61-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-382"><a href="#cb61-382" aria-hidden="true" tabindex="-1"></a>Das könnte dann z.B. so aussehen:</span>
+<span id="cb61-383"><a href="#cb61-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-384"><a href="#cb61-384" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval = FALSE}</span></span>
+<span id="cb61-385"><a href="#cb61-385" aria-hidden="true" tabindex="-1"></a><span class="in">if (file.exists(result_obj_path)) {</span></span>
+<span id="cb61-386"><a href="#cb61-386" aria-hidden="true" tabindex="-1"></a><span class="in">  rf_fit &lt;- read_rds(result_obj_path)</span></span>
+<span id="cb61-387"><a href="#cb61-387" aria-hidden="true" tabindex="-1"></a><span class="in">} else {</span></span>
+<span id="cb61-388"><a href="#cb61-388" aria-hidden="true" tabindex="-1"></a><span class="in">  tic()</span></span>
+<span id="cb61-389"><a href="#cb61-389" aria-hidden="true" tabindex="-1"></a><span class="in">  rf_fit &lt;-</span></span>
+<span id="cb61-390"><a href="#cb61-390" aria-hidden="true" tabindex="-1"></a><span class="in">    wf_rf %&gt;% </span></span>
+<span id="cb61-391"><a href="#cb61-391" aria-hidden="true" tabindex="-1"></a><span class="in">    tune_grid(</span></span>
+<span id="cb61-392"><a href="#cb61-392" aria-hidden="true" tabindex="-1"></a><span class="in">      resamples = cv_scheme)</span></span>
+<span id="cb61-393"><a href="#cb61-393" aria-hidden="true" tabindex="-1"></a><span class="in">  toc()</span></span>
+<span id="cb61-394"><a href="#cb61-394" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb61-395"><a href="#cb61-395" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-396"><a href="#cb61-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-397"><a href="#cb61-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-398"><a href="#cb61-398" aria-hidden="true" tabindex="-1"></a>*Achtung* Ein Ergebnisobjekt von der Festplatte zu laden ist *gefährlich*.</span>
+<span id="cb61-399"><a href="#cb61-399" aria-hidden="true" tabindex="-1"></a>Wenn Sie Ihr Modell verändern, aber vergessen, das Objekt auf der Festplatte zu aktualisieren,</span>
+<span id="cb61-400"><a href="#cb61-400" aria-hidden="true" tabindex="-1"></a>werden Ihre Ergebnisse falsch sein (da auf dem veralteten Objekt beruhend),</span>
+<span id="cb61-401"><a href="#cb61-401" aria-hidden="true" tabindex="-1"></a>ohne dass Sie durch eine Fehlermeldung von R gewarnt würden!</span>
+<span id="cb61-402"><a href="#cb61-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-403"><a href="#cb61-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-404"><a href="#cb61-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-405"><a href="#cb61-405" aria-hidden="true" tabindex="-1"></a>So kann man das Ergebnisobjekt auf die Festplatte schreiben:</span>
+<span id="cb61-406"><a href="#cb61-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-407"><a href="#cb61-407" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval = FALSE}</span></span>
+<span id="cb61-408"><a href="#cb61-408" aria-hidden="true" tabindex="-1"></a><span class="in">#write_rds(rf_fit, file = "objects/tmbd_rf_fit1.rds")</span></span>
+<span id="cb61-409"><a href="#cb61-409" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-410"><a href="#cb61-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-411"><a href="#cb61-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-412"><a href="#cb61-412" aria-hidden="true" tabindex="-1"></a>Aber wir berechnen lieber neu:</span>
+<span id="cb61-413"><a href="#cb61-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-414"><a href="#cb61-414" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fit-rf}</span></span>
+<span id="cb61-415"><a href="#cb61-415" aria-hidden="true" tabindex="-1"></a><span class="in">tic()</span></span>
+<span id="cb61-416"><a href="#cb61-416" aria-hidden="true" tabindex="-1"></a><span class="in">rf_fit &lt;-</span></span>
+<span id="cb61-417"><a href="#cb61-417" aria-hidden="true" tabindex="-1"></a><span class="in">  wf_rf %&gt;% </span></span>
+<span id="cb61-418"><a href="#cb61-418" aria-hidden="true" tabindex="-1"></a><span class="in">  tune_grid(</span></span>
+<span id="cb61-419"><a href="#cb61-419" aria-hidden="true" tabindex="-1"></a><span class="in">    resamples = cv_scheme</span></span>
+<span id="cb61-420"><a href="#cb61-420" aria-hidden="true" tabindex="-1"></a><span class="in">    #grid = 2</span></span>
+<span id="cb61-421"><a href="#cb61-421" aria-hidden="true" tabindex="-1"></a><span class="in">    )</span></span>
+<span id="cb61-422"><a href="#cb61-422" aria-hidden="true" tabindex="-1"></a><span class="in">toc()</span></span>
+<span id="cb61-423"><a href="#cb61-423" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-424"><a href="#cb61-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-425"><a href="#cb61-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-426"><a href="#cb61-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-427"><a href="#cb61-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-430"><a href="#cb61-430" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-431"><a href="#cb61-431" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(rf_fit)</span>
+<span id="cb61-432"><a href="#cb61-432" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-433"><a href="#cb61-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-434"><a href="#cb61-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-437"><a href="#cb61-437" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-438"><a href="#cb61-438" aria-hidden="true" tabindex="-1"></a><span class="fu">select_best</span>(rf_fit)</span>
+<span id="cb61-439"><a href="#cb61-439" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-440"><a href="#cb61-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-441"><a href="#cb61-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-442"><a href="#cb61-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-443"><a href="#cb61-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-444"><a href="#cb61-444" aria-hidden="true" tabindex="-1"></a><span class="fu">## Finalisieren</span></span>
+<span id="cb61-445"><a href="#cb61-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-448"><a href="#cb61-448" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-449"><a href="#cb61-449" aria-hidden="true" tabindex="-1"></a>final_wf <span class="ot">&lt;-</span></span>
+<span id="cb61-450"><a href="#cb61-450" aria-hidden="true" tabindex="-1"></a>  wf_rf <span class="sc">%&gt;%</span> </span>
+<span id="cb61-451"><a href="#cb61-451" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(<span class="fu">select_best</span>(rf_fit))</span>
+<span id="cb61-452"><a href="#cb61-452" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-453"><a href="#cb61-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-454"><a href="#cb61-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-457"><a href="#cb61-457" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-458"><a href="#cb61-458" aria-hidden="true" tabindex="-1"></a>final_fit <span class="ot">&lt;-</span></span>
+<span id="cb61-459"><a href="#cb61-459" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(final_wf, <span class="at">data =</span> d_train)</span>
+<span id="cb61-460"><a href="#cb61-460" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-461"><a href="#cb61-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-462"><a href="#cb61-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-465"><a href="#cb61-465" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-466"><a href="#cb61-466" aria-hidden="true" tabindex="-1"></a>final_preds <span class="ot">&lt;-</span> </span>
+<span id="cb61-467"><a href="#cb61-467" aria-hidden="true" tabindex="-1"></a>  final_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb61-468"><a href="#cb61-468" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(<span class="at">new_data =</span> d_test) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-469"><a href="#cb61-469" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(d_test)</span>
+<span id="cb61-470"><a href="#cb61-470" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-471"><a href="#cb61-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-472"><a href="#cb61-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-475"><a href="#cb61-475" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-476"><a href="#cb61-476" aria-hidden="true" tabindex="-1"></a>submission <span class="ot">&lt;-</span></span>
+<span id="cb61-477"><a href="#cb61-477" aria-hidden="true" tabindex="-1"></a>  final_preds <span class="sc">%&gt;%</span> </span>
+<span id="cb61-478"><a href="#cb61-478" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, <span class="at">revenue =</span> .pred)</span>
+<span id="cb61-479"><a href="#cb61-479" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-480"><a href="#cb61-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-481"><a href="#cb61-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-482"><a href="#cb61-482" aria-hidden="true" tabindex="-1"></a>Abspeichern und einreichen:</span>
+<span id="cb61-483"><a href="#cb61-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-484"><a href="#cb61-484" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval = FALSE}</span></span>
+<span id="cb61-485"><a href="#cb61-485" aria-hidden="true" tabindex="-1"></a><span class="in">write_csv(submission, file = "submission.csv")</span></span>
+<span id="cb61-486"><a href="#cb61-486" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-487"><a href="#cb61-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-488"><a href="#cb61-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-489"><a href="#cb61-489" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kaggle Score</span></span>
+<span id="cb61-490"><a href="#cb61-490" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-491"><a href="#cb61-491" aria-hidden="true" tabindex="-1"></a>Diese Submission erzielte einen Score von **2.7664** (RMSLE).</span>
+<span id="cb61-492"><a href="#cb61-492" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-495"><a href="#cb61-495" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb61-496"><a href="#cb61-496" aria-hidden="true" tabindex="-1"></a>sol <span class="ot">&lt;-</span> <span class="fl">2.7664</span></span>
+<span id="cb61-497"><a href="#cb61-497" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb61-498"><a href="#cb61-498" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-499"><a href="#cb61-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-500"><a href="#cb61-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-501"><a href="#cb61-501" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-502"><a href="#cb61-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-503"><a href="#cb61-503" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb61-504"><a href="#cb61-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-505"><a href="#cb61-505" aria-hidden="true" tabindex="-1"></a>Categories: </span>
+<span id="cb61-506"><a href="#cb61-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-507"><a href="#cb61-507" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ds1</span>
+<span id="cb61-508"><a href="#cb61-508" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>tidymodels</span>
+<span id="cb61-509"><a href="#cb61-509" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>statlearning</span>
+<span id="cb61-510"><a href="#cb61-510" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>tmdb</span>
+<span id="cb61-511"><a href="#cb61-511" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>trees</span>
+<span id="cb61-512"><a href="#cb61-512" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>num</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
