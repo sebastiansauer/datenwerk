@@ -73,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-a8378a0342da607bf6aa9ac04725c156.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-07039c474047b871045861b1af5e173d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-f347a3c2eec3c0526e037d6bdf6ce46d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -198,7 +198,7 @@ window.Quarto = {
     <div class="quarto-category">bayesbox</div>
     <div class="quarto-category">num</div>
     <div class="quarto-category">qm2</div>
-    <div class="quarto-category">qm2-pruefung</div>
+    <div class="quarto-category">qm2-pruefung2023</div>
   </div>
   </div>
 
@@ -252,22 +252,61 @@ window.Quarto = {
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(prada)  <span class="co"># für Funktion `bayesbox`</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Falls Sie das Paket `prada` noch nicht installiert haben, können Sie das mit folgendem Befehl tun:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">"sebastiansauer/prada"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(prada)  <span class="co"># für Funktion `bayesbox`</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Mit der Funktion <code>bayesbox</code> aus <code>prada</code> können wir die Bayes’sche Analyse durchführen. Wir geben die Hypothesen, die Prior- und Likelihood-Verteilungen an und erhalten die Posterior-Verteilungen.</p>
+<p>Natürlich können wir auch die Berechnungen manuell durchführen, aber das ist aufwändiger und fehleranfälliger.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">bayesbox</span>(<span class="at">hyps =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">priors =</span> <span class="fu">c</span>(Pr_A1, Pr_A2, Pr_A3),</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">liks =</span> <span class="fu">c</span>(L_A1, L_A2, L_A3))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>bb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  hyps priors liks post_unstand  post_std
-1    1    0.6  0.5         0.30 0.5454545
-2    2    0.1  0.9         0.09 0.1636364
-3    3    0.4  0.4         0.16 0.2909091</code></pre>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># bayesbox kommt aus dem Paket `prada`</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">bayesbox</span>(<span class="at">hyps =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">priors =</span> <span class="fu">c</span>(Pr_A1, Pr_A2, Pr_A3),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">liks =</span> <span class="fu">c</span>(L_A1, L_A2, L_A3))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>bb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">hyps</th>
+<th style="text-align: right;">priors</th>
+<th style="text-align: right;">liks</th>
+<th style="text-align: right;">post_unstand</th>
+<th style="text-align: right;">post_std</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">0.5454545</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.1636364</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.16</td>
+<td style="text-align: right;">0.2909091</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <p><em>Antwort</em>: Die Wahrscheinlichkeit, dass der Käfer zur Art “B” gehört, ist relativ klein, ca.: 0.16.</p>
@@ -918,6 +957,19 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Powered by <a href="https://quarto.org">Quarto</a></p>
+</div>   
+    <div class="nav-footer-center">
+<p><a href="https://sebastiansauer.github.io/Datenwerk/impressum.html">Impressum</a></p>
+<div class="toc-actions"><ul><li><a href="https://github.com/sebastiansauer/Datenwerk/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://sebastiansauer.github.io/Datenwerk/datenschutz.html">Datenschutzhinweise</a></p>
+</div>
+  </div>
+</footer>
 
 
 

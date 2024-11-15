@@ -73,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-a8378a0342da607bf6aa9ac04725c156.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-07039c474047b871045861b1af5e173d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-f347a3c2eec3c0526e037d6bdf6ce46d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -194,12 +194,12 @@ window.Quarto = {
 <div class="quarto-title-block"><div><h1 class="title">Rethink2m2</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">probability</div>
-    <div class="quarto-category">bayes-grid</div>
+    <div class="quarto-category">bayesbox</div>
     <div class="quarto-category">bayes</div>
     <div class="quarto-category">rethink-chap2</div>
     <div class="quarto-category">string</div>
     <div class="quarto-category">qm2</div>
-    <div class="quarto-category">qm2-pruefung</div>
+    <div class="quarto-category">qm2-pruefung2023</div>
   </div>
   </div>
 
@@ -226,7 +226,7 @@ window.Quarto = {
 <section id="aufgabe" class="level1">
 <h1>Aufgabe</h1>
 <p>This question is taken from McElreath, R. (2020). <em>Statistical rethinking: A Bayesian course with examples in R and Stan</em> (2. Ed.). Taylor and Francis, CRC Press.</p>
-<p>Recall the globe tossing model from the chapter. Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for <em>p</em>.</p>
+<p>Recall the globe tossing model from the chapter (also see <a href="https://datenwerk.netlify.app/posts/globus1/index.html">exercise globus1</a>). Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for <em>p</em>.</p>
 <p>Data:</p>
 <ol type="1">
 <li>WWW</li>
@@ -244,7 +244,7 @@ window.Quarto = {
 <section id="lösung" class="level1">
 <h1>Lösung</h1>
 <p>The solution is taken from <a href="https://sr2-solutions.wjakethompson.com/bayesian-inference.html">this source</a>.</p>
-<div class="cell" data-hash="Rethink2m2_cache/html/unnamed-chunk-1_76f06186df387c524c28c7e175b2e115">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> </span>
@@ -253,8 +253,8 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_grid =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">21</span>),</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Priori-Wskt bestimmen:</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">prior  =</span> <span class="fu">case_when</span>(</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      p_grid <span class="sc">&lt;</span> <span class="fl">0.5</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      p_grid <span class="sc">&gt;=</span> <span class="fl">0.5</span> <span class="sc">~</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      p_grid <span class="sc">&lt;</span> <span class="fl">0.5</span> <span class="sc">~</span> <span class="dv">0</span>,  <span class="co"># Null, wenn p &lt; 0.5 </span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      p_grid <span class="sc">&gt;=</span> <span class="fl">0.5</span> <span class="sc">~</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span>  <span class="co"># 1, wenn p &gt;= 0.5</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood berechnen:</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">likelihood_1 =</span> <span class="fu">dbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">prob =</span> p_grid),</span>
@@ -582,7 +582,7 @@ window.Quarto = {
 </div>
 <p>Jetzt können wir das Diagramm zeichnen.</p>
 <p>Mit <code>ggpubr</code>:</p>
-<div class="cell" data-hash="Rethink2m2_cache/html/unnamed-chunk-3_3b0d0a25ad2bc09b9de1783884806a3b">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggline</span>(dist, </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"p_grid"</span>, </span>
@@ -590,7 +590,7 @@ window.Quarto = {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="unnamed-chunk-3-1.png" class="img-fluid figure-img" data-fig-pos="H" width="384"></p>
+<p><img src="unnamed-chunk-3-1.png" class="img-fluid figure-img" style="width:100.0%" data-fig-pos="H"></p>
 </figure>
 </div>
 </div>
@@ -648,7 +648,7 @@ window.Quarto = {
 <p>Categories:</p>
 <ul>
 <li>probability</li>
-<li>bayes-grid</li>
+<li>bayesbox</li>
 <li>bayes</li>
 <li>rethink-chap2</li>
 <li>string</li>
@@ -1323,6 +1323,19 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Powered by <a href="https://quarto.org">Quarto</a></p>
+</div>   
+    <div class="nav-footer-center">
+<p><a href="https://sebastiansauer.github.io/Datenwerk/impressum.html">Impressum</a></p>
+<div class="toc-actions"><ul><li><a href="https://github.com/sebastiansauer/Datenwerk/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://sebastiansauer.github.io/Datenwerk/datenschutz.html">Datenschutzhinweise</a></p>
+</div>
+  </div>
+</footer>
 
 
 
