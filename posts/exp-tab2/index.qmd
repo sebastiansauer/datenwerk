@@ -1,0 +1,125 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-11-27
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: exp-tab2  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- distributions  # ENTER CATEGORIES HERE
+- probability
+- paper
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+```{r}
+#| echo: false
+#| include: false
+
+lambda <- 1
+q <- 95
+
+library(tidyverse)
+```
+
+
+
+
+
+# Aufgabe 
+
+Gegeben sei
+
+$x \sim \text{Exp}(`r lambda`)$.
+
+Gesucht ist folgendes ETI: `r q` %.
+
+Nutzen Sie die Tabelle der Exponentialverteilung, um das Quantil zu bestimmen.
+
+
+
+```{r}
+#| echo: false
+# Define the quantiles
+probs <- c(0.025, 0.05, 0.5, 0.95, 0.975)
+
+# Define the rate parameters
+rates <- c(1, 2, 4, 8, 1/2, 1/4, 1/8)
+
+# Create a matrix to store the results
+quantiles <- matrix(nrow = length(rates), ncol = length(probs))
+rownames(quantiles) <- paste("rate =", rates)
+colnames(quantiles) <- paste(probs * 100, "%")
+
+# Calculate the quantiles for each rate parameter
+for (i in 1:length(rates)) {
+  quantiles[i, ] <- qexp(probs, rate = rates[i])
+}
+
+quantiles_df <- 
+  as.data.frame(quantiles) |> 
+  rownames_to_column(var = "rate")  |> 
+  mutate(rate = rates)
+
+quantiles_df_rounded <-
+  quantiles_df |>
+  round(2)
+
+# Print the table of quantiles
+quantiles_df_rounded
+```
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+ETI steht für *Equal Tail Interval*, eine spezielle von Konfidenzintervall bei einer Bayes-Analyse.
+
+
+Untere Grenze: `r quantiles_df_rounded[quantiles_df_rounded$rate == lambda, 2]`
+
+
+  Obere Grenze: `r quantiles_df_rounded[quantiles_df_rounded$rate == lambda, 6]`
+
+

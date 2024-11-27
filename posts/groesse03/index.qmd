@@ -4,12 +4,10 @@ expoints: 1
 extype: string
 exsolution: NA
 categories:
-- 2023
 - bayes
-- bayesbox
-- string
+- regression
+- paper
 date: '2024-11-10'
-slug: groesse03
 title: groesse03
 
 ---
@@ -83,17 +81,20 @@ data(wo_men)
 Mittelwert in der Stichprobe:
 
 ```{r}
+men <- 
 wo_men |> 
   filter(height < 210, height > 150) |> 
-  group_by(sex) |> 
+  filter(sex == "man") |> 
+  drop_na()
+
+men |>  
   summarise(height_avg = mean(height, na.rm = TRUE),
             height_sd = sd(height, na.rm = TRUE))
 ```
 
 ```{r}
 #| out-width: 75%
-wo_men |> 
-  filter(height < 210, height > 150) |> 
+men |> 
   ggdensity(x = "height", fill = "sex")
 ```
 
@@ -103,7 +104,7 @@ wo_men |>
 
 
 ```{r}
-m1 <- stan_glm(height ~ sex, data = wo_men,
+m1 <- stan_glm(height ~ 1, data = men,
                refresh = 0,
                prior_intercept = normal(178.4, 7.6))
 

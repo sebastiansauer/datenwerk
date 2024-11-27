@@ -1,0 +1,160 @@
+---
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- bayes
+- regression
+- paper
+date: '2024-11-27'
+title: groesse04
+
+---
+
+
+
+<!-- WORK IN PROGRESS -->
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+
+## Hintergrund und Forschungsfrage
+
+Wir interessieren uns für die typische Körpergröße deutscher Studentis.
+[Hier](https://raw.githubusercontent.com/sebastiansauer/pradadata/master/data-raw/wo_men.csv) findet sich dazu ein Datensatz.
+
+Wir wollen die Forschungsfrage untersuchen, ob die Körpergröße männlicher Studenten normalverteilt ist und zwar gleich der Körpergröße des "typischen" erwachsenen Mannes.
+
+Diese Verteilung (typische Körpergröße erwachsener Männer) nehmen wir an mit $\mu \sim N(178.4, 7.6)$.
+
+![](https://ourworldindata.org/images/published/height-distribution_850.png)
+
+
+[Quelle: Körpergröße Männer](https://ourworldindata.org/human-height)
+
+
+[Siehe auch hier zur Körpergröße der Männer](https://de.wikipedia.org/wiki/Liste_der_L%C3%A4nder_nach_K%C3%B6rpergr%C3%B6%C3%9Fe)
+
+
+**Aufgabe** Wie breit ist das 95%-ETI für die Körpergröße der (männlichen) Studenten (in der Post-Verteilung)? Geben Sie die Zahl in Zentimetern an!
+
+
+
+## Setup
+
+```{r}
+library(pradadata)  # für den Datensatz `wo_men`
+library(tidyverse)
+library(ggpubr)
+library(rstanarm)
+library(easystats)
+```
+
+
+## Daten der Stichprobe
+
+
+Daten importieren:
+
+```{r}
+data(wo_men)
+```
+
+
+Mittelwert in der Stichprobe:
+
+```{r}
+men <- 
+wo_men |> 
+  filter(height < 210, height > 150) |> 
+  filter(sex == "man") |> 
+  drop_na()
+
+men |>  
+  summarise(height_avg = mean(height, na.rm = TRUE),
+            height_sd = sd(height, na.rm = TRUE))
+```
+
+```{r}
+#| out-width: 75%
+men |> 
+  ggdensity(x = "height", fill = "sex")
+```
+
+Hm, ob das alle Männer ihre Größe korrekt angegeben haben?
+
+
+## Modell
+
+
+```{r}
+m1 <- stan_glm(height ~ 1, data = men,
+               refresh = 0,
+               prior_intercept = normal(178.4, 7.6),
+               prior_aux = exponential(0.125))
+
+```
+
+Modellparameter:
+
+```{r}
+#| echo: false
+m1_params <- parameters(m1)
+m1_params |> print_md()
+```
+
+Visualisierung der Post-Verteilung (HDI, 95%):
+
+```{r}
+#| out-width: 75%
+#| echo: false
+hdi(m1) |> plot(show_intercept = TRUE)
+```
+
+
+Hinweise:
+
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Die Breite des 95%-ETI für die Körpergröße der Studenten beträgt:
+
+```{r}
+#| echo: false
+m1_params$CI_high - m1_params$CI_low
+```
+
+
+Zu diesem Wert kommt man, wenn man in der Tabelle der Post-Verteilung die Differenz der beiden Werte in der Spalte `95% CI` berechnet (für die Zeile `(Intercept)`).
+
