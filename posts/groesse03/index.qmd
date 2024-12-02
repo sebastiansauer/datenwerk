@@ -59,7 +59,7 @@ Diese Verteilung (typische Körpergröße erwachsener Männer) nehmen wir an mit
 
 ## Setup
 
-```{r}
+```{r setup}
 library(pradadata)  # für den Datensatz `wo_men`
 library(tidyverse)
 library(ggpubr)
@@ -80,7 +80,7 @@ data(wo_men)
 
 Mittelwert in der Stichprobe:
 
-```{r}
+```{r men}
 men <- 
 wo_men |> 
   filter(height < 210, height > 150) |> 
@@ -92,7 +92,9 @@ men |>
             height_sd = sd(height, na.rm = TRUE))
 ```
 
-```{r}
+
+
+```{r fig-dens}
 #| out-width: 75%
 men |> 
   ggdensity(x = "height", fill = "sex")
@@ -103,7 +105,7 @@ men |>
 ## Modell
 
 
-```{r}
+```{r m1}
 m1 <- stan_glm(height ~ 1, data = men,
                refresh = 0,
                prior_intercept = normal(178.4, 7.6))
@@ -112,7 +114,7 @@ m1 <- stan_glm(height ~ 1, data = men,
 
 Modellparameter:
 
-```{r}
+```{r params}
 #| echo: false
 m1_params <- parameters(m1)
 m1_params |> print_md()
@@ -120,7 +122,7 @@ m1_params |> print_md()
 
 Visualisierung der Post-Verteilung (HDI, 95%):
 
-```{r}
+```{r fig-params}
 #| out-width: 75%
 #| echo: false
 hdi(m1) |> plot(show_intercept = TRUE)
@@ -159,6 +161,6 @@ m1_params |>
 
 
 Dieser Bereich überdeckt den oben angenommenen Mittelwert in der männlichen Gesamtbevölkerung von 178.4cm.
-Es ist also *nicht* auszuschließen, dass die mittlere Körpergröße der männlichen Studenten der der Allgemeinbevölkerung entspricht.
+Es ist also *nicht* auszuschließen, dass die mittlere Körpergröße der männlichen Studenten der der männlichen Allgemeinbevölkerung entspricht.
 
-Die Hypothese, dass Studenten im Mittel gleich groß sind wie die Allgemeinbevölkerung, kann also nicht ausgeschlossen (verworfen) werden.
+Die Hypothese, dass Studenten im Mittel gleich groß sind wie die männliche Allgemeinbevölkerung, kann also nicht ausgeschlossen (verworfen) werden.
