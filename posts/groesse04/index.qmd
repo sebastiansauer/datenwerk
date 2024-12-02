@@ -42,7 +42,7 @@ Wir wollen die Forschungsfrage untersuchen, wie groß deutsche Studentis im Schn
 
 Diese Verteilung (typische Körpergröße erwachsener Männer) nehmen wir an mit $\mu \sim N(178.4, 7.6)$.
 
-![](https://ourworldindata.org/images/published/height-distribution_850.png)
+![](height-distribution_850.png)
 
 
 [Quelle: Körpergröße Männer](https://ourworldindata.org/human-height)
@@ -85,7 +85,7 @@ data(wo_men)
 
 Mittelwert in der Stichprobe:
 
-```{r}
+```{r men}
 men <- 
 wo_men |> 
   filter(height < 210, height > 150) |> 
@@ -103,13 +103,13 @@ men |>
   ggdensity(x = "height", fill = "sex")
 ```
 
-Hm, ob das alle Männer ihre Größe korrekt angegeben haben?
+Hm, ob da alle Männer ihre Größe korrekt angegeben haben?
 
 
 ## Modell
 
 
-```{r}
+```{r m1}
 m1 <- stan_glm(height ~ 1, data = men,
                refresh = 0,
                prior_intercept = normal(178.4, 7.6),
@@ -119,7 +119,7 @@ m1 <- stan_glm(height ~ 1, data = men,
 
 Modellparameter:
 
-```{r}
+```{r params}
 #| echo: false
 m1_params <- parameters(m1)
 m1_params |> print_md()
@@ -127,7 +127,7 @@ m1_params |> print_md()
 
 Visualisierung der Post-Verteilung (HDI, 95%):
 
-```{r}
+```{r plot-hdi}
 #| out-width: 75%
 #| echo: false
 hdi(m1) |> plot(show_intercept = TRUE)
