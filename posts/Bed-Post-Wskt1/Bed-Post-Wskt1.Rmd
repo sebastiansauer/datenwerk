@@ -54,6 +54,8 @@ mod <- stan_glm(height ~ weight_c, data = d, refresh = 0)
 d_x0 <-
   d |> 
   filter(between(weight_c, 9.5, 10.5))
+
+x <- 10
 ```
 
 
@@ -71,7 +73,7 @@ parameters(mod)
 
 Betrachten Sie folgende Beziehung (Gleichung bzw. Ungleichung):
 
-$$Pr(\text{height}_i = 155|\text{weightcentered}_i=10, \alpha, \beta, \sigma) \quad \Box \quad Pr(\text{height}_i = 160|\text{weightcentered}_i=10, \alpha, \beta, \sigma)$$
+$$Pr(\text{height}_i = 155|\text{weightcentered}_i=`r x`, \alpha, \beta, \sigma) \quad \Box \quad Pr(\text{height}_i = 160|\text{weightcentered}_i=`r x`, \alpha, \beta, \sigma)$$
 Die in der obigen Beziehung angegebenen Parameter beziehen sich auf das oben dargestellt Modell.
 
 Ergänzen Sie das korrekte Zeichen in das Rechteck $\Box$!
@@ -101,11 +103,30 @@ Answerlist
 # Solution
 
 
-Als Prädiktorwert wurde der Achsenabschnitt spezifiziert, also $x=0$. 
-Der Achsenabschnitt wird mit 154.6 angegeben. 
-Je weiter ein $y_i$ von 154.6 entfernt ist, desto unwahrscheinlicher ist es,
-gegeben $x=0$.
+Als Prädiktorwert (X-Variable) wurde der Achsenabschnitt spezifiziert, also $x=`r x`$. 
+Der Achsenabschnitt wird mit `r round(mod$coefficients[1], 2)` angegeben. 
+Je weiter ein $y_i$ vom vorhergesagten Wert, $\hat{y}$ entfernt ist, desto unwahrscheinlicher ist es,
+gegeben dem Prädiktorwert und dem Modell und den Daten.
 Für jede Einheit von $X$ wird $Y$ größer, also weiter weg von Null.
+
+Der vorhergesagte Wert $\hat{y}$ lässt sich aus der Tabelle mit den Parameterwerten berechnen:
+
+$\hat{y} = \beta_0 + x \cdot \beta_1$ 
+
+
+Für das vorliegende Beispiel heißt das:
+
+
+$\hat{y} = `r round(mod$coefficients[1], 2)` + `r x` \cdot `r round(mod$coefficients[2], 2)`$.
+
+Das Ergebnis ist:
+
+```{r echo=FALSE}
+y_hat <- round(mod$coefficients[1], 2) + x * round(mod$coefficients[2], 2)
+y_hat
+```
+
+
 
 Im Detail:
 
@@ -182,9 +203,10 @@ p1
 
 
 
-Wie man im Diagramm sieht, ist die Wahrscheinlichkeit bei `x=10` für `y=155` größer als für `y=160`.
+Wie man im Diagramm sieht, ist die Wahrscheinlichkeit bei `x = `r x`` für `y=155` größer als für `y=160`.
 
-Die Wahrscheinlichkeit für einen bestimmten Y-Wert gegeben `x=10` ist auf der Regressionsgeraden am größten (blauer Punkt).
+Die Wahrscheinlichkeit für einen bestimmten Y-Wert gegeben x = `r x`` ist auf der Regressionsgeraden am größten (blauer Punkt).
+Die Punkte auf der Regressionsgeraden sind die vorhergesagten Y-Wert ($\hat{y}$) für die gegebenen X-Werte.
 
 Answerlist
 ----------
