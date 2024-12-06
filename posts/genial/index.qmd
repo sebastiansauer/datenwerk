@@ -1,0 +1,167 @@
+---
+extype: num
+exsolution: r sol
+exname: genial
+expoints: 1
+categories:
+- bayes
+- probability
+- num
+- bayesbox
+date: '2024-12-06'
+slug: Krebs1
+title: Krebs1
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold",
+                     # out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Wissenschaft! Vielleicht das wichtigste Projekt der Menschheit, deht es doch um die Loslöung von "Du musst das glauben, weil ich das sage" hinzu "Ich glaube das, weil ich es verstehe".
+
+Sei 1% aller Studien der Wissenschaft "genial".
+Ein Gutachter prüft eine wissenschaftliche Studie und erkennt 90% der genialen Studien als solche.
+Nach der Prüfung der Studie ist der Gutachter überzeugt, dass die Studie genial ist.
+
+
+*Aufgabe*: Berechnen Sie die Wahrscheinlichkeit,
+dass die Studie wirklich genial ist.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Gegeben ist:
+
+
+```{r}
+Pr_g <- 0.01  # Anteil genialer Studien/ Wskt einer *g*enialen Studie
+Pr_t_geg_g <- 0.9  # Wskt, dass eine Studie als genial getestet wird gegeben, dass sie genial ist
+```
+
+
+Hier kann man Bayes Theorem anwenden:
+
+$Pr(g|t) = \frac{Pr(g) \cdot Pr(t|g) }{Pr(t)}$.
+
+Berechnen wir zuerst den Zähler von Bayes' Theorem:
+
+```{r zaehler}
+zaehler_bayes <- Pr_g * Pr_t_geg_g
+zaehler_bayes
+```
+
+
+Dann den Nenner:
+
+```{r nenner,echo = TRUE}
+nenner_bayes <- (zaehler_bayes + (1-Pr_g) * (1-Pr_t_geg_g))
+nenner_bayes
+
+```
+
+Dann berechnen wir den Wert des Bruchs,
+indem wir den Zähler durch den Nenner teilen:
+
+```{r}
+sol <- zaehler_bayes / nenner_bayes
+sol
+```
+
+
+
+Die Lösung beträgt also: ``r round(sol, 2)``.
+
+
+Hier ist ein Baumdiagramm zur Visualisierung:
+
+
+```{mermaid}
+flowchart LR
+  S[1000 Studien] --> K[genail: 10]
+  S --> NK[nicht genial: 990]
+  K --> T[Test positiv: 9]
+  K --> NT[Nicht Test positiv: 1]
+  NK --> TNK[Test positiv: 99]
+  NK --> NTNK[Nicht Test positiv: 891]
+```
+
+
+Man kann die Aufgabe auch mit dem Baumdiagramm lösen:
+
+Es erhalten 108=99+9 Studien ein positives Testergebnis: "geniale Studie!"
+Davon sind 9 tatsächlich genial.
+Das ist ist ei Anteil von $\frac{9}{108} = 0.0833$.
+
+Also: $Pr(g|t) = \frac{9}{108} = 0.0833$.
+
+
+Alternativ kann man auch mit der Bayesbox arbeiten:
+
+| Hypothese 	| Prior 	| Likelihood 	| Post_unstand 	| Evidenz 	| Post 	|
+|-----------	|-------	|------------	|--------------	|---------	|------	|
+| genial     	| .01   	| .9         	| .009         	| .108    	| .083 	|
+| nichtgenial	| .99   	| .1         	| .099         	| .108    	| .092 	|
+
+
+K: Krebs
+
+
+Die Likelihood für die Hypothese $g$ (die Hypothese, dass die Studie genail) ist definiert als $Pr(D|H)=.9$. Hier entspricht der positive Genialitätstest den Daten.
+
+
+Die unstandardisierte Post-Wahrscheinlichkeit entspricht dem Produkt aus Likelihood und Prior: $Pr(D|H) \cdot Pr(H)=.009$ bzw. $.099$.
+
+Die Evidenz ist die Summe der Posterior-Wahrscheinlichkeiten multipliziert mit den jeweiligen Priors: $Pr(D)=.108$.
+
+Die Post-Wahrscheinlichkeit ist die durch die Evidenz dividierte unstandardisierte Post-Wahrscheinlichkeit: $Pr(H|D)=.083$ bzw. $.092$.
+
+
+
+---
+
+Categories: 
+
+- bayes
+- probability
+- num
+
