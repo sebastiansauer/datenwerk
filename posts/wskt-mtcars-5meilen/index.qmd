@@ -1,0 +1,155 @@
+---
+date: 2024-12-10
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: wskt-mtcars-5meilen
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- post  # ENTER CATEGORIES HERE
+- bayes
+- regression
+- mtcars
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Es soll die Wahrscheinlichkeit folgender Hypothese geprüft werden:
+
+>    Ein Auto mit manueller Schaltung hat pro Gallone Sprit mind. 5 Meilen mehr Reichweite als ein Auto mit Automatikschaltung (ceteris paribus).
+
+
+
+Aufgabe: **Geben Sie Sie die Wahrscheinlichkeit der Hypothese an!**
+
+Nutzen Sie zur Lösung folgende Analyse.
+
+
+
+## Setup
+
+```{r}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+
+data(mtcars)
+```
+
+
+## Modell
+
+Die Hypothese kann man wie folgt formalisieren:
+
+1. Die Wahrscheinlichkeit, dass Manuellschalter eine höhere Reichweite haben, ist größer als die Wahrscheinlichkeit, dass Automatikschalter eine höhere Reichweite haben:
+
+$$Pr(mpg_M > mpg_A) > Pr(mpg_M <= mpg_A)$$
+
+2. Oder anders gesagt: Die Wahrscheinlichkeit, dass Automatikschalter eine höhere Reichweite haben (pro Gallone Sprit und im Vergleich zu Automatikschalter) ist größer als 50%.
+
+$$Pr(mpg_M > mpg_A) > 1/2$$
+3. Möchte man noch hinzufügen, dass sich diese Behauptung auf ein bestimmtes, nämlich unser Regressionsmodell bezieht, kann man schreiben:
+
+
+$$Pr(mpg_M > mpg_A \quad | \beta_0, \beta_1, \sigma)$$
+
+## Modell berechnen
+
+```{r}
+m <- stan_glm(mpg ~ am,
+              data = mtcars,
+              refresh = 0,
+              seed = 42)
+```
+
+
+```{r}
+parameters(m)
+```
+
+
+
+
+## Post-Verteilung auslesen
+
+```{r}
+m_post <-
+  m |>
+  as_tibble()
+
+prop <- 
+m_post |> 
+  count(am >= 5) |> 
+  mutate(prop = n/sum(n))
+
+prop
+```
+
+
+
+Hinweise:
+
+
+- Nutzen Sie die Bayes-Statistik mit `Stan`. 
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+- Verwenden Sie den Datensatz `mtcars`.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+
+
+## Antwort
+
+
+
+```{r}
+#| echo: false
+sol <- prop |> filter(`am >= 5` == TRUE) |> pull(prop) |> round(2)
+```
+
+
+
+Laut unserem Modell beträgt die Wahrscheinlichkeit für obige Hypothese `r sol`.

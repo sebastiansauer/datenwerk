@@ -1,0 +1,200 @@
+---
+exname: rope3a
+extype: schoice
+exsolution: 64
+exshuffle: no
+categories:
+- rope
+- bayes
+- regression
+date: '2024-12-10'
+title: rope3a
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Aufgabe
+
+Einer der (bisher) größten Studien der Untersuchung psychologischer Konsequenzen (oder Korrelate) der Covid-Zeit ist die Studie [COVIDiStress](https://www.nature.com/articles/s41597-020-00784-9).
+
+Im Folgenden sollen Sie folgende Forschungsfrage untersuchen:
+
+*Ist der Zusammenhang von Stress (`PSS10_avg`, AV) und Neurotizismus (`neu`, UV) vernachlässigbar klein?*
+
+Den Datensatz können Sie so herunterladen (Achtung, groß):
+
+
+
+
+```{r}
+osf_d_path <- "https://osf.io/cjxua/?action=download"
+
+d <- read_csv(osf_d_path)
+```
+
+
+
+
+
+
+Pakete laden:
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+library(easystats)
+```
+
+
+
+
+Relevante Spalten auswählen:
+
+```{r}
+d2 <-
+  d %>% 
+  select(PSS10_avg, neu)
+```
+
+Datensatz aufbereiten:
+
+```{r}
+d3 <-
+  d2 %>% 
+  drop_na()
+```
+
+Modell berechnen:
+
+```{r}
+m1 <-
+  stan_glm(PSS10_avg ~ neu, 
+           refresh = 0,
+           seed = 42,
+           data = d3)
+```
+
+
+Modellkoeffizienten auslesen:
+
+```{r}
+coef(m1)
+```
+
+Posteriori-Verteilung auslesen:
+
+```{r}
+parameters(m1, ci = .89)
+```
+
+Warum 89%? Kein besonderer Grund. Aber ich mag Primzahlen :-)
+
+Posteriori-Verteilung plotten:
+
+```{r}
+plot(parameters(m1, ci = .89), show_intercept = TRUE)
+```
+
+
+Rope berechnen:
+
+```{r}
+rope_m1 <- rope(m1)
+rope_m1
+```
+
+
+
+
+Rope visualisieren:
+
+```{r}
+plot(rope_m1)
+```
+
+
+
+**Aufgabe:** Wählen Sie die am besten passende Antwortoption!
+
+*Antwortoptionen*
+
+Answerlist
+----------
+* *Ja*
+* *Nein*
+* Die Daten sind  *inkonkludent*; es ist eine *unklare Befundlage*.
+* Auf Basis der bereitgestellten Informationen ist *keine Antwort möglich*.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+
+
+# Lösung
+
+
+Wie man sieht, kreuzt das "blaue Band" nicht den "roten Berg".
+Damit ist die Nullhypothese (ROPE) zu verwerfen.
+
+
+
+
+
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Wahr. ROPE ist zu verwerfen, damit sind Werte um die Null herum nicht wahrscheinlich.
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- rope
+- bayes
+
