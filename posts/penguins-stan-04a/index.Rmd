@@ -1,0 +1,159 @@
+---
+exname: penguins-stan-04a
+extype: num
+exsolution: r exams::fmt(sol, 2)
+extol: 5
+expoints: 1
+categories:
+- bayes
+- regression
+
+date: '2024-12-10'
+title: penguins-stan-04a
+
+---
+
+
+
+
+
+# Aufgabe
+
+
+Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen.
+In dieser Aufgabe untersuchen wir den Zusammenhang von *Schnabellänge* (als UV) und *Körpergewicht* (als AV).
+
+
+**Aufgabe:**
+
+Wie groß ist die Wahrscheinlichkeit, dass der Effekt vorhanden ist (also größer als Null ist), die "*Effektwahrscheinlichkeit*"?
+Geben Sie die Wahrscheinlichkeit an.
+
+
+
+
+Hinweise:
+
+- Nutzen Sie den Datensatz zu den *Palmer Penguins*.
+- Verwenden Sie Methoden der Bayes-Statistik und die Software Stan.
+- Sie können den Datensatz z.B. [hier](https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv) beziehen oder über das R-Paket `palmerpenguins`.
+- [Weitere Hinweise](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Pruefung-Open-Book.html)
+
+
+
+
+
+Zentrieren ist eigentlich immer nützlich,
+aber hier streng genommen nicht unbedingt nötig.
+Der Hauptgrund dafür ist, dass Stan für uns den Prior für den Intercept festlegt,
+und zwar auf Basis der Daten,
+wir uns also nicht um die komische Frage zu kümmern brauchen,
+welchen Prior wir für den unzentrierten Achsenabschnitt vergeben wollten:
+Wie schwer sind Pinguins der Schnabellänge Null?
+Mit zentrierten Prädiktoren ist die Frage nach dem Prior viel einfacher zu beantworten:
+Wie schwer ist ein Pinguin mit mittelgroßem Schnabel?
+
+Setup:
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+
+data("penguins", package = "palmerpenguins")
+```
+
+
+Es wird in dieser Aufgabe vorausgesetzt,
+dass Sie den Datensatz selbständig importieren können.
+Tipp: Kurzes Googeln hilft ggf., den Datensatz zu finden.
+
+
+
+Alternativ könnten Sie den Datensatz als CSV-Datei importieren:
+
+
+```{r eval=FALSE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+penguins <- data_read(d_path)
+```
+
+
+Ein Blick in die Daten zur Kontrolle,
+ob das Importieren richtig funktioniert hat:
+
+```{r}
+glimpse(penguins)
+```
+
+
+Vertrauen ist gut, aber - was Golems betrifft - ist Kontrolle eindeutig besser ;-)
+
+
+
+
+
+```{r}
+m1 <- stan_glm(body_mass_g ~  bill_length_mm,  # Regressionsgleichung
+               data = penguins, #  Daten
+               seed = 42,  # Repro.
+               refresh = 0)  # nicht so viel Output
+```
+
+
+
+```{r}
+parameters(m1)
+```
+
+ETI:
+
+```{r}
+eti(m1) |> plot()
+```
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+Mit `pd()` kann man sich die Effektwahrscheinlichkeit ("probability of direction") ausgeben lassen:
+
+```{r}
+pd(m1)
+```
+
+Mehr Informationen zu dieser Statistik findet sich [hier](https://easystats.github.io/blog/posts/bayestestr_pd/) oder [hier](https://easystats.github.io/bayestestR/reference/p_direction.html).
+
+Alternativ bekommt man die Statistik auch mit `parameters()`.
+
+```{r echo = FALSE}
+sol <- pd(m1)$pd[2]
+```
+
+
+Die Lösung lautet also `r round(sol, 2)`.
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- regression
+- exam-22
+

@@ -1,0 +1,180 @@
+---
+extype: string
+exsolution: NA
+title: penguins-stan-01a
+exname: penguins-stan-01a
+expoints: 1
+categories:
+- bayes
+- regression
+- string
+- qm2
+date: '2024-12-10'
+
+---
+
+
+
+
+
+# Aufgabe
+
+
+Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen.
+In dieser Aufgabe untersuchen wir in dem Zusammenhang den Zusammenhang von *Schnabellänge* (als UV) und Körpergewicht (als AV).
+
+
+**Aufgabe:**
+
+
+*Wie groß ist der statistische Einfluss der UV auf die AV?*
+
+a) Geben Sie den *Punktschätzer* des Effekts an!
+b) *Wie viele Parameter* hat das Modell?
+c) Geben Sie die *Breite eines 90%-HDI* an (zum Effekt)!
+d) Wie groß ist die Wahrscheinlichkeit, dass der Effekt vorhanden ist (also größer als Null ist), die "*Effektwahrscheinlichkeit*"?
+
+
+
+Nutzen Sie die folgende Analyse als Grundlage Ihrer Antworten.
+
+
+
+
+
+
+
+Setup:
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+
+data("penguins", package = "palmerpenguins")
+```
+
+
+Es wird in dieser Aufgabe vorausgesetzt,
+dass Sie den Datensatz selbständig importieren können.
+Tipp: Kurzes Googeln hilft ggf., den Datensatz zu finden.
+
+
+
+Alternativ könnten Sie den Datensatz als CSV-Datei importieren:
+
+
+```{r eval=FALSE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+penguins <- data_read(d_path)  # oder z.B. mit read_csv 
+```
+
+
+Ein Blick in die Daten zur Kontrolle,
+ob das Importieren richtig funktioniert hat:
+
+```{r}
+glimpse(penguins)
+```
+
+
+
+
+
+```{r}
+m1 <- stan_glm(body_mass_g ~  bill_length_mm,  # Regressionsgleichung
+               data = penguins, #  Daten
+               seed = 42,  # Reproduzierbarkeit
+               refresh = 0)  # nicht so viel Output
+```
+
+
+```{r}
+m1_params <- parameters(m1, ci_method = "hdi", ci = .9)
+m1_params
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+## Punktschätzer
+
+Der Punktschätzer ist in der Spalte `Median` in der Tabelle `parameters` zu finden. Sein Wert ist:
+
+```{r echo=FALSE}
+m1_params$Median[2]
+```
+
+
+```{r}
+m1_params |> plot()
+```
+
+
+
+## Anzahl Parameter
+
+Das Modell hat 3 Parameter:
+
+- $\beta_0$ (oder $\alpha$)
+- $\beta_01$
+- $\sigma$
+
+
+## Breite des Intervalls
+
+Dazu liest man die Intervallgrenzen (`90% CI`) in der richtigen Zeile ab (Tabelle `parameters`):
+
+```{r echo=FALSE}
+m1_params$CI_high[2] - m1_params$CI_low[2]
+```
+
+Einheit: mm
+
+
+## Effektwahrscheinlichkeit
+
+
+ 
+
+Man kann diesen Wert aus der Tabelle oben (Ausgabe von `parameters()`) einfach in der Spalte `pd` ablesen.
+`pd` steht für *probability of direction*, s. [Details hier](https://easystats.github.io/blog/posts/bayestestr_pd/).
+
+
+Oder so, ist auch einfach:
+
+
+```{r}
+pd_m1 <- p_direction(m1) # aus Paket easystats
+pd_m1
+```
+
+Und plotten ist meist hilfreich: `plot(pd_m1)`.
+
+Man kann sich auch ein "Dashboard" mit allen Ergebnissen des Modells ausgeben lassen:
+
+```{r eval=FALSE}
+model_dashboard(m1)
+```
+
+
+
+
+

@@ -1,0 +1,132 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-12-10
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: penguins-rope  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- regression  # ENTER CATEGORIES HERE
+- bayes
+- rope
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Wir untersuchen folgende Forschungsfrage:
+
+
+>    Unterscheiden sich die Körpermasse von Pinguinen der Arten *Adelie* und *Gentoo* signifikant voneinander?
+
+
+Hinweise:
+
+- Dabei verstehen *wir* *hier* unter "signifikant" einen Unterschied von mindestens 500g (89%-HDI).
+- Beachten Sie die üblichen Hinweise des Datenwerks.
+
+Achtung: Viele Forscher verstehen unter "signifikant" etwas ganz anderes. (Interessanterweise sind sich aber einige Forscher nicht sicher, was sie darunter verstehen. Fragen Sie sie doch mal.)
+
+
+Wir berechnen folgendes Modell zur Beantwortung der Forschungsfrage:
+
+
+```{r setup}
+library(rstanarm)   # Bayes-Modelle
+library(tidyverse)
+library(easystats)
+
+penguins_url <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+
+penguins <- read.csv(penguins_url)
+```
+
+
+```{r stan-m}
+m <- stan_glm(body_mass_g ~ species, 
+              data = penguins, 
+              refresh = 0,  # unterdrückt Ausgabe der Posteriori-Stichproben
+              seed = 42  # zur Reproduzierbarkeit
+)
+```
+
+
+Dann betrachten wir die Parameter des Modells:
+
+```{r m-params}
+m_params <- parameters(m, ci_method = "HDI", ci =.89)
+m_params
+```
+
+
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+Wie man in der Tabelle sieht, ist der Unterschied der Körpermasse von Pinguinen der Arten *Adelie* und *Gentoo* signifikant. Der Unterschied beträgt mind. `r m_params$CI_low[3]` g, laut dem Modell und dem 89%-HDI.
+
+Das sieht man auch im Diagramm:
+
+
+```{r}
+m_params |> plot()
+```
+
+Die Rope-Statistiken sagen klar, dass wir die ROPE-Hypothese ablehnen können für 500g Unterschied:
+
+```{r}
+m |> rope(range = c(-500, 500))
+```
+
+
+Das sieht man auch im ROPE-Diagramm gut:
+
+```{r}
+m |> rope(range = c(-500, 500)) |> plot()
+```
+

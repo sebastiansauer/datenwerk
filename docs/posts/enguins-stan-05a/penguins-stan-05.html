@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-10-07">
+<meta name="dcterms.date" content="2024-12-11">
 
-<title>ungewiss-arten-regression – datenwerk</title>
+<title>penguins-stan-05a – datenwerk</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -162,12 +162,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">ungewiss-arten-regression</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title">penguins-stan-05a</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
   <div class="quarto-categories">
-    <div class="quarto-category">qm2</div>
-    <div class="quarto-category">inference</div>
     <div class="quarto-category">bayes</div>
     <div class="quarto-category">regression</div>
+    <div class="quarto-category">exam-22</div>
+    <div class="quarto-category">qm2</div>
+    <div class="quarto-category">qm2-pruefung2023</div>
   </div>
   </div>
 
@@ -179,7 +180,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 7, 2022</p>
+      <p class="date">December 11, 2024</p>
     </div>
   </div>
   
@@ -191,33 +192,73 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="exercise" class="level1">
-<h1>Exercise</h1>
-<p>Eine statistische Analyse, wie eine Regression, ist mit mehreren Arten an Ungewissheit konfrontiert. Zum einen gibt es die <em>Ungewissheit in den Modellparametern</em>. Für die Regression <code>y = beta0 + beta1x + error</code> bedeutet das: “Liegt die Regressionsgerade in ‘Wahrheit’ (in der Population) genauso wie in der Stichprobe, sind Achsenabschnitt und Steigung in der Stichprobe also identisch zur Population?”. Zum anderen die <em>Ungewissheit innerhalb des Modells</em>. Auch wenn wir den wahren Wert von <code>beta0</code> und von <code>beta1</code> kennen würden, wären (in aller Regel) die Vorhersagen trotzdem nicht perfekt. Auch wenn wir etwa wüssten, wieviel Klausurpunkte “in Wahrheit” pro Stunde Lernen herausspringen (und wenn wir den wahren Achsenabschnitt kennen würden), so würde das Modell trotzdem keine perfekten Vorhersagen zum Klausurerfolg liefern: Vermutlich fehlen dem Modell wichtige Informationen etwa zur Motivation der Studentis.</p>
-<p>Vor diesem Hintergrund, betrachten Sie folgendes statistisches Modell, das mit den Methoden der Bayes-Statistik berechnet wurde. Dazu wurde die Funktion <code>stan_glm()</code> verwendet, die ähnlich zu <code>lm()</code> ein lineare Modell berechnet.</p>
-<p>Sie brauchen das Modell <em>nicht</em> zu berechnen. Bei dieser Aufgabe geht es nur um die Interpretation.</p>
-<p>Ein wichtiger Unterschied von <code>stan_glm()</code> zu <code>lm()</code> ist, dass Ungewissheiten bei <code>stan_glm()</code> zu den Parameterschätzungen berichtet werden, bei <code>lm</code> nicht (bzw. weniger).</p>
+<section id="aufgabe" class="level1">
+<h1>Aufgabe</h1>
+<p>Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen. In dieser Aufgabe untersuchen wir den Zusammenhang von <em>Schnabellänge</em> (als UV) und <em>Körpergewicht</em> (als AV).</p>
+<p>Aufgabe: <strong>Wie breit ist das 95%-ETI, wenn Sie nur die Spezies <em>Adelie</em> untersuchen?</strong></p>
+<p>Hinweise:</p>
+<ul>
+<li>Sie können den Datensatz z.B. <a href="https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv">hier</a> beziehen oder über das R-Paket <code>palmerpenguins</code>.</li>
+<li><a href="https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Pruefung-Open-Book.html">Weitere Hinweise</a></li>
+</ul>
+<p>Nutzen Sie die folgende Analyse als Grundlage Ihrer Antwort.</p>
+<p>Setup:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars) </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm) </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(mpg <span class="sc">~</span> hp, <span class="at">data =</span> mtcars,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># um nicht zu viel R-Ausgabe zu erhalten</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"penguins"</span>, <span class="at">package =</span> <span class="st">"palmerpenguins"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Es wird in dieser Aufgabe vorausgesetzt, dass Sie den Datensatz selbständig importieren können. Tipp: Kurzes Googeln hilft ggf., den Datensatz zu finden.</p>
+<p>Alternativ könnten Sie den Datensatz als CSV-Datei importieren:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d_path <span class="ot">&lt;-</span> <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ein Blick in die Daten zur Kontrolle, ob das Importieren richtig funktioniert hat:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>penguins <span class="ot">&lt;-</span> <span class="fu">data_read</span>(d_path)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>penguins_adelie <span class="ot">&lt;-</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  penguins <span class="sc">%&gt;%</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(species <span class="sc">==</span> <span class="st">"Adelie"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(penguins)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 344
+Columns: 9
+$ rownames          &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1…
+$ species           &lt;chr&gt; "Adelie", "Adelie", "Adelie", "Adelie", "Adelie", "A…
+$ island            &lt;chr&gt; "Torgersen", "Torgersen", "Torgersen", "Torgersen", …
+$ bill_length_mm    &lt;dbl&gt; 39.1, 39.5, 40.3, NA, 36.7, 39.3, 38.9, 39.2, 34.1, …
+$ bill_depth_mm     &lt;dbl&gt; 18.7, 17.4, 18.0, NA, 19.3, 20.6, 17.8, 19.6, 18.1, …
+$ flipper_length_mm &lt;int&gt; 181, 186, 195, NA, 193, 190, 181, 195, 193, 190, 186…
+$ body_mass_g       &lt;int&gt; 3750, 3800, 3250, NA, 3450, 3650, 3625, 4675, 3475, …
+$ sex               &lt;chr&gt; "male", "female", "female", "", "female", "male", "f…
+$ year              &lt;int&gt; 2007, 2007, 2007, 2007, 2007, 2007, 2007, 2007, 2007…</code></pre>
+</div>
+</div>
+<p>Vertrauen ist gut, aber – was Golems betrifft – ist Kontrolle eindeutig besser ;-)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(body_mass_g <span class="sc">~</span>  bill_length_mm,  <span class="co"># Regressionsgleichung</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> penguins_adelie, <span class="co">#  Daten</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">seed =</span> <span class="dv">42</span>,  <span class="co"># Repro.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">refresh =</span> <span class="dv">0</span>)  <span class="co"># nicht so viel Output</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m1, <span class="at">ci =</span> .<span class="dv">95</span>, <span class="at">ci_method =</span> <span class="st">"eti"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 10%">
-<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 7%">
 <col style="width: 4%">
 <col style="width: 9%">
-<col style="width: 9%">
-<col style="width: 2%">
-<col style="width: 8%">
 <col style="width: 7%">
-<col style="width: 16%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 15%">
 <col style="width: 12%">
 <col style="width: 10%">
 </colgroup>
@@ -239,62 +280,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">30.137673</td>
+<td style="text-align: right;">22.53919</td>
 <td style="text-align: right;">0.95</td>
-<td style="text-align: right;">26.7418072</td>
-<td style="text-align: right;">33.5602799</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1.0002779</td>
-<td style="text-align: right;">3266.827</td>
+<td style="text-align: right;">-879.18205</td>
+<td style="text-align: right;">913.4400</td>
+<td style="text-align: right;">0.5185</td>
+<td style="text-align: right;">1.000466</td>
+<td style="text-align: right;">3934.802</td>
 <td style="text-align: left;">normal</td>
-<td style="text-align: right;">20.09062</td>
-<td style="text-align: right;">15.0673701</td>
+<td style="text-align: right;">3700.662</td>
+<td style="text-align: right;">1146.4153</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">hp</td>
-<td style="text-align: right;">-0.068335</td>
+<td style="text-align: left;">bill_length_mm</td>
+<td style="text-align: right;">94.71685</td>
 <td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-0.0891176</td>
-<td style="text-align: right;">-0.0469947</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.9998604</td>
-<td style="text-align: right;">3466.058</td>
+<td style="text-align: right;">71.89291</td>
+<td style="text-align: right;">118.0511</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">1.000492</td>
+<td style="text-align: right;">3910.510</td>
 <td style="text-align: left;">normal</td>
-<td style="text-align: right;">0.00000</td>
-<td style="text-align: right;">0.2197599</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">430.4322</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<p>Für den Prädiktor <code>hp</code> ist das Regressionsgewicht (Punktschätzer) angegeben unter der Spalte <code>Median</code>. Dieser Wert entspricht der Punktschätzung in der Population und ist identisch zum Regressionsgewicht (“b”) der Stichprobe.</p>
-<p>Die Spalte <code>95% CI</code> gibt das 95%-Konfidenzintervall (CI wie <em>confidence interval</em>) zur Schätzung der Ungewissheit der Koeffizienten (der entsprechenden Zeile) wieder.</p>
-<p><strong>Aufgaben</strong></p>
-<ol type="a">
-<li>Wie breit ist das Intervall, in dem mit 95% Gewissheit der Achsenabschnitt liegt (laut diesem Model)?</li>
-<li>Wie breit ist das Intervall, in dem mit 95% Gewissheit das Regressionsgewicht liegt (laut diesem Model)?</li>
-</ol>
-<p>Hinweise:</p>
-<ul>
-<li>Runden Sie auf zwei Dezimalstellen.</li>
-<li>Ignorieren Sie die Spalte zu ROPE, pd, Prior und Rhat! Goldene Regel der Statistik: Wenn du eine Information nicht brauchst, dann ignoriere sie erstmal ;-)</li>
-</ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
-<section id="solution" class="level1">
-<h1>Solution</h1>
-<ol type="a">
-<li>6.82</li>
-<li>0.04</li>
-</ol>
-<hr>
-<p>Categories:</p>
-<ul>
-<li>qm2</li>
-<li>inference</li>
-<li>lm</li>
-</ul>
+<section id="lösung" class="level1">
+<h1>Lösung</h1>
+<p>Die Lösung lautet also, wie in der Ausgabe zu den Parametern ersichtlich, 46.16.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="penguins-stan-05_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 <!-- -->
@@ -773,128 +801,142 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> NA</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> ungewiss-arten-regression</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">- qm2</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">- inference</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">- bayes</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">- regression</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2022-10-07'</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> ungewiss-arten-regression</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> ungewiss-arten-regression</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu"># Exercise</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="in">```{r libs, include = FALSE}</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE}</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(fig.pos = 'H',</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.asp = 0.618,</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.width = 4,</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.cap = "", </span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.path = "",</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="in">                      cache = TRUE)</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>Eine statistische Analyse, wie eine Regression, ist mit mehreren Arten an Ungewissheit konfrontiert. Zum einen gibt es die *Ungewissheit in den Modellparametern*. Für die Regression `y = beta0 + beta1x + error` bedeutet das: "Liegt die Regressionsgerade in 'Wahrheit' (in der Population) genauso wie in der Stichprobe, sind Achsenabschnitt und Steigung in der Stichprobe also identisch zur Population?". Zum anderen die *Ungewissheit innerhalb des Modells*. Auch wenn wir den wahren Wert von <span class="in">`beta0`</span> und von <span class="in">`beta1`</span> kennen würden, wären (in aller Regel) die Vorhersagen trotzdem nicht perfekt. Auch wenn wir etwa wüssten, wieviel Klausurpunkte "in Wahrheit" pro Stunde Lernen herausspringen (und wenn wir den wahren Achsenabschnitt kennen würden), so würde das Modell trotzdem keine perfekten Vorhersagen zum Klausurerfolg liefern: Vermutlich fehlen dem Modell wichtige Informationen etwa zur Motivation der Studentis.</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>Vor diesem Hintergrund, betrachten Sie folgendes statistisches Modell,</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>das mit den Methoden der Bayes-Statistik berechnet wurde.</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>Dazu wurde die Funktion <span class="in">`stan_glm()`</span> verwendet, die ähnlich zu <span class="in">`lm()`</span> ein lineare Modell berechnet.</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>Sie brauchen das Modell *nicht* zu berechnen. Bei dieser Aufgabe geht es nur um die Interpretation. </span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>Ein wichtiger Unterschied von <span class="in">`stan_glm()`</span> zu <span class="in">`lm()`</span> ist, dass Ungewissheiten bei <span class="in">`stan_glm()`</span> zu den Parameterschätzungen berichtet werden, bei <span class="in">`lm`</span> nicht (bzw. weniger).</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r message=FALSE}</span></span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="in">data(mtcars) </span></span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="in">library(rstanarm) </span></span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="in">library(easystats)</span></span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="in">lm1 &lt;- stan_glm(mpg ~ hp, data = mtcars,</span></span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="in">                refresh = 0)  # um nicht zu viel R-Ausgabe zu erhalten</span></span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="in">parameters(lm1)</span></span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>Für den Prädiktor <span class="in">`hp`</span> ist das Regressionsgewicht (Punktschätzer) angegeben unter der Spalte <span class="in">`Median`</span>.</span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>Dieser Wert entspricht der Punktschätzung in der Population und ist identisch zum Regressionsgewicht ("b") der Stichprobe.</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>Die Spalte <span class="in">`95% CI`</span> gibt das 95%-Konfidenzintervall (CI wie *confidence interval*) zur Schätzung der Ungewissheit der Koeffizienten (der entsprechenden Zeile) wieder.  </span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>**Aufgaben**</span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>a) Wie breit ist das Intervall, in dem mit 95% Gewissheit der Achsenabschnitt liegt (laut diesem Model)?</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>b) Wie breit ist das Intervall, in dem mit 95% Gewissheit das Regressionsgewicht liegt (laut diesem Model)?</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
-<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runden Sie auf zwei Dezimalstellen.</span>
-<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Ignorieren Sie die Spalte zu ROPE, pd, Prior und Rhat! Goldene Regel der Statistik: Wenn du eine Information nicht brauchst, dann ignoriere sie erstmal ;-)</span>
-<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a><span class="fu"># Solution</span></span>
-<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r echo=FALSE}</span></span>
-<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a><span class="in">lm1_params &lt;- parameters(lm1)</span></span>
-<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="in">intercept_ci_width &lt;- (lm1_params$CI_high[1] - lm1_params$CI_low[1]) %&gt;% round(2)</span></span>
-<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a><span class="in">b1_ci_width &lt;- (lm1_params$CI_high[2] - lm1_params$CI_low[2]) %&gt;% round(2)</span></span>
-<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>a) <span class="in">`r intercept_ci_width`</span></span>
-<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>b) <span class="in">`r b1_ci_width`</span></span>
-<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>Categories: </span>
-<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>qm2</span>
-<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>inference</span>
-<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>lm</span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> penguins-stan-05a</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> num</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> r exams::fmt(sol, 2)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="an">extol:</span><span class="co"> 5</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">- bayes</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">- regression</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">- exam-22</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">- qm2</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">- qm2-pruefung2023</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2024-12-11'</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> penguins-stan-05a</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen.</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>In dieser Aufgabe untersuchen wir den Zusammenhang von *Schnabellänge* (als UV) und *Körpergewicht* (als AV).</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>Aufgabe: **Wie breit ist das 95%-ETI, wenn Sie nur die Spezies *Adelie* untersuchen?**</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Sie können den Datensatz z.B. <span class="co">[</span><span class="ot">hier</span><span class="co">](https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv)</span> beziehen oder über das R-Paket <span class="in">`palmerpenguins`</span>.</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Weitere Hinweise</span><span class="co">](https://sebastiansauer.github.io/Lehre/Hinweise/Hinweise-Pruefung-Open-Book.html)</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>Nutzen Sie die folgende Analyse als Grundlage Ihrer Antwort.</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>Setup:</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="in">```{r message=FALSE}</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="in">library(easystats)</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="in">library(rstanarm)</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="in">data("penguins", package = "palmerpenguins")</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>Es wird in dieser Aufgabe vorausgesetzt,</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>dass Sie den Datensatz selbständig importieren können.</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>Tipp: Kurzes Googeln hilft ggf., den Datensatz zu finden.</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>Alternativ könnten Sie den Datensatz als CSV-Datei importieren:</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eval=TRUE}</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="in">d_path &lt;- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>Ein Blick in die Daten zur Kontrolle,</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>ob das Importieren richtig funktioniert hat:</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins-adelie}</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a><span class="in">penguins &lt;- data_read(d_path)</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="in">penguins_adelie &lt;- </span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="in">  penguins %&gt;% </span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(species == "Adelie")</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="in">glimpse(penguins)</span></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>Vertrauen ist gut, aber -- was Golems betrifft -- ist Kontrolle eindeutig besser ;-)</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mod}</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a><span class="in">m1 &lt;- stan_glm(body_mass_g ~  bill_length_mm,  # Regressionsgleichung</span></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a><span class="in">               data = penguins_adelie, #  Daten</span></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a><span class="in">               seed = 42,  # Repro.</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a><span class="in">               refresh = 0)  # nicht so viel Output</span></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m1, <span class="at">ci =</span> .<span class="dv">95</span>, <span class="at">ci_method =</span> <span class="st">"eti"</span>)</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a><span class="in">```{r echo = FALSE}</span></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a><span class="in">sol_raw &lt;- parameters(m1, ci = .95, ci_method = "eti", keep = "bill_length_mm") </span></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a><span class="in">sol &lt;- sol_raw$CI_high - sol_raw$CI_low</span></span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>Die Lösung lautet also, wie in der Ausgabe zu den Parametern ersichtlich, <span class="in">`r round(sol, 2)`</span>.</span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r echo = FALSE}</span></span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a><span class="in">m1 |&gt; eti() |&gt; plot() +</span></span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a><span class="in">  labs(title = "ETI")</span></span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
