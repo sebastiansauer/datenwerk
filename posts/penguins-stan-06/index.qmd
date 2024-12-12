@@ -1,0 +1,233 @@
+---
+extype: string
+exsolution: NA
+title: penguins-stan-06
+expoints: 1
+categories:
+- bayes
+- regression
+- string
+- qm2
+date: '2024-12-12'
+---
+
+
+
+
+
+# Aufgabe
+
+
+Wir untersuchen Einflussfaktoren bzw. Prädiktoren auf das Körpergewicht von Pinguinen.
+In dieser Aufgabe untersuchen wir in dem Zusammenhang den Zusammenhang des *Geschlechts* (als UV) und *Körpergewicht* (als AV).
+
+
+**Aufgabe:**
+
+
+*Wie groß ist der statistische Einfluss der UV auf die AV?*
+
+a) Geben Sie den *Punktschätzer* des Effekts an!
+b) Geben Sie die *Breite eines 90%-HDI* an (zum Effekt)!
+c) Wie groß ist die Wahrscheinlichkeit, dass der Effekt vorhanden ist (also größer als Null ist), die "*Effektwahrscheinlichkeit*"?
+d) Wie groß ist die Wahrscheinlichkeit, dass der Effekt substanziell vorhanden ist (also größer als 0.5 ist), die "*Substantielle Effektwahrscheinlichkeit*"?
+
+
+Hinweise:
+
+
+- Nutzen Sie die folgende Analyse als Grundlage Ihrer Antworten.
+- Beachten Sie die Hinweise des Datenwerks.
+
+
+
+
+
+
+Setup:
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+
+data("penguins", package = "palmerpenguins")
+```
+
+
+Dafür ist folgende Analyse gegeben.
+
+
+
+## Setup
+
+```{r}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+library(ggpubr)
+```
+
+
+## Modell und Hypothese
+
+
+
+Die Hypothese kann man wie folgt formalisieren:
+
+$$\text{weight}_{m} > \text{weight}_{f},$$
+
+"Der Mittelwert des Gewichts der männliche Tiere ist größer als das der weiblichen (female) Tiere".
+
+
+Die Prioris übernehmen wir vom Stan-Golem.🤖
+
+>     🤖 Beep, beep!
+
+>   👩‍🏫 An die Arbeit, Stan-Golem!
+
+
+
+
+
+
+Alternativ könnten Sie den Datensatz als CSV-Datei importieren:
+
+
+```{r eval=FALSE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+penguins <- data_read(d_path)  # oder z.B. mit read_csv 
+```
+
+
+Ein Blick in die Daten zur Kontrolle,
+ob das Importieren richtig funktioniert hat:
+
+```{r}
+glimpse(penguins)
+```
+
+
+
+Wir entfernen noch alle fehlenden Werte:
+
+```{r}
+penguins_nona <- 
+  penguins |> 
+  filter(sex == "female" | sex == "male")
+
+penguins_nona$sex |> unique()
+```
+
+
+
+
+```{r}
+m1 <- stan_glm(body_mass_g ~  sex,  # Regressionsgleichung
+               data = penguins_nona, #  Daten
+               seed = 42,  # Reproduzierbarkeit
+               refresh = 0)  # nicht so viel Output
+```
+
+
+```{r}
+m1_params <- parameters(m1, ci_method = "hdi", ci = .9)
+m1_params
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+## Punktschätzer
+
+Der Punktschätzer ist in der Spalte `Median` in der Tabelle `parameters` zu finden. Sein Wert ist:
+
+```{r echo=FALSE}
+m1_params$Median[2]
+```
+
+Hier ist die Post-Verteilung des Effekts:
+
+```{r}
+m1_params |> plot()
+```
+
+
+
+
+## Breite des Intervalls
+
+Dazu liest man die Intervallgrenzen (`90% CI`) in der richtigen Zeile ab (Tabelle `parameters`):
+
+```{r echo=FALSE}
+m1_params$CI_high[2] - m1_params$CI_low[2]
+```
+
+Einheit: mm
+
+
+## Effektwahrscheinlichkeit
+
+
+ 
+
+Man kann diesen Wert aus der Tabelle oben (Ausgabe von `parameters()`) einfach in der Spalte `pd` ablesen.
+`pd` steht für *probability of direction*, s. [Details hier](https://easystats.github.io/blog/posts/bayestestr_pd/).
+
+
+Oder so, ist auch einfach:
+
+
+```{r}
+pd_m1 <- p_direction(m1) # aus Paket easystats
+pd_m1
+
+
+```
+
+Und plotten ist meist hilfreich: `plot(pd_m1)`.
+
+
+```{r}
+plot(pd_m1)
+```
+
+
+
+
+## Substanzielle Effektwahrscheinlichkeit
+
+Die Frage ist nichts anderes als nach ROPE zu fragen.
+
+
+
+```{r}
+rope_m1 <- rope(m1, range = c(-500,+500))
+rope_m1
+```
+
+```{r}
+plot(rope_m1)
+```
+
+
+Das 90%-Intervall ist knapp außerhalb des ROPE.
+
+Wir können die ROPE-Hypothese daher zurückweisen.

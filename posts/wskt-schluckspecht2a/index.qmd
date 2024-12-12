@@ -1,7 +1,7 @@
 ---
-date: 2024-11-10
+date: 2024-12-12
 draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
-title: Wskt-Schluckspecht2 
+title: Wskt-Schluckspecht2a 
 
 execute: 
   eval: true 
@@ -106,10 +106,11 @@ Wir definieren PS als eine binäre Variable, die angibt, ob ein Auto mehr oder w
 ```{r}
 mtcars <-
   mtcars |> 
-  mutate(PS = case_when(
-    hp > median(hp) ~ 1,
-    hp <= median(hp) ~ 0
-  ))
+  mutate(PS_high = case_when(
+    hp > median(hp) ~ TRUE,
+    hp <= median(hp) ~ FALSE
+  )) |> 
+  mutate(PS_high = as.factor(PS_high))
 ```
 
 
@@ -117,7 +118,7 @@ mtcars <-
 
 
 ```{r}
-m <- stan_glm(mpg ~ PS,  # Regressionsformel
+m <- stan_glm(mpg ~ PS_high,  # Regressionsformel
               data = mtcars,  # Datensatz
               refresh = 0,  # Nicht so viel Detail-Ausgabe
               seed = 42)  # Reproduzierbarkeit

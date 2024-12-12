@@ -40,10 +40,12 @@ Wir untersuchen folgende Forschungsfrage:
 
 Hinweise:
 
-- Dabei verstehen *wir* *hier* unter "signifikant" einen Unterschied von mindestens 500g (89%-HDI).
+- Dabei verstehen *wir* *hier* unter "signifikant" einen Unterschied von mindestens 500g (in Bezug auf die Grenzen eines 89%-HDI).
+- Weniger als der genannte Wert würde forschungsinhaltlich ein vernachlässigbar geringer Wert bedeuten.
 - Beachten Sie die üblichen Hinweise des Datenwerks.
 
-Achtung: Viele Forscher verstehen unter "signifikant" etwas ganz anderes. (Interessanterweise sind sich aber einige Forscher nicht sicher, was sie darunter verstehen. Fragen Sie sie doch mal.)
+Achtung: Viele Forscher verstehen unter "signifikant" etwas ganz anderes. 
+(Interessanterweise sind sich aber einige Forscher nicht sicher, was sie darunter verstehen. Fragen Sie sie doch mal.)
 
 
 Wir berechnen folgendes Modell zur Beantwortung der Forschungsfrage:
@@ -114,8 +116,19 @@ Das sieht man auch im Diagramm:
 
 
 ```{r}
-m_params |> plot()
+m_params |> plot(show_intercept = TRUE)
 ```
+
+Und noch etwas deutlicher in diesem Diagramm:
+
+```{r}
+m |> hdi(ci = .89, parameters = "speciesGentoo") |> 
+  plot() +
+  annotate("rect", xmin = -500, xmax = 500, ymin = 0, ymax = Inf, alpha = 0.5, fill = "pink") +
+  labs(subtitle = "ROPE shown in pink color")
+```
+
+
 
 Die Rope-Statistiken sagen klar, dass wir die ROPE-Hypothese ablehnen können für 500g Unterschied:
 
@@ -124,7 +137,7 @@ m |> rope(range = c(-500, 500))
 ```
 
 
-Das sieht man auch im ROPE-Diagramm gut:
+Das sieht man auch im ROPE-Diagramm gut (ROPE als blaues Rechteck dargestellt):
 
 ```{r}
 m |> rope(range = c(-500, 500)) |> plot()
