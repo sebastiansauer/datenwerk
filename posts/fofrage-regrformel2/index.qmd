@@ -1,0 +1,168 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-01-03
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: fofrage-regrformel2  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- bayes  # ENTER CATEGORIES HERE
+- regression
+- paper
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Betrachten Sie folgende Forschungsformel:
+
+
+>   Gibt es einen Interaktionseffekt zwischen Geschlecht und Schnabellänge auf das Gewicht eines Pinguins? Liegen auch Haupteffekte vor?
+
+
+Auf Basis der folgenden Analyse ist folgende Frage zu untersuchen. Liegt ein Interaktionseffekt vor?
+
+
+Hinweise:
+
+- Unter "Haupteffekt" versteht man den Effekt einer UV auf die AV (im Gegensatz zu einem Interaktionseffekt, der ja der gemeinsame Effekt mehrerer UV auf die AV ist).
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+- Beziehen Sie sich auf den Datensatz `penguins`. 
+
+
+
+```{r}
+library(palmerpenguins)
+data(penguins)
+```
+
+
+```{r}
+library(easystats)
+library(tidyverse)
+library(rstanarm)
+```
+
+```{r}
+glimpse(penguins)
+```
+
+
+
+Zur besseren Interpretierbarkeit sind die metrischen UV standardisiert:
+
+```{r}
+penguins_z <- standardize(penguins, select = bill_length_mm, append = TRUE)
+```
+
+
+Es werden verschiedenen Modelle berechnet, die sich in ihrem Regressionsformel unterscheiden:
+
+```{r}
+m1 <- stan_glm(body_mass_g ~ sex, data = penguins_z, 
+               refresh = 0)
+m2 <- stan_glm(body_mass_g ~ sex + bill_length_mm_z, data = penguins_z, 
+               refresh = 0)
+m3 <- stan_glm(body_mass_g ~ sex + bill_length_mm_z + sex:bill_length_mm_z, data = penguins_z, 
+               refresh = 0)
+m4 <- stan_glm(body_mass_g ~ sex:bill_length_mm_z, data = penguins_z, 
+               refresh = 0)
+```
+
+
+Parameter m1:
+
+```{r}
+#| echo: false
+parameters(m1) |> print_md()
+
+parameters(m1) |> plot()
+```
+
+
+
+Parameter m2:
+
+```{r}
+#| echo: false
+parameters(m2) |> print_md()
+parameters(m2) |> plot()
+```
+
+
+
+Parameter m3:
+
+```{r}
+#| echo: false
+parameters(m3) |> print_md()
+parameters(m3) |> plot()
+```
+
+
+
+Parameter m4:
+
+```{r}
+#| echo: false
+parameters(m4) |> print_md()
+parameters(m4) |> plot()
+```
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+Die Regressionsformel lautet: `body_mass_g ~ sex + bill_length_mm + sex:bill_length_mm`.
+
+
+Daher ist m3 korrekt.
+
+Die Parameterwerte von m3 zeigen, dass ein Interaktionseffekt nicht bestätigt werden kann, bzw. dass die Null, also keine Interaktion, im Bereich plausibler Werte (d.h. innerhalb des Konfidenzintervalls) liegt.
+
+
+
+
