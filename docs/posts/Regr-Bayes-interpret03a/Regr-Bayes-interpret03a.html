@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2022-09-04">
+<meta name="dcterms.date" content="2022-12-15">
 
-<title>mtcars-simple1 – datenwerk</title>
+<title>Regr-Bayes-interpret03a – datenwerk</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -162,14 +162,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">mtcars-simple1</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title">Regr-Bayes-interpret03a</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
   <div class="quarto-categories">
-    <div class="quarto-category">regression</div>
-    <div class="quarto-category">en</div>
     <div class="quarto-category">bayes</div>
-    <div class="quarto-category">frequentist</div>
-    <div class="quarto-category">qm1</div>
-    <div class="quarto-category">stats-nutshell</div>
+    <div class="quarto-category">regression</div>
+    <div class="quarto-category">qm2</div>
     <div class="quarto-category">mtcars</div>
   </div>
   </div>
@@ -182,7 +179,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 4, 2022</p>
+      <p class="date">December 15, 2022</p>
     </div>
   </div>
   
@@ -196,103 +193,327 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="exercise" class="level1">
 <h1>Exercise</h1>
-<p>We will use the dataset <code>mtcars</code> in this exercise.</p>
-<p>Assume your causal model of your research dictates that fuel economy is a linear function of horse power, cylinder count and displacement of the engine.</p>
-<p>Compute the causal effect of <code>horse power</code> given the above model! Report the point estimate.</p>
-<p>Notes:</p>
+<p>Berechnen Sie das Modell und interpretieren Sie die Ausgabe des folgenden Regressionsmodells. Geben Sie für jeden Regressionskoeffizienten an, wie sein Wert zu verstehen ist! Interpretieren Sie auch die Interaktion.</p>
+<p><code>mpg_z ~ hp_z + am + hp_z:am</code></p>
+<p>Hinweise:</p>
 <ul>
-<li>Use can either use frequentist or bayesian modeling.</li>
-<li>Use R for all computations.</li>
-<li>There are multiple ways to find a solution.</li>
+<li>Fixieren Sie die Zufallszahlen.</li>
+<li>Verwenden Sie Stan zur Berechnung.</li>
+<li>Runden Sie auf 2 Dezimalstellen.</li>
+<li>Das Suffix <code>_z</code> steht für z-standardisierte Variablen.</li>
 </ul>
 <p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
 </section>
 <section id="solution" class="level1">
 <h1>Solution</h1>
-<p>Compute Model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>lm1_freq <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl <span class="sc">+</span> disp, <span class="at">data =</span> mtcars)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>lm1_bayes <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl <span class="sc">+</span> disp, <span class="at">data =</span> mtcars, <span class="at">refresh =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)  <span class="co"># Datenjudo</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)  <span class="co"># Stan, komm her</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)  <span class="co"># Komfort</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Get parameters:</p>
+<p>Zuerst standardisieren wir die Daten:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(easystats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1_freq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mtcars2 <span class="ot">&lt;-</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">standardize</span>(<span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>mtcars2  <span class="sc">%&gt;%</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 13%">
-<col style="width: 13%">
+<col style="width: 9%">
 <col style="width: 11%">
-<col style="width: 5%">
-<col style="width: 12%">
 <col style="width: 12%">
 <col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 3%">
 <col style="width: 10%">
-<col style="width: 11%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Parameter</th>
-<th style="text-align: right;">Coefficient</th>
-<th style="text-align: right;">SE</th>
-<th style="text-align: right;">CI</th>
-<th style="text-align: right;">CI_low</th>
-<th style="text-align: right;">CI_high</th>
-<th style="text-align: right;">t</th>
-<th style="text-align: right;">df_error</th>
-<th style="text-align: right;">p</th>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">SD</th>
+<th style="text-align: right;">IQR</th>
+<th style="text-align: right;">Min</th>
+<th style="text-align: right;">Max</th>
+<th style="text-align: right;">Skewness</th>
+<th style="text-align: right;">Kurtosis</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">n_Missing</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">34.1849192</td>
-<td style="text-align: right;">2.5907776</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">28.8779519</td>
-<td style="text-align: right;">39.4918865</td>
-<td style="text-align: right;">13.194849</td>
-<td style="text-align: right;">28</td>
-<td style="text-align: right;">0.0000000</td>
+<td style="text-align: left;">mpg</td>
+<td style="text-align: right;">20.090625</td>
+<td style="text-align: right;">6.0269481</td>
+<td style="text-align: right;">7.525000</td>
+<td style="text-align: right;">10.4000000</td>
+<td style="text-align: right;">33.900000</td>
+<td style="text-align: right;">0.6723771</td>
+<td style="text-align: right;">-0.0220063</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cyl</td>
+<td style="text-align: right;">6.187500</td>
+<td style="text-align: right;">1.7859216</td>
+<td style="text-align: right;">4.000000</td>
+<td style="text-align: right;">4.0000000</td>
+<td style="text-align: right;">8.000000</td>
+<td style="text-align: right;">-0.1922609</td>
+<td style="text-align: right;">-1.7627939</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">disp</td>
+<td style="text-align: right;">230.721875</td>
+<td style="text-align: right;">123.9386938</td>
+<td style="text-align: right;">221.525000</td>
+<td style="text-align: right;">71.1000000</td>
+<td style="text-align: right;">472.000000</td>
+<td style="text-align: right;">0.4202331</td>
+<td style="text-align: right;">-1.0675234</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">hp</td>
-<td style="text-align: right;">-0.0146793</td>
-<td style="text-align: right;">0.0146509</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-0.0446903</td>
-<td style="text-align: right;">0.0153316</td>
-<td style="text-align: right;">-1.001943</td>
-<td style="text-align: right;">28</td>
-<td style="text-align: right;">0.3249519</td>
+<td style="text-align: right;">146.687500</td>
+<td style="text-align: right;">68.5628685</td>
+<td style="text-align: right;">84.500000</td>
+<td style="text-align: right;">52.0000000</td>
+<td style="text-align: right;">335.000000</td>
+<td style="text-align: right;">0.7994067</td>
+<td style="text-align: right;">0.2752116</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">cyl</td>
-<td style="text-align: right;">-1.2274199</td>
-<td style="text-align: right;">0.7972763</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-2.8605664</td>
-<td style="text-align: right;">0.4057265</td>
-<td style="text-align: right;">-1.539516</td>
-<td style="text-align: right;">28</td>
-<td style="text-align: right;">0.1349044</td>
+<td style="text-align: left;">drat</td>
+<td style="text-align: right;">3.596563</td>
+<td style="text-align: right;">0.5346787</td>
+<td style="text-align: right;">0.840000</td>
+<td style="text-align: right;">2.7600000</td>
+<td style="text-align: right;">4.930000</td>
+<td style="text-align: right;">0.2927802</td>
+<td style="text-align: right;">-0.4504325</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">disp</td>
-<td style="text-align: right;">-0.0188381</td>
-<td style="text-align: right;">0.0104037</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-0.0401491</td>
-<td style="text-align: right;">0.0024729</td>
-<td style="text-align: right;">-1.810711</td>
-<td style="text-align: right;">28</td>
-<td style="text-align: right;">0.0809290</td>
+<td style="text-align: left;">wt</td>
+<td style="text-align: right;">3.217250</td>
+<td style="text-align: right;">0.9784574</td>
+<td style="text-align: right;">1.186250</td>
+<td style="text-align: right;">1.5130000</td>
+<td style="text-align: right;">5.424000</td>
+<td style="text-align: right;">0.4659161</td>
+<td style="text-align: right;">0.4165947</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">qsec</td>
+<td style="text-align: right;">17.848750</td>
+<td style="text-align: right;">1.7869432</td>
+<td style="text-align: right;">2.022500</td>
+<td style="text-align: right;">14.5000000</td>
+<td style="text-align: right;">22.900000</td>
+<td style="text-align: right;">0.4063466</td>
+<td style="text-align: right;">0.8649307</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">vs</td>
+<td style="text-align: right;">0.437500</td>
+<td style="text-align: right;">0.5040161</td>
+<td style="text-align: right;">1.000000</td>
+<td style="text-align: right;">0.0000000</td>
+<td style="text-align: right;">1.000000</td>
+<td style="text-align: right;">0.2645418</td>
+<td style="text-align: right;">-2.0632731</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">am</td>
+<td style="text-align: right;">0.406250</td>
+<td style="text-align: right;">0.4989909</td>
+<td style="text-align: right;">1.000000</td>
+<td style="text-align: right;">0.0000000</td>
+<td style="text-align: right;">1.000000</td>
+<td style="text-align: right;">0.4008089</td>
+<td style="text-align: right;">-1.9665503</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">gear</td>
+<td style="text-align: right;">3.687500</td>
+<td style="text-align: right;">0.7378041</td>
+<td style="text-align: right;">1.000000</td>
+<td style="text-align: right;">3.0000000</td>
+<td style="text-align: right;">5.000000</td>
+<td style="text-align: right;">0.5823086</td>
+<td style="text-align: right;">-0.8952916</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">carb</td>
+<td style="text-align: right;">2.812500</td>
+<td style="text-align: right;">1.6152000</td>
+<td style="text-align: right;">2.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">8.000000</td>
+<td style="text-align: right;">1.1570911</td>
+<td style="text-align: right;">2.0200593</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mpg_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.248559</td>
+<td style="text-align: right;">-1.6078826</td>
+<td style="text-align: right;">2.291272</td>
+<td style="text-align: right;">0.6723771</td>
+<td style="text-align: right;">-0.0220063</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cyl_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">2.239740</td>
+<td style="text-align: right;">-1.2248578</td>
+<td style="text-align: right;">1.014882</td>
+<td style="text-align: right;">-0.1922609</td>
+<td style="text-align: right;">-1.7627939</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">disp_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.787376</td>
+<td style="text-align: right;">-1.2879099</td>
+<td style="text-align: right;">1.946754</td>
+<td style="text-align: right;">0.4202331</td>
+<td style="text-align: right;">-1.0675234</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hp_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.232446</td>
+<td style="text-align: right;">-1.3810318</td>
+<td style="text-align: right;">2.746567</td>
+<td style="text-align: right;">0.7994067</td>
+<td style="text-align: right;">0.2752116</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">drat_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.571037</td>
+<td style="text-align: right;">-1.5646078</td>
+<td style="text-align: right;">2.493904</td>
+<td style="text-align: right;">0.2927802</td>
+<td style="text-align: right;">-0.4504325</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">wt_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.212368</td>
+<td style="text-align: right;">-1.7417722</td>
+<td style="text-align: right;">2.255336</td>
+<td style="text-align: right;">0.4659161</td>
+<td style="text-align: right;">0.4165947</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">qsec_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.131821</td>
+<td style="text-align: right;">-1.8740103</td>
+<td style="text-align: right;">2.826755</td>
+<td style="text-align: right;">0.4063466</td>
+<td style="text-align: right;">0.8649307</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">vs_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.984063</td>
+<td style="text-align: right;">-0.8680278</td>
+<td style="text-align: right;">1.116036</td>
+<td style="text-align: right;">0.2645418</td>
+<td style="text-align: right;">-2.0632731</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">am_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">2.004045</td>
+<td style="text-align: right;">-0.8141431</td>
+<td style="text-align: right;">1.189901</td>
+<td style="text-align: right;">0.4008089</td>
+<td style="text-align: right;">-1.9665503</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">gear_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.355373</td>
+<td style="text-align: right;">-0.9318192</td>
+<td style="text-align: right;">1.778928</td>
+<td style="text-align: right;">0.5823086</td>
+<td style="text-align: right;">-0.8952916</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">carb_z</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">1.238237</td>
+<td style="text-align: right;">-1.1221521</td>
+<td style="text-align: right;">3.211677</td>
+<td style="text-align: right;">1.1570911</td>
+<td style="text-align: right;">2.0200593</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
@@ -300,106 +521,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="kable-table">
-<table class="caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 9%">
-<col style="width: 8%">
-<col style="width: 4%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 6%">
-<col style="width: 8%">
-<col style="width: 7%">
-<col style="width: 15%">
-<col style="width: 12%">
-<col style="width: 9%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Parameter</th>
-<th style="text-align: right;">Median</th>
-<th style="text-align: right;">CI</th>
-<th style="text-align: right;">CI_low</th>
-<th style="text-align: right;">CI_high</th>
-<th style="text-align: right;">pd</th>
-<th style="text-align: right;">Rhat</th>
-<th style="text-align: right;">ESS</th>
-<th style="text-align: left;">Prior_Distribution</th>
-<th style="text-align: right;">Prior_Location</th>
-<th style="text-align: right;">Prior_Scale</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">34.3384905</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">28.7492605</td>
-<td style="text-align: right;">39.5220309</td>
-<td style="text-align: right;">1.00000</td>
-<td style="text-align: right;">0.9995556</td>
-<td style="text-align: right;">2550.268</td>
-<td style="text-align: left;">normal</td>
-<td style="text-align: right;">20.09062</td>
-<td style="text-align: right;">15.0673701</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">hp</td>
-<td style="text-align: right;">-0.0144322</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-0.0440017</td>
-<td style="text-align: right;">0.0159889</td>
-<td style="text-align: right;">0.83275</td>
-<td style="text-align: right;">1.0001907</td>
-<td style="text-align: right;">2378.497</td>
-<td style="text-align: left;">normal</td>
-<td style="text-align: right;">0.00000</td>
-<td style="text-align: right;">0.2197599</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">cyl</td>
-<td style="text-align: right;">-1.2866915</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-2.8870372</td>
-<td style="text-align: right;">0.3857465</td>
-<td style="text-align: right;">0.94225</td>
-<td style="text-align: right;">0.9994626</td>
-<td style="text-align: right;">1984.656</td>
-<td style="text-align: left;">normal</td>
-<td style="text-align: right;">0.00000</td>
-<td style="text-align: right;">8.4367476</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">disp</td>
-<td style="text-align: right;">-0.0181281</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">-0.0399442</td>
-<td style="text-align: right;">0.0027910</td>
-<td style="text-align: right;">0.95050</td>
-<td style="text-align: right;">0.9995334</td>
-<td style="text-align: right;">2101.649</td>
-<td style="text-align: left;">normal</td>
-<td style="text-align: right;">0.00000</td>
-<td style="text-align: right;">0.1215712</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stan_glm</span>(mpg_z <span class="sc">~</span> hp_z <span class="sc">+</span> am <span class="sc">+</span> hp_z<span class="sc">:</span>am, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">seed =</span> <span class="dv">42</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">refresh =</span> <span class="dv">0</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> mtcars2)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> (Intercept)         hp_z           am      hp_z:am 
+-0.357413145 -0.677859338  0.876342434  0.005465839 </code></pre>
 </div>
 </div>
-</div>
-<p>The coefficient is estimated as about -0.01</p>
+<ul>
+<li><em>Intercept</em>: Ein Auto mit 0 PS und Automatikantrieb (<code>am=0</code>, s. Hilfe zum Datensatz: <code>help(mtcars)</code>) kann laut Modell mit einer Gallone Sprit ca. -0.36 Meilen fahren. Dieser Wert ist ca. Null, da die AV z-standardisiert ist. Ein Wert von Null in einer z-standardisierten Variablen entspricht dem Mittelwert in den Rohwerten.</li>
+<li><em>hp</em>: Pro zusätzlichem PS kann ein Auto mit Automatikantrieb pro Gallone Sprit ca. -0.68 Meilen weniger weit fahren.</li>
+<li><em>am</em>: Ein Auto mit 0 PS und Schaltgetriebe (<code>am=1</code>) kommt pro Gallone Sprit ca. 0.88 Meilen weiter als ein Auto mit Automatikantrieb.</li>
+<li><em>hp:am</em>: Der Interaktionseffekt ist praktisch Null (-0.36): Der Zusammenhang von PS-Zahl und Spritverbrauch unterscheidet sich nicht (wesentlich) zwischen Autos mit bzw. ohne Automatikantrieb.</li>
+</ul>
 <hr>
 <p>Categories:</p>
 <ul>
-<li>regression</li>
-<li>en</li>
 <li>bayes</li>
-<li>frequentist</li>
-<li>qm1</li>
-<li>stats-nutshell</li>
+<li>regression</li>
 </ul>
 
 
@@ -880,123 +1024,107 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> mtcars-simple1</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> num</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> r round(coef(lm1_freq)[2], 2)</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="an">exshuffle:</span><span class="co"> no</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="an">extol:</span><span class="co"> 1</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">- regression</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">- en</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">- bayes</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">- frequentist</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">- qm1</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">- stats-nutshell</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">- mtcars</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2022-09-04'</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> mtcars-simple1</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> mtcars-simple1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> NA</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> Regr-Bayes-interpret3a</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">- bayes</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">- regression</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">- qm2</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">- mtcars</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2022-12-15'</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> Regr-Bayes-interpret03a</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu"># Exercise</span></span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r libs, include = FALSE}</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="in">#library(glue)</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="in">options(mc.cores = parallel::detectCores())</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>Berechnen Sie das Modell und interpretieren Sie die Ausgabe des folgenden Regressionsmodells.</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>Geben Sie für jeden Regressionskoeffizienten an, wie sein Wert zu verstehen ist! Interpretieren Sie auch die Interaktion.</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="in">`mpg_z ~ hp_z + am + hp_z:am`</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE}</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(fig.pos = 'H',</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.asp = 0.618,</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.width = 4,</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.cap = "", </span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.path = "",</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="in">                      echo = TRUE,</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="in">                      message = FALSE,</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="in">                      fig.show = "hold")</span></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="fu"># Exercise</span></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>We will use the dataset <span class="in">`mtcars`</span> in this exercise.</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fixieren Sie die Zufallszahlen.</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Verwenden Sie Stan zur Berechnung.</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runden Sie auf 2 Dezimalstellen.</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Das Suffix <span class="in">`_z`</span> steht für z-standardisierte Variablen.</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
 <span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>Assume your causal model of your research dictates that fuel economy is a linear function of horse power, cylinder count and displacement of the engine.</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="fu"># Solution</span></span>
 <span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>Compute the causal effect of <span class="in">`horse power`</span> given the above model! Report the point estimate.</span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>Notes:</span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use can either use frequentist or bayesian modeling.</span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use R for all computations.</span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>There are multiple ways to find a solution.</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="in">```{r message=FALSE}</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)  # Datenjudo</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="in">library(rstanarm)  # Stan, komm her</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="in">library(easystats)  # Komfort</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="in">data(mtcars)</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>&lt;/br&gt;</span>
-<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="fu"># Solution</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>Zuerst standardisieren wir die Daten:</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>mtcars2 <span class="ot">&lt;-</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span> </span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">standardize</span>(<span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>mtcars2  <span class="sc">%&gt;%</span> </span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe_distribution</span>()</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>Compute Model:</span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>lm1_freq <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl <span class="sc">+</span> disp, <span class="at">data =</span> mtcars)</span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>lm1_bayes <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl <span class="sc">+</span> disp, <span class="at">data =</span> mtcars, <span class="at">refresh =</span> <span class="dv">0</span>)</span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>Get parameters:</span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> </span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stan_glm</span>(mpg_z <span class="sc">~</span> hp_z <span class="sc">+</span> am <span class="sc">+</span> hp_z<span class="sc">:</span>am, </span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>           <span class="at">seed =</span> <span class="dv">42</span>,</span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>           <span class="at">refresh =</span> <span class="dv">0</span>,</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> mtcars2)</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m1)</span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{r message=FALSE}</span></span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="in">library(easystats)</span></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*Intercept*: Ein Auto mit 0 PS und Automatikantrieb (<span class="in">`am=0`</span>, s. Hilfe zum Datensatz: <span class="in">`help(mtcars)`</span>) kann laut Modell mit einer Gallone Sprit ca. <span class="in">`r round(coef(m1)[[1]], 2)`</span> Meilen fahren. Dieser Wert ist ca. Null, da die AV z-standardisiert ist. Ein Wert von Null in einer z-standardisierten Variablen entspricht dem Mittelwert in den Rohwerten.</span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*hp*: Pro zusätzlichem PS kann ein Auto mit Automatikantrieb pro Gallone Sprit ca. <span class="in">`r round(coef(m1)[[2]], 2)`</span> Meilen weniger weit fahren.</span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*am*: Ein Auto mit 0 PS und Schaltgetriebe (<span class="in">`am=1`</span>) kommt pro Gallone Sprit ca. <span class="in">`r round(coef(m1)[[3]], 2)`</span> Meilen weiter als ein Auto mit Automatikantrieb.</span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*hp:am*:  Der Interaktionseffekt ist praktisch Null (<span class="in">`r round(coef(m1)[[1]], 2)`</span>): Der Zusammenhang von PS-Zahl und Spritverbrauch unterscheidet sich nicht (wesentlich) zwischen Autos mit bzw. ohne Automatikantrieb.</span>
 <span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1_freq)</span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(lm1_bayes)</span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>The coefficient is estimated as about <span class="in">`r round(coef(lm1_freq)[2], 2)`</span></span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>Categories: </span>
-<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>regression</span>
-<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>en</span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>bayes</span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>frequentist</span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>qm1</span>
-<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>stats-nutshell</span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>Categories: </span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>bayes</span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>regression</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
