@@ -42,24 +42,22 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 Betrachten Sie folgende Ausgabe eines Bayesmodells, das mit `rstanarm` "gefittet" wurde:
 
-```
-stan_glm
- family:       gaussian [identity]
- formula:      price ~ cut
- observations: 53940
- predictors:   5
-------
-             Median MAD_SD
-(Intercept)  4358.6  100.7
-cutGood      -431.4  112.4
-cutIdeal     -901.9  104.3
-cutPremium    226.7  105.4
-cutVery Good -375.2  103.9
 
-Auxiliary parameter(s):
-      Median MAD_SD
-sigma 3964.2   11.8
 ```
+Parameter    |  Median |              95% CI |     pd |  Rhat |     ESS |                       Prior
+-----------------------------------------------------------------------------------------------------
+(Intercept)  | 4354.87 | [ 4169.07, 4547.04] |   100% | 1.001 | 1217.00 | Normal (3932.80 +- 9973.60)
+cutGood      | -426.02 | [ -648.68, -208.69] |   100% | 1.001 | 1425.00 |   Normal (0.00 +- 34685.38)
+cutIdeal     | -896.54 | [-1099.03, -704.16] |   100% | 1.001 | 1239.00 |   Normal (0.00 +- 20362.28)
+cutPremium   |  231.20 | [   26.53,  435.01] | 98.75% | 1.001 | 1292.00 |   Normal (0.00 +- 22862.49)
+cutVery Good | -371.85 | [ -575.61, -174.49] |   100% | 1.001 | 1237.00 |   Normal (0.00 +- 23922.15)
+
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed using a MCMC distribution
+  approximation.
+```
+
+
+
 
 
 
@@ -112,11 +110,16 @@ d <- data_read(diamonds_path)
 
 
 
-```{r}
+```{r m1}
 m1 <- stan_glm(price ~ cut,
                seed = 42,
                refresh = 0,
                data = d)
+```
+
+
+```{r}
+parameters(m1)
 ```
 
 

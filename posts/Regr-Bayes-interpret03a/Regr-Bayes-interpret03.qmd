@@ -1,15 +1,15 @@
 ---
 extype: string
 exsolution: NA
-exname: Regr-Bayes-interpret2
+exname: Regr-Bayes-interpret3a
 expoints: 1
 categories:
 - bayes
 - regression
+- qm2
 - mtcars
 date: '2022-12-15'
-slug: Regr-Bayes-interpret02
-title: Regr-Bayes-interpret02
+title: Regr-Bayes-interpret03a
 
 ---
 
@@ -20,13 +20,11 @@ title: Regr-Bayes-interpret02
 
 # Exercise
 
-Berechnen Sie das Modell zu folgender Regressionsformel und interpretieren Sie die Ausgabe des folgenden Regressionsmodells.
-Geben Sie für jeden Regressionskoeffizienten an, wie sein Wert zu verstehen ist! Interpretieren Sie auch den Interaktionseffekt.
+Berechnen Sie das Modell und interpretieren Sie die Ausgabe des folgenden Regressionsmodells.
+Geben Sie für jeden Regressionskoeffizienten an, wie sein Wert zu verstehen ist! Interpretieren Sie auch die Interaktion.
 
 
-Regressionsformel:
-
-`mpg ~ hp_z + am + hp_z:am`
+`mpg_z ~ hp_z + am + hp_z:am`
 
 
 Hinweise:
@@ -79,7 +77,7 @@ mtcars2  %>%
 
 ```{r}
 m1 <- 
-  stan_glm(mpg ~ hp_z + am + hp_z:am, 
+  stan_glm(mpg_z ~ hp_z + am + hp_z:am, 
            seed = 42,
            refresh = 0,
            data = mtcars2)
@@ -88,7 +86,7 @@ coef(m1)
 ```
 
 
-- *Intercept*: Ein Auto mit 0 PS und Automatikantrieb (`am=0`, s. Hilfe zum Datensatz: `help(mtcars)`) kann laut Modell mit einer Gallone Sprit ca. `r round(coef(m1)[[1]], 2)` Meilen fahren.
+- *Intercept*: Ein Auto mit 0 PS und Automatikantrieb (`am=0`, s. Hilfe zum Datensatz: `help(mtcars)`) kann laut Modell mit einer Gallone Sprit ca. `r round(coef(m1)[[1]], 2)` Meilen fahren. Dieser Wert ist ca. Null, da die AV z-standardisiert ist. Ein Wert von Null in einer z-standardisierten Variablen entspricht dem Mittelwert in den Rohwerten.
 - *hp*: Pro zusätzlichem PS kann ein Auto mit Automatikantrieb pro Gallone Sprit ca. `r round(coef(m1)[[2]], 2)` Meilen weniger weit fahren.
 - *am*: Ein Auto mit 0 PS und Schaltgetriebe (`am=1`) kommt pro Gallone Sprit ca. `r round(coef(m1)[[3]], 2)` Meilen weiter als ein Auto mit Automatikantrieb.
 - *hp:am*:  Der Interaktionseffekt ist praktisch Null (`r round(coef(m1)[[1]], 2)`): Der Zusammenhang von PS-Zahl und Spritverbrauch unterscheidet sich nicht (wesentlich) zwischen Autos mit bzw. ohne Automatikantrieb.
