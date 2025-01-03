@@ -1,14 +1,15 @@
 ---
 extype: string
 exsolution: NA
-exname: penguins-regr02a
+exname: penguins-regr02b
 expoints: 1
 categories:
 - bayes
 - rope
 - regression
+- paper
 date: '2024-12-10'
-title: penguins-regr02a
+title: penguins-regr02b
 
 ---
 
@@ -25,7 +26,10 @@ library(tidyverse)
 
 Beantworten Sie folgende Forschungsfrage:
 
-*Gibt es einen Zusammenhang von Schnabellänge und Gewicht (AV) bei Pinguinen?*
+*Gibt es einen substanziellen Zusammenhang von Flossenlänge (Flipper, mm, UV) und Gewicht (g, AV) bei Pinguinen?*
+
+
+"Substanziell" bedeutet dabei das Gegenteil von "vernachlässigbar gering".
 
 
 Nutzen Sie die folgende Analyse für Ihre Antwort.
@@ -53,8 +57,8 @@ data(penguins)
 
 Modell:
 
-```{r m1}
-m1 <- stan_glm(body_mass_g ~ bill_length_mm, 
+```{r mflipper}
+m_flipper <- stan_glm(body_mass_g ~ flipper_length_mm, 
                seed = 42,
                refresh = 0,
                data = penguins)
@@ -63,22 +67,22 @@ m1 <- stan_glm(body_mass_g ~ bill_length_mm,
 Parameter:
 
 ```{r}
-parameters(m1)
+parameters(m_flipper)
 ```
 Rope:
 
 ```{r}
-rope(m1)
+rope(m_flipper)
 ```
 
-Hier wird ein Bereich von ±80 Gramm als "vernachlässigbar" angesehen.
+Hier wird ein Bereich von ±80 Gramm als "vernachlässigbar" (nicht substanziell) angesehen.
 Diese Voreinstellung sollte nur als grobe Orientierung dienen und sollte an die spezifische Forschungsfrage angepasst werden.
 Ihr Fachwissen sollte besser sein als dieser Default-Wert.
 
 Visualisierung:
 
 ```{r}
-plot(rope(m1))
+plot(rope(m_flipper))
 ```
 
 
