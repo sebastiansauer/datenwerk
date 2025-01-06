@@ -1,0 +1,249 @@
+---
+extype: string
+exsolution: NA
+title: penguins-interact
+expoints: 1
+categories:
+- bayes
+- regression
+- paper
+- qm2
+date: '2024-12-12'
+---
+
+
+
+
+
+# Aufgabe
+
+
+Eine Forscherin untersucht, ob das Geschlecht eines Pinguins den Einfluss der Flossenlänge (Flipper, mm) auf das Körpergewicht (g) des Tieres moderiert.
+
+
+**Auf Basis der Daten: Liegt ein (substanzieller) Interaktionseffekt vor?**
+
+Hinweise:
+
+
+- Nutzen Sie die folgende Analyse als Grundlage Ihrer Antworten.
+- Beachten Sie die Hinweise des Datenwerks.
+- Unter "substanziell" sei ein Effekt von mind. 100 g verstanden.
+
+
+
+
+
+
+Setup:
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+
+data("penguins", package = "palmerpenguins")
+```
+
+
+Dafür ist folgende Analyse gegeben.
+
+
+
+## Setup
+
+```{r}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+library(ggpubr)
+```
+
+
+## Modell und Hypothese
+
+
+
+Die Forschungsfrage kann man wie folgt als Hypothese formalisieren:
+
+$$\beta_{m} \ne 0$$
+
+"Der Regressionskoeffizient der Moderation ($m$, d.h. Interaktion) ist ungleich Null."
+
+
+Testet man nicht eine exakte, sondern einen Mindestwert (ROPE), so kann man die Hypothese so formulieren:
+
+$$\beta_{m} > 100$$
+
+Die Prioris übernehmen wir vom Stan-Golem.🤖
+
+>     🤖 Beep, beep!
+
+>   👩‍🏫 An die Arbeit, Stan-Golem!
+
+
+
+
+
+
+Wir könnten  den Datensatz auch als CSV-Datei importieren:
+
+
+```{r eval=FALSE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv"
+penguins <- data_read(d_path)  # oder z.B. mit read_csv 
+```
+
+
+Ein Blick in die Daten zur Kontrolle,
+ob das Importieren richtig funktioniert hat:
+
+```{r}
+glimpse(penguins)
+```
+
+
+
+Wir entfernen noch alle fehlenden Werte:
+
+```{r}
+penguins_nona <- 
+  penguins |> 
+  filter(sex == "female" | sex == "male")
+
+penguins_nona$sex |> unique()
+```
+
+
+Zur besseren Interpretierbarkeit standardisieren wir die (metrische) UV:
+
+
+```{r}
+penguins_nona_z <- 
+  penguins_nona |> 
+  standardise(select = "flipper_length_mm",
+              append = TRUE)
+```
+
+
+```{r}
+m_interaction <- stan_glm(body_mass_g ~  sex + flipper_length_mm_z + sex:flipper_length_mm_z,  # Regressionsgleichung
+               data = penguins_nona_z, #  Daten
+               seed = 42,  # Reproduzierbarkeit
+               refresh = 0)  # nicht so viel Output
+```
+
+
+```{r}
+m_interaction_params <- parameters(m_interaction, ci_method = "hdi", ci = .9)
+m_interaction_params
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+## Punktschätzer
+
+Der Punktschätzer ist in der Spalte `Median` in der Tabelle `parameters` zu finden. Sein Wert ist:
+
+```{r echo=FALSE}
+m_interaction_params$Median[4]
+```
+
+Hier ist die Post-Verteilung des Effekts:
+
+```{r}
+m_interaction_params |> plot()
+```
+
+Alternative Visualisierung:
+
+```{r}
+hdi(m_interaction, ci = .9) |> plot()
+```
+
+
+
+## Breite des Intervalls
+
+Dazu liest man die Intervallgrenzen (`90% CI`) in der richtigen Zeile ab (Tabelle `parameters`).
+
+Obere Grenze: `r m_interaction_params$CI_high[4]`.
+
+Untere Grenze: `r m_interaction_params$CI_low[4]`.
+
+Differenz = Obere_Grenze - Untere_Grenze:
+
+```{r echo=FALSE}
+m_interaction_params$CI_high[4] - m_interaction_params$CI_low[4]
+```
+
+Einheit: mm
+
+
+## Effektwahrscheinlichkeit
+
+Man erkennt schon im Diagramm zum Konfidenzintervall, dass 100% des Intervalls positiv ist.
+Daher ist die Effektwahrscheinlichkeit auch positiv.
+
+
+ 
+
+Man kann diesen Wert aus der Tabelle oben (Ausgabe von `parameters()`) einfach in der Spalte `pd` ablesen.
+`pd` steht für *probability of direction*, s. [Details hier](https://easystats.github.io/blog/posts/bayestestr_pd/).
+
+
+Oder so, ist auch einfach:
+
+
+```{r}
+pd_m_interaction_params <- p_direction(m_interaction) # aus Paket easystats
+pd_m_interaction_params
+```
+
+Und plotten ist meist hilfreich: `plot(pd_m_interaction_params)`.
+
+
+```{r}
+plot(pd_m_interaction_params)
+```
+
+
+
+
+## Substanzielle Effektwahrscheinlichkeit
+
+Die Frage ist nichts anderes als nach ROPE zu fragen.
+
+
+
+```{r}
+rope_m_interact <- rope(m_interaction, range = c(-100,+100))
+rope_m_interact
+```
+
+```{r}
+plot(rope_m_interact)
+```
+
+
+Das 95%-Post-Intervall ist komplett innerhalb des ROPE.
+
+Wir können die ROPE-Hypothese daher bestätigen.
