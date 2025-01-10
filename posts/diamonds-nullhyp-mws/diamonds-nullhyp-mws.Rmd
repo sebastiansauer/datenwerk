@@ -8,7 +8,6 @@ categories:
 - regression
 - nullhypothesis
 date: '2022-12-15'
-slug: diamonds-nullhyp-mws
 title: diamonds-nullhyp-mws
 
 ---
@@ -51,9 +50,6 @@ cutGood      | -426.02 | [ -648.68, -208.69] |   100% | 1.001 | 1425.00 |   Norm
 cutIdeal     | -896.54 | [-1099.03, -704.16] |   100% | 1.001 | 1239.00 |   Normal (0.00 +- 20362.28)
 cutPremium   |  231.20 | [   26.53,  435.01] | 98.75% | 1.001 | 1292.00 |   Normal (0.00 +- 22862.49)
 cutVery Good | -371.85 | [ -575.61, -174.49] |   100% | 1.001 | 1237.00 |   Normal (0.00 +- 23922.15)
-
-Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed using a MCMC distribution
-  approximation.
 ```
 
 
@@ -71,8 +67,8 @@ Hinweise:
 
 Answerlist
 ----------
-* Die Nullhypothese ist (sicher) falsch und muss daher verworfen werden.
-* Die Nullhypothese ist (sicher) wahr und muss daher beibehalten werden.
+* Die Nullhypothese ist (sicher) falsch.
+* Die Nullhypothese ist (sicher) wahr.
 * Man kann schließen, dass beim Parameter von `cutGood` der Wert Null außerhalb des 95%-PI der Posteriori-Verteilung liegt.
 * Man kann schließen, dass alle Parameter positiv sind.
 
@@ -97,7 +93,7 @@ Answerlist
 
 Probieren geht über Studieren:
 
-```{r}
+```{r read-data}
 #| message: false
 library(rstanarm)
 library(tidyverse)
@@ -116,16 +112,21 @@ m1 <- stan_glm(price ~ cut,
                refresh = 0,
                data = d)
 ```
+```{r echo=FALSE}
+parameters(m1) |> print_md()
 
-
-```{r}
-parameters(m1)
+plot(parameters(m1))
 ```
 
 
-```{r}
-eti(m1)
-```
+
+Anmerkungen:
+
+Streng logisch betrachtet ist die Aussage "Die Nullhypothese ist sicher falsch" und "Die Nullhypothese ist falsch" in diesem Kontext vermutlich gleichwertig.
+Würde man aber sagen: "Auf Basis der Datenlage ist die Nullhypothese zu verwerfen", wäre der Aussage zuzustimmen.
+Postuliert eine Nulllhypothese die Gleichheit von z.B. 5 Werten, so ist die Hypothese schon dann falsifiziert, wenn sich nur ein Wert von den anderen (vieren) unterscheidet.
+
+
 
 
 
