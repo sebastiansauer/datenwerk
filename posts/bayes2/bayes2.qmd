@@ -70,23 +70,23 @@ Hinweise:
 Gesucht ist die Wahrscheinlichkeit, dass die Münze gezinkt ist, gegeben der beobachteten Daten: $Pr(F|D)$.
 
 ```{r}
-p1 = .8
-p2 = .5
+p_gezinkt = .8
+p_fair = .5
 n = 10
 k = 8
 ```
 
 
-Es gilt:
+Wir können Bayes' Theorem zur Lösung nutzen:
 
 $Pr(F|D) = \frac{L \times Priori}{Evidenz} = \frac{Pr(D|F) Pr(F)}{Pr(D)} =  \frac{Pr(D|F) Pr(F)}{Pr(D|F)Pr(F)  + {Pr(D|\neg F)Pr(\neg F)}}$
 
 Die Priori-Wahrscheinlichkeit für die Hypothese, dass die Münze *gezinkt* ist, beträgt 1/2, da wir indifferent sind: $Pr(F) = 1/2$.
 
-Die Likelihood, L, berechnet sich so:
+Die Likelihood, L, für die Hypothese einer *gezinkten* Münze, berechnet sich so:
 
 ```{r}
-L_gezinkt <- dbinom(x = k, size = n, prob = p1)
+L_gezinkt <- dbinom(x = k, size = n, prob = p_gezinkt)
 L_gezinkt
 ```
 
@@ -100,14 +100,14 @@ Post_unstand
 
 
 
-Likelihood für die Daten, wenn die Münze nicht gezinkt ist:
+Die Likelihood für die Daten, wenn die Münze *fair* (nicht gezinkt ist), beträgt:
 
 ```{r}
-L_fair <- dbinom(x = k, size = n, prob = p2)
+L_fair <- dbinom(x = k, size = n, prob = p_fair)
 L_fair
 ```
 
-Die unstand. Post-Wahrscheinlichkeit für die Hypothese, dass die Münze nicht gezinkt ist, gegeben der Daten:
+Die unstand. Post-Wahrscheinlichkeit für die Hypothese, dass die Münze fair ist, gegeben der Daten:
 
 ```{r}
 Post_unstand2 <- L_fair * 1/2
@@ -143,7 +143,7 @@ sol <- Post_std |> round(2)
 *Antwort*: Die Lösung beträgt ``r sol``.
 
 
-Alternativ zur Formal kann man auch eine Bayesbox verwenden.
+Alternativ zur Formel kann man auch eine Bayesbox verwenden, um die Aufgabe zu lösen.
 
 ```{r}
 library(prada)
@@ -151,9 +151,24 @@ bayesbox(hyps = c("fair", "gezinkt"),
          priors = c(1/2, 1/2),
          liks = c(L_fair, L_gezinkt))
 ```
+Übrigens würde sich die standardisierte Posteriori-Verteilung nicht ändern, 
+wenn man als Priori bei den beiden Hypothesen jeweils 1 annehmen würden.
 
 
 
+Die Likelihood für die Binomialverteilung kann man auch mit dem Taschenrechner (oder im Kopf...) berechnen:
+
+Likelihood für die Daten unter der Annahme einer *gezinkten* Münze:
+
+```{r}
+choose(n, k) * p_gezinkt^k * (1-p_gezinkt)^(n-k)
+```
+
+Likelihood für die Daten unter der Annahme einer *fairen* Münze:
+
+```{r}
+choose(n, (n-k)) * p_fair^(n-k) * (1-p_fair)^(k)
+```
 
 ---
 
