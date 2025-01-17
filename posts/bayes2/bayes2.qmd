@@ -41,7 +41,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 Wir haben eine Münze $n=10$ Mal geworfen. Unsere Daten ($D$) sind: 8 Mal lag "Kopf" oben. 
-Gegeben dieser Datenlage, wie hoch ist die Wahrscheinlichkeit für das Ereignis $F$ (Falschspieler-Münze), dass die Münze also gezinkt ist auf $p=.8$? 
+Gegeben dieser Datenlage, wie hoch ist die Wahrscheinlichkeit für das Ereignis $F$ (*F*alschspieler-Münze), dass die Münze also gezinkt ist auf $p=.8$? 
 Apriori sind wir indifferent, ob die Münze gezinkt ist oder nicht ($\neg F$, also $p=.5$). 
 Der Einfachheit halber gehen wir davon aus, dass es nur zwei Zustände für die Münze geben kann, gezinkt ($F$) oder nicht gezinkt ($\neg F$).
 
@@ -81,19 +81,19 @@ Es gilt:
 
 $Pr(F|D) = \frac{L \times Priori}{Evidenz} = \frac{Pr(D|F) Pr(F)}{Pr(D)} =  \frac{Pr(D|F) Pr(F)}{Pr(D|F)Pr(F)  + {Pr(D|\neg F)Pr(\neg F)}}$
 
-Die Priori-Wahrscheinlichkeit für die Hypothese, dass die Münze gezinkt ist, beträgt 1/2, da wir indifferent sind: $Pr(F) = 1/2$.
+Die Priori-Wahrscheinlichkeit für die Hypothese, dass die Münze *gezinkt* ist, beträgt 1/2, da wir indifferent sind: $Pr(F) = 1/2$.
 
 Die Likelihood, L, berechnet sich so:
 
 ```{r}
-L <- dbinom(x = k, size = n, prob = p1)
-L
+L_gezinkt <- dbinom(x = k, size = n, prob = p1)
+L_gezinkt
 ```
 
 Der Zähler des Bruchs (unstand. Post) berechnet sich so:
 
 ```{r}
-Post_unstand <- L * 1/2
+Post_unstand <- L_gezinkt * 1/2
 Post_unstand
 ```
 
@@ -103,14 +103,14 @@ Post_unstand
 Likelihood für die Daten, wenn die Münze nicht gezinkt ist:
 
 ```{r}
-L2 <- dbinom(x = k, size = n, prob = p2)
-L2
+L_fair <- dbinom(x = k, size = n, prob = p2)
+L_fair
 ```
 
 Die unstand. Post-Wahrscheinlichkeit für die Hypothese, dass die Münze nicht gezinkt ist, gegeben der Daten:
 
 ```{r}
-Post_unstand2 <- L2 * 1/2
+Post_unstand2 <- L_fair * 1/2
 Post_unstand2
 ```
 
@@ -141,6 +141,16 @@ sol <- Post_std |> round(2)
 
 
 *Antwort*: Die Lösung beträgt ``r sol``.
+
+
+Alternativ zur Formal kann man auch eine Bayesbox verwenden.
+
+```{r}
+library(prada)
+bayesbox(hyps = c("fair", "gezinkt"),
+         priors = c(1/2, 1/2),
+         liks = c(L_fair, L_gezinkt))
+```
 
 
 

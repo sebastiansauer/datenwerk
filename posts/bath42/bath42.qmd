@@ -42,12 +42,20 @@ library(ggpubr)
 
 # Aufgabe
 
+```{r}
+p <- .9
+k <- 6
+wasser_erde <- .7
+wasser_bath42 <- .9
+n <- 9
+```
 
-Mehrere Proben werden zu einem unbekannten Planeten geschossen. Die Forschungsfrage lautet: Ist es die Erde (70% Wasseranteil) oder der Planet "Bath42" mit 90% Wasseranteil?
+
+Mehrere Proben werden zu einem unbekannten Planeten geschossen. Die Forschungsfrage lautet: Ist es die Erde `r wasser_erde` oder der Planet "Bath42" mit `r wasser_bath42` Wasseranteil?
 
 Wir sind indifferent (apriori) zu den Parameterwerten. 
 
-Daten: 6 Treffer (Wasser) von 9 Versuchen (Proben).
+Daten: `r k` Treffer (Wasser) von `r n` Versuchen (Proben).
 
 Behauptung: "Das ist fast sicher Bath42!".
 
@@ -80,7 +88,7 @@ Der höchsten Likelihood hat der Parameter, der gleich den Daten ist.
 Das ist:
 
 ```{r}
-6/9
+k/n
 ```
 
 
@@ -102,12 +110,12 @@ library(tidyverse)
 likelihoods <-
   tibble(
     parameterwerte = parameterwerte,
-    likelihoods = dbinom(x = 6, size = 9, prob = parameterwerte))
+    likelihoods = dbinom(x = k, size = n, prob = parameterwerte))
 
 likelihoods
 ```
 
-Wie man sieht, hat der Parameterwert, der den Daten (6/9) am nächsten kommt, die höchste Likelihood.
+Wie man sieht, hat der Parameterwert, der den Daten am nächsten kommt, die höchste Likelihood.
 
 
 Die Post-Wahrscheinlichkeit können in gewohnter Manier mit Bayes' Theorem berechnen. 
@@ -134,15 +142,16 @@ Unsere Informationen sind:
 ```{r}
 p_Erde <- .5
 p_Bath42 <- .5
-Lik_Erde <- dbinom(x = 7, size = 9, prob = .7)
-Lik_Bath42 <- dbinom(x = 7, size = 9, prob = .9)
+Lik_Erde <- dbinom(x = k, size = n, prob = wasser_erde)
+Lik_Bath42 <- dbinom(x = k, size = n, prob = wasser_bath42)
 ```
 
 
 ```{r}
 bb <- bayesbox(hyps = c("Erde", "Bath42"), 
                priors = 1, 
-               liks = c(Lik_Erde, Lik_Bath42))
+               liks = c(Lik_Erde, Lik_Bath42),
+               round = 2)
 bb
 ```
 
@@ -151,6 +160,7 @@ Falsch. Die Daten sprechen eher für die Erde.
 
 ```{r}
 #| echo: false
+#| fig-asp: .618
 
 ggbarplot(bb, title = "Posteriorwahrscheinlichkeiten", 
           x = "hyps",
