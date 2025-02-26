@@ -1,0 +1,281 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-02-26
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: mariokart_desk-inf-mod  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- R  # ENTER CATEGORIES HERE
+- bayes
+- lagemaße
+- regression
+- tidyverse
+- vis
+- yacsda
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+
+Untersuchen Sie den Datensatz `mariokart`. Beantworten Sie dabei die folgende Forschungsfrage:
+
+
+>   Erzielen Spiele mit Photo (`stock_photo`) einen höheren Verkaufspreis (`total_pr`) im Vergleich zu Spielen ohne Photo?
+
+a. Prüfen Sie auf fehlende Werte und Extremwerte und führen Sie ggf. entsprechende Schritte aus, um etwaige Probleme in diesem Zusammenhang zu lösen.
+b. Berechnen Sie relevante deskriptive Statistiken.
+c. Visualisieren Sie die die Daten sinnvoll.
+d. Berechnen und interpretieren Sie ein passendes Modell.
+e.Berechnen und interpretieren Sie Maße der Inferenzstatistik (Bayes oder Frequentistisch).
+
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+## Vorbereitung
+
+
+```{r}
+library(tidyverse)
+library(easystats)
+library(ggpubr)
+library(visdat)
+library(rstanarm)
+```
+
+```{r}
+mariokart <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv")
+```
+
+
+## Vorverarbeitung
+
+
+### Extremwerte
+
+```{r}
+gghistogram(mariokart, x = "total_pr")
+```
+
+Ja, besser wir entfernen die Extremwerte:
+
+
+```{r}
+mariokart_no_extreme <- 
+  mariokart |> 
+  filter(total_pr < 100)
+```
+
+
+### Fehlende Werte
+
+Fehlende Werte visualisieren:
+
+```{r}
+vis_dat(mariokart_no_extreme)
+```
+
+Fehlende Werte zählen:
+
+```{r}
+colSums(is.na(mariokart_no_extreme))
+```
+
+
+Oder so, mit dplyr:
+
+```{r}
+mariokart_no_extreme |> 
+  summarise(across(everything(), ~ sum(is.na(.x))))
+```
+
+
+
+## Deskriptive Statistik
+
+### Metrische Variablen
+
+Überblick
+
+```{r}
+describe_distribution(mariokart_no_extreme) |> 
+  format_table(digits = 2)
+```
+
+Visualisierung:
+
+```{r}
+describe_distribution(mariokart_no_extreme) |> plot()
+```
+
+
+### Nominale Variablen
+
+Überblick:
+
+```{r}
+data_tabulate(mariokart_no_extreme, 
+              select = c("cond", "ship_sp", "stock_photo")) |> 
+  print_md() |> 
+  format_table(digits = 2)
+```
+
+Visualisierung:
+
+```{r}
+data_tabulate(mariokart_no_extreme, 
+              select = c("cond", "ship_sp", "stock_photo")) |> 
+  plot()
+```
+
+
+### Alternative
+
+```{r}
+skimr::skim(mariokart_no_extreme)
+```
+
+
+
+## Visualisierung
+
+```{r}
+ggboxplot(data = mariokart_no_extreme,
+          x = "stock_photo",
+          y = "total_pr",
+          add = "mean_se",
+          add.params = list(color = okabeito_colors()[1]))
+```
+
+
+
+
+## Modellierung
+
+
+### Kausalmodell
+
+Wir nehmen folgendes Kausalmodell an.
+
+```{mermaid}
+graph LR
+  photo --> price
+  u --> price
+```
+
+
+Unter der Annahme dieses Kausalmodells können wir die Modellkoeffizienten als valide betrachten.
+
+
+### Modell - Frequentistisch
+
+Modell berechnen und Parameter prüfen:
+
+```{r}
+lm1 <- lm(total_pr ~ stock_photo, data = mariokart_no_extreme)
+parameters(lm1) |> 
+  format_table(digits = 2)
+```
+
+
+Visualisierung:
+
+```{r}
+parameters(lm1) |> plot()
+```
+
+
+### Modell - Bayesianisch
+
+Modell berechnen und Parameter prüfen:
+
+```{r}
+lm1_bayes <- stan_glm(total_pr ~ stock_photo, 
+                      data = mariokart_no_extreme,
+                      refresh = 0)
+parameters(lm1_bayes)
+```
+
+
+Visualisierung:
+
+```{r}
+parameters(lm1_bayes) |> plot()
+```
+
+
+
+## Inferenzstatistik
+
+### Nullhypothese
+
+Wie man sieht, ist die Null nicht im Konfidenzintervall enthalten.
+Daher können wir die Nullhypothese ausschließen.
+
+
+### ROPE
+
+Wir können eine ROPE-Nullhypothese nicht komplett ausschließen, aber fast.
+
+```{r}
+rope(lm1_bayes)
+```
+
+Visualisierung:
+
+```{r}
+rope(lm1_bayes) |> plot()
+```
+
