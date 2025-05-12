@@ -1,0 +1,174 @@
+---
+date: 2025-5-12  # HEUTIGES DATUM EINTRAGEN
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: tutorium-kausal  # ACHTUNG: HIER NAMEN DER AUFGABE ANGEBEN
+
+execute: 
+  eval: true 
+  
+highlight-style: arrow 
+cache: true
+
+
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- causal  # ENTER CATEGORIES HERE
+
+---
+
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE, 
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(dagitty)
+library(tidyverse)
+library(ggdag)
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Sie untersuchen folgende Forschungsfrage:
+
+
+>   Hat ein `Tutor`ium (im Fach Statistik, X) einen (kausalen) Effekt auf die `Note` (in der Statistikklausur), Y?
+
+
+
+Dabei gehen Sie von folgendem DAG aus.
+
+
+```{r}
+#| echo: false
+#| label: fig-dag-tutor1
+#| fig-cap: "Der kausale Effekt eines Tutoriums auf die Note, konfundiert durch IQ"
+
+tutor_dag <-
+  dagitty("
+  dag {
+IQ -> Note
+IQ -> Tutorium
+Tutorium -> Note
+} 
+")
+
+
+dagify(Note ~ Tutor + IQ,
+       Tutor ~ IQ) |> 
+  ggdag() +
+  theme_dag()
+```
+
+
+*Aufgabe*: Geben Sie das minimale Adjustierungsset an, um den *direkten* kausalen Effekt von `Tutor` auf `Note` zu identifizieren.
+
+Hinweise:
+
+- Beachten Sie die [Standardhinweise des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Man muss `IQ` adjustieren.
+
+Alternativ kann man `Tutor` randomisieren. Dadurch werden alle in `Tutor` *eingehenden* Pfeile "gelöscht".
+Das Resultat ist, dass es keine "Hintertür" von X zu Y mehr gibt.
+
+
+
+
+
+```{r}
+#| echo: false
+#| label: fig-dag-tutor2-rct
+#| fig-cap: "Der kausale Effekt eines Tutoriums auf die Note mit randomisiertem (R) Tutorium"
+
+tutor_dag_rand <-
+  dagitty("
+  dag {
+IQ -> Note
+R -> Tutor
+Tutor -> Note
+} 
+")
+
+
+dagify(Note ~ Tutor + IQ,
+       Tutor ~ R) |> 
+  ggdag() +
+  theme_dag()
+```
+
+
+
+Alternative Visualisierung:
+
+
+```{r}
+plot(tutor_dag_rand)
+```
+
+
+Natürlich müsste man -- realistischer -- davon ausgehen, dass es noch viele weitere *ungemessene* Ursachen für die Note gibt, z.B. Lernzeit (für die Klausur).
+
+Geht man aber davon aus, dass es keine gemeinsame Ursache von Lernzeit und (dem Besuch eines) Tutorium gibt,
+so gibt es keine Konfundierung und damit keine Verzerrung der Kausaleffekts,
+auch wenn man Lernzeit nicht misst.
+
+
+
+
+
+
+```{r}
+#| echo: false
+#| label: fig-dag-tutor2-rct-mult
+#| fig-cap: "Der kausale Effekt eines Tutoriums auf die Note mit randomisiertem (R) Tutorium plus weitere ungemessene (u) Einflüsse"
+
+tutor_dag_rand_mult <-
+  dagitty("
+  dag {
+IQ -> Note
+R -> Tutor
+Tutor -> Note
+u -> Note
+} 
+")
+
+plot(tutor_dag_rand_mult)
+```
+
+
