@@ -1,10 +1,9 @@
 ---
 # gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
-date: TODAYSDATE
+date: 2025-06-11
 draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
 title: einsamkeit-modellierung  # HIER TITEL DES POSTS EINGEBEN.
 execute: 
-  
   eval: true 
 highlight-style: arrow 
 cache: true
@@ -66,9 +65,9 @@ graph LR
 
 ## Forschungsdesign
 
-UV1: Einsamkeitsinduktion 1
+UV1: Einsamkeitsinduktion 1 (Geschichte)
 
-UV2: Einsamkeitsinduktion 2
+UV2: Einsamkeitsinduktion 2 (Musik)
 
 AV: Einsamkeit
 
@@ -129,6 +128,9 @@ Die Intervention ist in diesem Fall die Induktion von Einsamkeit.
 Es handelt sich um *Between-Desing* mit *Vorher-Nachher-Messung*,
 auch als "Veränderungsmessung" oder Veränderungsdesign bezeichnet.
 
+Die Versuchspersonen durchlaufen nicht die gleichen Bedingungen, sondern verschiedene: einige Probanden sind in der Experimentalgruppe, 
+andere in der Kontrollgruppe.
+
 
 Schauen wir genauer zur ersten Intervention:
 
@@ -138,11 +140,16 @@ graph LR
 ```
 
 
+Es gibt zwei Gruppen, die *Experimentalgruppe* bekommt die *Einsamkeit*, die *Kontrollgruppe* die *neutrale* Bedingung:
+
+
+
 ```{mermaid}
 graph LR
   Messung_t1 --> G1[Einsamkeits-Induktion] 
-  Messugn_t1 --> G2
+  Messugn_t1 --> G2[Kontrollgruppe]
   G1 --> Messung_t2 
+  G2 --> Messung
 ```
 
 # Berechnung der Deltavariablen
@@ -164,7 +171,7 @@ d_delta <-
 
 
 
-Visualisierung der delta-Variablen:
+Visualisierung der Delta-Variablen:
 
 ```{mermaid}
 graph LR
@@ -241,7 +248,9 @@ plot(mod_delta1_rope)
 
 # Deskriptive Analyse
 
-## Delta 1
+## Visualisierung
+
+### Delta 1
 
 ```{r}
 ggboxplot(d_delta, x = "Geschichte", y = "loneliness_delta1",
@@ -298,9 +307,21 @@ d_long |>
 ```
 
 
-## Delta 2 und 3
+### Delta 2 und 3
 
 ... analog
+
+
+## Statistiken pro Gruppe
+
+```{r}
+d_delta |> 
+  select(Geschichte, loneliness_delta1) |> 
+  group_by(Geschichte) |> 
+  summarise(delta1_mean = mean(loneliness_delta1),
+            delta1_sd = sd(loneliness_delta1))
+```
+
 
 
 # Fazit
