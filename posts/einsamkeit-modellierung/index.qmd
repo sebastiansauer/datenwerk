@@ -1,0 +1,315 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: TODAYSDATE
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: einsamkeit-modellierung  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- bayes  # ENTER CATEGORIES HERE
+- regression
+- fopro
+- yacsda
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Fallstudie zur Einsamkeitsinduktion
+
+In dieser Fallstudie wird eine studentische Studie vorgestellt, die untersucht, inwieweit Einsamkeit induziert werden kann und welche Effekte die Einsamkeitsinduktion auf das aktuelle Befinden hat.
+
+Das Design ist reichhaltig und lässt viele Analysen zu. Bei diesem Post liegt der Fokus auf der Modellierung der Forschungsfrage.
+
+
+## Forschungsfrage und Hypothesen
+
+Hat die Induktion (`ind`) von Einsamkeit einen Effekt auf die wahrgenommenen Einsamkeit (`lonely`) ?
+
+Insgesamt wird zwei Mal Einsamkeit induziert:
+
+H1: Die Induktion 1 (`ind1`) verringert die Einsamkeit (Geschichte über Einsamkeit oder neutral)
+
+H2: Die Induktion 2 (`ind2`) verringert die Einsamkeit ("einsame" Musik oder neutral)
+
+
+## DAG (Kausalgraph)
+
+Es handelt sich um eine Kausalanalyse, 
+da man am Effekt der Intervention auf die Einsamkeit interessiert ist.
+
+
+```{mermaid}
+graph LR
+  ind1 --> lonely
+  ind2 --> lonely
+  u --> lonely
+
+```
+
+
+## Forschungsdesign
+
+UV1: Einsamkeitsinduktion 1
+
+UV2: Einsamkeitsinduktion 2
+
+AV: Einsamkeit
+
+
+
+
+
+# Hinweise
+
+
+ Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+# Setup
+
+```{r}
+#| include: false
+library(easystats)
+library(rstanarm)
+library(readxl)
+library(tidyverse)
+library(ggpubr)
+library(ggstatsplot)
+library(knitr)
+```
+
+# Daten importieren
+
+```{r}
+url <- "https://github.com/sebastiansauer/Datenwerk/raw/refs/heads/main/posts/einsamkeit-modellierung/einsamkeit.csv"
+d <- read_csv(url)
+```
+
+Check:
+
+```{r}
+glimpse(d)
+```
+
+```{r}
+d |> 
+  describe_distribution() |> 
+  kable(digits = 2)
+```
+
+
+
+# Ablauf
+
+```{mermaid}
+graph LR
+  Start --> Messung_t1 --> Intervention1 --> Messung_t2 --> Intervention2 --> Messung_t3 --> Ende
+```
+
+Die Intervention ist in diesem Fall die Induktion von Einsamkeit.
+
+
+Es handelt sich um *Between-Desing* mit *Vorher-Nachher-Messung*,
+auch als "Veränderungsmessung" oder Veränderungsdesign bezeichnet.
+
+
+Schauen wir genauer zur ersten Intervention:
+
+```{mermaid}
+graph LR
+  Messung_t1 --> Intervention1 --> Messung_t2 
+```
+
+
+```{mermaid}
+graph LR
+  Messung_t1 --> G1[Einsamkeits-Induktion] 
+  Messugn_t1 --> G2
+  G1 --> Messung_t2 
+```
+
+# Berechnung der Deltavariablen
+
+
+Bei Veränderungsdesigns muss man die Veränderung von einem Messzeitpunkt zum anderen berechnen, pro Person.
+Dazwischen muss eine Intervention liegen.
+Dieser Veränderung nennen wir *delta*, sie misst den kausalen Effekt der Intervention.
+Je größer das (mittlere) Delta *zwischen den Gruppen*, desto größer der Effekt.
+
+
+```{r}
+d_delta <-
+  d |> 
+  mutate(loneliness_delta1 = Loneliness_mean_f2 - Loneliness_mean_f1,
+         loneliness_delta2 = Loneliness_mean_f3 - Loneliness_mean_f2,
+         loneliness_delta3 = Loneliness_mean_f3 - Loneliness_mean_f1 )
+```
+
+
+
+Visualisierung der delta-Variablen:
+
+```{mermaid}
+graph LR
+  Start --> Messung_t1 --> Intervention1 --> Messung_t2 --> Intervention2 --> Messung_t3
+  Messung_t2 -- delta1 --> Messung_t1
+  Messung_t3 -- delta2 --> Messung_t2
+  Messung_t3 -- delta3 --> Messung_t1
+```
+ 
+Puh, das ist unübersichtlich. Vielleicht ist die Berechnung der Delta-Variablen so übersichtlicher:
+
+
+```{mermaid}
+graph LR
+  Messung_t2 -- delta1 --> Messung_t1
+  Messung_t3 -- delta2 --> Messung_t2
+  Messung_t3 -- delta3 --> Messung_t1
+```
+
+
+# Modellierung
+
+
+## Delta 1
+
+### Modell
+
+```{r mod_delta1}
+#| results: hide
+mod_delta1 <- stan_glm(loneliness_delta1 ~ Geschichte, data = d_delta)
+```
+
+Mit `lm` würde das genau so funktionieren.
+Nur ohne die Ergebnisse einfach probabilistisch interpretieren zu können.
+
+
+Ergebnisse:
+
+```{r}
+parameters(mod_delta1) |> 
+  print_md()
+```
+
+Die Nullhypothese kann nicht verworfen werden.
+
+### Visualisierung
+
+```{r}
+plot(parameters(mod_delta1))
+```
+
+
+### Modellgüte
+
+```{r}
+r2(mod_delta1)
+```
+
+Tja, die Intervention war leider nicht so stark. Aber so ist es nun Mal im harten Forscherleben ...
+
+
+```{r}
+mod_delta1_rope <- rope(mod_delta1)
+
+plot(mod_delta1_rope)
+```
+
+
+
+## Delta 2 und 3
+
+... analog 
+
+
+# Deskriptive Analyse
+
+## Delta 1
+
+```{r}
+ggboxplot(d_delta, x = "Geschichte", y = "loneliness_delta1",
+          add = "jitter")
+```
+
+Tja, leider kein starker Effekt zu erkennen.
+
+```{r}
+d_long <- 
+d |> 
+  select(Proband_ID, Geschichte, starts_with("Loneliness")) |> 
+  pivot_longer(cols = starts_with("Loneliness"),
+               names_to = "Messzeitpunkt",
+               values_to = "Einsamkeit") |> 
+  mutate(t = as.integer(str_extract(Messzeitpunkt, "\\d")))  # Messzeitpunkt als Zahl: 1,2,3
+
+```
+
+
+```{r}
+d_long |> 
+  head() |> 
+  kable(digits = 2)
+```
+
+
+
+```{r}
+d_long |>
+  ggboxplot(x = "t", y = "Einsamkeit", add = "jitter",
+            color = "Geschichte")
+```
+
+
+Es ist wenig Effekt zu erkennen.
+Interessanterweise hat die Gruppe der Einsamkeits-Intervention *von vornherein* einen höheren Wert in Einsamkeit.
+Das ist psychologisch interessant und sollte näher untersucht werden.
+
+
+Andere Visualisierung:
+
+```{r}
+#| fig-asp: 1
+d_long |> 
+  ggsummarystats(x = "t",
+                 y = "Einsamkeit",
+                 ggfunc = ggline,
+                 add = "median_iqr",
+                 color = "Geschichte",
+                 position = position_dodge(width = 0.1),
+                 heights  = c(0.6, 0.4),
+                 caption = "Error bars show median and IQR")
+```
+
+
+## Delta 2 und 3
+
+... analog
+
+
+# Fazit
+
+Veränderung-Designs analysiert man im einfachsten Fall mit Hilfe von Delta-Variablen.
+
+In dieser Studie sind zwei UVs hintereinander gelegt.
+Das macht aber nichts, man kann sie getrennt voneinander analysieren.
+
+
+
+
