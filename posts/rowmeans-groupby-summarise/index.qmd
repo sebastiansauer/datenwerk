@@ -1,0 +1,111 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-06-18
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: rowmeans-groupby-summarise  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- tidyverse  # ENTER CATEGORIES HERE
+- datawrangling
+
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(easystats)
+```
+
+## Daten
+
+```{r}
+library(rio)
+extra_path <- "https://github.com/sebastiansauer/statistik1/raw/main/data/extra.xls"
+extra <- import(extra_path)
+```
+
+
+## Forschungsfrage
+
+Wie groß ist der Unterschied in der Extraversion zwischen Frauen und Männern?
+Berechnen Sie dazu den Mittelwert für Extraversion pro Geschlechtsgruppe.
+
+## Hinweise
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+# Lösung 
+
+Mittelwert über die Zeilen berchnen mit `row_means`:
+
+```{r}
+extra <- 
+  extra |> 
+  mutate(extra_score = row_means(data = extra, select = i3:i12))
+```
+
+
+
+Zusammenfassen (mit `mean`) pro Geschlechtsgruppe:
+
+```{r}
+extra |> 
+  select(extra_score, i16) |> 
+  drop_na() |> 
+  group_by(i16) |> 
+  summarise(extra_mean = mean(extra_score),
+            extra_sd = sd(extra_score))
+```
+
+
+
+
+
+
+
+
+
+
