@@ -1,0 +1,119 @@
+---
+extype: string
+exsolution: NA
+title: penguins-interact2
+expoints: 1
+categories:
+- bayes
+- regression
+- paper
+- qm2
+date: '2024-12-12'
+---
+
+
+
+
+
+# Aufgabe
+
+
+Eine Forscherin untersucht, ob das Geschlecht eines Pinguins den Einfluss der Flossenlänge (Flipper, mm) auf das Körpergewicht (g) des Tieres moderiert.
+
+
+
+
+Hinweise:
+
+
+- Nutzen Sie die folgende Analyse als Grundlage Ihrer Antworten.
+- Beachten Sie die Hinweise des Datenwerks.
+- Unter "substanziell" sei ein Effekt von mind. 100 g verstanden.
+
+
+
+
+
+
+## Setup
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+library(ggpubr)
+data("penguins", package = "palmerpenguins")
+```
+
+
+Dafür ist folgende Analyse gegeben.
+
+
+
+
+
+Wir entfernen zunächst alle fehlenden Werte:
+
+```{r}
+penguins_nona <- 
+  penguins |> 
+  filter(sex == "female" | sex == "male")
+
+penguins_nona$sex |> unique()
+```
+
+
+Zur besseren Interpretierbarkeit standardisieren wir die (metrische) UV und AV:
+
+
+```{r}
+penguins_nona_z <- 
+  penguins_nona |> 
+  standardise(select = c("flipper_length_mm", "body_mass_g"),
+              append = TRUE)
+```
+
+
+```{r}
+m_interaction <- stan_glm(body_mass_g_z ~  sex + flipper_length_mm_z + sex:flipper_length_mm_z,  # Regressionsgleichung
+               data = penguins_nona_z, #  Daten
+               seed = 42,  # Reproduzierbarkeit
+               refresh = 0)  # nicht so viel Output
+```
+
+
+```{r}
+m_interaction_params <- parameters(m_interaction, ci_method = "hdi", ci = .9)
+m_interaction_params
+```
+
+
+```{r}
+plot(pd_m_interaction_params)
+```
+
+A) Männliche Tiere sind im Schnitt leichter.
+B) Es liegt ein Interaktionseffekt vor; die Nullhypothese zum Interaktionseffekt kann verworfen werden.
+C) Es liegt *kein* Interaktionseffekt vor; die Nullhypothese zum Interaktionseffekt kann *nicht* verworfen werden.
+D) Pro Einheit an Flossenlänge (`flipper_lengh_mm_z`) steigt das Körpergewicht um ca. 0.8 Einheiten bei männlichen Tieren; bei weiblichen Tieren steigt es um ca. 0.4 + 0.8 = 1.2 Einheiten.
+E)  Pro SD-Einheit an Flossenlänge (`flipper_lengh_mm_z`) steigt das Körpergewicht um ca. 0.8 SD-Einheiten bei männlichen Tieren; bei weiblichen Tieren steigt es um ca. 0.4 + 0.8 = 1.2 SD-Einheiten.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+**C**
+

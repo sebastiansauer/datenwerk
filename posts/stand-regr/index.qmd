@@ -1,0 +1,115 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-07-02
+draft: true   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: stand-reg  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+
+
+categories:
+- regression  # ENTER CATEGORIES HERE
+
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Gegeben sei das folgende lineare Modell.
+
+
+```{r}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+data(mariokart, package = "openintro")
+
+mariokart_z <-
+  mariokart |>
+  select(total_pr, wheels) |> 
+  standardise()
+
+model1 <- stan_glm(total_pr ~ wheels, data = mariokart_z)
+```
+
+
+
+
+Hier sind die Ergebnisse des Modells:
+
+```{r}
+parameters(model1)
+plot(parameters(model1))
+```
+
+
+**Welche Aussage zum Modell `model1` ist korrekt?**
+
+
+A) Für eine Einheit Unterschied in `wheels` ändert sich `total_pr` um etwa `r round(coef(model1)[1], 2)` Einheiten.
+B) Für eine Einheit Unterschied in `wheels` ändert sich `total_pr` um etwa `r round(coef(model1)[2], 2)` Einheiten.
+C) Für eine SD-Einheit Unterschied in `wheels` ändert sich `total_pr` um etwa `r round(coef(model1)[1], 2)` Einheiten.
+D) Für eine SD-Einheit Unterschied in `wheels` ändert sich `total_pr` um etwa `r round(coef(model1)[1], 2)` SD-Einheiten.
+E) Für eine SD-Einheit Unterschied in `total_pr` ändert sich `wheels` um etwa `r round(coef(model1)[1], 2)` SD-Einheiten.
+
+
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+**D**
+
+Da beide variablen, die UV und die AV, z-standardisiert sind, bedeutet das, dass die statistischen Effekte (Regressionsgewichte) als Unterschiede in z-Werten zu verstehen sind.
+
+
+Hinweis: Es gibt viele Möglichkeiten, die Variablen zu (z-)standardisieren. Hier ist eine andere Option:
+
+```{r}
+model2 <- stan_glm(scale(total_pr) ~  scale(wheels), data = mariokart)
+parameters(model2)
+```
+
