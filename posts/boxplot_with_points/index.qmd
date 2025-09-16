@@ -1,0 +1,109 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2024-10-16
+draft: true   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: boxplot_with_points # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+
+
+categories:
+- vis  # ENTER CATEGORIES HERE
+- tidyverse
+
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Visualisieren Sie die das Körpergewicht von Pinguinen (`palmerpenguins`) in Abhängigkeit vom Geschlecht der Tiere.
+Entfernen Sie vorab etwaige fehlende Werte.
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+```{r}
+library(tidyverse)
+library(easystats)
+library(ggpubr)
+```
+
+
+```{r}
+penguins <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv")
+```
+
+
+```{r}
+penguins_filtered <-
+  penguins |> 
+  filter(sex == "male" | sex == "female")
+```
+
+
+
+```{r}
+ggboxplot(penguins_filtered, 
+          x = "sex",
+          y = "body_mass_g") + geom_jitter(width=0.1,
+                                           alpha = .6)
+```
+
+Bonus:
+
+Mittelwert hinzufügen:
+
+
+
+```{r}
+ggboxplot(penguins_filtered, 
+          x = "sex",
+          y = "body_mass_g") + 
+  geom_jitter(width=0.1, alpha = .6) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3)
+```

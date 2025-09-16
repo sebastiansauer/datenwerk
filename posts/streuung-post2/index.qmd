@@ -1,0 +1,207 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-06-27
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: streuung-post2 # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- bayes  # ENTER CATEGORIES HERE
+
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Ein Fitnesstrainer behauptet, der Effekt einer Stunde Joggen läge bei "etwa 500 bis 600" kcal. 
+Der Fitnesstrainer erklärt, dass er sich auf einen erwachsenen Mann mit ca. 80 kg Körpergewicht bezieht und eine mittleren Geschwindigkeit von ca. 8-9 km/h.
+
+Unter der Annahme, dass der Effekt existiert, normalverteilt ist
+und dass der oben angeführte Wertebereich dem 95%-ETI
+einer Posterior-Verteilung entspricht: 
+
+**Wie groß ist die Streuung der Posterior-Verteilung?**
+
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+Für eine Normalverteilung N(μ, σ²) gilt:
+
+Das 2,5%-Quantil liegt bei μ - 1,96σ
+Das 97,5%-Quantil liegt bei μ + 1,96σ
+
+Daraus folgt:
+
+500 = μ - 1,96σ
+600 = μ + 1,96σ
+
+Aus den beiden Gleichungen:
+
+Differenz: 600 - 500 = 100 = 2 × 1,96σ
+Daher: σ = 100 / (2 × 1,96) = 100 / 3,92 ≈ 25,5 kcal
+
+Mittelwert:
+
+μ = (500 + 600) / 2 = 550 kcal
+
+Antwort:
+Die Streuung (Standardabweichung) der Posterior-Verteilung beträgt etwa 25,5 kcal.
+Interpretation:
+Bei einer Normalverteilung mit μ = 550 kcal und σ = 25,5 kcal liegen 95% der Werte zwischen 500 und 600 kcal, 
+was genau dem angegebenen 95%-ETI entspricht.
+
+```{r}
+#| echo: false
+#| message: false
+
+library(tidyverse)
+
+# Parameter der Normalverteilung
+mu <- 550      # Mittelwert
+sigma <- 25.5  # Standardabweichung
+
+# Daten für die Normalverteilung generieren
+x <- seq(450, 650, length.out = 1000)
+y <- dnorm(x, mean = mu, sd = sigma)
+
+# DataFrame erstellen
+df <- data.frame(x = x, y = y)
+
+# 95%-ETI Grenzen
+lower_bound <- 500
+upper_bound <- 600
+
+# Daten für die Füllung des 95%-ETI
+df_fill <- df %>%
+  filter(x >= lower_bound & x <= upper_bound)
+
+# Hauptplot erstellen
+p <- ggplot(df, aes(x = x, y = y)) +
+  # Normalverteilungskurve
+  geom_line(color = "blue", size = 1.2) +
+  
+  # 95%-ETI Bereich füllen
+  geom_area(data = df_fill, 
+            aes(x = x, y = y), 
+            fill = "blue", 
+            alpha = 0.3) +
+  
+  # Vertikale Linien für ETI-Grenzen
+  geom_vline(xintercept = lower_bound, 
+             color = "red", 
+             linetype = "dashed", 
+             size = 1) +
+  geom_vline(xintercept = upper_bound, 
+             color = "red", 
+             linetype = "dashed", 
+             size = 1) +
+  
+  # Mittelwert-Linie
+  geom_vline(xintercept = mu, 
+             color = "darkgreen", 
+             linetype = "dashed", 
+             size = 1) +
+  
+  # Beschriftungen
+  labs(
+    title = "Posterior-Verteilung: Kalorienverbrauch beim Joggen",
+    subtitle = paste("N(", mu, ", ", sigma, "²) - 95%-ETI: [", lower_bound, ", ", upper_bound, "] kcal"),
+    x = "Kalorienverbrauch [kcal]",
+    y = ""
+  ) +
+  
+  # Theme anpassen
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    axis.text.y = element_blank()
+  ) +
+  
+  # Achsenbegrenzungen
+  xlim(450, 650) +
+  ylim(0, max(y) * 1.1)
+
+# Annotationen hinzufügen
+p <- p +
+  # Beschriftung der Grenzen
+  annotate("text", x = lower_bound, y = max(y) * 0.7, 
+           label = paste(lower_bound, "kcal"), 
+           color = "red", hjust = -0.1, size = 3.5) +
+  annotate("text", x = upper_bound, y = max(y) * 0.9, 
+           label = paste(upper_bound, "kcal"), 
+           color = "red", hjust = 1.1, size = 3.5) +
+  annotate("text", x = mu, y = max(y) * 0.8, 
+           label = paste("μ =", mu, "kcal"), 
+           color = "darkgreen", hjust = -0.1, size = 3.5) +
+  
+  # 95%-ETI Beschriftung
+  annotate("text", x = mu, y = max(y) * 0.5, 
+           label = "95%-ETI", 
+           color = "blue", size = 4, fontface = "bold") +
+  
+  # Seitliche Bereiche (je 2.5%)
+  annotate("text", x = 470, y = max(y) * 0.1, 
+           label = "2.5%", 
+           color = "gray50", size = 3) +
+  annotate("text", x = 630, y = max(y) * 0.1, 
+           label = "2.5%", 
+           color = "gray50", size = 3)
+
+p
+```
+
+
+

@@ -27,6 +27,11 @@ knitr:
 
 ---
 
+```{r}
+#| include: false
+library(tidyverse)
+```
+
 
 
 
@@ -34,21 +39,22 @@ knitr:
 # Aufgabe 
 
 
-![](Gemini_Generated_Image_apdzyqapdzyqapdz.png)
+![](Gemini_Generated_Image_apdzyqapdzyqapdz.png){#width=50%}
 
 
 Eine Maschine bestehe aus n=100 Teilen. Jedes Teil habe
 eine Zuverlässigkeit (für Funktionsfähigkeit) von r=.99 (für ein
-bestimmtes Zeitintervall t). Nur solange alle Teile arbeiten,
-arbeitet die Maschine, ansonsten fällt sie aus. Gehen Sie von
-Unabhängigkeit der Zuverlässigkeiten aller Teile aus.
+bestimmtes Zeitintervall *t*). 
+Nur solange alle Teile arbeiten,
+arbeitet die Maschine, ansonsten fällt sie aus. 
+
 Wie groß ist die Wahrscheinlichkeit, dass die Maschine im
-Zeitintervall t ausfällt?
+Zeitintervall *t* ausfällt?
 
 
 Hinweise:
 
-
+- Gehen Sie von Unabhängigkeit (der Zuverlässigkeit) der Teile aus.
 - Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
 
 
@@ -110,7 +116,8 @@ P_maschine_funzt
 ```
 
 
-Die Wahrscheinlichkeit, dass die Maschine im Zeitintervall t ausfällt, ist das Komplementärereignis dazu, dass die Maschine funktioniert:
+Die Wahrscheinlichkeit, dass die Maschine im Zeitintervall *t* ausfällt, 
+ist das Komplementärereignis dazu, dass die Maschine funktioniert:
 
 P(Maschine fällt aus) = 1 - P(Maschine funktioniert)
 
@@ -126,4 +133,52 @@ P_maschine_faellt_aus
 
 
 Die Wahrscheinlichkeit, dass die Maschine im Zeitintervall t ausfällt, beträgt ungefähr 63,40%.
+
+
+# Variante
+
+```{r}
+n <- 1000
+r <- .99
+P_maschine_funzt <- r^n
+P_maschine_faellt_aus <- 1 - P_maschine_funzt
+P_maschine_faellt_aus
+```
+
+# Ausfallwahrscheinlichkeit in Abhängigkeit der Anzahl der Teile
+
+
+```{r}
+n_min <- 10
+n_max <- 1000
+n_teile <- seq(n_min, n_max, by = 10)
+P_maschine_faellt_aus <- 1 - r^n_teile
+```
+
+Ergebnisse in einem Data Frame speichern:
+
+```{r}
+ ergebnisse <- data.frame(
+  Teile = n_teile,
+  Ausfallwahrscheinlichkeit = P_maschine_faellt_aus,
+  Ausfallwahrscheinlichkeit_Prozent = P_maschine_faellt_aus * 100
+)
+```
+
+
+```{r}
+ ggplot(ergebnisse, aes(x = Teile, y = Ausfallwahrscheinlichkeit)) +
+  geom_line(color = "red", size = 1) +
+  geom_point(color = "darkred", size = 0.5) +
+  labs(
+    title = "Ausfallwahrscheinlichkeit vs. Anzahl der Teile",
+    subtitle = paste("Zuverlässigkeit pro Teil: r =", r),
+    x = "Anzahl der Teile",
+    y = "Ausfallwahrscheinlichkeit"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format()) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "blue", alpha = 0.7) +
+  annotate("text", x = 500, y = 0.52, label = "50% Ausfallrisiko", color = "blue")
+```
 
