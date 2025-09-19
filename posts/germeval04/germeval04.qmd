@@ -84,6 +84,7 @@ Hinweise:
 ```{r}
 d_train <-
   germeval_train |> 
+  slice_head(n = 500) |>  # nur um Zeit zu sparen
   select(id, c1, text)
 ```
 
@@ -109,7 +110,7 @@ mod1 <-
 
 # cv:
 set.seed(42)
-rsmpl <- vfold_cv(d_train, v = 5)
+rsmpl <- vfold_cv(d_train, v = 2)  # besser v=5
 
 
 # recipe:
@@ -143,7 +144,7 @@ wf1_fit <-
   wf1 %>% 
   tune_grid(
     resamples = rsmpl,
-    grid = 2,  # nur um Zeit zu sparen
+    grid = 2,  # nur um Zeit zu sparen, besser höherer Wert
     metrics = metric_set(accuracy, f_meas, roc_auc),
     control = control_grid(verbose = TRUE))
 toc()
@@ -154,7 +155,7 @@ beep()
 
 
 ```{r}
-wf1_fit
+#wf1_fit
 ```
 
 ## Finalisieren
@@ -181,7 +182,7 @@ preds <- predict(wf1_final_fit, germeval_test)
 
 Und die Vorhersagen zum Test-Set hinzufügen, damit man `TRUTH` und `ESTIMATE` vergleichen kann:
 
-```{r}
+```{r d-test}
 d_test <-
   germeval_test |> 
   bind_cols(preds) |> 
@@ -190,7 +191,7 @@ d_test <-
 
 
 
-```{r}
+```{r my-metrics}
 my_metrics <- metric_set(accuracy, f_meas)
 my_metrics(d_test,
            truth = c1,

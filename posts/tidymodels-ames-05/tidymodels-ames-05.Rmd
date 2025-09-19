@@ -92,19 +92,27 @@ data(ames)
 
 AV loggen:
 
-```{r}
+```{r log-sales-price}
 ames <-
   ames %>% 
   mutate(Sale_Price = log(Sale_Price, base = 10))
 ```
 
 
+Datensatz reduzieren, um Zeit zu sparen bei der Berechnung:
+
+```{r ames-reduce-vars}
+ames <-
+  ames |> 
+  select(Sale_Price, where(is.numeric))
+```
+
 
 
 Datensatz aufteilen:
 
 
-```{r}
+```{r data-split}
 set.seed(42)
 data_split <- initial_split(ames, strata = "Sale_Price")
 ames_train <- training(data_split)
@@ -114,11 +122,11 @@ ames_test <- testing(data_split)
 
 Workflow:
 
-```{r}
+```{r wf}
 ames_rec <-
   recipe(Sale_Price ~ ., data = ames_train) %>%
   # step_log(Sale_Price, base = 10) %>%   No!
-  step_other(Neighborhood, threshold = .1)  %>%
+ # step_other(Neighborhood, threshold = .1)  %>%
   step_dummy(all_nominal()) %>%
   step_zv(all_predictors()) 
 
@@ -139,7 +147,7 @@ ames_wflow2
 
 CV:
 
-```{r}
+```{r cv}
 set.seed(42)
 ames_folds <- vfold_cv(ames_train, strata = "Sale_Price", v = 2)
 ames_folds
@@ -149,7 +157,7 @@ ames_folds
 
 Tunen:
 
-```{r}
+```{r tune-grid}
 tic()
 ames_grid_search <-
   tune_grid(
@@ -174,7 +182,7 @@ autoplot(ames_grid_search)
 
 Fitte besten Modellkandidaten (Paket `tune` >= V1.1.0 benötigt):
 
-```{r}
+```{r fit-best}
 fit1_final <- fit_best(ames_grid_search)
 ```
 
@@ -182,14 +190,14 @@ fit1_final <- fit_best(ames_grid_search)
 Vorhersagen:
 
 
-```{r}
+```{r predict}
 preds <-
   predict(fit1_final, ames_test)
 ```
 
 Modellgüte im Test-Sample:
 
-```{r}
+```{r fit1-metrics}
 fit1_metrics <-
   preds %>% 
   bind_cols(ames_test %>% select(Sale_Price)) %>% 
@@ -202,7 +210,7 @@ fit1_metrics
 R-Quadrat:
 
 
-```{r}
+```{r r2}
 sol <- fit1_metrics %>% pull(.estimate)
 sol
 ```

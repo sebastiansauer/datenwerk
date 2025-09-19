@@ -73,8 +73,20 @@ p
 
 
 ```{r}
-p + transition_time(year) +
-  labs(title = "Year: {frame_time}")
+#| eval: false
+gapminder$continent <- as.factor(gapminder$continent)
+
+p_animated <- ggplot(gapminder,
+            aes(x = gdpPercap, 
+                y = lifeExp, 
+                color = continent)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_color_discrete() +   # <- force discrete scale
+  labs(title = "Year: {frame_time}") +
+  transition_time(year)
+
+p_animated
 ```
 
 
