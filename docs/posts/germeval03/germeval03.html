@@ -265,92 +265,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(wf1,</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> d_train)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>8.422 sec elapsed</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
-Preprocessor: Recipe
-Model: rand_forest()
-
-── Preprocessor ────────────────────────────────────────────────────────────────
-2 Recipe Steps
-
-• step_mutate()
-• step_rm()
-
-── Model ───────────────────────────────────────────────────────────────────────
-Ranger result
-
-Call:
- ranger::ranger(x = maybe_data_frame(x), y = y, num.threads = 1,      verbose = FALSE, seed = sample.int(10^5, 1), probability = TRUE) 
-
-Type:                             Probability estimation 
-Number of trees:                  500 
-Sample size:                      5009 
-Number of independent variables:  1 
-Mtry:                             1 
-Target node size:                 10 
-Variable importance mode:         none 
-Splitrule:                        gini 
-OOB prediction error (Brier s.):  0.2280517 </code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="test-set-güte" class="level2">
 <h2 class="anchored" data-anchor-id="test-set-güte">Test-Set-Güte</h2>
 <p>Vorhersagen im Test-Set:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit1, <span class="at">new_data =</span> germeval_test)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>5.95 sec elapsed</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit1, <span class="at">new_data =</span> germeval_test)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Und die Vorhersagen zum Test-Set hinzufügen, damit man <code>TRUTH</code> und <code>ESTIMATE</code> vergleichen kann:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  germeval_test <span class="sc">|&gt;</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">|&gt;</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c1 =</span> <span class="fu">as.factor</span>(c1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  germeval_test <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c1 =</span> <span class="fu">as.factor</span>(c1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>my_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, f_meas)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">my_metrics</span>(d_test,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">truth =</span> c1,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">estimate =</span> .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="kable-table">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">.metric</th>
-<th style="text-align: left;">.estimator</th>
-<th style="text-align: right;">.estimate</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">accuracy</td>
-<td style="text-align: left;">binary</td>
-<td style="text-align: right;">0.6537373</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">f_meas</td>
-<td style="text-align: left;">binary</td>
-<td style="text-align: right;">0.1282965</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>my_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, f_meas)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">my_metrics</span>(d_test,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">truth =</span> c1,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">estimate =</span> .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <hr>
 <p>Categories:</p>
@@ -822,202 +764,204 @@ OOB prediction error (Brier s.):  0.2280517 </code></pre>
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> germeval03-sent-textfeatures-rand-for</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> NA</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">- 2023</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">- textmining</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">- datawrangling</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">- germeval</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">- prediction</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">- tidymodels</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">- sentiment</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">- string</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2023-11-16'</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> germeval03</span></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> germeval03-sent-textfeatures-rand-for</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE, message=FALSE}</span></span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">fig.pos =</span> <span class="st">'H'</span>,</span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.asp =</span> <span class="fl">0.618</span>,</span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.width =</span> <span class="dv">4</span>,</span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.cap =</span> <span class="st">""</span>, </span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.path =</span> <span class="st">""</span>,</span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>                      <span class="at">echo =</span> <span class="cn">TRUE</span>,  <span class="co"># ECHO IS FALSE!!!</span></span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>                      <span class="at">message =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">warning =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.show =</span> <span class="st">"hold"</span>)</span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">max.print =</span> <span class="dv">10</span>)</span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">rstudio.help.showDataPreview =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.</span>
-<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>Nutzen Sie die <span class="co">[</span><span class="ot">GermEval-2018-Daten</span><span class="co">](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML)</span>.</span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),</span>
-<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>Die Daten sind auch über das R-Paket <span class="co">[</span><span class="ot">PradaData</span><span class="co">](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master)</span> zu beziehen.</span>
-<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_train"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
-<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_test"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
-<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>Die AV lautet <span class="in">`c1`</span>. Die (einzige) UV lautet: <span class="in">`text`</span>.</span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
-<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
-<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nutzen Sie Tidymodels.</span>
-<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nutzen Sie das <span class="in">`sentiws`</span> Lexikon.</span>
-<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
-<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
-<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span></span>
-<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>  germeval_train <span class="sc">|&gt;</span> </span>
-<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, c1, text)</span>
-<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
-<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(syuzhet)</span>
-<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beepr)</span>
-<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"sentiws"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
-<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>Eine <span class="co">[</span><span class="ot">Vorlage für ein Tidymodels-Pipeline findet sich hier</span><span class="co">](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html)</span>.</span>
-<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a><span class="fu">## Workflow</span></span>
-<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a><span class="co"># model:</span></span>
-<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span></span>
-<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"classification"</span>)</span>
-<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe:</span></span>
-<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
-<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(c1 <span class="sc">~</span> ., <span class="at">data =</span> d_train) <span class="sc">|&gt;</span> </span>
-<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(id, <span class="at">new_role =</span> <span class="st">"id"</span>)  <span class="sc">|&gt;</span> </span>
-<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a>  <span class="co">#update_role(c2, new_role = "ignore") |&gt; </span></span>
-<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(text, <span class="at">new_role =</span> <span class="st">"ignore"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">n_emo =</span> <span class="fu">get_sentiment</span>(text,  <span class="co"># aus `syuzhet`</span></span>
-<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">method =</span> <span class="st">"custom"</span>,</span>
-<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">lexicon =</span> sentiws))  <span class="sc">|&gt;</span> </span>
-<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(text)  <span class="co"># Datensatz verschlanken</span></span>
-<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a><span class="co"># workflow:</span></span>
-<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
-<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod1) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span>
-<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fit</span></span>
-<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span></span>
-<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(wf1,</span>
-<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> d_train)</span>
-<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span>
-<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>()</span>
-<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a>fit1</span>
-<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a><span class="fu">## Test-Set-Güte</span></span>
-<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a>Vorhersagen im Test-Set:</span>
-<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span></span>
-<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit1, <span class="at">new_data =</span> germeval_test)</span>
-<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span>
-<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a>Und die Vorhersagen zum Test-Set hinzufügen, damit man <span class="in">`TRUTH`</span> und <span class="in">`ESTIMATE`</span> vergleichen kann:</span>
-<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span></span>
-<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a>  germeval_test <span class="sc">|&gt;</span> </span>
-<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">|&gt;</span> </span>
-<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c1 =</span> <span class="fu">as.factor</span>(c1))</span>
-<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a>my_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, f_meas)</span>
-<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a><span class="fu">my_metrics</span>(d_test,</span>
-<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a>           <span class="at">truth =</span> c1,</span>
-<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a>           <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb14-193"><a href="#cb14-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-194"><a href="#cb14-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-205"><a href="#cb14-205" aria-hidden="true" tabindex="-1"></a>Categories: </span>
-<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>2023</span>
-<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>textmining</span>
-<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>datawrangling</span>
-<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>germeval</span>
-<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>prediction</span>
-<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>tidymodels</span>
-<span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>sentiment</span>
-<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>string</span>
+<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">exname:</span><span class="co"> germeval03-sent-textfeatures-rand-for</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">expoints:</span><span class="co"> 1</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="an">extype:</span><span class="co"> string</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="an">exsolution:</span><span class="co"> NA</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">- 2023</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">- textmining</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">- datawrangling</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">- germeval</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">- prediction</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">- tidymodels</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">- sentiment</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">- string</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2023-11-16'</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> germeval03</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> germeval03-sent-textfeatures-rand-for</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">  eval: false</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global-knitr-options, include=FALSE, message=FALSE}</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">fig.pos =</span> <span class="st">'H'</span>,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.asp =</span> <span class="fl">0.618</span>,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.width =</span> <span class="dv">4</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.cap =</span> <span class="st">""</span>, </span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.path =</span> <span class="st">""</span>,</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">echo =</span> <span class="cn">TRUE</span>,  <span class="co"># ECHO IS FALSE!!!</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">message =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                      <span class="at">warning =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.show =</span> <span class="st">"hold"</span>)</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">max.print =</span> <span class="dv">10</span>)</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">rstudio.help.showDataPreview =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a><span class="fu"># Aufgabe</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>Nutzen Sie die <span class="co">[</span><span class="ot">GermEval-2018-Daten</span><span class="co">](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML)</span>.</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>Die Daten sind auch über das R-Paket <span class="co">[</span><span class="ot">PradaData</span><span class="co">](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master)</span> zu beziehen.</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_train"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"germeval_test"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>Die AV lautet <span class="in">`c1`</span>. Die (einzige) UV lautet: <span class="in">`text`</span>.</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>Hinweise:</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Orientieren Sie sich im Übrigen an den <span class="co">[</span><span class="ot">allgemeinen Hinweisen des Datenwerks</span><span class="co">](https://datenwerk.netlify.app/hinweise)</span>.</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nutzen Sie Tidymodels.</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nutzen Sie das <span class="in">`sentiws`</span> Lexikon.</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lösung</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>d_train <span class="ot">&lt;-</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>  germeval_train <span class="sc">|&gt;</span> </span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, c1, text)</span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(syuzhet)</span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beepr)</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"sentiws"</span>, <span class="at">package =</span> <span class="st">"pradadata"</span>)</span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>Eine <span class="co">[</span><span class="ot">Vorlage für ein Tidymodels-Pipeline findet sich hier</span><span class="co">](https://datenwerk.netlify.app/posts/tidymodels-vorlage2/tidymodels-vorlage2.html)</span>.</span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## Workflow</span></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a><span class="co"># model:</span></span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span></span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(<span class="at">mode =</span> <span class="st">"classification"</span>)</span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe:</span></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>rec1 <span class="ot">&lt;-</span></span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(c1 <span class="sc">~</span> ., <span class="at">data =</span> d_train) <span class="sc">|&gt;</span> </span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(id, <span class="at">new_role =</span> <span class="st">"id"</span>)  <span class="sc">|&gt;</span> </span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>  <span class="co">#update_role(c2, new_role = "ignore") |&gt; </span></span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(text, <span class="at">new_role =</span> <span class="st">"ignore"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">n_emo =</span> <span class="fu">get_sentiment</span>(text,  <span class="co"># aus `syuzhet`</span></span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">method =</span> <span class="st">"custom"</span>,</span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">lexicon =</span> sentiws))  <span class="sc">|&gt;</span> </span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(text)  <span class="co"># Datensatz verschlanken</span></span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a><span class="co"># workflow:</span></span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a>wf1 <span class="ot">&lt;-</span></span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(mod1) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rec1)</span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fit</span></span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span></span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(wf1,</span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> d_train)</span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>()</span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a>fit1</span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a><span class="fu">## Test-Set-Güte</span></span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a>Vorhersagen im Test-Set:</span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span></span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit1, <span class="at">new_data =</span> germeval_test)</span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a>Und die Vorhersagen zum Test-Set hinzufügen, damit man <span class="in">`TRUTH`</span> und <span class="in">`ESTIMATE`</span> vergleichen kann:</span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>d_test <span class="ot">&lt;-</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>  germeval_test <span class="sc">|&gt;</span> </span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">|&gt;</span> </span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c1 =</span> <span class="fu">as.factor</span>(c1))</span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a>my_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, f_meas)</span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a><span class="fu">my_metrics</span>(d_test,</span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>           <span class="at">truth =</span> c1,</span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a>           <span class="at">estimate =</span> .pred_class)</span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>Categories: </span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>2023</span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>textmining</span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>datawrangling</span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>germeval</span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>prediction</span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>tidymodels</span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>sentiment</span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>string</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

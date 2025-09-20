@@ -1,0 +1,149 @@
+---
+extype: string
+exsolution: NA
+exname: twitter05
+expoints: 1
+categories:
+- textmining
+- twitter
+date: '2022-10-28'
+slug: twitter05
+title: twitter05
+execute:
+  eval: false
+---
+
+
+
+
+
+
+
+
+# Exercise
+
+Laden Sie $n=10^k$ Tweets von Twitter herunter (mit $k=2$) via der Twitter API; Suchterm soll sein "@karl_lauterbach".
+Bereiten Sie die Textdaten mit grundlegenden Methoden des Textminings auf (Tokenisieren, Stopwörter entfernen, Zahlen entfernen, ...).
+
+Nutzen Sie die Daten,
+um eine Sentimentanalyse zu erstellen.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+Nutzen Sie die Daten der letzten Aufgabe,
+um eine Sentimentanalyse zu erstellen.
+
+
+
+
+Zuerst muss man sich anmelden und die Tweets herunterladen;
+dieser Teil ist hier nicht aufgeführt (s. andere Aufgaben).
+
+
+
+```{r}
+library(rtweet)
+library(tidyverse)
+library(tidytext)
+library(lsa)  # Stopwörter
+library(SnowballC)  # Stemming
+```
+
+
+```{r read-karl1, echo=FALSE}
+karl_raw <- 
+  read_rds(file = "/Users/sebastiansaueruser/datasets/Twitter/hate-speech/tweets_to_Karl_Lauterbach_2021.rds")
+
+karl1 <-
+  karl_raw %>% 
+  slice_head(n = 100)
+```
+
+
+Beachten Sie, dass die Spalten je nach Funktion, die Sie zum Herunterladen der Tweets 
+verwenden, unterschiedlich heißen können.
+
+```{r}
+karl2 <- 
+  karl1 %>% 
+  select(contains("text"))
+```
+
+
+```{r}
+karl3 <- 
+  karl2 %>% 
+  unnest_tokens(output = word, input = text)
+```
+
+
+```{r}
+karl4 <- 
+karl3 %>% 
+  anti_join(tibble(word = lsa::stopwords_de)) 
+```
+
+
+```{r}
+karl5 <- 
+  karl4 %>% 
+  mutate(word = str_replace_na(word, "^[:digit:]+$")) %>% 
+  mutate(word = str_replace_na(word, "hptts?://\\w+")) %>% 
+  mutate(word = str_replace_na(word, " +")) %>% 
+  drop_na()
+```
+
+
+
+
+
+```{r}
+data(sentiws, package = "pradadata")
+```
+
+
+```{r}
+karl7 <-
+  karl5 %>% 
+  inner_join(sentiws)
+```
+
+
+```{r}
+karl7 %>% 
+  group_by(neg_pos) %>% 
+  summarise(senti_avg = mean(value, na.rm = TRUE),
+            senti_sd = sd(value, na.rm = TRUE),
+            senti_n = n())
+```
+
+Achtung, Sentimentanalyse sollte *vor* dem Stemming kommen.
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- twitter
+

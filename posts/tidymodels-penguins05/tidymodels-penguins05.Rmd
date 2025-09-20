@@ -15,7 +15,8 @@ categories:
 date: '2023-05-17'
 slug: tidymodels-penguins05
 title: tidymodels-penguins05
-
+execute:
+  error: true
 ---
 
 
@@ -103,7 +104,7 @@ d2 <-
 Datensatz aufteilen:
 
 
-```{r}
+```{r data-split}
 set.seed(42)
 d_split <- initial_split(d2)
 d_train <- training(d_split)
@@ -113,7 +114,7 @@ d_test <- testing(d_split)
 
 Workflow:
 
-```{r}
+```{r wf}
 rec1 <-
   recipe(body_mass_g ~ bill_length_mm, data = d_train) %>% 
   step_naomit(all_numeric())
@@ -151,7 +152,7 @@ sum(is.na(d_baked))
 
 CV:
 
-```{r}
+```{r cv-def}
 set.seed(42)
 folds <- vfold_cv(d_train, v = 5, repeats = 2)
 folds
@@ -161,7 +162,7 @@ folds
 
 Tunen:
 
-```{r}
+```{r tuning}
 d_resamples <-
   tune_grid(
     wflow,
@@ -184,7 +185,7 @@ show_best(d_resamples)
 
 
 
-```{r}
+```{r fit-best}
 fitbest <- fit_best(d_resamples)
 fitbest
 ```
@@ -194,7 +195,7 @@ Last Fit:
 
 
 
-```{r}
+```{r last-fit}
 fit_last <- last_fit(fitbest, d_split)
 fit_last
 ```
@@ -202,7 +203,7 @@ fit_last
 
 Modellgüte im Test-Sample:
 
-```{r}
+```{r collect-metrics}
 fit_last %>% collect_metrics()
 ```
 
@@ -211,7 +212,7 @@ fit_last %>% collect_metrics()
 R-Quadrat:
 
 
-```{r}
+```{r r2}
 sol <- collect_metrics(fit_last)[[".estimate"]][2]
 sol
 ```

@@ -1,0 +1,143 @@
+---
+extype: string
+exsolution: NA
+exname: purrr-map04
+expoints: 1
+categories:
+- R
+- map
+- tidyverse
+date: '2022-10-24'
+slug: purrr-map04
+title: purrr-map04
+execute: 
+  error: true
+  eval: false
+---
+
+
+
+
+# Exercise
+
+Importieren Sie das Grundatzprogramm der Partei AfD (in der aktuellsten Version). 
+Tokenisieren Sie nach Seiten. 
+Dann verschachteln Sie die Spalte, in denen der Text der Seite steht, zu einer Listenspalte.
+Schließlich zählen Sie die Anzahl der Wörter pro Seite und berichten gängige deskriptive Statistiken dazu.
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+```{r}
+library(tidyverse)
+```
+
+Text aus PDF-Dateien kann man mit dem Paket [`pdftools`](https://docs.ropensci.org/pdftools/) einlesen:
+
+```{r parse-pdf}
+library(pdftools)
+d_path <- "~/Literatur/_Div/Politik/afd-grundsatzprogramm-2022.pdf"
+
+d <- tibble(text = pdf_text(d_path))
+```
+
+
+
+
+Zu Seiten tokenisieren brauchen wir nicht; das Datenmaterial ist bereits nach Seiten organisiert.
+
+Jetzt "verschachteln" (to nest) wir die Spalte mit dem Text:
+
+```{r unnest}
+d2 <-
+  d %>% 
+  nest(data = text)
+
+head(d2)
+```
+
+
+
+Dann zählen wir die Wörter pro Seite:
+
+
+```{r count-words-per-page}
+d3 <-
+  d2 %>% 
+  mutate(word_count_per_page = map(data, ~ str_count(.x$text, "\\w+")))
+
+head(d3)
+```
+Wie sieht eine Zelle aus `data` aus?
+
+
+```{r}
+d3$data[[1]]
+```
+
+Wie sieht eine Zelle aus `word_count_per_page` aus?
+
+```{r}
+d3$data[[1]]
+```
+
+Ah! Darin steckt nur eine einzelne Zahl!
+
+```{r}
+d3$data[[1]] %>% str()
+```
+
+
+Das heißt, wir können vereinfachen, entschacheln:
+
+```{r unnest2}
+d4 <-
+  d3 %>% 
+  unnest(word_count_per_page)
+
+head(d4)
+```
+
+Visualisierung:
+
+```{r vis1}
+d4 %>% 
+  ggplot(aes(x = word_count_per_page)) +
+  geom_histogram()
+```
+
+
+```{r vis2}
+library(easystats)
+describe_distribution(d4$word_count_per_page)
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- R
+- map
+- tidyverse
+

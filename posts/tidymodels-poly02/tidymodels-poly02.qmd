@@ -1,0 +1,206 @@
+---
+exname: tidymodels-poly02
+extype: num
+exsolution: r fmt(sol)
+exshuffle: no
+expoints: 1
+categories:
+- R
+- statlearning
+- tidymodels
+- num
+date: '2023-05-17'
+slug: tidymodels-poly02
+title: tidymodels-poly02
+execute: 
+  error: true
+  
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Fitten Sie ein Polynomial-Modell für folgende Modellgleichung:
+
+`body_mass_g ~ bill_length_mm`.
+
+Gesucht ist der RMSE im Test-Set (optimal hinsichtlich minimalem Prognosefehler).
+
+Hinweise:
+
+- Datensatz `penguins` (palmerpenguins)
+- Verwenden Sie Tidymodels
+- Fitten Sie Polynome des Grades 1 bis 10.
+- Definieren Sie die Polynomegrade als Tuningparameter.
+- Entfernen Sie fehlende Werte in den Prädiktoren.
+- Wie immer gilt: Verwenden Sie die Standardeinstellungen der Funktionen, soweit nicht anders angegeben.
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Setup:
+
+```{r}
+library(tidymodels)
+data(penguins, package = "palmerpenguins")
+```
+
+
+Datenaufteilung:
+
+```{r}
+d_split <- initial_split(penguins)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+
+Rezept:
+
+```{r}
+rec1 <- 
+  recipe(body_mass_g ~ bill_length_mm, data = penguins) %>% 
+  step_naomit(all_predictors()) %>% 
+  step_poly(all_predictors(), degree = tune()) %>% 
+  update_role(contains("_poly_"), new_role = "predictor")
+```
+
+
+
+Check:
+
+```{r eval = FALSE}
+d_baked <- bake(prep(rec1), new_data = NULL)
+```
+
+
+Rezepte mit Tuningparametern kann man nicht preppen/backen.
+
+
+
+Workflow:
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_model(linear_reg()) %>% 
+  add_recipe(rec1)
+```
+
+
+
+
+
+Tuning:
+
+```{r}
+set.seed(42)
+tune1 <-
+  tune_grid(
+    wf1,
+    resamples = vfold_cv(data = penguins),
+    metrics = metric_set(rmse),
+    grid = grid_regular(degree(range = c(1, 10)),
+                               levels = 10),
+    control = control_grid(save_workflow = TRUE)
+  )
+```
+
+
+```{r}
+autoplot(tune1)
+```
+
+
+```{r}
+show_best(tune1)
+```
+
+Finalisieren:
+
+
+```{r}
+best1 <- fit_best(tune1)
+best1
+```
+
+Predicten:
+
+```{r}
+final1 <- last_fit(best1, d_split)
+collect_metrics(final1)
+```
+
+
+
+Oder so:
+
+```{r}
+sol <- 
+predict(best1, new_data = d_test) %>% 
+  bind_cols(d_test) %>% 
+  rmse(truth = body_mass_g, estimate = .pred) %>% 
+  pull(.estimate) %>% 
+  pluck(1)
+
+sol
+```
+
+
+
+
+
+Die Antwort lautet: `r sol`.
+
+
+
+---
+
+Categories: 
+
+- R
+- statlearning
+- tidymodels
+- num
+
