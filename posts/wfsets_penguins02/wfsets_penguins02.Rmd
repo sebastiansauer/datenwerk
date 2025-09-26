@@ -13,7 +13,8 @@ categories:
 date: '2023-05-17'
 slug: wfsets_penguins02
 title: wfsets_penguins02
-
+execute: 
+  output: false
 ---
 
 
@@ -120,8 +121,6 @@ mod_knn <- nearest_neighbor(mode = "regression",
 ```{r}
 rec_basic <- recipe(body_mass_g ~ bill_length_mm, data = d_train) %>% 
          step_normalize(all_predictors())
-
-rec_basic
 ```
 
 
@@ -141,8 +140,6 @@ wf_set <-
     models = list(mod_lm = mod_lin,
                   mod_nn = mod_knn)
   )
-
-wf_set
 ```
 
 ## Tuningparameter-Werte bestimmen
@@ -163,8 +160,6 @@ params_knn <-
 mod_knn %>% 
   extract_parameter_set_dials() %>% 
   update(neighbors = neighbors(c(5, 20)))
-
-params_knn
 ```
 
 Diese Infos ergänzen wir jetzt in das Workflow-Set-Objekt für den Workflow mit der ID "rec_simple_mod_nn" unter der Spalte "Options":
@@ -175,8 +170,6 @@ Diese Infos ergänzen wir jetzt in das Workflow-Set-Objekt für den Workflow mit
 wf_set <- 
 wf_set %>% 
   option_add(param_info = params_knn, id = "rec_simple_mod_nn")  
-
-wf_set
 ```
 
 
@@ -188,8 +181,6 @@ wf_set
 wf_set_fit <-
   wf_set %>% 
   workflow_map(resamples = rsmpls)
-
-wf_set_fit
 ```
 
 
