@@ -1,0 +1,250 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-09-26
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: penguins-relationen  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+
+
+categories:
+- probability  # ENTER CATEGORIES HERE
+
+
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+
+
+
+# Aufgabe 
+
+## Hintergrund
+
+In dieser Aufgabe betrachten wir die Relationen einiger Ereignisse im Zusammenhang mit dem Datensatz `penguins`.
+
+Sie können den Datensatz z.B. so importieren:
+
+```{r}
+data(penguins, package = "palmerpenguins")  # Paket muss installiert sein
+```
+
+
+Sei das Ereignis $W$ ein weiblicher Pinguin.
+Sei das Ereignis $S$ ein "schwerer" Pinguin, definiert als schwerer als der Median aller Pinguine (des Datensatzes).
+Sei $WS$ ein weiblicher, schwerer Pinguin.
+
+
+Berechnen Sie folgende Wahrscheinlichkeiten, wobei wir den jeweiligen Anteil der Tiere als Wahrscheinlichkeit interpretieren.
+
+
+## Teilaufgaben
+
+A) $Pr(W \cup S)$
+B) $Pr(W \cap S)$
+C) $Pr(\neg S)$
+D) $Pr(\neg W)$
+E) $Pr(W \setminus WS)$
+F) $Pr(S \setminus WS)$
+
+
+
+
+
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+Setup:
+
+```{r}
+library(tidyverse)
+```
+
+Median berechnen:
+
+```{r}
+penguins |> 
+    drop_na(body_mass_g) |> 
+    summarise(body_mass_g_mean = median(body_mass_g))
+```
+
+```{r}
+weight_md <- 
+    penguins |> 
+    drop_na(body_mass_g) |> 
+    summarise(body_mass_g_mean = median(body_mass_g))
+
+weight_md
+```
+
+
+## A. $Pr(W \cup S)$
+
+Das logische "ODER" wird vom `|`-Operator abgebildet in R:
+
+```{r}
+penguins |> 
+    filter(sex == "female" | body_mass_g > weight_md) |> 
+    nrow()
+```
+
+
+Das sind 261 Zeilen von insgesamt 344:
+
+
+```{r}
+nrow(penguins)
+```
+
+
+Also:
+
+```{r}
+261/344
+```
+
+Die Wahrscheinlichkeit liegt bei 76%.
+
+## B. $Pr(W \cap S)$
+
+Das logische "UND" wird vom `&`-Operator abgebildet in R:
+
+```{r}
+anzahl_w_und_s <- 
+penguins |> 
+    filter(sex == "female" & body_mass_g > weight_md) |> 
+    nrow()
+
+anzahl_w_und_s
+```
+
+Das sind 53 Zeilen von insgesamt 344, also:
+
+
+```{r}
+anzahl_w_und_s/nrow(penguins)
+```
+
+
+
+
+## C. $Pr(\neg S)$
+
+
+```{r}
+penguins |> 
+    filter(body_mass_g <= weight_md) |> 
+    nrow() / nrow(penguins)
+```
+
+
+
+## D. $Pr(\neg W)$
+
+```{r}
+penguins |> 
+    filter(sex != "female")  |> 
+    nrow() / nrow(penguins)
+```
+
+
+
+## E. $Pr(W \setminus WS)$
+
+Die Logische Differenz bekommt man in R mit der Funktion `setdiff`.
+
+
+```{r}
+weiblich <- penguins |> filter(sex == "female")
+
+weiblich_schwer <-  
+    penguins |>
+    filter(sex == "female", body_mass_g > weight_md)
+
+weiblich_minus_weiblichschwer <- setdiff(weiblich, weiblich_schwer)
+
+weiblich_minus_weiblichschwer |> 
+    head()
+```
+
+
+```{r}
+weiblich_minus_weiblichschwer |> 
+    nrow() / nrow(penguins)
+```
+
+Es gibt mehrere Wege, die logische Differenz zu berechnen.
+
+
+## F. $Pr(S \setminus WS)$
+
+
+```{r}
+schwer <- penguins |> filter(body_mass_g > weight_md)
+
+schwer_minus_weiblichschwer <- setdiff(schwer, weiblich_schwer)
+
+schwer_minus_weiblichschwer |> head()
+```
+
+
+
+```{r}
+schwer_minus_weiblichschwer |> 
+    nrow() / nrow(penguins)
+```
+
+
+
+## Hinweis
+
+Der Nenner der Wahrscheinlichkeit sollte die Anzahl aller Pinguine sein, für die alle relevanten Informationen verfügbar sind. 
+Da `body_mass_g` und `sex` für die gesamte Aufgabe relevant sind, 
+sollten nur Tiere ohne fehlende Werte in diesen Spalten betrachtet werden.
+
+
+```{r}
+penguins_nona <- penguins |> drop_na(body_mass_g, sex)
+```

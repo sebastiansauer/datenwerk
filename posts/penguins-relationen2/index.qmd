@@ -1,0 +1,177 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-09-26
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: penguins-relationen2  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+
+
+categories:
+- probability  # ENTER CATEGORIES HERE
+
+
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+# Aufgabe
+
+## Hintergrund
+
+In dieser Aufgabe betrachten wir die Relationen einiger Ereignisse im Zusammenhang mit dem Datensatz penguins.
+
+Sie können den Datensatz z.B. so importieren:
+
+
+```{r}
+library(palmerpenguins) # Lade das Paket zuerst
+data(penguins) # Jetzt wird der Datensatz geladen
+```
+
+
+Sei das Ereignis A das Tier ist von der Spezies "Adelie".
+Sei das Ereignis B das Tier hat eine Schnabellänge (bill_length_mm) größer als der Median aller Pinguine (des Datensatzes, nur gültige Messungen).
+Sei AB ein Pinguin, der sowohl A als auch B erfüllt.
+
+Berechnen Sie folgende Wahrscheinlichkeiten, wobei wir den jeweiligen Anteil der Tiere als Wahrscheinlichkeit interpretieren.
+
+## Teilaufgaben
+
+
+A) $Pr(A \cup B)$
+B) $Pr(A \cap B)$
+C) $Pr(\neg B)$
+D) $Pr(\neg A)$
+E) $Pr(A \setminus AB)$
+F) $Pr(B \setminus AB)$
+
+*Hinweis*: Die Berechnungen sollen nur Pinguine berücksichtigen, 
+für die die Schnabellänge (`bill_length_mm`) bekannt ist, um konsistente Wahrscheinlichkeiten zu gewährleisten.
+
+# Lösung
+
+
+```{r}
+library(tidyverse)
+```
+
+Datenbereinigung und Median-Definition:
+
+Wir definieren den Grundgesamtheit als alle Pinguine, 
+deren Schnabellänge (`bill_length_mm`) bekannt ist, um konsistente Wahrscheinlichkeiten zu gewährleisten.
+
+
+
+```{r}
+penguins_clean <- penguins |>
+    drop_na(bill_length_mm)
+```
+
+
+```{r}
+# Der konsistente Nenner für alle Wahrscheinlichkeiten
+N_clean <- nrow(penguins_clean)
+N_clean
+
+# Berechne den Median der Schnabellänge für Ereignis B
+bill_length_md <- penguins_clean |>
+    summarise(median = median(bill_length_mm)) |>
+    pull(median)  # pull zieht einen einzelnen Wert aus der Tabelle heraus
+
+# Median der Schnabellänge
+bill_length_md  # einzelner Wert, keine Tabelle
+```
+
+
+## A. Pr(A U B)
+
+A ODER B: Spezies ist "Adelie" ODER Schnabellänge ist größer als der Median.
+
+```{r}
+anzahl_a_oder_b <- penguins_clean |>
+    filter(species == "Adelie" | bill_length_mm > bill_length_md) |>
+    nrow()
+
+Pr_a_oder_b <- anzahl_a_oder_b / N_clean
+Pr_a_oder_b
+```
+
+
+## B. $Pr(A n B)
+
+A UND B: Spezies ist "Adelie" UND Schnabellänge ist größer als der Median.
+
+
+```{r}
+anzahl_a_und_b <- penguins_clean |>
+    filter(species == "Adelie" & bill_length_mm > bill_length_md) |>
+    nrow()
+
+Pr_a_und_b <- anzahl_a_und_b / N_clean
+Pr_a_und_b
+```
+
+## C. $Pr(\neg B)$
+
+NICHT B: Schnabellänge ist kleiner oder gleich dem Median.
+
+```{r}
+anzahl_nicht_b <- penguins_clean |>
+    filter(bill_length_mm <= bill_length_md) |>
+    nrow()
+
+Pr_nicht_b <- anzahl_nicht_b / N_clean
+Pr_nicht_b
+```
+
+
+## D. $Pr(\neg A)$
+
+NICHT A: Das Tier ist nicht von der Spezies "Adelie".
+
+```{r}
+anzahl_nicht_a <- penguins_clean |>
+    filter(species != "Adelie") |>
+    nrow()
+
+Pr_nicht_a <- anzahl_nicht_a / N_clean
+Pr_nicht_a
+```
+
+
+## E. $Pr(A \setminus AB)$
+
+A ohne AB: Die Menge der "Adelie" Pinguine, die NICHT auch B erfüllen. Dies entspricht $A \cap \neg B$.
+
+```{r}
+anzahl_a_minus_ab <- penguins_clean |>
+    filter(species == "Adelie" & bill_length_mm <= bill_length_md) |>
+    nrow()
+
+Pr_a_minus_ab <- anzahl_a_minus_ab / N_clean
+Pr_a_minus_ab
+```
+
+
+## F. $Pr(B \setminus AB)$
+
+B ohne AB: Die Menge der Pinguine mit langer Schnabellänge (B), die NICHT auch A erfüllen. Dies entspricht $B \cap \neg A$.
+
+```{r}
+anzahl_b_minus_ab <- penguins_clean |>
+    filter(bill_length_mm > bill_length_md & species != "Adelie") |>
+    nrow()
+
+Pr_b_minus_ab <- anzahl_b_minus_ab / N_clean
+Pr_b_minus_ab
+```
+
