@@ -5,7 +5,9 @@ draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
 title: verteilungsfunktion-penguins  # HIER TITEL DES POSTS EINGEBEN.
 execute: 
   eval: true 
-  cache: true
+
+
+  
 highlight-style: arrow 
 toc: true
 number-sections: true
@@ -22,7 +24,40 @@ categories:
 
 # Aufgabe 
 
-Visualisi
+In dieser Aufgabe beschäftigen wir uns mit der Schätzung von Wahrscheinlichkeitsaussagen auf Basis der deskriptiven Statistik.
+
+
+
+```{r}
+#| echo: false
+#| label: tbl-wkeit-desk
+#| tbl-cap: "Gegenüberstellung von Wahrscheinlichkeitstheorie und deskriptiver Statistik"
+d <- tibble::tribble(
+         ~Wahrscheinlichkeitstheorie,                      ~`Deskriptive Statistik`,
+                   "Zufallsvariable",                                   "Merkmal",
+                "Wahrscheinlichkeit",               "relative Häufigkeit, Anteil",
+       "Wahrscheinlichkeitsverteilung",   "einfache relative Häufigkeitsverteilung",
+               "Verteilungsfunktion", "kumulierte relative Häufigkeitsverteilung",
+                    "Erwartungswert",                                "Mittelwert",
+                           "Varianz",                                   "Varianz"
+       )
+gt::gt(d)
+```
+
+Dabei nutzen wir den Datensatz `penguins`.
+
+```{r}
+library(palmerpenguins)
+data(penguins)
+```
+
+
+A) Welche Variable entspricht der Zufallsvariable *Gewicht des Tieres*?
+B) Was ist die Wahrscheinlichkeit, dass ein Pinguin weiblich ist?
+C) Visualisieren Sie die Wahrscheinlichkeitsverteilung des Gewichts.
+D) Visualisieren Sie die Verteilungsfunktion des Gewichts.
+E) Visualisieren Sie den Erwartungswert des Gewichts.
+F) Visualisieren Sie die Varianz des Gewichts.
 
 Hinweise:
 
@@ -58,6 +93,90 @@ Hinweise:
 
 # Lösung 
 
+```{r}
+library(palmerpenguins)
+data(penguins)
+```
 
-jklöjkjklöök
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
 
+## A) Welche Variable entspricht der Zufallsvariable *Gewicht des Tieres*?
+
+```{r}
+names(penguins)
+```
+
+`"body_mass_g" ``
+
+## B) Was ist die Wahrscheinlichkeit, dass ein Pinguin weiblich ist?
+
+
+```{r}
+penguins |> 
+  filter(sex == "female") |> 
+  nrow() / nrow(penguins)
+```
+
+
+## C) Visualisieren Sie die Wahrscheinlichkeitsverteilung des Gewichts.
+
+
+```{r}
+gghistogram(penguins, x = "body_mass_g")
+```
+
+
+
+```{r}
+ggdensity(penguins, x = "body_mass_g")
+```
+
+
+## D) Visualisieren Sie die Verteilungsfunktion des Gewichts.
+
+Die empirische kumulative Verteilungsfunktion nennt man auf Englisch:
+*empirical cumulative distribution function*, kurz ECDF.
+
+Dafür gibt es eine Funktion in `ggpubr`und in `ggplot2`.
+
+```{r}
+ggecdf(penguins, x = "body_mass_g")
+```
+
+Ein bisschen cooler:
+
+```{r}
+penguins_clean <- penguins %>%
+  filter(!is.na(body_mass_g))
+
+# ECDF plot with ggpubr
+ggecdf(
+  data = penguins_clean,
+  x = "body_mass_g",
+  color = "species",   # optional: color by species
+  add = "mean",        # optional: add mean line
+  xlab = "Body Mass (g)",
+  ylab = "ECDF",
+  title = "Empirical CDF of Penguin Body Mass"
+)
+```
+
+## E) Visualisieren Sie den Erwartungswert des Gewichts.
+
+
+
+```{r}
+ggdensity(penguins, x = "body_mass_g", add = "mean")
+```
+
+
+## F) Visualisieren Sie die Varianz des Gewichts.
+
+Die Breite der Verteilung zeigt die Varinaz.
+
+```{r}
+ggdensity(penguins, x = "body_mass_g", add = "mean")
+```
