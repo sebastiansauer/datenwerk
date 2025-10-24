@@ -72,13 +72,22 @@ Hinweise:
 
 # Lösung
 
+Es gibt mehrere Wege, die Aufgabe zu lösen. 
+
+1. Direkte Berechnung der Wahrscheinlichkeit, mindestens eine Klausur zu bestehen.
+2. Berechnung der Gegenwahrscheinlichkeit, nämlich durch beide Klausuren durchzurasseln, und Subtraktion von 1.
+
+Die Wahrscheinlichkeiten, die Klausuren $A$ und $B$ zu bestehen, sind:
+
 ```{r}
 Pr_A <- .35
 Pr_B <- .6
 ```
 
 
-Die Wahrscheinlichkeit, beide Klausuren zu bestehen: 
+## Lösung über die Gegenwahrscheinlichkeit
+
+Die Wahrscheinlichkeit, beide Klausuren zu bestehen, ist das Produkt der Einzelwahrscheinlichkeiten (wegen der Unabhängigkeit):
 
 
 ```{r}
@@ -97,7 +106,7 @@ Pr_negA_negB <- Pr_NA * Pr_NB
 Pr_negA_negB
 ```
 
-Das Gegenteil von `Pr_negA_negB` ist, mindestens eine Klausur zu bestehen:
+Das Gegenteil des "doppelten Durchrasselns", `Pr_negA_negB`, ist, mindestens eine Klausur zu bestehen:
 
 
 
@@ -116,6 +125,51 @@ sol <- Pr_mind1_bestanden
 Die Lösung lautet ``r sol``.
 
 
+## Lösung über die direkte Berechnung
+
+Die Wahrscheinlichkeit, mindestens eine Klausur zu bestehen, ist die Summe der Wahrscheinlichkeiten, genau eine Klausur zu bestehen, plus die Wahrscheinlichkeit, beide Klausuren zu bestehen.
+
+
+Die Wahrscheinlichkeit, genau eine Klausur zu bestehen, ist:
+
+```{r}
+Pr_genau1_bestanden <- Pr_A * (1 - Pr_B) + (1 - Pr_A) * Pr_B
+Pr_genau1_bestanden
+```
+Die Wahrscheinlichkeit, beide Klausuren zu bestehen, hatten wir bereits berechnet:
+
+```{r}
+Pr_AB <- Pr_A * Pr_B
+Pr_AB
+```
+Die gesuchte Wahrscheinlichkeit ist also:
+```{r}
+Pr_mind1_bestanden_2 <- Pr_genau1_bestanden + Pr_AB
+Pr_mind1_bestanden_2
+```
+
+```{r}
+#| echo: false
+sol2 <- Pr_mind1_bestanden_2
+```
+Die Lösung lautet ``r sol2``.
+
+
+## Lösung mit dem Additionssatz
+
+Die Wahrscheinlichkeit, mindestens eine Klausur zu bestehen, ist auch über den Additionssatz berechenbar:
+
+```{r}
+Pr_mind1_bestanden_3 <- Pr_A + Pr_B - Pr_AB
+Pr_mind1_bestanden_3
+```
+
+```{r}
+#| echo: false
+sol3 <- Pr_mind1_bestanden_3
+```
+
+Die Lösung lautet ``r sol3``.
 
 
 
