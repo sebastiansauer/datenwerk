@@ -1,0 +1,143 @@
+---
+exname: totale-wskt1
+extype: num
+exsolution: r exams::fmt(sol)
+exshuffle: no
+extol: r sol_tol
+expoints: 1
+categories:
+- R
+- probability
+- bayes
+- num
+date: '2023-11-08'
+title: totale-wskt1
+format:
+  html:
+    mermaid:
+      theme: forest
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+Was ist die Wahrscheinlichkeit, bei einem Krebstest ein positives Testergebnis (Ereignis $T$) zu bekommen?
+
+Es gibt zwei Möglichkeiten für ein positives Testergebnis: Wenn man Krebs hat ($K$) und wenn man nicht Krebs hat ($\neg K$).
+
+$Pr(T|K) = 9/10$, das ist die "Krebs-Erkenn-Sicherheit" des Tests.
+
+$Pr(T|\neg K) = 99/891$, das ist die "Fehlalarm-Quote" des Tests.
+
+Die Grundrate von Krebs sei $Pr(K) = .01$.
+
+**Aufgabe** Berechnen Sie die Wahrscheinlichkeit $Pr(T)$, dass ein positives Testergebnis vorliegt.
+
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Die Ereignisse $K$ und $\neg K$ bilden ein *vollständiges Ereignissystem*.
+Daher ist der Satz von der *totalen Wahrscheinlichkeit* anzuwenden.
+
+$Pr(T) = Pr(T|K) \cdot Pr(K) + Pr(T| \neg K) \cdot Pr(\neg K)$.
+
+
+```{r}
+Pr_T_geg_K <- 9/10
+Pr_K <- .01
+Pr_NK <- 1 - Pr_K  # Wskt für Nicht-Krebs
+Pr_T_geg_NK <- 99/990  # 10% Fehlerrate (falsch positiv)
+Pr_T <- Pr_T_geg_K * Pr_K + Pr_T_geg_NK * Pr_NK
+Pr_T
+```
+
+
+- T: Test (auf Krebs) ist positiv
+- K: Krebs liegt vor
+- NK:  Krebs liegt *nicht* vor
+
+
+```{r}
+#| echo: false
+sol <- Pr_T
+```
+
+
+Die Lösung lautet ``r sol``.
+
+
+
+Einfacher vielleicht ist ein Baumdiagramm:
+
+
+
+
+
+```{mermaid}
+%%| fig-cap: Günstige Pfade
+%%| label: fig-tot-wskt2
+flowchart LR
+  A[1000 Personen] -- K_Pos --> B[10]
+  A -- K_neg --> C[990]
+  B -- T_pos --> D[9]
+  B -- T_neg --> E[1]
+  C -- T_pos --> F[99]
+  C -- T_neg --> G[891]
+  D --- H[9/10 richtig positiv]
+  E --- I[1/10 falsch negativ]
+  F --- J[99/990 falsch positiv]
+  G --- K[891/990 richtig negativ]
+```
+
+Insgesamt bekommen also 9+99 = 108 Personen (von 1000), d.h. ca. 11%, ein positives Testergebnis, 
+davon sind 9 tatsächlich krank und 99 sind gesund.
+
+
+
+---
+
+Categories: 
+
+- R
+- probability
+- bayes
+- num
+

@@ -1,0 +1,261 @@
+---
+extype: string
+exsolution: NA
+exname: rethink3e1-7-paper
+expoints: 1
+categories:
+- bayes
+- probability
+- post
+- bayesbox
+- paper
+date: '2024-11-11'
+title: ReThink3e1-7-paper
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(ggpubr)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+Es soll die Posteriori-Verteilung für den Globusversuch erstellt werden. 
+Folgende Parameter wurden verwendet: $W=6, N = 9$. Für $\pi$ wurden alle Werte von 0 bis 1 mit einer Auflösung von 20 Parameterwerten.
+
+
+
+```{r}
+#| echo: false
+library(tidyverse)
+library(ggpubr)
+library(prada)
+```
+
+
+
+
+Dafür wurde folgende Syntax verwendet.
+
+
+
+```{r}
+p_grid <- seq( from=0 , to=1 , length.out=20 )  # Gitterwerte
+
+prior <- rep( 1 , 20 )  # Priori-Gewichte
+
+likelihood <- dbinom( 6 , size=9 , prob=p_grid ) 
+
+unstandardisierte_posterior <- likelihood * prior 
+
+posterior <- unstandardisierte_posterior / sum(unstandardisierte_posterior)
+
+```
+
+Hier ist die resultierende Bayesbox:
+
+
+```{r}
+bayesbox(hyps = p_grid, priors = prior, liks = likelihood)
+```
+
+
+
+Dann wurde die Stichproben-Posterior-Verteilung erstellt:
+
+```{r}
+# um die Zufallszahlen festzulegen, damit wir alle die gleichen Zahlen bekommen zum Schnluss: 
+set.seed(42) 
+
+# Stichproben ziehen aus der Posteriori-Verteilung
+samples <- 
+  tibble(
+    p = sample( p_grid , prob=posterior, size=1e4, replace=TRUE)) 
+```
+
+
+Hier ist eine Visualisierung der Posteriori-Verteilung:
+
+```{r}
+#| echo: false
+ggdensity(samples, x = "p") +  # aus "ggpubr"
+  scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) 
+```
+
+**Aufgaben:**
+
+Schätzen Sie die Werte zu den folgenden Aufgaben aus der Visualisierung der Post-Veteilung ab!
+
+
+a) Wie viel Wahrscheinlichkeitsmasse liegt unter $p=0.2$?
+
+b) Wie viel Wahrscheinlichkeitsmasse liegt über $p=0.9$?
+
+c) Welcher Anteil der Posteriori-Verteilung liegt zwischen $p=0.2$ und $p=0.9$?
+
+d) *Unter* welchem Wasseranteil $p$ liegen 50% der Posteriori-Verteilung?
+
+e) Über welchem Wasseranteil $p$ liegen 10% der Posteriori-Verteilung?
+
+f) Welches *schmälstes* Intervall von $p$ enthält 90% der Posteriori-Wahrscheinlichkeit? Wählen Sie das Intervall der folgenden, das am besten passt: $[.1, .9], [.5,.7], [.3,.8]$
+
+
+
+
+*Quelle*: McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Aufl.). Taylor and Francis, CRC Press.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+
+Es finden sich auch Lösungsvorschläge online, z.B. [hier](https://github.com/jffist/statistical-rethinking-solutions/blob/master/ch03_hw.R)
+
+a) Wie viel Wahrscheinlichkeitsmasse liegt unter $p=0.2$?
+
+Fast nix, wie man im Diagramm sieht.
+
+Außerdem kann man nachrechnen:
+
+```{r}
+samples %>% 
+  count(p < 0.2)
+```
+
+
+
+b) Wie viel Wahrscheinlichkeitsmasse liegt über $p=0.9$?
+
+
+Fast nix, wie man im Diagramm sieht!
+
+```{r}
+samples %>% 
+  count(p > 0.9)
+```
+
+Naja, so gut 1%!
+
+
+
+
+c)  Welcher Anteil der Posteriori-Verteilung liegt zwischen $p=0.2$ und $p=0.9$?
+
+
+Knapp 99%, wie man aus den vorherigen Aufgaben ableiten kann oder sich hier nocheinmal überlegen kann.
+
+Wer nachrechnen (bzw. nachzählen) will:
+
+
+```{r}
+samples %>% 
+  count(p > 0.2 & p < 0.9) 
+```
+
+
+
+
+
+d) *Unter* welchem Wasseranteil $p$ liegen 50% der Posteriori-Verteilung?
+
+Puh, das geht optisch nur grob. Gefühlt so bei p = .65
+
+
+Wer es genauer will: Eine Möglichkeit: Wir sortieren $p$ der Größe nach (aufsteigend), filtern dann so, dass wir nur die ersten 20% der Zeilen behalten und schauen dann, was der größte Wert ist.
+
+```{r}
+samples %>% 
+  arrange(p) %>% 
+  slice_head(prop = 0.5) %>% 
+  summarise(quantil_20 = max(p))
+```
+Andererseits: Das, was wir gerade gemacht haben, nennt man auch ein *Quantil* berechnen, s. auch [hier](https://de.wikipedia.org/wiki/Quantil_%28Wahrscheinlichkeitstheorie%29). Dafür gibt's fertige Funktionen in R, wie `quantile()`:
+
+```{r}
+samples %>% 
+  summarise(q_20 = quantile(p, 0.2))
+```
+
+
+
+
+e) Über welchem Wasseranteil $p$ liegen 10% der Posteriori-Verteilung?
+
+Wieder ist das optisch nicht so leicht. Aber grob gesagt, so bei p = .8 vielleicht.
+
+Hier die genaue Antwort:
+
+
+```{r}
+samples %>% 
+  summarise(quantile(p, 0.9))
+```
+
+
+Mit 90% Wahrscheinlichkeit ist der Wasseranteil höchstens bei 81%.
+
+
+f) Welches *schmälstes* Intervall von $p$ enthält 90% der Posteriori-Wahrscheinlichkeit? Wählen Sie das Intervall der folgenden, das am besten passt: $[.1, .9], [.5,.7], [.3,.8]$
+
+$[.3,.8]$ passt optisch am besten.
+
+
+Für Detail-Freunde:
+
+
+```{r}
+library(easystats)
+hdi(samples, ci = 0.90)
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- probability
+- post
+

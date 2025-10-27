@@ -1,0 +1,305 @@
+---
+extype: string
+exsolution: NA
+exname: iq-studentis
+expoints: 1
+categories:
+- probability
+- bayes
+- simulation
+- qm2-pruefung2023
+date: '2022-11-05'
+title: iq-studentis
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(
+  fig.pos = "H",
+  fig.asp = 0.618,
+  fig.width = 4,
+  fig.cap = "",
+  fig.path = "",
+  message = FALSE,
+  warning = FALSE,
+  # out.width = "100%",
+  cache = TRUE
+)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+*Intelligenz von Studentis*
+
+Eine Psychologin möchte die Intelligenz von Studentis bestimmen: 
+Was ist wohl der Mittelwert? Wie schlau sind die schlausten 10%? 
+Von wo bis wo geht das mittlere 90%-Intervall von IQ-Werten? 
+Natürlich ist ihr klar, dass es nicht reicht, einen Mittelwert zu schätzen. 
+Nein, sie will alles, sprich: die Posteriori-Verteilung.
+
+
+Zuerst überlegt sie sich die Prioris: 
+"Was ist meine Einschätzung zur Intelligenz von Studentis?". 
+Dazu liest sie alle verfügbare Literatur, beurteilt die methodische Qualität jeder einzelnen Studie und spricht mit den Expertis. 
+Auf dieser Basis kommt sie zu folgenden Prioris:
+
+
+$$\mu \sim \mathcal{N}(115, 5)$$
+Ein paar Überlegungen, die unsere Psychologin dazu hatte: 
+Die Studentis sind im Mittel schlauer als die Normalbevölkerung. 
+Um ein Gefühl für die Verteilungsfunktion vom IQ zu bekommen, nutzt sie folgenden R-Befehl:
+
+
+```{r}
+pnorm(q = 115, mean = 100, sd = 15)
+```
+
+Dieser Befehl gibt ihr an, 
+welcher Prozentsatz der allgemeinen Bevölkerung (die Wahrscheinlichkeitsmasse) nicht schlauer ist als 115. 
+
+Dann versucht sie ein Gefühl für die Streuung ($\sigma$) zu bekommen, 
+folgender R-Befehl hilft ihr:
+
+```{r}
+q_iq <- 50
+rate_lambda <- 0.1
+pexp(q = q_iq, rate = rate_lambda)
+```
+
+
+Ah! Nimmt man an, dass Sigma exponentialverteilt ist mit einer Rate von `r rate_lambda`, 
+dass sind etwa  `r round(pexp(q = q_iq, rate = rate_lambda),2)*100` Prozent der Leute nicht mehr als `q_iq` IQ-Punkte vom Mittelwert $\mu$ entfernt. 
+Das deckt sich mit ihren Informationen aus der Literatur.
+
+Damit sind die Priors spezifiziert.
+
+*Augaben*:
+
+a) Geben Sie die Priors an.
+b) Simulieren Sie die Prior-Prädiktiv-Verteilung dazu.
+c) Befragen Sie die Prior-Prädiktiv-Verteilung mit geeigneten Fragen Ihrer Wahl.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+# Solution
+
+
+a) Geben Sie die Priors an.
+
+$$\mu \sim \mathcal{N}(115, 5)$$
+
+$$\sigma \sim \mathcal{E}(0.1)$$
+
+
+
+b) Simulieren Sie die Prior-Prädiktiv-Verteilung dazu.
+
+
+Ziehen wir Zufallszahlen entsprechend der Priori-Werte:
+
+
+```{r}
+library(tidyverse)
+n <- 1e4
+
+sim <-
+  tibble(
+    sample_mu = rnorm(n,
+      mean = 115,
+      sd   = 10
+    ),
+    sample_sigma = rexp(n,
+      rate = 0.1
+    ),
+    iq = rnorm(n,
+      mean = sample_mu,
+      sd   = sample_sigma
+    )
+  )
+```
+
+
+Was ist wohl der Mittelwert und die SD dieser Priori-Prädiktiv-Verteilung?
+
+```{r}
+height_sim_sd <-
+  sd(sim$iq) %>% round()
+height_sim_sd
+```
+
+
+```{r}
+height_sim_mean <-
+  mean(sim$iq) %>% round()
+height_sim_mean
+```
+
+
+Und jetzt plotten wir diese Verteilung:
+
+
+
+```{r}
+sim %>%
+  ggplot() +
+  aes(x = iq) +
+  geom_histogram() +
+  geom_point(
+    y = 0, x = height_sim_mean, size = 5,
+    color = "blue", alpha = .5
+  ) +
+  geom_vline(
+    xintercept = c(
+      height_sim_mean + height_sim_sd,
+      height_sim_mean - height_sim_sd
+    ),
+    linetype = "dotted"
+  ) +
+  labs(caption = "Der blaue Punkt zeigt den Mittelwert; die gepunkteten Linien MD±SD") +
+  scale_x_continuous(
+    limits = c(70, 145),
+    breaks = seq(70, 145, by = 5)
+  )
+```
+
+
+Oder vielleicht besser als Dichte-Diagramm, das zeigt das "Big Picture" vielleicht besser:
+
+```{r}
+sim %>%
+  ggplot() +
+  aes(x = iq) +
+  geom_density()
+```
+
+
+Hm, etwas randlastig die Verteilung.
+
+
+Zoomen wir etwas mehr rein:
+
+
+```{r}
+sim %>%
+  ggplot() +
+  aes(x = iq) +
+  geom_density() +
+  scale_x_continuous(limits = c(65, 165))
+```
+
+
+
+
+
+
+
+
+
+
+
+c) Befragen Sie die Prior-Prädiktiv-Verteilung mit geeigneten Fragen Ihrer Wahl.
+
+
+Was ist der Mittelwert und die SD und die üblichen deskriptiven Kennwerte?
+
+```{r}
+library(easystats)
+```
+
+
+```{r}
+sim %>%
+  select(iq) %>%
+  describe_distribution()
+```
+
+In welchem Bereich liegen die mittleren 95% der IQ-Werte?
+
+```{r}
+sim %>%
+  eti()
+```
+
+
+Alternativ könnten wir in z-transformierten Daten denken:
+
+
+```{r}
+sim2 <-
+  tibble(
+    sample_mu =
+      rnorm(n,
+        mean = 0,
+        sd   = 1
+      ),
+    sample_sigma =
+      rexp(n,
+        rate = 1
+      )
+  ) %>%
+  mutate(
+    iq =
+      rnorm(n,
+        mean = sample_mu,
+        sd   = sample_sigma
+      )
+  )
+```
+
+
+
+```{r}
+sim2 %>%
+  ggplot() +
+  aes(x = iq) +
+  geom_density()
+```
+
+Mann kann auch `ggpubr` zum Visualisieren nutzen, anstelle von `ggplot2`:
+
+```{r}
+library(ggpubr)
+ggdensity(sim2, x = "iq")
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- simulation
+

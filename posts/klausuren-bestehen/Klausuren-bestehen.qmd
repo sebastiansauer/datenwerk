@@ -1,0 +1,184 @@
+---
+exname: Klausuren-bestehen
+extype: num
+exsolution: r exams::fmt(sol)
+exshuffle: no
+extol: 0.01
+expoints: 1
+categories:
+- R
+- probability
+- num
+date: '2023-11-08'
+title: Klausuren-bestehen
+
+---
+
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+Eine Studentin hat zwei Klausuren, $A$ und $B$ geschrieben.
+Sie schätzt ihre Chancen zu bestehen auf 35% bzw. auf 60%.
+Unterstellen Sie Unabhängigkeit der Ereignisse.
+
+*Aufgabe*: Wie groß ist die Chance, mindestens eine der beiden Klausuren zu bestehen?
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Es gibt mehrere Wege, die Aufgabe zu lösen. 
+
+1. Direkte Berechnung der Wahrscheinlichkeit, mindestens eine Klausur zu bestehen.
+2. Berechnung der Gegenwahrscheinlichkeit, nämlich durch beide Klausuren durchzurasseln, und Subtraktion von 1.
+
+Die Wahrscheinlichkeiten, die Klausuren $A$ und $B$ zu bestehen, sind:
+
+```{r}
+Pr_A <- .35
+Pr_B <- .6
+```
+
+
+## Lösung über die Gegenwahrscheinlichkeit
+
+Die Wahrscheinlichkeit, beide Klausuren zu bestehen, ist das Produkt der Einzelwahrscheinlichkeiten (wegen der Unabhängigkeit):
+
+
+```{r}
+Pr_AB <- Pr_A * Pr_B
+Pr_AB
+```
+
+
+Die Wahrscheinlichkeit, durch beide Klausuren durchzurasseln nennen wir `Pr_negA_negB`:
+
+```{r}
+Pr_NA <- 1 - Pr_A
+Pr_NB <- 1 - Pr_B
+
+Pr_negA_negB <- Pr_NA * Pr_NB
+Pr_negA_negB
+```
+
+Das Gegenteil des "doppelten Durchrasselns", `Pr_negA_negB`, ist, mindestens eine Klausur zu bestehen:
+
+
+
+```{r}
+Pr_mind1_bestanden <- 1 - Pr_negA_negB
+Pr_mind1_bestanden
+```
+
+
+```{r}
+#| echo: false
+sol <- Pr_mind1_bestanden
+```
+
+
+Die Lösung lautet ``r sol``.
+
+
+## Lösung über die direkte Berechnung
+
+Die Wahrscheinlichkeit, mindestens eine Klausur zu bestehen, ist die Summe der Wahrscheinlichkeiten, genau eine Klausur zu bestehen, plus die Wahrscheinlichkeit, beide Klausuren zu bestehen.
+
+
+Die Wahrscheinlichkeit, genau eine Klausur zu bestehen, ist:
+
+```{r}
+Pr_genau1_bestanden <- Pr_A * (1 - Pr_B) + (1 - Pr_A) * Pr_B
+Pr_genau1_bestanden
+```
+Die Wahrscheinlichkeit, beide Klausuren zu bestehen, hatten wir bereits berechnet:
+
+```{r}
+Pr_AB <- Pr_A * Pr_B
+Pr_AB
+```
+Die gesuchte Wahrscheinlichkeit ist also:
+```{r}
+Pr_mind1_bestanden_2 <- Pr_genau1_bestanden + Pr_AB
+Pr_mind1_bestanden_2
+```
+
+```{r}
+#| echo: false
+sol2 <- Pr_mind1_bestanden_2
+```
+Die Lösung lautet ``r sol2``.
+
+
+## Lösung mit dem Additionssatz
+
+Die Wahrscheinlichkeit, mindestens eine Klausur zu bestehen, ist auch über den Additionssatz berechenbar:
+
+```{r}
+Pr_mind1_bestanden_3 <- Pr_A + Pr_B - Pr_AB
+Pr_mind1_bestanden_3
+```
+
+```{r}
+#| echo: false
+sol3 <- Pr_mind1_bestanden_3
+```
+
+Die Lösung lautet ``r sol3``.
+
+
+
+
+
+---
+
+Categories: 
+
+- R
+- probability
+- num
+

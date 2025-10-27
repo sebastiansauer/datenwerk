@@ -1,0 +1,231 @@
+---
+extype: string
+exsolution: NA
+exname: rethink3e1-7
+expoints: 1
+categories:
+- bayes
+- probability
+- post
+- bayesbox
+- computer
+date: '2022-11-23'
+title: rethink3e1-7
+
+
+---
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(ggpubr)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Exercise
+
+Erstellen Sie die Posteriori-Verteilung für den Globusversuch. Nutzen Sie dafür diese Syntax:
+
+
+```{r}
+p_grid <- seq( from=0 , to=1 , length.out=1000 )  # Gitterwerte
+
+prior <- rep( 1 , 1000 )  # Priori-Gewichte
+
+likelihood <- dbinom( 6 , size=9 , prob=p_grid ) 
+
+unstandardisierte_posterior <- likelihood * prior 
+
+posterior <- unstandardisierte_posterior / sum(unstandardisierte_posterior)
+
+# um die Zufallszahlen festzulegen, damit wir alle die gleichen Zahlen bekommen zum Schnluss: 
+set.seed(42) 
+
+# Stichproben ziehen aus der Posteriori-Verteilung
+samples <- 
+  tibble(
+    p = sample( p_grid , prob=posterior, size=1e4, replace=TRUE)) 
+```
+
+
+
+a) Wie viel Wahrscheinlichkeitsmasse liegt unter $p=0.2$?
+
+b) Wie viel Wahrscheinlichkeitsmasse liegt über $p=0.8$?
+
+c) Welcher Anteil der Posteriori-Verteilung liegt zwischen $p=0.2$ und $p=0.8$?
+
+d) Unter welchem Wasseranteil $p$ liegen 10% der Posteriori-Verteilung?
+
+e) Über welchem Wasseranteil $p$ liegen 10% der Posteriori-Verteilung?
+
+f) Welches *schmälstes* Intervall von $p$ enthält 66% der Posteriori-Wahrscheinlichkeit?
+
+g) Welcher Wertebereich (synonym: Welches Intervall) von $p$ enthält 66% der Posteriori-Wahrscheinlichkeit (hier wird *Posteriori-Wahrscheinlichkeit* synonym gebraucht zu *Posteriori-Verteilung*)? Wie nennt man diese Arten von Intervall?
+
+
+*Quelle*: McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Aufl.). Taylor and Francis, CRC Press.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Hier ist eine Visualisierung der Posteriori-Verteilung:
+
+
+```{r}
+ggdensity(samples, x = "p")   # aus "ggpubr"
+```
+
+
+Es finden sich auch Lösungsvorschläge online, z.B. [hier](https://github.com/jffist/statistical-rethinking-solutions/blob/master/ch03_hw.R)
+
+a) Wie viel Wahrscheinlichkeitsmasse liegt unter $p=0.2$?
+
+```{r}
+samples %>% 
+  count(p < 0.2)
+```
+
+Fast nix!
+
+
+
+b) Wie viel Wahrscheinlichkeitsmasse liegt über $p=0.8$?
+
+
+```{r}
+samples %>% 
+  count(p > 0.8)
+```
+
+Naja, so gut 10%!
+
+
+
+
+c)  Welcher Anteil der Posteriori-Verteilung liegt zwischen $p=0.2$ und $p=0.8$?
+
+
+
+```{r}
+samples %>% 
+  count(p > 0.2 & p < 0.8) 
+```
+
+Knapp 90%!
+
+
+
+d) Unter welchem Wasseranteil $p$ liegen 20% der Posteriori-Verteilung?
+
+
+
+Eine Möglichkeit: Wir sortieren $p$ der Größe nach (aufsteigend), 
+filtern dann so, dass wir nur die ersten 20% der Zeilen behalten und schauen dann, was der größte Wert ist.
+
+```{r}
+samples %>% 
+  arrange(p) %>% 
+  slice_head(prop = 0.2) %>% 
+  summarise(quantil_20 = max(p))
+```
+Andererseits: Das, was wir gerade gemacht haben, nennt man auch ein *Quantil* berechnen, s. auch [hier](https://de.wikipedia.org/wiki/Quantil_%28Wahrscheinlichkeitstheorie%29). 
+Dafür gibt's fertige Funktionen in R, wie `quantile()`:
+
+```{r}
+samples %>% 
+  summarise(q_20 = quantile(p, 0.2))
+```
+
+
+
+
+e) Über welchem Wasseranteil $p$ liegen 10% der Posteriori-Verteilung?
+
+
+```{r}
+samples %>% 
+  summarise(quantile(p, 0.9))
+```
+
+
+Mit 90% Wahrscheinlichkeit ist der Wasseranteil höchstens bei 81%.
+
+
+
+f) Welches *schmälstes* Intervall von $p$ enthält 66% der Posteriori-Wahrscheinlichkeit?
+
+
+```{r}
+library(easystats)
+hdi(samples, ci = 0.66)
+```
+
+
+
+
+
+
+g) Welcher Wertebereich von $p$ enthält 66% der Posteriori-Wahrscheinlichkeit (hier wird *Posteriori-Wahrscheinlichkeit* syonyom gebraucht zu *Posteriori-Verteilung*)?
+
+
+Wir nutzen hier die Equal-Tail-Intervall (oder Perzentilintervall genannt),
+da die Aufgabe keine genauen Angaben macht.
+
+```{r}
+eti(samples, ci = 0.66)
+```
+
+Ein "mittleres" 2/3-Intervall lässt 1/3 der Wahrscheinlichkeitsmasse außen vor, und zwar gleichmäßig in zwei Hälften links und rechts, also jeweils 1/6 (17%). So ein Intervall heißt *Perzentilintervall*. Daher synonym:
+
+```{r}
+samples %>% 
+  summarise(PI_66 = quantile(p, prob = c(0.17, .84)))
+```
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- probability
+- post
+

@@ -1,0 +1,190 @@
+---
+exname: lm-Standardfehler
+extype: schoice
+exsolution: 1
+exshuffle: no
+categories:
+- inference
+- lm
+- qm2
+date: '2022-09-04'
+title: lm-standardfehler
+
+---
+
+
+
+
+
+
+
+# Exercise
+
+Man kann angeben, wie genau eine Schätzung von Regressionskoeffizienten die Grundgesamtheit widerspiegelt.
+Zumeist wird dazu der *Standardfehler* (engl. standard error, SE) verwendet.
+
+In dieser Übung untersuchen wir,
+wie sich der SE als Funktion der Stichprobengröße, $n$, verhält.
+
+
+Erstellen Sie dazu folgenden Datensatz:
+
+```{r message=FALSE}
+library(tidyverse)
+
+n <- 2^4
+
+d <-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+```
+
+
+Hier ist das Ergebnis. Uns interessiert v.a. `Std. Error` für den Prädiktor `x`: 
+
+```{r}
+lm(y ~ x, data = d) %>% 
+summary()
+```
+
+
+Hier haben wir eine Tabelle mit zwei Variablen, x und y, definiert mit n=`r n`.
+
+Verdoppeln Sie die Stichprobengröße 5 Mal und betrachten Sie,
+wie sich die Schätzgenauigkeit, gemessen über den SE, verändert.
+Berechnen Sie dazu für jedes n eine Regression mit x als Prädiktor und y als AV!
+
+Bei welcher Stichprobengröße ist SE am kleinsten?
+
+Answerlist
+----------
+* $2^5$
+* $2^6$
+* $2^7$
+* $2^8$
+* $2^9$
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Probieren wir es aus!
+
+Erste Verdopplung, $n=2^5$:
+
+```{r}
+n <- 2^5
+
+d5 <-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+lm5 <- lm(y ~ x, data = d5)
+
+lm5 %>% summary()
+```
+
+
+
+Man kann sich den Standardfehler komfortabler ausgeben lassen,
+wenn man das Paket `easystats` verwendet:
+
+```{r}
+library(easystats)
+lm5 %>% 
+  parameters()
+```
+
+Jetzt mit den anderen Stichprobengrößen:
+
+
+```{r}
+n <- 2^6
+
+d <-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm <- lm(y ~ x, data = d)
+
+mein_lm %>% 
+  parameters
+```
+
+
+
+```{r}
+n <- 2^7
+
+d <-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm <- lm(y ~ x, data = d)
+
+mein_lm %>% 
+  parameters()
+```
+
+
+```{r}
+n <- 2^8
+
+d <-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm <- lm(y ~ x, data = d)
+
+mein_lm %>% 
+  parameters()
+```
+
+
+```{r}
+n <- 2^9
+
+d <-
+  tibble(x = rnorm(n = n),  # im Default: mean = 0, sd = 1
+         y = x + rnorm(n, mean = 0, sd = .5))
+
+mein_lm <- lm(y ~ x, data = d)
+
+mein_lm %>% 
+  parameters()
+```
+
+Answerlist
+----------
+
+
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+* Wahr. Die größte Stichprobe impliziert den kleinsten SE, ceteris paribus.
+
+
+
+
+
+---
+
+Categories: 
+
+- inference
+- lm
+- qm2
+
