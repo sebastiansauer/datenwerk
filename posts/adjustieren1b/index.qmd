@@ -1,0 +1,137 @@
+
+---
+extype: string
+exsolution: NA
+exname: adjustieren1b
+expoints: 1
+categories:
+- regression
+- string
+- qm2
+- penguins
+date: '2025-10-08'
+slug: adjustieren1b
+title: adjustieren1b
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      cache = TRUE)
+```
+
+
+
+
+
+# Aufgabe
+
+
+
+Betrachten Sie folgendes Modell, 
+das den Zusammenhang von Schnabellänge und Körpergewicht bei Pinguinen untersucht (Datensatz `penguins`).
+
+
+Aber zuerst zentrieren wir den metrischen Prädiktor `hp`, um den Achsenabschnitt besser interpretieren zu können. 
+
+```{r}
+library(tidyverse)
+library(easystats)
+data(penguins, package = "palmerpenguins")
+
+penguins <-
+  penguins %>% 
+  mutate(flipper_length_mm_z = flipper_length_mm - mean(flipper_length_mm, na.rm = TRUE))
+```
+
+
+```{r}
+lm1 <- lm(body_mass_g ~ flipper_length_mm_z, data = penguins)
+parameters(lm1)
+```
+
+
+Jetzt können wir aus dem Achsenabschnitt (Intercept) herauslesen, 
+dass ein Pinguin mit `flipper_length_mm_z = 0` - also mit mittlerer Schnabellänge - etwa 4,2 kg wiegt.
+
+Zur Verdeutlichung ein Diagramm zum Modell:
+
+```{r}
+estimate_relation(lm1) |> plot() +
+    geom_point2(aes(y = body_mass_g, x = flipper_length_mm_z), alpha = 0.5, data = penguins) 
+```
+
+
+
+
+Adjustieren Sie im Modell die Schnabellänge um die Geschlecht des Tieresn, so dass das neue Modell den statistischen Effekt (nicht notwendig auch kausal) der Schnabellänge bereinigt bzw. unabhängig vom Geschlecht widerspiegelt!
+
+*Geben Sie den Punktschätzer für den Effekt von `am` in diesem Modell an!*
+
+Hinweise:
+
+
+- Wir gehen davon aus, dass der Regressionseffekt gleich stark ist auf allen (beiden) Stufen der UV wirkt: Es wird also kein Interaktionseffekt modelliert.
+- Beachten Sie die üblichen Hinweise des Datenwerks.
+- Nutzen Sie `lm`, um das Modell zu berechnen.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+```{r}
+lm2 <- lm(body_mass_g ~ flipper_length_mm_z + sex, data = penguins)
+parameters(lm2)
+```
+
+
+
+
+Die Spalte `Coefficient` gibt den mittleren geschätzten Wert für den jeweiligen Koeffizienten an,
+also den Schätzwert zum Koeffizienten.
+
+Die Koeffizienten zeigen, dass der Achsenabschnitt für Autos mit Automatikgetriebe um etwa 5 Meilen geringer ist als für Autos mit manueller Schaltung: Ein durchschnittliches Auto mit manueller Schaltung kommt also etwa 5 Meilen weiter als ein Auto mit Automatikschaltung, glaubt unser Modell.
+
+
+```{r}
+estimate_relation(lm2) |> plot() +
+    geom_point2(aes(y = body_mass_g, x = flipper_length_mm_z), alpha = 0.5, data = penguins) 
+```
+
+
+
+*Lösung:* `
+
+
+```{r}
+coef(lm2)["flipper_length_mm_z"]
+```
+
+Man könnte hier noch einen Interaktionseffekt ergänzen.
+
+
+
+---
+

@@ -1,0 +1,194 @@
+---
+exname: knn-ames01
+extype: num
+exsolution: r exams::fmt(sol)
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- statlearning
+- tidymodels
+- num
+date: '2023-05-17'
+slug: knn-ames01
+title: knn-ames01
+execute:
+  error: true
+  eval: false
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Aufgabe
+
+
+Berechnen Sie ein knn-Modell für den Datensatz `ames`!
+
+Nutzen Sie diese Modellformel: `Sale_Price ~ Lot_Area + Fireplaces + Longitude + Latitude`.
+
+Berichten Sie die Modellgüte.
+
+
+Hinweise:
+
+- Tunen Sie $k$ mit den Werten 1 bis 10.
+- Teilen Sie in Train- und Test-Sample auf.
+- Verwenden Sie Defaults der Funktionen, wo nicht anders angegeben.
+- z-Transformieren Sie die Prädiktoren.
+- Verwenden Sie den RSME als Kennzahl der Modellgüte.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+```{r}
+library(tidymodels)
+data(ames)
+```
+
+
+
+
+Daten aufteilen:
+
+```{r}
+d_split <- initial_split(ames)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+Modell definieren:
+
+```{r}
+mod1 <-
+  nearest_neighbor(
+    mode = "regression",
+    neighbors = tune())  # k-Wert zum Tunen taggen
+```
+
+
+Rezept definieren:
+
+
+```{r}
+rec1 <-
+  recipe(Sale_Price ~ Lot_Area + Fireplaces + Longitude + Latitude, data = d_split) %>% 
+  step_normalize(all_predictors())
+```
+
+
+Workflow definieren:
+
+```{r}
+wf1 <-
+  workflow() %>% 
+  add_model(mod1) %>% 
+  add_recipe(rec1)
+```
+
+
+Resampling definieren:
+
+```{r}
+cv1 <- vfold_cv(d_train)
+```
+
+Tuning definieren:
+
+```{r}
+k_grid <-
+  tibble(neighbors = 1:10)
+```
+
+
+Fitting:
+
+
+```{r}
+fit1 <-
+  tune_grid(wf1,
+            resamples = vfold_cv(d_train),
+            metrics = metric_set(rmse),  # nur RMSE als Modellgüte, Default ist RMSE und R2
+            grid = k_grid,
+            control = control_grid(save_workflow = TRUE)  # nur nötig für "fit_best", s.u.
+            )
+```
+
+
+Metriken im Train-Sample (genauer: im Assessment-Sample):
+
+```{r}
+show_best(fit1)
+```
+(Komplettes) Train-Sample mit bestem Tuning-Kandidat fitten:
+
+```{r}
+tune1_best <- fit_best(fit1)
+```
+
+
+Im Test-Sample predicten:
+
+```{r}
+fit_test <- last_fit(tune1_best, d_split)
+```
+
+Metriken einsammeln:
+
+```{r}
+collect_metrics(fit_test)
+```
+
+
+```{r echo = FALSE}
+sol <- collect_metrics(fit_test) %>% filter(.metric == "rmse") %>% pull(.estimate)
+```
+
+Damit haben wir die Lösung.
+
+
+
+
+---
+
+Categories: 
+
+- statlearning
+- tidymodels
+- num
+

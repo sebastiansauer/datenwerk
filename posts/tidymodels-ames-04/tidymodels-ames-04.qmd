@@ -1,0 +1,189 @@
+---
+exname: tidymodels-ames-04
+extype: num
+exsolution: r fmt(sol)
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- num
+date: '2023-05-17'
+slug: tidymodels-ames-04
+title: tidymodels-ames-04
+execute:
+  cache: true
+  eval: false
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Berechnen Sie ein lineares Modell mit tidymodels und zwar anhand des `ames` Datensatzes.
+
+Modellgleichung: `Sale_Price ~ Gr_Liv_Area, data = ames`.
+
+Berechnen Sie ein multiplikatives (exponenzielles) Modell.
+
+Gesucht ist R-Quadrat als Maß für die Modellgüte im *TEST-Sample*.
+
+
+
+*Hinweise*:
+
+- Fixieren Sie die Zufallszahlen auf den Startwert 42.
+- Verwenden Sie die Funktion `last_fit`.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r}
+library(tidymodels)
+data(ames)
+```
+
+
+Multiplikatives Modell:
+
+```{r}
+ames <- 
+  ames %>% 
+  mutate(Sale_Price = log10(Sale_Price)) %>% 
+  select(Sale_Price, Gr_Liv_Area)
+```
+
+Nicht vergessen: AV-Transformation in beiden Samples!
+
+
+Datensatz aufteilen:
+
+
+```{r}
+set.seed(42)
+ames_split <- initial_split(ames, prop = 0.80, strata = Sale_Price)
+ames_train <- training(ames_split)
+ames_test  <-  testing(ames_split)
+```
+
+
+
+Modell definieren:
+
+```{r}
+m1 <-
+  linear_reg() # engine ist "lm" im Default
+```
+
+
+Rezept definieren:
+
+
+
+```{r}
+rec1 <- 
+  recipe(Sale_Price ~ Gr_Liv_Area, data = ames) 
+```
+
+
+
+
+Vorhersagen mit `last_fit`:
+
+
+```{r}
+fit1_last <- last_fit(object = m1, preprocessor = rec1, split = ames_split)  
+fit1_last
+```
+
+Wir bekommen ein Objekt, in dem Fit, Modellgüte, Vorhersagen und Hinweise enthalten sind.
+
+Ohne Rezept lässt sich `last_fit` nicht anwenden.
+
+Vorhersagen:
+
+```{r}
+fit1_last %>% collect_predictions() %>% 
+  head()
+```
+
+
+Modellgüte im Test-Sample:
+
+```{r}
+fit1_last %>% collect_metrics()
+```
+
+
+
+R-Quadrat:
+
+
+```{r}
+sol <- 0.517
+sol
+```
+
+
+
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- prediction
+- yacsda
+- statlearning
+- num
+

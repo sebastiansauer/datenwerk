@@ -1,0 +1,135 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-09-16
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: bestehen_ohne_lernen  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+
+
+categories:
+- probability  # ENTER CATEGORIES HERE
+
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+```{r}
+#| echo: false
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+```
+
+
+
+
+# Aufgabe 
+
+
+Sie bereiten sich gerade auf die Klausur bei Prof. Süß vor.
+Das heißt: Sie überlegen, ob Sie sich auf die Klausur vorbereiten sollten.
+Vielleicht lohnt es sich ja gar nicht? Vielleicht ist die Wahrscheinlichkeit zu bestehen, 
+wenn man nicht gelernt hat, sehr groß?
+Aber da Sie nun mal auf Fakten stehen, haben Sie sich nach einiger Recherche folgende Zahlen besorgen können, s. @tbl-klausur-lernen.
+In der Tabelle sind die Daten von 100 Studis ausgewiesen.
+Ein Teil hat sich vorbereitet, ordentlich gelernt, nenen wir sie die "*L*erner".
+Ein anderer Teil hat nicht gelernt, $NL$ bzw. $\neg L$. Ein Teil hat bestanden, $B$, 
+ein Teil nicht $NB$ oder $\neg B$.
+
+Wir suchen die Wahrscheinlichkeit, zu bestehen, wenn man nicht gelernt hat: $Pr(B |\neg L)$.
+
+
+
+```{r}
+#| echo: false
+#| label: tbl-klausur-lernen
+#| tbl-cap: "Daten von 100 Studis; L: Lerner, B: Bestanden, N: Negation/Nicht"
+d <- tribble(
+  ~ ., ~ L, ~ NL, ~ Summe,
+  "B", 80, 1, 81,
+  "NB", 5, 14, 19,
+  "Summe", 85, 15, 100
+)
+
+kable(d) %>%
+  kable_styling() %>%
+  column_spec(1, bold = TRUE)  # Makes the first column bold
+
+```
+
+
+Warum kann man *NICHT* einfach rechnen:
+
+$$Pr(B |\neg L) = Pr(B) \cdot Pr(\neg L)$$
+
+
+Ausgerechnet:
+
+```{r}
+Pr_B_geg_nichtL <- 81/100 * 15/100
+Pr_B_geg_nichtL
+```
+
+
+
+
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+Der Multiplikationssatz der Wahrscheinlichkeitsrechnung darf nur angewendet werden,
+wenn die Ereignisse unabhängig sind.
+In diesem Fall sind die Ereignisse $B$ und $\neg L$ aber abhängig,
+da $Pr(B|\neg L) \ne Pr(B) \ne Pr(B| L)$. 
+
+```{r}
+Pr_B_geg_nichtL <- 1/15
+Pr_B <- 81/100
+Pr_B_geg_L <- 80/85
+```
+
+
+
+
