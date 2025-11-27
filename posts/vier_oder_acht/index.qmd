@@ -1,0 +1,115 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-11-20  # DATUM AKTUALISIEREN!
+draft: false   # ACHTUNG DRAFT STEHT AUF TRUE!
+title:  vier_oder_acht  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+  cache: true
+  echo: false
+highlight-style: arrow 
+toc: true
+number-sections: true
+
+
+categories:
+- probability  # ENTER CATEGORIES HERE
+
+---
+
+
+
+
+
+# Aufgabe 
+
+Sie werfen eine (faire) Münze acht Mal.
+
+Welches Ergebnis ist am wahrscheinlichsten?
+
+
+A) 4 Mal Kopf ist am wahrscheinlichsten
+B) 8 Mal Kopf ist am wahrscheinlichsten
+C) Beide Ereignisse (4 Mal bzw. 8 Mal Kopf) sind gleich wahrscheinlich.
+D) Keine Aussage möglich.
+
+
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+4 Mal Kopf ist wahrscheinlicher als 8 Mal Kopf.
+
+
+```{r}
+library(tidyverse)
+```
+
+Hier sind alle möglichen Ereignisse dieses Zufallsexperiments:
+
+```{r}
+# Define possible outcomes
+coin <- c("H", "T")
+
+# Generate all possible sequences of 8 tosses
+events <- expand.grid(rep(list(coin), 8)) |> 
+  as_tibble() %>%
+  mutate(
+    event   = pmap_chr(across(everything()), paste0, collapse = ""),
+    heads_n = str_count(event, "H")
+  )
+
+events
+```
+
+Hier sind alle Ereignisse mit 4 Treffern (Kopf):
+
+
+```{r}
+events |> 
+    filter(heads_n == 4)
+```
+
+
+Hier sind alle Ereignisse mit 8 Treffern (Kopf):
+
+
+```{r}
+events |> 
+    filter(heads_n == 8)
+```
+
+
+Es gibt also sehr viel mehr Möglichkeiten (Elementarereignisse, Ergebnisse), 4 Treffer zu erzielen als 8 Treffer.
+
+Da alle Elementarereignisse gleich wahrscheinlisch sind,
+ist das Ereignis "4 Treffer" wahrscheinlicher als das Ereignis "8 Treffer".
+
+
