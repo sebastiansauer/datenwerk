@@ -60,7 +60,7 @@ Setup:
 ```{r message = FALSE}
 data(mtcars)
 library(tidyverse)
-library(rstanarm)
+library(rstanarm)  # für stan_glm
 library(easystats)
 library(ggpubr)
 ```
@@ -74,8 +74,8 @@ Modell berechnen:
 ```{r m1-stan}
 m1 <- stan_glm(mpg ~ 1, 
                data = mtcars,
-               seed = 42,
-               refresh = 0)
+               seed = 42,  # optional
+               refresh = 0)  # unterdrückt Ausgabe
 ```
 
 
@@ -90,6 +90,8 @@ Im Standard wird ein 95%-ETI berichtet:
 ```{r}
 parameters(m1)
 ```
+
+
 
 
 
@@ -129,10 +131,18 @@ breite <- m1_params$CI_high[m1_params$Parameter=="(Intercept)"] - m1_params$CI_l
 breite
 ```
 
+Eine Visualisierung der Stichproben-Post-Verteilung ist hilfreich:
+
+
+```{r}
+parameters(m1) |> plot(show_intercept = TRUE)
+```
 
 
 
-
+```{r}
+hdi(m1) |> plot(show_intercept = TRUE)
+```
 
 
 
