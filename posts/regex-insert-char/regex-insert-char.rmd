@@ -1,0 +1,102 @@
+---
+exname: regex-insert-char
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- textmining
+- regex
+- string
+date: '2023-05-22'
+slug: regex-insert-char
+title: regex-insert-char
+
+---
+
+
+
+
+
+
+# Aufgabe
+
+
+Gegeben sei ein String dieser Art (ggf. noch viel länger, aber vom gleichen Aufbau):
+
+```{r}
+my_string <-c(
+"word1",
+"word2",
+"word3"
+)
+
+writeLines(my_string)
+```
+
+
+(`writeLines` druckt einen String, wo wie er am Bildschirm erscheint, wenn man einfach nur `my_string` eingibt, werden Steuerzeichen mitangezeigt.)
+
+
+Wandeln Sie diesen String (programmatisch) um in folgende Form
+
+
+```{r}
+my_string_out <-c(
+'"word1"',
+'"word2"',
+'"word3"'
+)
+
+writeLines(my_string_out)
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r}
+library(stringr)
+```
+
+
+
+```{r}
+str_replace_all(string = my_string,
+                pattern = "(^\\w)(.+$)",
+                replacement = '\\"\\1\\2\\"') %>% 
+  writeLines()
+```
+
+
+
+Erklärung:
+
+- `(^\\w)` ist eine *Such-Gruppe*, die aus den Treffern besteht, bei denen zu Beginn des Strings ein "Wort-Zeichen" steht [vgl. hier](https://r4ds.had.co.nz/strings.html#grouping-and-backreferences).
+- `(.+$)` ist eine *Such-Gruppe*, die aus Treffern besteht, bei denen zum Ende des Strings ein beliebiges Zeichen steht.
+- `'\\"\\1\\2\\"'` `\\"` bezieht sich auf ein Anführungszeichen, `\\1` bezieht sich auf die 1. Such-Gruppe (analog für `\\2`).
+
+Hat man innerhalb eines Strings ein Anführungszeichen, so setzt man außen das einfache und innerhalb des Strings das doppelte Anführungszeichen.
+
+
+
+
+---
+
+Categories: 
+
+- textmining
+- regex
+- string
+

@@ -1,0 +1,166 @@
+---
+exname: kekse01
+extype: num
+exsolution: r .6
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- bayesbox
+- bayes
+date: '2024-11-12'
+slug: kekse01
+title: kekse01
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+In *Think Bayes* stellt Allen Downey folgende Aufgabe:
+
+
+"Suppose there are two bowls of cookies.
+
+Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies.
+
+Bowl 2 contains 20 vanilla cookies and 20 chocolate cookies.
+
+Now suppose you choose one of the bowls at random and, without looking, choose a cookie at random. 
+
+
+**If the cookie is vanilla, what is the probability that it came from Bowl 1**?"
+
+
+Hinweise:
+
+- Erstellen Sie eine Bayesbox zur Lösung dieser Aufgabe.
+- Gehen Sie davon aus, dass Sie (apriori) indifferent gegenüber der Hypothesen sind.
+- Geben Sie Prozentzahlen immer als Anteil an und lassen Sie die führende Null weg (z.B. .42).
+
+
+```{r}
+#| echo: false
+#| fig-cap: "Zwei Keksdosen"
+# Load ggplot2 library
+library(ggplot2)
+
+# Create data for the jars
+jar_data <- data.frame(
+  x_min = c(1, 4),   # Left x-coordinates of the jars
+  x_max = c(2.5, 5.5),  # Right x-coordinates of the jars
+  y_min = c(0, 0),   # Bottom y-coordinates of the jars
+  y_max = c(3, 3),   # Top y-coordinates of the jars
+  color = c("blue", "green")  # Colors of the jars
+)
+
+# Create the plot
+ggplot() +
+  # Add rectangles for jars
+  geom_rect(data = jar_data, aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, fill = color),
+            color = "black") +  # Add black borders to jars
+  scale_fill_identity() +  # Use specified colors
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  xlim(0, 7) +
+  ylim(0, 4)
+
+
+```
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+#| message: false
+library(tidyverse)
+```
+
+
+```{r}
+#| echo: false
+d <-
+  tibble(
+    # definiere die Hypothesen (das "Gitter"): 
+    p_Gitter = c(1, 2),
+    # bestimme den Priori-Wert:       
+    Priori  = .5) %>%  
+    mutate(
+      # berechne Likelihood für jeden Gitterwert:
+      Likelihood = c(3/4, 2/4),
+      # berechen unstand. Posteriori-Werte:
+      unstd_Post = Likelihood * Priori,
+      # berechne stand. Posteriori-Werte (summiert zu 1):
+      Post = unstd_Post / sum(unstd_Post))  
+
+d %>% 
+  knitr::kable(digits=2)
+```
+
+
+
+Die Antwort lautet: **`r d$Post[1]`**.
+
+
+Es ist übrigens egal, ob Sie für die Priori-Werte .5 oder 1 (oder eine andere Zahl) wählen. Das Ergebnis bleibt das gleiche. Sie müssen nur für alle Hypothesen die gleiche Zahl verwenden. Probieren Sie es aus!
+
+
+
+```{r}
+#| echo: false
+d <-
+  tibble(
+    # definiere die Hypothesen (das "Gitter"): 
+    p_Gitter = c(1, 2),
+    # bestimme den Priori-Wert:       
+    Priori  = 1) %>%  
+    mutate(
+      # berechne Likelihood für jeden Gitterwert:
+      Likelihood = c(3/4, 2/4),
+      # berechen unstand. Posteriori-Werte:
+      unstd_Post = Likelihood * Priori,
+      # berechne stand. Posteriori-Werte (summiert zu 1):
+      Post = unstd_Post / sum(unstd_Post))  
+
+d %>% 
+  knitr::kable(digits=2)
+```
+
+
+

@@ -1,0 +1,145 @@
+---
+exname: dag6
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal06
+title: kausal06
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold",
+                      warning = FALSE)
+```
+
+
+
+
+
+# Exercise
+
+
+
+Im Rahmen einer Studie soll untersucht werden, 
+ob eine Influenza-Infektion einen (kausalen) Einfluss auf eine Covid19-Infektion hat. 
+Außerdem wird dabei der Nutzen des Medikaments Acetaminophen untersucht.
+
+In Wahrheit (aber unbekannt) sei der DAG wie folgt (s.u.).
+
+
+
+```{r }
+dagify(fever ~ flu + pox, 
+        acetaminophen ~ fever,
+        labels = c("flu" = "Influenza",
+                   "pox" = "Covid19",
+                   "fever" = "Fever",
+                   "acetaminophen" = "Acetaminophen")) %>% 
+  ggdag( text = FALSE, use_labels = "label") +
+  theme_dag()
+
+```
+
+
+
+Ist es sinnvoll, die Einnahme von Fiebersenker (*Acetaminophen*) zu kontrollieren?
+
+
+
+
+
+Answerlist
+----------
+
+* Nein, es ist nicht sinnvoll, da durch eine Kontrolle von Acetaminophen eine Verzerrung erzeugt wird (Kollision)
+* Ja, nur so ist ein kausaler Effekt identifizierbar
+* Ja, es ist nicht nötig, aber wird zu exakteren Ergebnissen führen
+* Nein, es ist nicht sinnvoll,da durch eine Kontrolle von Acetaminophen eine Verzerrung erzeugt wird (Konfundierung)
+* Nein, es ist nicht sinnvoll, da es nicht nötig ist (aber auch nicht schädlich)
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Nein, es ist nicht sinnvoll zu kontrollieren,
+da eine Verzerrung erzeugt wird (Kollision).
+
+Acetaminophen ist ein Nachfahre  von `Fever`,
+also wird die Kontrolle dieser Variable den grundsätzlich gleichen
+(nur etwas schwächeren) Effekt haben,
+wie das Kontrollieren der "kausalen Vorfahren",
+hier `Fever`.
+
+
+```{r}
+dagify(fever ~ flu + pox, 
+        acetaminophen ~ fever,
+        labels = c("flu" = "Influenza",
+                   "pox" = "Covid19",
+                   "fever" = "Fever",
+                   "acetaminophen" = "Acetaminophen")) %>% 
+ggdag_dseparated(from = "flu", to = "pox", controlling_for = "acetaminophen",
+                 text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

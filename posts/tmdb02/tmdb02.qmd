@@ -1,0 +1,466 @@
+---
+exname: tmdb02
+extype: num
+exsolution: r sol
+extol: 0.2
+expoints: 1
+categories:
+- ds1
+- tidymodels
+- statlearning
+- tmdb
+- trees
+- num
+date: '2023-05-17'
+slug: tmdb02
+title: tmdb02
+execute: 
+  eval: false
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+<!-- ```{r read-supplement} -->
+<!-- result_obj_path <- "tmbd_rf_fit1.rds" -->
+<!-- #file.exists(here::here("objects", result_obj_path)) -->
+<!-- exams::include_supplement(file = result_obj_path, -->
+<!--                    recursive = TRUE) -->
+
+<!-- #rf_fit <- readr::read_rds("/Users/sebastiansaueruser/github-repos/rexams-exercises/objects/tmbd_rf_fit1.rds") -->
+<!-- ``` -->
+
+
+
+# Aufgabe
+
+Wir bearbeiten hier die Fallstudie [TMDB Box Office Prediction - 
+Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview),
+ein [Kaggle](https://www.kaggle.com/)-Prognosewettbewerb.
+
+Ziel ist es, genaue Vorhersagen zu machen,
+in diesem Fall für Filme.
+
+
+Die Daten können Sie von der Kaggle-Projektseite beziehen oder so:
+
+```{r}
+d_train_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/train.csv"
+d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data/tmdb-box-office-prediction/test.csv"
+```
+
+
+##### Aufgabe
+
+Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Kaggle-Score
+
+
+Hinweise:
+
+- Sie müssen sich bei Kaggle ein Konto anlegen (kostenlos und anonym möglich); alternativ können Sie sich mit einem Google-Konto anmelden.
+- Berechnen Sie einen *Entscheidungsbaum* und einen *Random-Forest*.
+- Tunen Sie nach Bedarf; verwenden Sie aber Default-Werte.
+- Verwenden Sie Tidymodels.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Vorbereitung
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(tictoc)
+library(doParallel)  # mehrere CPUs nutzen
+library(finetune)  # Tune Anova
+```
+
+
+
+```{r}
+d_train <- read_csv(d_train_path)
+d_test <- read_csv(d_test_path)
+
+glimpse(d_train)
+glimpse(d_test)
+```
+
+## Rezept
+
+### Rezept definieren
+
+
+```{r}
+rec1 <-
+  recipe(revenue ~ ., data = d_train) %>% 
+  update_role(all_predictors(), new_role = "id") %>% 
+  update_role(popularity, runtime, revenue, budget) %>% 
+  update_role(revenue, new_role = "outcome") %>% 
+  step_mutate(budget = ifelse(budget < 10, 10, budget)) %>% 
+  step_log(budget) %>% 
+  step_impute_knn(all_predictors())
+
+rec1
+```
+
+
+### Check das Rezept 
+
+
+```{r}
+rec1_prepped <-
+  prep(rec1, verbose = TRUE)
+
+rec1_prepped
+```
+
+
+```{r}
+d_train_baked <-
+  rec1_prepped %>% 
+  bake(new_data = NULL) 
+
+head(d_train_baked)
+```
+
+
+Die AV-Spalte sollte leer sein:
+
+```{r}
+bake(rec1_prepped, new_data = head(d_test), all_outcomes())
+```
+
+
+```{r}
+d_train_baked %>% 
+  map_df(~ sum(is.na(.)))
+```
+
+
+Keine fehlenden Werte mehr *in den Prädiktoren*.
+
+Nach fehlenden Werten könnte man z.B. auch so suchen:
+
+```{r }
+datawizard::describe_distribution(d_train_baked)
+```
+
+
+So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.
+
+
+Das Test-Sample backen wir auch mal:
+
+```{r}
+d_test_baked <-
+  bake(rec1_prepped, new_data = d_test)
+
+d_test_baked %>% 
+  head()
+```
+
+
+
+
+## Kreuzvalidierung
+
+
+```{r}
+cv_scheme <- vfold_cv(d_train,
+                      v = 5, 
+                      repeats = 1)
+```
+
+
+## Modelle
+
+### Baum
+
+
+```{r def-tree}
+mod_tree <-
+  decision_tree(cost_complexity = tune(),
+                tree_depth = tune(),
+                mode = "regression")
+```
+
+
+
+### Random Forest
+
+
+
+```{r def-rf}
+mod_rf <-
+  rand_forest(mtry = tune(),
+              min_n = tune(),
+              trees = 1000,
+              mode = "regression") %>% 
+  set_engine("ranger", num.threads = 4)
+```
+
+
+## Workflows
+
+
+```{r wfs}
+wf_tree <-
+  workflow() %>% 
+  add_model(mod_tree) %>% 
+  add_recipe(rec1)
+
+wf_rf <-
+  workflow() %>% 
+  add_model(mod_rf) %>% 
+  add_recipe(rec1)
+```
+
+
+## Fitten und tunen
+
+Um Rechenzeit zu sparen,
+kann man den Parameter `grid` bei `tune_grid()` auf einen kleinen Wert setzen.
+Der Default ist 10.
+Um gute Vorhersagen zu erzielen,
+sollte man den Wert tendenziell noch über 10 erhöhen.
+
+### Tree
+
+
+Parallele Verarbeitung starten:
+
+```{r}
+cl <- makePSOCKcluster(4)  # Create 4 clusters
+registerDoParallel(cl)
+```
+
+
+```{r fit-tree}
+tic()
+tree_fit <-
+  wf_tree %>% 
+  tune_race_anova(
+    resamples = cv_scheme,
+    #grid = 2
+  )
+toc()
+```
+
+
+Hilfe zu `tune_grid()` bekommt man [hier](https://www.rdocumentation.org/packages/tune/versions/0.2.0/topics/tune_grid).
+
+
+```{r}
+tree_fit
+```
+
+Steht was in den `.notes`?
+
+
+
+```{r}
+tree_fit[[".notes"]][[2]]
+```
+
+Nein.
+
+
+```{r}
+collect_metrics(tree_fit)
+```
+
+```{r}
+show_best(tree_fit)
+```
+
+
+## Finalisieren
+
+
+```{r best-tree}
+best_tree_wf <-
+  wf_tree %>% 
+  finalize_workflow(select_best(tree_fit))
+
+best_tree_wf
+```
+
+
+```{r}
+tree_last_fit <-
+  fit(best_tree_wf, data = d_train)
+
+tree_last_fit
+```
+
+
+
+## Vorhersage Test-Sample
+
+
+```{r}
+predict(tree_last_fit, new_data = d_test)
+```
+
+
+### RF
+
+## Fitten und Tunen
+
+Um Rechenzeit zu sparen,
+kann man das Objekt, wenn einmal berechnet,
+abspeichern unter `result_obj_path` auf der Festplatte und beim nächsten Mal importieren,
+das geht schneller als neu berechnen.
+
+
+Das könnte dann z.B. so aussehen:
+
+```{r eval = FALSE}
+if (file.exists(result_obj_path)) {
+  rf_fit <- read_rds(result_obj_path)
+} else {
+  tic()
+  rf_fit <-
+    wf_rf %>% 
+    tune_grid(
+      resamples = cv_scheme)
+  toc()
+}
+```
+
+
+*Achtung* Ein Ergebnisobjekt von der Festplatte zu laden ist *gefährlich*.
+Wenn Sie Ihr Modell verändern, aber vergessen, das Objekt auf der Festplatte zu aktualisieren,
+werden Ihre Ergebnisse falsch sein (da auf dem veralteten Objekt beruhend),
+ohne dass Sie durch eine Fehlermeldung von R gewarnt würden!
+
+
+
+So kann man das Ergebnisobjekt auf die Festplatte schreiben:
+
+```{r eval = FALSE}
+#write_rds(rf_fit, file = "objects/tmbd_rf_fit1.rds")
+```
+
+
+Aber wir berechnen lieber neu:
+
+```{r fit-rf}
+tic()
+rf_fit <-
+  wf_rf %>% 
+  tune_grid(
+    resamples = cv_scheme
+    #grid = 2
+    )
+toc()
+```
+
+
+
+
+```{r}
+collect_metrics(rf_fit)
+```
+
+
+```{r}
+select_best(rf_fit)
+```
+
+
+
+
+## Finalisieren
+
+```{r}
+final_wf <-
+  wf_rf %>% 
+  finalize_workflow(select_best(rf_fit))
+```
+
+
+```{r}
+final_fit <-
+  fit(final_wf, data = d_train)
+```
+
+
+```{r}
+final_preds <- 
+  final_fit %>% 
+  predict(new_data = d_test) %>% 
+  bind_cols(d_test)
+```
+
+
+```{r}
+submission <-
+  final_preds %>% 
+  select(id, revenue = .pred)
+```
+
+
+Abspeichern und einreichen:
+
+```{r eval = FALSE}
+write_csv(submission, file = "submission.csv")
+```
+
+
+## Kaggle Score
+
+Diese Submission erzielte einen Score von **2.7664** (RMSLE).
+
+```{r}
+sol <- 2.7664
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- ds1
+- tidymodels
+- statlearning
+- tmdb
+- trees
+- num
+

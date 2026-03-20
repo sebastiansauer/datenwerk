@@ -1,0 +1,173 @@
+---
+exname: groesse03
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- bayes
+- regression
+- paper
+date: '2024-11-10'
+title: groesse03
+
+---
+
+
+
+<!-- WORK IN PROGRESS -->
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+# Aufgabe
+
+
+## Hintergrund und Forschungsfrage
+
+Wir interessieren uns für die typische Körpergröße deutscher Studentis.
+[Hier](https://raw.githubusercontent.com/sebastiansauer/pradadata/master/data-raw/wo_men.csv) findet sich dazu der Datensatz `wo_men`.
+
+
+Wir wollen die Forschungsfrage untersuchen, ob die Körpergröße männlicher Studenten normalverteilt ist und zwar gleich der Körpergröße des "typischen" erwachsenen Mannes.
+
+Diese Verteilung (typische Körpergröße erwachsener Männer) nehmen wir an mit $\mu \sim N(178.4, 7.6)$.
+
+![](height-distribution_850.png)
+
+
+[Quelle: Körpergröße Männer](https://ourworldindata.org/human-height)
+
+
+[Siehe auch hier zur Körpergröße der Männer](https://de.wikipedia.org/wiki/Liste_der_L%C3%A4nder_nach_K%C3%B6rpergr%C3%B6%C3%9Fe)
+
+
+**Aufgabe** Können Sie die Hypothese verwerfen, dass die mittlere Körpergröße der männlichen Studenten der der männlichen Allgemeinbevölkerung entspricht? Begründen Sie!
+
+
+
+## Setup
+
+```{r setup}
+library(pradadata)  # für den Datensatz `wo_men`
+library(tidyverse)
+library(ggpubr)
+library(rstanarm)
+library(easystats)
+```
+
+
+## Daten der Stichprobe
+
+
+Daten importieren:
+
+```{r}
+data(wo_men)
+```
+
+Alternativ per URL:
+
+```{r}
+wo_men <- read.csv("https://raw.githubusercontent.com/sebastiansauer/pradadata/master/data-raw/wo_men.csv")
+```
+
+
+
+Mittelwert in der Stichprobe:
+
+```{r men}
+men <- 
+wo_men |> 
+  filter(height < 210, height > 150) |> 
+  filter(sex == "man") |> 
+  drop_na()
+
+men |>  
+  summarise(height_avg = mean(height, na.rm = TRUE),
+            height_sd = sd(height, na.rm = TRUE))
+```
+
+
+
+```{r fig-dens}
+#| out-width: 75%
+men |> 
+  ggdensity(x = "height", fill = "sex")
+```
+
+
+
+## Modell
+
+
+```{r m1}
+m1 <- stan_glm(height ~ 1, data = men,
+               refresh = 0,
+               prior_intercept = normal(178.4, 7.6))
+
+```
+
+Modellparameter:
+
+```{r params}
+#| echo: false
+m1_params <- parameters(m1)
+m1_params |> print_md()
+```
+
+Visualisierung der Post-Verteilung (HDI, 95%):
+
+```{r fig-params}
+#| out-width: 75%
+#| echo: false
+hdi(m1) |> plot(show_intercept = TRUE)
+```
+
+
+Hinweise:
+
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Laut den Daten (und dem Modell) erstreckt sich der Bereich plausibler Weise der Studenten von etwa `r m1_params$CI_low` cm bis `r m1_params$CI_high` cm,
+wie man in der Parametertabelle und dem Diagramm zur Post-Verteilung sieht.
+
+```{r}
+#| echo: false
+m1_params |> 
+  select(CI_low, CI_high) 
+```
+
+
+Dieser Bereich überdeckt den oben angenommenen Mittelwert in der männlichen Gesamtbevölkerung von 178.4cm.
+Es ist also *nicht* auszuschließen, dass die mittlere Körpergröße der männlichen Studenten der der männlichen Allgemeinbevölkerung entspricht.
+
+Die Hypothese, dass Studenten im Mittel gleich groß sind wie die männliche Allgemeinbevölkerung, kann also nicht ausgeschlossen (verworfen) werden.

@@ -1,0 +1,122 @@
+---
+exname: summarise05
+extype: num
+exsolution: 7.0
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- datawrangling
+- eda
+- tidyverse
+- dplyr
+- variability
+- num
+date: '2023-04-28'
+slug: summarise05
+title: summarise05
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Im Datensatz `mariokart`: 
+
+1. Gruppieren Sie danach, wie viele Lenkräder bei der Auktion dabei waren.
+
+2. Fassen Sie die Spalte `total_pr` zusammen und zwar zur  MAA und zum IQR - pro Gruppe!
+
+
+Geben Sie den erste Wert des IQR als Antwort zurück!   
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Pakete starten:
+
+```{r}
+library(easystats)
+library(tidyverse)  # startet das Paket tidyverse
+```
+
+
+
+
+
+
+Daten importieren:
+
+```{r}
+mariokart <- data_read("https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mariokart.csv")
+```
+
+Oder so:
+
+```{r}
+data(mariokart, package = "openintro")  # aus dem Paket "openintro"
+```
+
+Dazu muss das Paket `openintro` auf Ihrem Computer installiert sein.
+
+
+
+
+Zusammenfassen:
+
+
+```{r}
+library(DescTools)
+mariokart_gruppiert <- group_by(mariokart, wheels)  # Gruppieren
+mariokart_klein <- summarise(mariokart_gruppiert, 
+                             pr_iqr = IQR(total_pr),
+                             pr_maa = mean(abs(total_pr - mean(total_pr))),
+                             pr_maa2 = MeanAD(total_pr)
+                             )  # zusammenfassen
+mariokart_klein
+```
+
+Möchte man  den `MAA` nicht von Hand ausrechnen, so kann man die Funktion `MeanAD` aus dem Paket `DescTools` nutzen (Denken Sie daran, dass Sie das Paket einmalig installiert haben müssen.)
+
+
+Die Lösung lautet: 7.00
+
+
+
+---
+
+Categories: 
+
+- datawrangling
+- eda
+- tidyverse
+- dplyr
+- variability
+- num
+

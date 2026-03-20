@@ -1,0 +1,82 @@
+---
+extype: schoice
+expoints: 2
+exsolution: r mchoice2string(solutions, single = TRUE)
+exname: Schiefe 1
+date: '2023-04-19'
+slug: Schiefe1
+title: Schiefe1
+categories: 
+- schoice
+- eda
+- distributions
+---
+
+
+```{r libs, include = FALSE}
+library(mosaic)
+```
+
+
+```{r data generation, echo = FALSE, results = "hide"}
+# Random Data
+n <- 10000
+form <- c("linksschiefe", "rechtsschiefe", "bimodale", "symmetrische")
+questions <- c("A", "B", "C", "D")
+fc <- sample(c(1/4, 3/4),1)
+dft <- sample(c(5 * 1:5),1)
+xa <- rbeta(n, 2,1) %>% scale()
+xb <- rbeta(n, 1,2) %>% scale()
+xc <- c(rnorm(n*fc, mean = -2), rnorm(n*(1-fc), mean=2))  %>% scale()
+xd <- rt(n, dft) %>% scale()
+z <- sample(questions, 4)
+data <- data.frame(x = c(xa,xb,xc,xd), z = rep(z, each = n))
+
+i <- sample(1:4,1)
+solutions <- rep(FALSE, 4)
+solutions[which(z[i]==questions)] <- TRUE
+```
+
+
+
+# Aufgabe
+
+Welche der Abbildungen zeigt am deutlichsten eine `r form[i]` Verteilung?
+
+```{r show-plot, echo = FALSE, results="hide", fig.height = 4, fig.width = 6, fig.cap = ""}
+gf_dens(~x|z, data = data)
+```
+
+```{r questionlist, echo = FALSE, results = "asis"}
+exams::answerlist(questions, markup = "markdown")
+```
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+exams::answerlist(ifelse(solutions, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+---
+
+Categories: 
+
+schoice
+

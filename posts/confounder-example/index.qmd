@@ -1,0 +1,159 @@
+---
+# gleich diese Datei in einem Ordner mit Namen der Aufgabe abspeichern!
+date: 2025-05-14
+draft: FALSE   # ACHTUNG DRAFT STEHT AUF TRUE!
+title: confounder-example  # HIER TITEL DES POSTS EINGEBEN.
+execute: 
+  eval: true 
+highlight-style: arrow 
+cache: true
+toc: true
+number-sections: true
+extype: string
+exsolution: ""
+exshuffle: no
+categories:
+- causal  # ENTER CATEGORIES HERE
+
+
+bibliography: "../../library-ses.bib"
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+
+```{r}
+library(dagitty)
+```
+
+
+
+
+
+# Aufgabe 
+
+
+Ein Forscherteam hat folgende Hypothesen:
+
+>   Werbung, die als "KI-generiert" gekennzeichnet ist, führt (im Durchschnitt) zu geringer Kaufabsicht im Vergleich zu Werbung ohne KI-Kennzeichnung (unabhängig davon, ob die Werbung tatsächlich von KI generiert wurde).
+
+
+
+Natürlich ist diese Hypothese wohl basiert auf Theorien und bestehenden Befunden, die hier aber nicht weiter ausgeführt sind ...
+
+
+
+Darüber hinaus untersuchen sie noch eine zweite Hypothese, nämlich ob KI generierte Produkte eine höhere Kaufabsicht hervorrufen als nicht KI-generierte Produkte.
+
+Es handelt sich also um eine zweifaktorielles Design. Die Forschergruppe will ein Experiment durchführen, wobei die Stichproben bei ca. $n=20$ liegt pro Gruppe/Bedingung.
+
+Der DAG der Forschergruppe sieht aus wie folgt:
+
+```{r}
+dag1 <-
+  "
+  dag{
+KIK -> KA
+KI -> KA
+U -> KA
+}
+"
+
+graphLayout(dag1) |> plot()
+```
+
+KIK: KI-Kennzeichnung; KA: Kaufabsicht; KI: KI-Generierung, U: unbekannte Einflüsse
+
+
+
+Die Forschergruppe geht davon aus, dass *keine* Konfundierer vorliegen.
+Außerdem sollte etwaige Konfundierung durch die Randomisierung (und experimentelle Kontrolle) ausgeschaltet werden.
+
+
+**Aufgabe** Hat die Forschergruppe Recht? Was ist Ihre Meinung? Fällt Ihnen ein plausibler Konfundierer ein? Was raten Sie der Forschergruppe.
+
+
+
+
+
+Hinweise:
+
+
+- Beachten Sie die üblichen [Hinweise](https://datenwerk.netlify.app/hinweise) des Datenwerks.
+
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+# Lösung 
+
+
+Ein möglicher Konfundierer ist das Persönlichkeitsmerkmal "Skeptizismus", mit dem hier eine skeptische Grundeinstellung gemeint ist.
+
+Menschen mit hohem Wert in Skeptizismus ("skeptische Menschen") sind insgesamt weniger kaufgeneigt, kaufen also weniger. Der Grund ist, dass sie dem Wert eines Produkts nicht trauen bzw. nicht vom Wert überzeugt sind. Außerdem sehen sie Schwachstellen in der Argumentation, warum ein Produkt gekauft werden sollte.
+
+
+Zum Zweiten würden solche skeptischen Personen es vorziehen, wenn ein Produkt über eine KI-Kennzeichnung verfügt. 
+Denn damit bekommen sie mehr Informationen als ohne Kennzeichnung (unter der Annahme, dass die Kennzeichnung auch relevant ist in dem Sinne, dass sie mit tatsächlicher KI-Generierung einher geht). Demnach wäre man ohne KI-Kennzeichnung im Ungewissen, mit KI-Kennzeichnung hingegen ist man besser informiert.
+
+
+
+```{r}
+dag2 <-
+  "
+  dag{
+KIK -> KA
+KI -> KA
+U -> KA
+S -> KA
+S -> KIK
+}
+"
+
+graphLayout(dag2) |> plot()
+```
+
+KIK: KI-Kennzeichnung; KA: Kaufabsicht; KI: KI-Generierung, S: Skeptizismus; U: unbekannte Einflüsse
+
+
+
+Man könnte argumentieren, dass Skeptizismus mit dem Interaktionseffekt von KI-Kennzeichnung und KI-Generiertheit zusammenhängt (aber nicht mit KI-Kennzeichnung als Haupteffekt).
+
+
+Darüber hinaus hat die Forschergruppe das Problem, dass etwaige Konfundierer nicht zwingend durch die Randomisierung neutralisiert werden. Der Grund davon ist die kleine Stichprobengröße. 
+Bei kleinen Stichproben wirkt der "Zufall" der Aufteilung, das Gesetz der großen Zahl, noch nicht (unbedingt und umfänglich).
+
+
+Insgesamt ist der Forschergruppe zu raten, ggf. auf Konfundierung durch Skeptizismus oder andere (Persönlichkeit-)Merkmale zu kontrollieren.
+
+
+
+
+
+

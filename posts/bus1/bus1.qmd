@@ -1,0 +1,229 @@
+---
+exname: bus1
+extype: num
+exsolution: r y
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- bayes
+- num
+date: '2023-11-08'
+title: Bus1
+draft: true
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Aufgabe
+
+Die folgende Aufgabe basiert auf S. 110 von Bourier, G. (2018). Wahrscheinlichkeitsrechnung und schließende Statistik: Praxisorientierte Einführung — Mit Aufgaben und Lösungen. Springer Fachmedien. https://doi.org/10.1007/978-3-658-07481-4
+
+
+An einer Bushaltestelle verkehren zwei Linien. Linie *A* hält im *10-Minuten-Takt*, Linie *B* im *20-Minuten-Takt*, der um fünf Minuten zeitversetzt ist zu Linie A. 
+
+
+
+*Aufgabe*: Wie groß ist die Wahrscheinlichkeit, dass eine Person, die zu einem zufälligen Zeitpunkt an der Haltestelle ankommt, zwischen *3 und 6 Minuten* warten muss? Simulieren Sie die Wahrscheinlichkeitsverteilung anhand von Stichprobenziehungen! Geben Sie die Wahrscheinlichkeit an.
+
+
+Hinweise:
+
+- Beide Linien sind stets pünktlich.
+- Es treten keine sonstigen Störungen auf.
+- Ziehen Sie 1e04 Stichproben.
+- Runden Sie auf zwei Dezimalstellen.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+Vergegenwärtigen wir uns die Ereignisse ("Bus A kommt" und "Bus B kommt") in den ersten 20 Minuten - danach wiederholt es sich.
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+d <- tribble(
+  ~Minute, ~Linie_A, ~Linie_B, 
+       1L,       0L,       0L,
+       2L,       0L,       0L,
+       3L,       0L,       0L,
+       4L,       0L,       0L,
+       5L,       0L,       1L,
+       6L,       0L,       0L,
+       7L,       0L,       0L,
+       8L,       0L,       0L,
+       9L,       0L,       0L,
+      10L,       1L,       0L,
+      11L,       0L,       0L,
+      12L,       0L,       0L,
+      13L,       0L,       0L,
+      14L,       0L,       0L,
+      15L,       0L,       0L,
+      16L,       0L,       0L,
+      17L,       0L,       0L,
+      18L,       0L,       0L,
+      19L,       0L,       0L,
+      20L,       1L,       0L
+  )
+```
+
+
+
+Ergänzen wir noch das Ereignis "Bus A oder Bus B kommt":
+
+```{r}
+d <-
+  d %>% 
+  mutate(Bus = Linie_A | Linie_B,
+         Bus = as.integer(Bus)) # von TRUE/FALSE zu 1/0
+```
+
+
+Der vertikale Balken `|` ist in R der Operator für das logische Oder.
+
+
+```{r echo = FALSE}
+knitr::kable(d)
+```
+
+
+Spaßeshalber ergänzen wir noch die nächsten 20 Minuten:
+
+```{r echo=TRUE}
+d2 <- 
+  d %>% 
+  mutate(Minute = 21:40)
+
+
+d3 <-
+  d %>% 
+  bind_rows(d2)
+```
+
+
+
+Das plotten wir mal.
+
+Zum Plotten macht es Sinn, den Datensatz lang zu pivotieren:
+
+```{r echo=TRUE}
+d3_long <- 
+  d3  %>% 
+  pivot_longer(cols = Linie_A:Bus, names_to = "Linie", values_to = "Bus_kommt") 
+
+head(d3_long)
+```
+
+
+
+```{r echo=FALSE}
+d3_long %>% 
+  ggplot(aes(x = Minute, y = Linie)) +
+  geom_point(aes(color = factor(Bus_kommt))) +
+  scale_color_manual(values = c("grey80", "red")) +
+  labs(color = "Bus kommt") +
+  theme_minimal()
+```
+
+
+Jetzt fügen wir die Wartezeiten hinzu.
+Dazu ein Beispiel: Kommt man in Minute 1 oder in Minute 6 an, so muss man 4 Minuten warten auf Linie A. Kommt man in Minute 2 oder 7 an, so muss man 3 Minuten warten auf Linie A, etc. Kommt man in der 5. Minute, so ist der Bus gerade weg (man könnte auch vereinbaren, dass der Bus noch da ist; beides ist okay).
+Für Linie B gilt Ähnliches.
+
+Um das auszurechnen, braucht man den "Rest-Operator" in R, `%%`:
+
+```{r}
+5 %% 5
+6 %% 5
+7 %% 5
+```
+
+
+
+```{r}
+d3 <-
+  d3 |> 
+  mutate(Wartezeit_Linie_A = 5 - Minute %% 5,
+         Wartezeit_Linie_B = 10 - Minute %% 10
+  )
+```
+
+
+Die Gesamt-Wartezeit ist die kleinere der beiden Wartezeiten (Warten auf Linie A bzw. auf Linie B):
+
+```{r}
+d3 <-
+  d3 |> 
+  mutate(Wartzeit = case_when(
+    Wartezeit_Linie_A <= Wartezeit_Linie_B ~ Wartezeit_Linie_A,
+    TRUE ~ Wartezeit_Linie_B
+  ))
+```
+
+
+Jetzt ziehen wir Stichproben, damit wir zählen können, wie häufig der Bus kommt bei einer bestimmten Ankunftszeit einer Person an der Haltestelle.
+
+
+```{r echo=TRUE}
+stipros <-
+  d %>% 
+  slice_sample(n = 1e4, replace = TRUE)
+
+head(stipros)
+```
+
+
+
+Schauen wir uns mal die Stichproben als Histogramm an:
+
+```{r echo=TRUE}
+stipros %>% 
+  count(Minute, Bus)
+```
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- probability
+- bayes
+- num
+

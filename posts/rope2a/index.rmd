@@ -1,0 +1,253 @@
+---
+extype: schoice
+exsolution: 64
+exname: rope2a
+expoints: 1
+categories:
+- rope
+- bayes
+- regression
+- exam-22
+- mtcars
+date: '2024-12-11'
+title: rope2a
+
+---
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      # out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+# Aufgabe
+
+Im Datensatz `mtcars`: Ist der (mittlere) Unterschied im Spritverbrauch (`mpg`) zwischen den beiden Gruppen 
+*Automatik* vs. *Schaltgetriebe* vernachlässigbar?
+
+Wir definieren "vernachlässigbar klein" als "höchstens eine Meile".
+
+Prüfen Sie rechnerisch, anhand des angegebenen Datensatzes, folgende Behauptung:
+
+
+*Behauptung: "Der Unterschied ist vernachlässigbar klein!"*
+
+
+Nutzen Sie das ROPE-Konzept mit den Standardwerten im Befehl `rope` aus `{easystats}`.
+
+
+Wählen Sie die Antwortoption, die am besten zu der obigen Behauptung passt!
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+```{r message=FALSE}
+library(easystats)
+library(tidyverse)
+library(rstanarm)
+data(mtcars)
+```
+
+
+Zur ersten Orientierung erstellen wir uns, rein deskriptiv, 
+eine Darstellung des Spritverbrauchs beider Gruppen, z.B. so:
+
+```{r}
+mtcars %>% 
+  mutate(am = factor(am)) %>% 
+  ggplot() +
+  aes(x = mpg, color = am, fill = am) +
+  geom_density(alpha = .5)
+```
+
+Man sieht direkt, 
+dass es substanzielle Unterschiede zwischen den *Mittelwerten* beiden Gruppen gibt.
+Auch wenn sich die Verteilungen überlappen, 
+sind die Mittelwerte doch vermutlich nicht (fast) identisch.
+Vermutlich wird das Modell, das wir gleich berechnen,
+uns wenig überraschen,
+sondern den deskriptiven Befund widerspiegeln.
+
+
+
+
+Modell berechnen:
+
+```{r}
+m1_mtcars <- stan_glm(mpg ~ am, 
+                      data = mtcars, 
+                      seed = 42,
+                      refresh = 0)
+```
+
+Posteriori-Verteilung betrachten:
+
+
+```{r}
+parameters(m1_mtcars)
+```
+
+Die Funktion spucht im Default ein PI (ETI) aus, kein HDI.
+
+
+
+Visualisieren der Posteriori-Verteilung:
+
+```{r echo = FALSE}
+plot(parameters(m1_mtcars), show_intercept = TRUE, data = m1_mtcars)
+```
+
+
+```{r eval=FALSE}
+plot(parameters(m1_mtcars), show_intercept = TRUE)
+```
+
+[Hilfe zum Plot-Befehl von `parameters`](https://easystats.github.io/see/reference/plot.see_parameters_model.html)
+
+
+
+Rope berechnen:
+
+```{r}
+rope_m1 <- rope(m1_mtcars, range = c(-1, 1)) #  ±1 Meile Unterschied
+rope_m1
+```
+
+
+
+Answerlist
+-----------
+
+- Ja, die Behauptung ist *korrekt.*
+- Nein, die Behauptung ist *falsch.*
+- Die Daten sind bzw. das Modell nicht konkludent; es ist *keine Entscheidung* über die Behauptung möglich.
+- Auf Basis der bereitgestellten Informationen ist *keine Antwort möglich*.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+
+# Antwort
+
+Rope visualisieren mit `plot(rope_m1)`.
+
+```{r echo = FALSE}
+plot(x = rope_m1, data = m1_mtcars)
+```
+
+
+Man sieht, dass der "Berg" 
+- die Posteriori-Verteilung bzw. der Bereich plausibler Werte - 
+*außerhalb* des Rope-Bereichs liegt. 
+
+Wir können also die *Hypothese*,
+dass der Unterschied zwischen beiden Gruppen *praktisch Null* ist,
+*verwerfen.*
+
+Natürlich ist das nur ein deskriptiver Befund,
+wir können nichts dazu sagen,
+ob der Unterschied auch ein kausaler Effekt ist.
+
+
+
+Alternative Rope-Definition: Z-Standardisieren.
+
+Ein kleiner Effekt ist, laut Kruschke 2018, 
+ist ein ROPE mit Breite ±0.1 SD.
+
+
+Mit diesen Angaben berechnen wir das ROPE erneut:
+
+```{r}
+m2_mtcars <- 
+  mtcars %>% 
+  mutate(mpg_z = scale(mpg)) %>% 
+  stan_glm(mpg_z ~ am, 
+           seed = 42,
+           data = .,  # Der Punkt bezieht sich auf die Tabelle im vorherigen Pfeifen-Schritt
+           refresh = 0)
+```
+
+
+```{r}
+rope(m2_mtcars)
+```
+Im Standard bezieht sich `rope()` auf ein 95%-ETI, wie uns die Hilfe verrät.
+
+
+
+```{r echo = FALSE}
+plot(rope(m2_mtcars), data = m2_mtcars)
+```
+
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Richtig
+* Falsch
+* Falsch
+
+
+
+
+
+
+---
+
+Categories: 
+
+- rope
+- bayes
+- regression
+- exam-22
+

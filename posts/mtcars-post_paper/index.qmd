@@ -1,0 +1,157 @@
+---
+extype: num
+exsolution: 3.38
+exname: mtcars-post_paper
+extol: 0.5
+categories:
+- bayes
+- post
+- estimation
+- exam-22
+- qm2
+- mtcars
+- paper
+date: '2024-11-11'
+slug: mtcars-post_paper
+title: mtcars-post_paper
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+```
+
+
+
+
+
+# Aufgabe
+
+
+
+Im Datensatz `mtcars`: 
+Berichten Sie die Breite eines Schätzintervalls (89%, HDI) zum mittleren Spritverbrauch!
+Nutzen Sie Methoden der Bayes-Statistik.
+
+
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+Dazu sei folgendes Modell gegeben.
+
+
+Setup:
+
+```{r message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)  # für stan_glm
+library(easystats)
+library(ggpubr)
+```
+
+
+
+
+
+Modell berechnen:
+
+```{r m1-stan}
+m1 <- stan_glm(mpg ~ 1, 
+               data = mtcars,
+               seed = 42,  # optional
+               refresh = 0)  # unterdrückt Ausgabe
+```
+
+
+Dann gibt es verschiedene Einstellungen für die Funktion `parameters()`:
+
+```{r}
+parameters(m1, ci = .89, ci_method = "hdi")
+```
+Im Standard wird ein 95%-ETI berichtet:
+
+
+```{r}
+parameters(m1)
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+
+
+Im Standard wird ein 95%-Perzentilintervall berechnet, s. die Dokumentation zur Funktion [hier](https://easystats.github.io/parameters/reference/model_parameters.default.html).
+
+Daher müssen wir explizit das 89%-HDI anfordern.
+
+Die Lösung ist also aus der Tabelle oben ablesbar als Differenz der Größen des Schätzbereichs (Konfidenzintervalls, CI).
+
+
+
+
+
+```{r}
+#| echo: false
+m1_params <- parameters(m1, ci = .89, ci_method = "hdi")
+
+breite <- m1_params$CI_high[m1_params$Parameter=="(Intercept)"] - m1_params$CI_low[m1_params$Parameter=="(Intercept)"] 
+breite
+```
+
+Eine Visualisierung der Stichproben-Post-Verteilung ist hilfreich:
+
+
+```{r}
+parameters(m1) |> plot(show_intercept = TRUE)
+```
+
+
+
+```{r}
+hdi(m1) |> plot(show_intercept = TRUE)
+```
+
+
+
+---
+
+Categories: 
+
+- bayes
+- post
+- estimation
+- exam-22
+

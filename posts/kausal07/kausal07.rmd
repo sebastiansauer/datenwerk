@@ -1,0 +1,172 @@
+---
+exname: dag7
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal07
+title: kausal07
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+
+Eine Forscherin untersucht den Zusammenhang von Rauchen `smo` (smoking, UV, exposure) und Herzstillstand `ca` (cardiac arrest, AV, outcome). 
+Sie hegt die Hypothese, dass Rauchen einen Einfluss auf den Cholesterolspiegel `cho` (cholestorol) hat, 
+was wiederum Herzstillstand auslösen könnte.
+
+
+
+
+```{r }
+smoking_ca_dag <- dagify(ca ~ cho,
+       cho ~ smo + wei,
+       smo ~ unh,
+       wei ~ unh,
+       labels = c("ca" = "Cardiac\n Arrest", 
+                  "smo" = "Smoking",
+                  "cho" = "Cholesterol",
+                  "unh" = "Unhealthy\n Lifestyle",
+                  "wei" = "Weight"),
+       #latent = "unh",
+       exposure = "smo",
+       outcome = "ca")
+
+ggdag(smoking_ca_dag) +
+  theme_dag()
+
+
+```
+
+
+Hier sehen Sie die Definition des DAGs:
+
+```{r}
+smoking_ca_dag
+```
+
+
+Die Forscherin überlegt, `Cholestorol` zu kontrollieren. 
+Ist diese Idee sinnvoll?
+
+
+
+
+Answerlist
+----------
+
+* Nein, da die Assoziation zwischen UV und AV unterbrochen wird.
+* Ja, so wird der kausale Effekt identifiziert.
+* Ja, *nur* so wird der kausale Effekt identifiziert.
+* Es schadet nicht, aber es ist auch nicht nötig.
+* Nein, da eine Kollision erzeugt wird.
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Alternative Visualisierung:
+
+
+```{r}
+ggdag(smoking_ca_dag, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+
+Nein, es ist nicht sinnvoll,
+da die Assoziation zwischen UV und AV unterbrochen wird.
+Damit wird der Kausaleffekt von Rauchen auf den Herzstillstand "wegkontrolliert".
+Die Ergebnisse würden dann fälschlich aufzeigen,
+dass Rauchen nicht in Verbindung stünde mit Herzstillstand, 
+was falsch ist.
+
+
+```{r}
+ggdag_dseparated(smoking_ca_dag, controlling_for = c("cho"), 
+                 text = FALSE, use_labels = "label", collider_lines = FALSE)
+```
+
+
+Stattdessen wäre es nötig, `weight` oder auch `unhealthy lifestyle` zu kontrollieren,
+um den kausalen Effekt von `smoking` auf `cardiacarrest` zu identifizieren.
+
+Hier sind die möglichen "Adjustment Sets", 
+die Mengen der Variablen, die man (pro Menge) kontrollieren muss, 
+um den gesuchten Kausaleffekt zu identifizieren:
+
+```{r}
+print( adjustmentSets( smoking_ca_dag, "smo", "ca" ,
+                       type = "all",
+                       effect = "total") )
+```
+
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

@@ -1,0 +1,229 @@
+---
+exname: tidymodels-penguins06
+extype: schoice
+exsolution: r fmt(sol)
+exshuffle: no
+expoints: 1
+categories:
+- tidymodels
+- statlearning
+- schoice
+date: '2023-05-17'
+slug: tidymodels-penguins06
+title: tidymodels-penguins06
+execute:
+  error: true
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = TRUE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+library(exams)
+```
+
+
+
+
+
+
+# Aufgabe
+
+Berechnen Sie ein kNN-Modell mit tidymodels und zwar anhand des penguins Datensatzes.
+
+Modellgleichung: `body_mass_g ~ bill_length_mm`.
+
+
+
+Vergleichen Sie die Testfehlerhöhe im Test-Sample in folgenden zwei Szenarien:
+
+1. Train-Test-Aufspaltung, 10 Mal wiederholt
+2. 10-fache Kreuzvalidierung (im Train-Sample) ($v=10, r= 1$)
+
+
+Hinweise:
+
+- Tuning Sie - nur im 2. Szenario - $k$ mit den Werten 5, 10, 15.
+- Löschen Sie alle Zeilen mit fehlenden Werten in den Prädiktoren.
+- Beachten Sie die [üblichen Hinweise](https://datenwerk.netlify.app/hinweise).
+- Natürlich gilt: Ceteris paribus. Halten Sie also die Modelle im Übrigen vergleichbar bzw. identisch.
+
+Answerlist
+----------
+
+* Szenario 1 hat den geringeren Vorhersagefehler.
+* Szenario 2 hat den geringeren Vorhersagefehler.
+* Der Vorhersagefehler ist in beiden Szenarien gleich.
+* Keine Antwort möglich.
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(tidymodels)
+library(tidyverse)
+library(tictoc)  # Rechenzeit messen, optional
+# data(penguins, package = "palmerpenguins")
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/penguins.csv"
+d <- read_csv(d_path)
+```
+
+
+Wir dürfen keine fehlenden Werte in der Y-Variable haben (im Train-Set),
+sonst meckert Tidymodels:
+
+
+```{r}
+d2 <- 
+  d %>% 
+  drop_na(body_mass_g)
+```
+
+# CV
+
+## Daten aufteilen:
+
+```{r}
+set.seed(42)
+d_split <- initial_split(d2)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+
+## CV
+
+```{r}
+set.seed(42)
+folds <- vfold_cv(d_train, v = 10, repeats = 1)
+```
+
+
+
+
+## Workflow
+
+
+
+```{r}
+rec1 <-
+  recipe(body_mass_g ~ bill_length_mm, data = d_train) %>% 
+  step_naomit(all_numeric_predictors())
+
+knn_model <-
+  nearest_neighbor(
+    mode = "regression",
+    neighbors = tune()
+  ) 
+
+wflow <-
+  workflow() %>%
+  add_recipe(rec1) %>%
+  add_model(knn_model)
+```
+
+
+
+
+## Fitten
+
+```{r}
+d_resamples <-
+  tune_grid(
+    wflow,
+    resamples = folds,
+    control = control_grid(save_workflow = TRUE),
+    grid = data.frame(neighbors = c(5, 10, 15)),
+    metrics = metric_set(rmse)
+    )
+```
+
+
+
+
+## Modellgüte
+
+
+```{r}
+bestfit1 <- fit_best(x = d_resamples)
+lastfit1 <- last_fit(bestfit1, d_split)
+collect_metrics(lastfit1)
+```
+
+# Train-Test-Aufteilung wiederholt
+
+
+
+
+## CV
+
+Wir resamplen nicht über das Train-Sample, sondern über die ganze Stichprobe:
+
+```{r}
+set.seed(42)
+folds2 <- vfold_cv(d2, v = 2, repeats = 10)
+```
+
+
+## Fitten
+
+```{r}
+d_resamples2 <-
+  tune_grid(
+    wflow,
+    resamples = folds2,
+    control = control_grid(save_workflow = TRUE),
+    grid = data.frame(neighbors = c(5, 10, 15)),
+    metrics = metric_set(rmse)
+    )
+```
+
+## Modellgüte
+
+
+```{r}
+bestfit2 <- fit_best(x = d_resamples2)
+lastfit2 <- last_fit(bestfit2, d_split)
+collect_metrics(lastfit2)
+```
+
+
+
+---
+
+Categories: 
+
+- tidymodels
+- statlearning
+- schoice
+

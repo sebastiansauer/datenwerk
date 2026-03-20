@@ -1,0 +1,217 @@
+---
+exname: dag10
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal10
+title: kausal10
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+#library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+
+# Exercise
+
+Ein Forschungsteam aus Psychologen und Medizinern untersucht die Frage, 
+ob (höhere) *Bereitschaft* für eine OP und zu Veränderung 
+in ihrer Lebensführung, 
+nach einem Jahr über einen (höheren) *Schmerzrückgang* führt. 
+Das hießt, Patienten geringerer Bereitschaft sollten es entsprechend zu weniger Schmerzrückgang kommen.
+Die Bereitschaft der Patienten (ein theoretisches Konstrukt, was nicht direkt beobachtbar ist) 
+wurde mittels eines psychometrisch validierten Fragebogen erhoben. 
+Die Studie umfasst ausschließlich Patienten, 
+die eine OP wegen Rückenschmerzen durchlaufen sind (s. DAG).
+
+
+Das Studiendesign impliziert, dass nur Patienten, die eine OP durchlaufen haben, 
+in die Studie aufgenommen wurde. 
+Damit wird per Design diese Variable stratifiziert (kontrolliert).
+
+
+
+```{r plot-dag-question}
+coords <- dagitty::coordinates(m_bias()) %>% 
+  coords2df()
+
+coords$name <- c("readiness", "pain", "surgery", "ready_tool", "pain_change")
+
+surgical_dag <- ggdag::dagify(ready_tool ~ readiness,
+                       surgery ~ readiness + pain,
+                       pain_change ~ ready_tool + pain,
+                       exposure = "ready_tool",
+                       outcome = "pain_change",
+                       latent = "readiness",
+                       labels = c(ready_tool = "Measured \nReadiness", 
+                                  pain_change = "Change \nin Pain", 
+                                  readiness = "Underlying \nReadiness", 
+                                  pain = "Baseline \nPain", 
+                                  surgery = "Surgical \nStatus"),
+                       coords = coords2list(coords)) %>% 
+  control_for("surgery")
+
+
+ggdag::ggdag_adjust(surgical_dag, text = FALSE, 
+             use_labels = "label", 
+             collider_lines = FALSE) +
+  theme_dag()
+```
+
+
+Durch die Stratifizierung wird ein Hintertürpfad geöffnet; 
+dieser muss geschlossen werden. 
+Wie sollte dies geschehen (in diesem Modell)?
+
+
+Im folgenden Diagramm ist der Kollisionsbias kenntlich gemacht, 
+der durch die Stratifizierung von `Surgical Status` entsteht:
+
+
+```{r fig.width=9}
+ggdag::ggdag_adjust(surgical_dag, text = FALSE, use_labels = "label", collider_lines = TRUE) +
+  theme_dag()
+```
+
+
+Hinweis:
+
+- Wenn von "kausaler Effekt" gesprochen wird, ist stets der (totale) kausale Effekt wie oben definiert gemeint.
+- Gehen Sie davon aus, dass die Daten zur Studie wie oben dargestellt erhoben und zugänglich sind; die Datenerhebung aber abgeschlossen ist.
+
+
+
+Answerlist
+----------
+* Es sollte vom Forschungsteam auf `Baseline Pane` kontrolliert werden, um den kausalen Effekt zu identifizieren.
+* Es sollte vom Forschungsteam auf `Underlying Readiness` kontrolliert werden, um den kausalen Effekt zu identifizieren.
+* Es sollte vom Forschungsteam auf `Surgical Status` kontrolliert werden, um den kausalen Effekt zu identifizieren.
+* Es sollte vom Forschungsteam auf `Change in Pain` kontrolliert werden, um den kausalen Effekt zu identifizieren.
+* Es sollte vom Forschungsteam auf `Measured Readiness` kontrolliert werden, um den kausalen Effekt zu identifizieren.
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Es sollte auf `Baseline Pain` kontrolliert werden, 
+um den kausalen Effekt zu identifizieren.
+
+
+
+
+```{r plot-solution-dag}
+surgical_dag2 <- dagify(ready_tool ~ readiness,
+                       surgery ~ readiness + pain,
+                       pain_change ~ ready_tool + pain,
+                       exposure = "ready_tool",
+                       outcome = "pain_change",
+                       latent = "readiness",
+                       labels = c(ready_tool = "Measured \nReadiness", 
+                                  pain_change = "Change \nin Pain", 
+                                  readiness = "Underlying \nReadiness", 
+                                  pain = "Baseline \nPain", 
+                                  surgery = "Surgical \nStatus"),
+                       coords = coords2list(coords)) %>% 
+  control_for(c("surgery", "pain"))
+
+
+ggdag_adjust(surgical_dag2, text = FALSE, 
+             use_labels = "label", 
+             collider_lines = FALSE) +
+  theme_dag()
+
+```
+
+
+Mit Kontrolle von `Baseline Pain` (und `surgery`) ist der kausale Effekt identifiziert:
+
+
+```{r fig.width=9}
+surgical_dag2 %>% 
+  ggdag_adjustment_set() +
+  theme_dag()
+```
+
+
+
+*Ohne* Kontrolle von `Baseline Pain` ist der Effekt *nicht* identifiziert; es gibt einen Hintertürpfad:
+
+
+
+```{r fig.width=9}
+surgical_dag %>% 
+  ggdag_drelationship("ready_tool", "pain_change",
+                      controlling_for = "surgery") +
+  theme_dag()
+```
+
+
+
+[Quelle](https://ggdag.malco.io/)
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

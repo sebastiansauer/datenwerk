@@ -1,0 +1,129 @@
+---
+exname: kausal-einfach
+extype: schoice
+exsolution: 512
+exshuffle: no
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal-einfach
+title: kausal-einfach
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(ggdag)
+library(dagitty)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+
+Eine Forscher:in aus Kalifornien entdeckt, 
+dass Haiangriffe mit Eisverkauf korreliert sind: 
+Haiangriffe treten gehäuft dann auf, wenn am Strand viel Eis verkauft wird. 
+Dieser Zusammenhang ist zwar nicht perfekt, 
+aber die Forscher:in findet in ihren Daten einen starken, sogar "signifikanten" Zusammenhang. 
+
+Welche Schlüsse sind aus diesen Daten zu ziehen?
+Wählen Sie die Antwort, die am besten passt!
+
+
+Answerlist
+----------
+
+
+* Da *Eisverkauf* die UV und *Haiangriff* die AV ist, sind die Daten im Sinne eines Kausalschlusses "Eisverkauf führt (tendenziell) zu Haiangriffen" zu interpretieren. Natürlich gilt dies nur für linearen Zusammenhänge, da Korrelationen nur linearen Zusammenhänge identifizieren können.
+* Es ist kein Kausalschluss möglich; eine Drittvariable könnte den Zusammenhang der beobachteten Variablen konfundieren.
+* Die Daten (soweit bekannt bzw. oben aufgeführt sind) machen deutlich, dass es einen Zusammenhang zwischen den beiden Variablen gibt; folglich ist die eine Variable Ursache und die andere Wirkung. Die Daten lassen aber keine Aussage zu, welche der beiden Variablen Ursache und welche Wirkung ist.
+* Es ist davon auszugehen, dass *Haiangriff* die Ursache ist und *Eisverkauf* die Wirkung.
+* Da es sich nur um Beobachtungsdaten, nicht um Experimentaldaten handelt, ist keine Aussage möglich.
+
+
+
+
+
+
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Diese Drittvariable könnte das Aufkommen der Besucher:innen am Strand sein (`viel_los`). Wenn viel los ist am Strand, steigt die Gefahr an Haiangriffen, einfach weil mehr Menschen im Wasser sind. Weiter gilt: Wenn viel los ist, wird viel Eis verkauft. Diese beiden Kausaleffekte lassen eine Scheinkorrelation zwischne `hai` und `eis` erscheinen: Scheinbar gibt es einen Kausaleffekt zwischen Eisverkauf und Haiangriffen. Dieser Zusammenhang ist aber eine Scheinkorrelation, kein Kausaleffekt. Das Diagramm zeigt diese Konfundierung.
+
+```{r}
+dag <- "
+dag{ 
+viel_los -> hai; viel_los -> eis 
+hai [exposure]
+y [outcome]
+}
+"
+
+g <- dagitty( dag ) 
+ggdag(g) + theme_dag()
+
+
+```
+
+
+
+
+
+Answerlist
+----------
+
+
+* Falsch
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

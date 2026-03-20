@@ -1,0 +1,127 @@
+---
+exname: dag5
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal05
+title: kausal05
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Exercise
+
+
+
+Im Rahmen einer Studie soll untersucht werden, 
+ob eine Influenza-Infektion einen (kausalen) Einfluss auf eine Covid19-Infektion hat.
+
+In Wahrheit (aber unbekannt) sei der DAG wie folgt (s.u.).
+
+
+```{r }
+fever_dag <- collider_triangle(x = "Influenza", 
+                  y = "Covid", 
+                  m = "Fever") 
+
+ggdag(fever_dag, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+Ist es sinnvoll, das Auftreten von *Fieber* (`Fever`) zu kontrollieren?
+
+
+
+
+Answerlist
+----------
+
+* Nein, da durch eine Kontrolle von `Fever` eine Verzerrung erzeugt wird (Kollisionsverzerrung)
+* Ja, durch eine Kontrolle von `Fever` ist ein kausaler Effekt identifizierbar
+* Ja, eine Kontrolle von `Fever` ist zwar nicht nötig, aber wird zu exakteren Ergebnissen führen
+* Nein, da eine Kontrolle von `Fever` eine Verzerrung erzeugt wird (Konfundierung)
+* Nein, da eine Kontrolle von `Fever` nicht nötig ist (aber auch nicht schädlich)
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+Nein, da durch eine Kontrolle von `Fever` eine Verzerrung erzeugt wird (Kollisionsverzerrung):
+`Influenza` und `Covid` sind dann `d-connected`,
+obwohl es in Wirklichkeit *keinen* kausalen Pfad zwischen den beiden Variablen gibt.
+
+
+```{r}
+ggdag_dseparated(fever_dag, controlling_for = "m", 
+                 text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

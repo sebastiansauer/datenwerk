@@ -1,0 +1,185 @@
+---
+exname: Verteilungen-Quiz-02
+extype: schoice
+exsolution: 10
+exshuffle: no
+categories:
+- distributions
+- Verteilungen-Quiz
+- probability
+- bayes
+- simulation
+- quiz
+- qm2
+- computer
+date: '2022-11-20'
+slug: Verteilungen-Quiz-02
+title: Verteilungen-Quiz-02
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+
+
+```
+
+
+
+
+
+
+# Aufgabe
+
+Beziehen Sie sich auf den Standard-Globusversuch mit $N=9$ Würfen und $W=6$ Wassertreffern
+(binomialverteilt).
+
+
+Aufgabe: *Ist es (auf dieser Basis) plausibler von einem 50%-PI [.6,.8] auszugehen als von einem 50%-PI [.05,.95]?*
+
+
+
+
+<form id="quizForm">
+    <h4>Behauptung: Das 50%-PI [.6,.8] ist das plausiblere.</h4>
+    <label>
+      <input type="radio" name="q1" value="Ja"> Ja
+    </label>
+    <label>
+      <input type="radio" name="q1" value="Nein"> Nein
+    </label>
+    <label>
+      <input type="radio" name="q1" value="Keine Antwort möglich"> Keine Antwort möglich
+    </label>
+
+    <button type="button" onclick="submitQuiz()">Antworten</button>
+</form>
+
+  <script>
+  function submitQuiz() {
+      var selectedOption = getSelectedOption("q1");
+      var correctAnswer = "Ja";
+
+      // Display feedback
+      if (selectedOption === correctAnswer) {
+        alert("Richtig!");
+      } else {
+        alert("Falsch. Die richtige Antwort lautet *Ja*.");
+      }
+    }
+
+    function getSelectedOption(questionName) {
+      var radioButtons = document.getElementsByName(questionName);
+      for (var i = 0; i < radioButtons.length; i++) {
+        if (radioButtons[i].checked) {
+          return radioButtons[i].value;
+        }
+      }
+      return null;
+    }
+ </script>
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+```{r message=FALSE}
+library(tidyverse)
+library(easystats)
+```
+
+
+
+Berechnen wir die Post-Verteilung:
+
+```{r}
+n <- 10
+n_success <- 6
+n_trials  <- 9
+
+d <-
+  tibble(p_grid = seq(from = 0, to = 1, length.out = n),
+         prior  = 1) %>% 
+  mutate(likelihood = dbinom(n_success, 
+                             size = n_trials, 
+                             prob = p_grid)) %>% 
+  mutate(unstand_post = (likelihood * prior),
+         post = unstand_post / sum(unstand_post))
+```
+
+Und dann ziehen wir daraus Stichproben,
+damit wir einfach ein PI (Perzentilintervall) berechnen können.
+
+```{r}
+samples <-
+  d %>%  # nimmt die Tabelle mit Posteriori-Daten,
+  slice_sample(  # Ziehe daraus eine Stichprobe,
+    n = 1e4,  # mit insgesamt n=10000 Zeilen,
+    weight_by = post,  # Gewichte nach Post-Wahrscheinlichkeit.,
+    replace = T)  %>%  # Ziehe mit Zurücklegen
+  select(p_grid)
+```
+
+
+Dann berechnen wir das 50%-PI:
+
+
+```{r}
+samples %>% 
+  eti(ci = .5)
+```
+
+
+Die Grenzen des 50%-PI liegen ziemlich nahe an [.6, .8].
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- distributions
+- Verteilungen-Quiz
+- probability
+- bayes
+- simulation
+

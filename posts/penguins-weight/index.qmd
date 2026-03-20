@@ -1,0 +1,143 @@
+---
+extype: num
+title: penguins-weight
+categories:
+- bayes
+- post
+- paper
+date: '2024-11-11'
+
+---
+
+
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+```
+
+
+
+
+
+# Aufgabe
+
+
+
+Im Datensatz `penguins`: 
+Berichten Sie die Breite eines Schätzintervalls (89%, HDI) zum mittleren Körpergewicht!
+Nutzen Sie Methoden der Bayes-Statistik.
+
+
+
+
+[Hinweise](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+Dazu sei folgendes Modell gegeben.
+
+
+Setup:
+
+```{r message = FALSE}
+data(penguins, package = "palmerpenguins")
+library(tidyverse)
+library(rstanarm)
+library(easystats)
+library(ggpubr)
+```
+
+
+
+
+
+Modell berechnen:
+
+```{r m1-stan}
+m1 <- stan_glm(body_mass_g ~ 1, 
+               data = penguins,
+               seed = 42,
+               refresh = 0)
+```
+
+
+Dann gibt es verschiedene Einstellungen für die Funktion `parameters()`:
+
+```{r}
+parameters(m1, ci = .89, ci_method = "hdi")
+```
+Im Standard wird ein 95%-ETI berichtet:
+
+
+```{r}
+parameters(m1)
+```
+
+```{r}
+plot(parameters(m1), show_intercept = TRUE)
+```
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+
+
+
+
+Im Standard wird ein 95%-Perzentilintervall berechnet, s. die Dokumentation zur Funktion [hier](https://easystats.github.io/parameters/reference/model_parameters.default.html).
+
+Daher müssen wir explizit das 89%-HDI anfordern.
+
+Die Lösung ist also aus der Tabelle oben ablesbar als Differenz der Größen des Schätzbereichs (Konfidenzintervalls, CI).
+
+
+
+
+
+```{r}
+#| echo: false
+m1_params <- parameters(m1, ci = .89, ci_method = "hdi")
+
+breite <- m1_params$CI_high[m1_params$Parameter=="(Intercept)"] - m1_params$CI_low[m1_params$Parameter=="(Intercept)"] 
+breite
+```
+
+
+
+
+
+
+
+
+---
+
+Categories: 
+
+- bayes
+- post
+- estimation
+- exam-22
+

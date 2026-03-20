@@ -1,0 +1,249 @@
+---
+exname: tidymodels-tree5
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- statlearning
+- trees
+- tidymodels
+- speed
+- string
+date: '2023-11-08'
+slug: tidymodels-tree5
+title: tidymodels-tree5
+execute: 
+  error: true
+  eval: false
+---
+
+
+
+
+
+
+
+# Aufgabe
+
+
+Berechnen Sie folgendes einfache Modell:
+
+1. Random Forest mit `trees=50`
+
+
+Modellformel: `body_mass_g ~ .` (Datensatz `palmerpenguins::penguins`)
+
+Hier geht es darum, die Geschwindigkeit (und den Ressourcenverbrauch) beim Fitten zu verringern.
+Benutzen Sie dazu folgende Methoden
+
+- Auslassen gering performanter Tuningparameterwerte
+- Verwenden Sie ein Anova-Grid-Search!
+- Parallelisieren Sie auf mehrere Kerne (wenn möglich).
+
+
+Hinweise:
+
+- Tunen Sie alle Parameter (die der Engine anbietet). 
+- Verwenden Sie Defaults, wo nicht anders angegeben.
+- Beachten Sie die [üblichen Hinweise](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+## Setup
+
+```{r}
+library(tidymodels)
+data("penguins", package = "palmerpenguins")
+library(tictoc)  # Zeitmessung
+library(finetune)  # tune_race_anova
+library(doParallel)  # mehrere CPUs nutzen 
+set.seed(42)
+```
+
+
+
+Entfernen wir Fälle mit fehlenden Werten:
+
+```{r}
+d <-
+  penguins %>% 
+  drop_na()
+```
+
+
+
+## Daten teilen
+
+```{r}
+set.seed(42)
+d_split <- initial_split(d)
+d_train <- training(d_split)
+d_test <- testing(d_split)
+```
+
+
+## Modell(e)
+
+
+```{r}
+mod_rf <-
+  rand_forest(mode = "regression",
+              mtry = tune())
+mod_rf
+```
+
+
+
+
+## Rezept(e)
+
+```{r}
+rec_plain <- 
+  recipe(body_mass_g ~ ., data = d_train) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_impute_knn(all_predictors())
+```
+
+
+```{r}
+d_train_baked <-
+  bake(prep(rec_plain, d_train), new_data = NULL)
+
+head(d_train_baked)
+```
+
+Keine fehlenden Werte mehr?
+
+```{r}
+sum(is.na(d_train_baked))
+```
+
+
+## Resampling
+
+```{r}
+set.seed(42)
+rsmpl <- vfold_cv(d_train)
+```
+
+
+## Workflows
+
+```{r}
+wf_rf <-
+  workflow() %>%  
+  add_recipe(rec_plain) %>% 
+  add_model(mod_rf)
+
+wf_rf
+```
+
+
+
+
+
+## Ohne Speed-up
+
+```{r tunegrid}
+tic()
+fit_rf <-
+  tune_grid(
+    object = wf_rf,
+    resamples = rsmpl)
+toc()
+```
+
+Die angegebene Rechenzeit bezieht sich auf einen 4-Kerne-MacBook Pro (2020).
+
+
+## Mit Speeed-up 1
+
+
+
+
+```{r speed1}
+tic()
+fit_rf2 <-
+  tune_race_anova(
+    object = wf_rf,
+    resamples = rsmpl)
+toc()
+```
+
+
+## Mit Speeed-up 2
+
+
+
+
+```{r speed2}
+doParallel::registerDoParallel()
+
+tic()
+fit_tree2 <-
+  tune_race_anova(
+    object = wf_rf,
+    metrics = metric_set(rmse),
+    control = control_race(verbose = FALSE,
+                           pkgs = c("tidymodels"),
+                           save_pred = TRUE),
+            resamples = rsmpl)
+toc()
+```
+
+
+
+
+## Mit Speeed-up 3
+
+
+
+
+```{r speed3}
+doParallel::registerDoParallel()
+
+tic()
+fit_tree2 <-
+  tune_grid(object = wf_rf,
+            metrics = metric_set(rmse),
+            control = control_grid(verbose = FALSE,
+                                   save_pred = TRUE),
+            resamples = rsmpl)
+toc()
+```
+
+
+## Fazit
+
+Mit Speed-up ist schneller also ohne.
+Ein Random-Forest ist ein Modelltyp, der von Parallelisierung gut profitiert.
+
+
+
+
+
+---
+
+Categories: 
+
+- statlearning
+- trees
+- tidymodels
+- speed
+- string
+

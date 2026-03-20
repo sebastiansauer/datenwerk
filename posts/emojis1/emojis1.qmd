@@ -1,0 +1,180 @@
+---
+exname: emojis1
+expoints: 1
+extype: string
+exsolution: NA
+categories:
+- emoji
+- textmining
+- string
+date: '2023-11-16'
+slug: emojis1
+title: emojis1
+
+---
+
+
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS FALSE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+
+options(max.print = 10)
+options(rstudio.help.showDataPreview = FALSE)
+```
+
+
+
+# Aufgabe
+
+Extrahieren Sie die Anzahl der Emojis aus einem Text. 
+
+
+Nutzen Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
+
+Die Daten sind unter CC-BY-4.0 lizensiert. Author: Wiegand, Michael (Spoken Language Systems, Saarland University (2010-2018), Leibniz Institute for the German Language (since 2019)),
+
+Die Daten sind auch über das R-Paket [PradaData](https://github.com/sebastiansauer/pradadata/tree/master/data-raw/GermEval-2018-Data-master) zu beziehen.
+
+
+```{r}
+library(tidyverse)
+library(easystats)
+data("germeval_train", package = "pradadata")
+```
+
+Nutzen Sie diesen Text-Datensatz, bevor Sie den größeren `germeval`-Datensatz verwenden:
+
+
+# Daten
+
+Teststring:
+
+```{r}
+text <- c("Abbau, Abbruch ist jetzt", 
+          "Test   🧑‍🎓 😄 heute!!", 
+          "Abbruch #morgen #perfekt", 
+          "Abmachung... LORE IPSUM", 
+          "boese ja", "böse nein", 
+          "hallo ?! www.google.de", 
+          "gut schlecht I am you are he she it is")
+
+n_emo <- c(2, 0, 2, 1, 1, 1, 0, 2)
+
+test_text <-
+  data.frame(id = 1:length(text),
+         text = text,
+         n_emo = n_emo)
+
+test_text
+```
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://datenwerk.netlify.app/hinweise).
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(tictoc)
+library(emoji)  # emoji_xxx
+library(tidyEmoji)
+```
+
+
+## Test 1
+
+
+```{r}
+test_text |> 
+  mutate(n_emojis = emoji_count(text))
+```
+
+Das Paket `emoji` beinhaltet eine Menge Emojis:
+
+```{r}
+emoji_name |> length()
+```
+
+
+## Test2
+
+
+```{r}
+test_text$text |> 
+  emoji_subset()
+```
+
+
+## TidyEmoji  - Emojis kategorisieren
+
+
+```{r}
+data.frame(tweets = c("I love tidyverse \U0001f600\U0001f603\U0001f603",
+"R is my language! \U0001f601\U0001f606\U0001f605",
+"This Tweet does not have Emoji!",
+"Wearing a mask\U0001f637\U0001f637\U0001f637.",
+"Emoji does not appear in all Tweets",
+"A flag \U0001f600\U0001f3c1")) %>%
+emoji_categorize(tweets)
+```
+
+```{r}
+test_text |> 
+  emoji_categorize(text)
+```
+
+
+```{r}
+data(wild_emojis, package = "pradadata")
+```
+
+```{r}
+wild_emojis |> 
+  emoji_categorize(emoji)
+```
+
+
+Alternativ kann man auch via Regex und Unicode Regex ansprechen... 
+`emoji_pattern <- "\\p{So}"`.
+
+
+Das ist vermutlich cleverer 🤓.
+
+
+
+---
+
+Categories: 
+
+- emoji
+- textmining
+- string
+

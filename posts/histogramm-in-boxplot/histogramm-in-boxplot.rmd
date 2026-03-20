@@ -1,0 +1,142 @@
+---
+exname: histogramm-in-boxplot
+extype: schoice
+exsolution: r mchoice2string(boxplot_df$is_correct, single = TRUE)
+exshuffle: no
+categories:
+- vis
+- '2023'
+- schoice
+date: '2023-02-26'
+slug: Histogramm-in-Boxplot
+title: Histogramm-in-Boxplot
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(glue)
+library(tidyverse)
+library(mosaic)
+library(testthat)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE)
+```
+
+
+
+
+
+
+
+# Aufgabe
+
+
+
+**Histogramm**:
+
+```{r data-gen, echo = FALSE}
+n <- 1000  # sample size
+
+d <- rexp(n) %>% as_tibble()
+
+ggplot(d, aes(x = value)) +
+  geom_histogram(bins = 20)
+```
+
+
+**Boxplots**:
+
+
+```{r boxplot-data, echo = FALSE}
+
+d_false1 <- rnorm(n = n) %>% as_tibble()
+d_false2 <- rexp(n = 1000, rate = 10) %>% as_tibble()
+d_false3 <- rexp(n = 1000, rate = 0.010) %>% as_tibble()
+d_false4 <- rnorm(n = n, mean = 3) %>% as_tibble()
+
+
+```
+
+```{r generate-boxplots, echo = FALSE}
+
+boxplot_df <- tibble(
+  boxplot_data = list(d,
+                     d_false1,
+                     d_false2,
+                     d_false3,
+                     d_false4),
+  is_correct = c(T, F, F, F, F),
+  id = c("d", "d_false1", "d_false2", "d_false3", "d_false4")) %>% 
+  sample_n(size = nrow(.)) %>%   # shuffle it
+  mutate(boxplot_id = glue("Boxplot {LETTERS[1:5]}"))
+
+
+
+gg_boxplot <- function(data, title) {
+  ggplot(data = data) +
+    aes(x = value) +
+    geom_boxplot() +
+    ggtitle(glue("Diagramm {title}"))
+}
+
+
+map2(.x = boxplot_df$boxplot_data,
+     .y = boxplot_df$boxplot_id,
+     .f = ~ gg_boxplot(.x, .y))
+
+```
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(boxplot_df$boxplot_id, markup = "markdown")
+```
+
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Boxplot ``r boxplot_df$boxplot_id[boxplot_df$is_correct == TRUE]`` spiegelt das Histogramm am genauesten wider.
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(boxplot_df$is_correct, "Wahr", "Falsch"), markup = "markdown")
+```
+
+
+
+
+
+---
+
+Categories: 
+
+- vis
+- '2023'
+- schoice
+

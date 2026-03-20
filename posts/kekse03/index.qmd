@@ -1,0 +1,160 @@
+---
+exname: kekse03
+extype: num
+exsolution: r .6
+exshuffle: no
+extol: 1
+expoints: 1
+categories:
+- probability
+- bayesbox
+- bayes
+- paper
+date: '2024-11-08'
+title: kekse03
+
+---
+
+
+
+
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Stellen Sie sich vor, vor Ihnen stehen *drei* Schalen mit Keksen. Lecker. 
+
+<i class="fas fa-bowl-food fa-5x" style="color: blue;"></i>
+<i class="fas fa-bowl-food fa-5x" style="color: blue;"></i>
+<i class="fas fa-bowl-food fa-5x" style="color: red; "></i>
+
+
+Schale 1 enthält 30 Vanillekekse und 10 Schokoladenkekse. 
+Schale 2 ist identisch zu Schale 1. 
+Schale 3 enthält 20 Vanillekekse und 20 Schokoladenkekse. 
+Schalen 1 und 2 sind  <span style="color: blue;">blau </span>. Schale 3 ist  <span style="color: red;">rot </span>.
+
+Sie wählen eine der Schalen zufällig aus und ziehen ohne hinzusehen einen Keks.
+Der Keks ist Vanille. 
+{{< fa cookie >}} 
+
+
+
+
+
+**Aufgabe** Mit welcher Wahrscheinlichkeit stammt der Keks aus einer <span style="color: blue;">blauen </span> Schale? 
+Berechnen Sie die Wahrscheinlichkeit!
+
+
+
+(Basierend auf einer Aufgabe aus *Think Bayes* von Allen Downey.)
+
+
+Hinweise:
+
+- Erstellen Sie eine Bayesbox zur Lösung dieser Aufgabe.
+- Gehen Sie davon aus, dass Sie (apriori) indifferent gegenüber der Hypothesen sind.
+- Geben Sie Prozentzahlen immer als Anteil an und lassen Sie die führende Null weg (z.B. .42).
+- Beachten Sie die üblichen Hinweise des Datenwerks.
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+
+```{r}
+#| message: false
+library(tidyverse)
+library(ggpubr)
+```
+
+
+```{r}
+#| echo: false
+d <-
+  tibble(
+    # definiere die Hypothesen (das "Gitter"): 
+    Hypothesen = c("blau","rot"),
+    # bestimme den Priori-Wert:       
+    Priori  = c(2/3, 1/3)) |> 
+    mutate(
+      # berechne Likelihood für jeden Gitterwert:
+      Likelihood = c(3/4, 2/4),
+      # berechen unstand. Posteriori-Werte:
+      unstd_Post = Likelihood * Priori,
+      # berechne stand. Posteriori-Werte (summiert zu 1):
+      Post = unstd_Post / sum(unstd_Post))  
+d %>% 
+  knitr::kable(digits=2)
+```
+
+
+```{r}
+#| out-width: 75%
+#| fig-asp: .7
+ggbarplot(data = d, x = "Hypothesen", y = "Post", 
+       ylab = "Posteriori-Wahrscheinlichkeit", xlab = "Hypothesen",
+       title = "Posteriori-Wahrscheinlichkeit für Vanillekeks aus Schale 1",
+       label = TRUE)
+```
+
+
+
+Die Antwort lautet: `r d$Post[1]`. 
+
+
+Es ist übrigens egal, welche konkreten Zahlen Sie für die Priori-Wahrscheinlichkeit wählen. 
+Das Ergebnis bleibt das gleiche. 
+Das Verhältnis der Zahlen muss nur gleich bleiben, also: `2,1` und `2/3, 1/3` stehen jeweils im Verhältnis 3:1. Probieren Sie es aus!
+
+
+
+```{r}
+#| echo: false
+d <-
+  tibble(
+    # definiere die Hypothesen (das "Gitter"): 
+    p_Gitter = c("blau", "rot"),
+    # bestimme den Priori-Wert:       
+    Priori  = c(2, 1)) %>%  
+    mutate(
+      # berechne Likelihood für jeden Gitterwert:
+      Likelihood = c(3/4, 2/4),
+      # berechen unstand. Posteriori-Werte:
+      unstd_Post = Likelihood * Priori,
+      # berechne stand. Posteriori-Werte (summiert zu 1):
+      Post = unstd_Post / sum(unstd_Post))  
+
+d %>% 
+  knitr::kable(digits=2)
+```
+
+
+
+

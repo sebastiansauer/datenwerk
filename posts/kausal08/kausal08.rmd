@@ -1,0 +1,187 @@
+---
+exname: dag8
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+date: '2022-12-19'
+slug: kausal08
+title: kausal08
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(testthat)
+#library(glue)
+#library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+# Exercise
+
+Gegeben sei die Theorie (oder schlichter: das Modell), 
+demzufolge eine Anlage zu Suchtverhalten die Ursache von sowohl Rauchen als auch Kaffeegewohnheit darstellt. 
+Lungenkrebs wiederum hat als (alleinige) Ursache Rauchen (laut diesem Modell).
+
+Daten zeigen, dass Kaffeegenuss und Lungenkrebs assoziiert sind: 
+Bei Kaffeetrinkern ist die Lungenkrebsrate höher als bei Nichttrinkern (von Kaffee). 
+Ob Kaffeegebrauch Lungenkrebs erzeugt?
+
+Eine alternative Erklärung bietet folgender DAG.
+
+
+
+
+
+```{r plot-dag-question}
+coffee_dag <- ggdag::dagify(cancer ~ smoking,
+       smoking ~ addictive,
+       coffee ~ addictive,
+       exposure = "coffee",
+       outcome = "cancer",
+       labels = c("coffee" = "Coffee", "cancer" = "Lung Cancer", 
+                  "smoking" = "Smoking", "addictive" = "Addictive \nBehavior")) %>% 
+  tidy_dagitty(layout = "tree")
+
+ggdag(coffee_dag, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+Welche Variablenmenge muss *mindestens* kontrolliert werden, 
+um Konfundierung auszuschließen und damit den kausalen Effekt von Kaffee auf Lungenkrebs zu identifizieren?
+
+
+
+
+Answerlist
+----------
+* {Addictive Behavior *oder aber* Rauchen}
+* {Rauchen}
+* {Addictive Behavior}
+* {Addictive Behavior *und* Rauchen}
+* {Addictive Behavior *und* Lungenkrebs}
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Solution
+
+Durch Kontrolle von `Addictive Behavior` *oder aber* `Rauchen`
+wird der kausale Effekt von `Coffee` auf `Lung Cancer` identifiziert.
+
+
+```{r solution-dag}
+ggdag_adjustment_set(coffee_dag, text = FALSE, 
+                     use_labels = "label", 
+                     shadow = TRUE) +
+  theme_dag()
+```
+
+
+
+OHNE Kontrolle:
+
+```{r}
+coffee_dag %>% 
+  ggdag_drelationship("coffee", "cancer") +
+  theme_dag()
+
+```
+
+
+MIT Kontrolle von `smoking` :
+
+
+
+```{r}
+coffee_dag %>% 
+  ggdag_drelationship("coffee", "cancer",
+                      controlling_for = "smoking") +
+  theme_dag()
+
+```
+
+
+MIT Kontrolle von `addictive` :
+
+
+
+```{r}
+coffee_dag %>% 
+  ggdag_drelationship("coffee", "cancer",
+                      controlling_for = "addictive") +
+  theme_dag()
+
+```
+
+
+MIT Kontrolle von `addictive` und `smoking`:
+
+
+
+```{r}
+coffee_dag %>% 
+  ggdag_drelationship("coffee", "cancer",
+                      controlling_for = c("addictive", "smoking")) +
+  theme_dag()
+
+```
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+

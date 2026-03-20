@@ -1,0 +1,131 @@
+---
+exname: kausal2
+extype: schoice
+exsolution: 10000
+exshuffle: yes
+categories:
+- dag
+- causal
+- exam-22
+date: '2023-01-11'
+slug: kausal02
+title: kausal02
+
+---
+
+
+
+
+```{r libs, include = FALSE}
+#library(tidyverse)
+#library(testthat)
+#library(glue)
+#library(dagitty)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      #dpi = 300,
+                      fig.show = "hold")
+```
+
+
+
+
+
+# Aufgabe
+
+Gegeben sei der DAG `g` (s.u.). Welche Variable/n sind zu kontrollieren, um den kausalen Effekt von `x` auf `y` zu identifizieren?
+
+
+```{r}
+dag_old <- 
+"
+dag{ 
+z -> x ; z -> y 
+x [exposure]
+y [outcome]
+}
+"
+
+dag_g <-
+  dagify(x ~ z,
+         y ~ z + x,
+         exposure = "x",
+         outcome = "y")
+
+#g <- dagitty( dag_raw ) 
+ggdag(dag_g) + theme_dag()
+```
+
+
+
+
+
+
+
+Answerlist
+----------
+* z
+* keine, bereits identifiziert
+* x
+* y
+* keine, nicht identifizierbar
+
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+# Lösung
+
+Durch Kontrolle von `z` wird der kausale Effekt von `x` auf `y` identifiziert.
+
+
+```{r echo = FALSE}
+ggdag_adjustment_set(dag_g) + theme_dag()
+```
+
+Anmerkung: *Kein* Pfeil bedeutet, dass kein kausaler Pfad geöffnet ist.
+Der DAG zeigt eine Konfundierung.
+
+
+Answerlist
+----------
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+---
+
+Categories: 
+
+- dag
+- causal
+- exam-22
+
