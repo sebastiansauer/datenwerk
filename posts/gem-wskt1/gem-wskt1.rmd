@@ -110,7 +110,8 @@ d <-
   mutate(Klausurergebnis = map_chr(.x = Erfolg_p,
                                    .f = ~(sample(Klausurergebnis,
                                                  size = 1,
-                                                 prob = c(.x, 1-.x)))))
+                                                 prob = c(.x, 1-.x))))) %>% 
+  mutate(Klausurergebnis = factor(Klausurergebnis, levels = c("Bestehen", "Durchfallen")))
 
 
 ```
@@ -133,7 +134,7 @@ ggplot(d) +
 
 
 probs_sample <- d %>% 
-  count(Lerntyp, Klausurergebnis) %>% 
+  count(Lerntyp, Klausurergebnis, .drop = FALSE) %>% 
   group_by(Lerntyp) %>% 
   mutate(n_group = sum(n)) %>% 
   ungroup() %>% 
