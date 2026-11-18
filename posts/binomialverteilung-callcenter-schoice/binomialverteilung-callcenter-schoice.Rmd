@@ -1,0 +1,50 @@
+---
+title: binomialverteilung-callcenter-schoice
+categories:
+- verteilungen
+- paper
+---
+
+Question
+========
+In einem Callcenter führt ein Anruf mit einer Wahrscheinlichkeit von 30 % zu einem erfolgreichen Kontakt (der Kunde nimmt ab und das Gespräch kommt zustande). Ein Mitarbeiter führt 8 unabhängige Anrufe durch. Wie groß ist die Wahrscheinlichkeit, dass genau 3 dieser 8 Anrufe erfolgreich sind?
+
+Answerlist
+----------
+* $Pr(X=3) = \binom{8}{3}\cdot 0{,}3^3\cdot 0{,}7^5 \approx 0{,}254$
+* $Pr(X=3) = \binom{8}{3}\cdot 0{,}7^3\cdot 0{,}3^5 \approx 0{,}047$
+* $Pr(X\le 3) \approx 0{,}806$
+* $Pr(X=3) = \binom{8}{3}\cdot 0{,}3^3 \approx 1{,}512$
+* $Pr(X=3) = \dfrac{3}{8} = 0{,}375$
+
+Solution
+========
+$X$, die Anzahl erfolgreicher Kontakte bei $n=8$ unabhängigen Versuchen mit Erfolgswahrscheinlichkeit $p=0{,}3$, ist binomialverteilt: $X\sim\text{Bin}(8, 0{,}3)$. Gesucht ist die Wahrscheinlichkeit für *genau* 3 Erfolge: $Pr(X=3) = \binom{8}{3}p^3(1-p)^{8-3} = \binom{8}{3}\cdot 0{,}3^3\cdot 0{,}7^5 \approx 0{,}254$ (in R: `dbinom(x = 3, size = 8, prob = 0.3)`).
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option vertauscht $p$ und $1-p$ ($0{,}7^3\cdot 0{,}3^5$ statt $0{,}3^3\cdot 0{,}7^5$) -- das entspricht der Wahrscheinlichkeit für 3 *Misserfolge* (statt 5 Misserfolge und 3 Erfolge), nicht für 3 Erfolge.
+* Die dritte Option berechnet die *kumulierte* Wahrscheinlichkeit $Pr(X\le 3)$ (mit `pbinom`) statt der Wahrscheinlichkeit für *genau* 3 Erfolge (mit `dbinom`) -- die Frage verlangt aber explizit "genau 3".
+* Die vierte Option vergisst den Faktor $(1-p)^{n-k}=0{,}7^5$ für die 5 Misserfolge; das Ergebnis ist folgerichtig größer als 1 und kann daher schon aus formalen Gründen keine gültige Wahrscheinlichkeit sein.
+* Die fünfte Option berechnet naiv einen Anteil $3/8$ und ignoriert dabei vollständig die binomiale Struktur des Problems (Erfolgswahrscheinlichkeit $p$ sowie die Anzahl möglicher Pfade über den Binomialkoeffizienten).
+
+
+Aufgabenname: `binomialverteilung-callcenter-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: binomialverteilung-callcenter-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: verteilungen

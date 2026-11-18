@@ -1,0 +1,88 @@
+---
+title: display-logist1
+categories:
+- paper
+- todo
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+
+
+Question
+========
+
+
+
+
+Eine logistische Regression wurde an einen Datensatz angepasst. 
+Es ergaben sich folgende Koeffizienten (jeweils Punktschätzer):
+
+`Konstante = -1.9`
+`x = 0.7`
+`z = 0.7`
+
+`x` ist ein metrischer Prädiktor mit einem Range von 0 bis 10; 
+`z` ist eine binärer Prädiktor  (mit den Werten 0 und 1).
+
+Visualisieren Sie die Kurven in einem Diagramm für 
+
+a) $L$ vs. $x$
+b) $Pr(y=1)$ vs. $x$
+
+
+
+
+
+Solution
+========
+
+Wir definieren die Variablen:
+
+```{r echo = TRUE}
+d <-
+  tibble(
+    x = seq(from = 0, to = 10, by = 0.1),
+    z = 1,
+    y_z0_linear = -1.9 + 0.7 * x + 0*z,
+    y_z1_linear = -1.9 + 0.7 * x + 1*z,
+    p_y_z0 = plogis(y_z0_linear),
+    p_y_z1 = plogis(y_z1_linear)
+  )
+```
+
+
+Hier ist das Diagramm mit *Logits* auf der Y-Achse:
+
+```{r echo = TRUE}
+d %>% 
+  ggplot() +
+  aes(x = x) +
+  geom_line(aes(y = y_z0_linear), color = "blue") +
+  geom_line(aes(y = y_z1_linear), color = "red") 
+```
+
+Hier ist das Diagramm mit *Wahrscheinlichkeit* auf der Y-Achse:
+
+```{r echo = TRUE}
+d %>% 
+  ggplot() +
+  aes(x = x) +
+  geom_line(aes(y = p_y_z0), color = "blue") +
+  geom_line(aes(y = p_y_z1), color = "red") 
+```
+
+
+Aufgabenname: `display-logist1`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: display-logist1
+expoints: 1

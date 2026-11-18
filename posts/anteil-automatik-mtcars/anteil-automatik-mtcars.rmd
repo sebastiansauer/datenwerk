@@ -1,0 +1,76 @@
+---
+title: anteil-automatik-mtcars
+categories: null
+---
+
+```{r}
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+library(rstanarm)
+```
+
+
+
+Question
+========
+
+
+Berechnen Sie ein *95%-Perzintilintervall* für den *Anteil* der Autos mit *Automatik*-Getriebe!
+
+Diese Frage zielt ab auf die Ungewissheit der Beschreibung einer Variable (Automatikgetriebe) in der Population.
+
+Hinweis:
+
+- Nutzen Sie Methoden der Bayes-Statistik.
+- Vergessen Sie nicht, die nötigen R-Pakete zu starten.
+
+Solution
+========
+
+```{r}
+data(mtcars)
+```
+
+
+Explorative Analyse:
+
+```{r}
+mtcars %>% 
+  count(am) %>% 
+  mutate(prop = n/sum(n))
+```
+
+```{r}
+mtcars <-
+  mtcars %>% 
+  mutate(is_automatic = ifelse(am == 0, 1, 0))
+```
+
+`stan_glm()` berechnet die Wahrscheinlichkeit 
+für das Ereignis, das mit `1` verknüpft ist.
+Bei `am` ist das "manuelle Schaltung".
+Daher haben wir noch eine andere Variable angelegt, `is_automatic`,
+die als `1` "Automatik-Getriebe" hat.
+
+
+```{r}
+m1 <- stan_glm(is_automatic ~ 1,
+               family = binomial("logit"),
+               refresh = 0,
+               data = mtcars)
+
+coef(m1) %>% invlogit()
+posterior_interval(m1, prob = .95) %>% invlogit()
+```
+
+
+Aufgabenname: `anteil-automatik-mtcars`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: anteil-automatik-mtcars
+expoints: 1

@@ -1,0 +1,139 @@
+---
+title: funs-na-n
+categories:
+- paper
+- todo
+---
+
+```{r}
+library(tidyverse)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+
+Question
+========
+
+Schreiben Sie eine Funktion zur Berechnung der Anzahl der fehlenden Werte in einem (numerischen) Vektor!
+
+Hinweise:
+
+- Wählen Sie einen treffenden Namen für Ihre Funktion (nutzen Sie am besten ein konsistentes Namensschema).
+
+
+Solution
+========
+
+```{r echo = TRUE}
+
+na_n <- function(num_vec) {
+  # input: num. vector (int or double)
+  # value: count of missing values (double)
+  
+  if (!is.numeric(num_vec)) stop("Numeric input is needed!")
+  out <- sum(is.na(num_vec))
+  return(out)
+  
+}
+```
+
+Test:
+
+```{r echo = TRUE}
+x <- c(1,2, NA, NA)
+x2 <- c("A", "B", NA)
+
+na_n(x)
+```
+
+Bei `x2` sollte ein Fehler aufgeworfen werden:
+
+```{r error = TRUE}
+na_n(x2)
+```
+
+Gut!
+
+Testen wir weiter, jetzt mit dem Datensatz `mtcars`: 
+
+
+
+```{r echo = TRUE}
+mtcars[1, c(1,2,3,4)] <- NA  # Zeilen/Spalte
+
+mtcars %>% 
+  summarise(mpg_na_n = na_n(mpg))
+```
+
+BONUS!
+
+Verwenden Sie `across()`, um die fehlenden Werte in allen Spalten von `mtcars` zu zählen.
+
+Wer schnell ist, der nehme gerne `nycflights13::flights` (aus dem Paket `{nycflights13}` oder per CSV-Datei aus geeigneter Stelel aus dem Internet. Meistens geht es schneller, die Daten aus einem Paket zu laden mit `data(flights)` nachdem man `library(nycflights13)` geschrieben hat).
+
+
+```{r echo = TRUE}
+mtcars %>% 
+  summarise(across(everything(), na_n)) 
+```
+
+Mit `pivot_longer()` ist es häufig übersichtlicher bzw.
+besser für weitere Bearbeitungsschritte,
+wie das folgende Beispiel zeigt:
+
+```{r echo = TRUE}
+mtcars %>% 
+  summarise(across(everything(), na_n)) %>% 
+  pivot_longer(everything()) %>% 
+  filter(value > 0)
+```
+
+
+`flights`:
+
+
+```{r}
+data(flights, package = "nycflights13")
+
+flights %>% 
+  select(where(is.numeric)) %>% 
+  summarise(across(everything(),
+                   na_n)) %>% 
+  pivot_longer(everything()) %>% 
+  arrange(-value) %>%  # Sortiere absteigend nach Anzahl der fehlenden Werte
+  filter(value > 0)  # Zeige nur Variablen mit fehlenden Werten
+```
+
+
+Aufgabenname: `funs-na-n`
+
+
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: funs-na-n
+expoints: 1

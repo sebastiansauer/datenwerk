@@ -1,0 +1,199 @@
+---
+title: praxisprobleme1
+categories: null
+---
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+Question
+========
+
+
+In dieser Aufgabe betrachten wir einige Probleme, die bei der Praxis der Datenanalyse auftauchen.
+
+Importieren Sie zunächst den Datensatz `diamonds`,  der Teil des Tidyverse ist:
+
+```{r}
+library(tidyverse)
+data(diamonds)
+```
+
+
+# Aufgaben
+
+1. Zählen Sie die *fehlenden Werte* pro Spalte!
+2. Welcher *Anteil von Werten fehlt insgesamt* (in der ganzen Tabelle)?
+3. *Ersetzen* Sie fehlende Werte (numerischer Variablen) durch den Mittelwert!
+4. Welche Variable zeichnet sich durch die höchste *Schiefe* aus?
+5. Definieren wir "*Ausreißer*" als einen Wert, der mehr als 3SD-Einheiten vom Mittelwert entfernt ist. Wie viele Ausreißer gibt es für  `price`? 
+6. Gibt es *Dubletten*? Wenn ja, wie viele?
+7. Gibt es *Variablen*, die *konstant* oder fast konstant sind? Konstant ist hier definiert als (fast) keine Variabilität.
+
+
+Solution
+========
+
+
+Es gibt einige "R-Komfortfunktionen" für deskriptive Statistiken, die viele typische Kennwerte in einem Schritt ausgeben.
+
+Ein Beispiel ist die Funktion `describe_distribution()` aus dem Paket `{{easystats}}`:
+
+```{r results = "hide"}
+library(easystats)
+describe_distribution(diamonds)
+```
+
+
+
+
+```{r echo = FALSE}
+describe_distribution(diamonds) %>% 
+  gt::gt()
+```
+
+
+
+# Fehlende Werte pro Spalte
+
+
+Es gibt keine fehlenden Werte.
+
+# Anteil fehlender Werte
+
+Null
+
+
+# Fehlende Werte ersetzen
+
+
+Erzeugen wir der Übung halber ein paar fehlende Werte, von R mit `NA` bezeichnet.
+Die können wir dann ersetzen.
+
+
+Wenn der Preis größer ist als 4000, dann soll der Preis auf `NA` gesetzt werden,
+ansonsten bleibt der Preis, wie er ist.
+
+```{r}
+diamonds2 <-
+  diamonds %>% 
+  mutate(price = ifelse(price > 4000, yes = NA, no = price))
+```
+
+Jetzt ersetzen wir die fehlenden Werte durch den Mittelwert:
+
+
+```{r}
+diamonds3 <-
+  diamonds2 %>% 
+  mutate(price = replace_na(price, 3933))
+```
+
+
+
+
+Betrachten wir den Effekt des Ersetzens der fehlenden Werte:
+
+```{r results="hide"}
+diamonds3 %>% 
+  describe_distribution()
+```
+
+
+
+
+
+```{r echo = FALSE}
+describe_distribution(diamonds3) %>% 
+  gt::gt()
+```
+
+
+Oh nein! In diesem Fall hat unser Ersetzen ("Imputieren") die zentralen Kennwerte der Verteilung (Lage und Streuung) massiv verändert.
+Das ging ins Auge!
+Ein Beispiel für eine Situation, in der Imputieren *nicht* funktioniert.
+Der Grund ist, dass *bestimmte* Werte (systematisch) fehlen,
+wir aber durch das Ersetzen mit dem Mittelwert davon ausgingen,
+dass die Daten *komplett zufällig* fehlten.
+Leider wissen wir nicht ohne Weiteres, ob Daten systematisch oder zufällig fehlen.
+Die Moral von der Geschicht: Fehlende Werte können Probleme bereiten.
+Am besten man hat keine (Probleme und fehlende Werte) :-)
+
+An anderer Stelle beschäftigen wir uns vielleicht ausführlicher mit dieser Frage.
+In der einschlägigen Literatur finden sich viele Erläuterungen.
+
+
+# Schiefe
+
+Neben `y` hat auch der Preis eine massive Schiefe aufzuweisen.
+
+
+
+
+
+# Ausreißer
+
+Der Mittelwert von `price` liegt ca. bei 4000, die SD auch.
+
+```{r}
+diamonds %>% 
+  mutate(is_ausreisser = ifelse(price > 4000+3*4000, TRUE, FALSE)) %>% 
+  count(is_ausreisser)
+```
+
+# Dubletten
+
+```{r}
+diamonds %>% 
+  n_distinct()
+```
+
+
+Keine Dubletten.
+
+
+*Aber* lassen wir nur die vier "C-Variablen" einfließen (`carat`, `cut`, `color`,  `clarity`), dann finden sich plötzlich viele Dubletten:
+
+```{r}
+diamonds %>% 
+  select(carat, cut, color, clarity) %>% 
+  n_distinct()
+```
+
+[Quelle](https://www.r-bloggers.com/2021/04/a-curious-fact-on-the-diamonds-dataset/)
+
+
+
+# Konstante Variablen
+
+
+Unsere Tabelle oben zeigte, dass alle Variablen Streuung haben.
+
+
+Aufgabenname: `praxisprobleme1`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: praxisprobleme1
+expoints: 1

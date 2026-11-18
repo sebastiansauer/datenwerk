@@ -1,0 +1,109 @@
+---
+title: kekse01-schoice
+categories:
+- paper
+- todo
+---
+
+```{r, include=FALSE}
+library(ggplot2)
+```
+
+
+
+Question
+========
+In *Think Bayes* stellt Allen Downey folgende Aufgabe:
+
+"Angenommen, es gibt zwei Schüsseln mit Keksen.
+
+Schüssel 1 enthält 30 Vanillekekse und 10 Schokoladenkekse.
+
+Schüssel 2 enthält 20 Vanillekekse und 20 Schokoladenkekse.
+
+Nehmen Sie nun an, Sie wählen zufällig eine der beiden Schüsseln aus und ziehen daraus, ohne hinzusehen, zufällig einen Keks.
+
+*Wenn der Keks Vanille ist, wie groß ist die Wahrscheinlichkeit, dass er aus Schüssel 1 stammt?*"
+
+```{r}
+#| echo: false
+#| eval: false
+#| fig-cap: "Zwei Keksdosen"
+jar_data <- data.frame(
+  x_min = c(1, 4),
+  x_max = c(2.5, 5.5),
+  y_min = c(0, 0),
+  y_max = c(3, 3),
+  color = c("blue", "green")
+)
+
+ggplot() +
+  geom_rect(data = jar_data, aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, fill = color),
+            color = "black") +
+  scale_fill_identity() +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  xlim(0, 7) +
+  ylim(0, 4)
+```
+
+
+*Wählen Sie die korrekte Antwort!*
+
+Answerlist
+----------
+* .60
+* .40
+* .75
+* .33
+* .50
+
+
+Solution
+========
+```{r}
+#| message: false
+library(tidyverse)
+
+d <-
+  tibble(
+    p_Gitter = c(1, 2),
+    Priori  = .5) %>%
+    mutate(
+      Likelihood = c(3/4, 2/4),
+      unstd_Post = Likelihood * Priori,
+      Evidenz = sum(unstd_Post),
+      Post = unstd_Post / sum(unstd_Post))
+
+d %>%
+  knitr::kable(digits=2)
+```
+
+Die Antwort lautet **.60**. 
+Es ist übrigens egal, ob Sie für die Priori-Werte .5 oder 1 (oder eine andere Zahl) wählen, 
+solange Sie für alle Hypothesen die gleiche Zahl verwenden – das Ergebnis bleibt dann gleich.
+
+
+Aufgabenname: `kekse01-schoice`
+
+
+
+Answerlist
+----------
+* True
+* False
+* False
+* False
+* False
+
+
+Meta-information
+================
+exname: kekse01-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5

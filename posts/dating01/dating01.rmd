@@ -1,0 +1,104 @@
+---
+title: dating01
+categories: null
+---
+
+Question
+========
+
+Im [Artikel](https://thewinnower.com/papers/5202-the-effect-of-a-status-symbol-on-success-in-online-dating-an-experimental-study-data-paper) *The effect of a status symbol on success in online dating: an experimental study (data paper)* schreiben die Autoren Sauer und Wolff im Abstract:
+
+
+>    Evolutionary psychology suggests that women and men differ in their mating strategies. We operationalized a central claim of evolutionary psychology by manipulating social status of profiles at a dating website: one group of profiles was depicted with a luxury sports car (high status) and second group without car (low status). Six profile were set up (3 female, 3 male) for each of the two groups. Two type of response variables were collected: Whether a "match" occurred (n=3515), and whether a message was sent to the profile (n=1548). Beauty and hip-waist-ratio of straw persons, and age of contacting individuals were recorded. Given strong effect sizes, large sample size, and high interest in human mating, this data set should be of interest for applied researchers in human mating and social psychology.
+
+
+Analysieren wir diese Daten!
+
+
+Zunächst importieren wir die Daten:
+
+```{r}
+library(tidyverse)
+osf_d_path <- "https://osf.io/9u24s/?action=download"
+d <- read_csv(osf_d_path)
+```
+
+
+Das Codebook findet sich [hier](https://osf.io/sp8ju/).
+
+
+# Aufgaben
+
+a) Fassen Sie die Daten zu einer Tabelle zusammen, so dass man sieht, wie viele Matches es mit bzw. ohne Sportwagen gibt!
+b) Visualisieren Sie die Tabelle!
+b) Berechnen Sie die Odds für einen Match mit bwz. ohne Sportwagen (getrennt nach Geschlecht der Lockvögel)
+
+
+
+
+<!-- >    Mit einem Sportwagen auf dem Profilfoto sind die Chancen um 50% höher einen Match zu erzielen, vorausgesetzt, der Lockvogel ist ein Mann. -->
+
+
+
+
+Solution
+========
+
+
+a) 
+
+```{r}
+d %>% 
+  select(car, sex) %>% 
+  count(sex, car) %>% 
+  mutate(prop = n/sum(n))
+```
+
+
+b) 
+
+
+
+```{r}
+d %>% 
+  ggplot(aes(x = sex, fill = car)) +
+  geom_bar(position = "fill")
+```
+
+
+
+
+```{r}
+d %>% 
+  ggplot(aes(x = sex, fill = car)) +
+  geom_bar()
+```
+
+c)
+
+```{r}
+odds <- 0.049 / 0.024
+odds
+```
+
+
+Die Odds (Chancen) verdoppeln sich "durch" den Sportwagen, d.h. in der Bedingung mit Sportwagen.
+Ein Kausaleffekt ist möglich, bedarf aber tieferer Überlegung.
+
+
+Aufgabenname: `dating01`
+
+
+
+
+
+
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: dating01
+expoints: 1

@@ -1,0 +1,50 @@
+---
+title: stan-glm-intercept-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Im Kapitel wird das Kung-Modell u. a. mit `stan_glm(height ~ 1, ...)` berechnet. Welche Aussage zur Bedeutung von `height ~ 1` und dem resultierenden `(Intercept)` ist korrekt?
+
+Answerlist
+----------
+* `height ~ 1` spezifiziert eine Regression ohne Prädiktor (die `1` symbolisiert die fehlende UV); der geschätzte `(Intercept)` entspricht in diesem Sonderfall direkt dem Populationsmittelwert $\mu$ der Körpergröße.
+* `height ~ 1` bedeutet, dass alle Körpergrößen im Modell auf den Wert 1 gesetzt werden.
+* Der `(Intercept)` gibt in diesem Modell die Streuung $\sigma$ der Körpergrößen an, nicht den Mittelwert.
+* `stan_glm()` benötigt zwingend mindestens einen Prädiktor; ein Modell ganz ohne UV wie `height ~ 1` ist nicht möglich.
+* Die `1` in `height ~ 1` steht für die Anzahl der Post-Verteilungs-Stichproben, die gezogen werden sollen.
+
+Solution
+========
+`height ~ 1` beschreibt eine Regression, bei der nur die Verteilung der abhängigen Variable (`height`) geschätzt wird, ohne Prädiktoren (die `1` steht symbolisch für die "fehlende" UV) -- man könnte auch sagen: eine "Regression ohne Regressoren". In diesem Sonderfall entspricht der geschätzte Achsenabschnitt (`(Intercept)`) direkt dem Populationsmittelwert $\mu$ der Zielvariablen. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option verwechselt die Notation `~ 1` (Symbol für "kein Prädiktor" in der Formelsprache von R) mit einer tatsächlichen Zuweisung des Zahlenwerts 1 an die Variable `height` -- die tatsächlichen Körpergrößenwerte aus dem Datensatz bleiben unverändert.
+* Die dritte Option verwechselt `(Intercept)` (Schätzung für $\mu$) mit dem separaten Parameter `sigma` (bzw. `Auxiliary`), der im Modell zusätzlich und getrennt ausgegeben wird.
+* Die vierte Option ist falsch: Der Text zeigt explizit, dass `stan_glm()` auch für Modelle ganz ohne Prädiktor (nur Achsenabschnitt) verwendet werden kann -- genau das ist im Kung-Beispiel der Fall.
+* Die fünfte Option verwechselt die Modellformel-Syntax mit einem Argument zur Steuerung der Stichprobenanzahl (dafür gibt es bei `stan_glm()` andere Argumente, nicht die Formel selbst).
+
+
+Aufgabenname: `stan-glm-intercept-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: stan-glm-intercept-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

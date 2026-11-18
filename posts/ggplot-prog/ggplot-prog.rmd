@@ -1,0 +1,86 @@
+---
+title: ggplot-prog
+categories: null
+---
+
+```{r}
+library(tidyverse)
+
+
+```
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "100%",
+  fig.cap = "", 
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+
+Question
+========
+
+Erstellen Sie für jede Variable aus `mtcars` ein Histogramm!
+
+Hinweise:
+
+- Nutzen Sie eine Wiederholungsstruktur. Schreiben Sie prägnante Syntax.
+- Optional: Lassen Sie dichotome (zweiwertige) Variablen aus.
+- [Hier](https://sebastiansauer.github.io/data_se/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/) (und an vielen anderen Stellen im Netz) finden Sie Tipps.
+
+
+
+
+Solution
+========
+
+
+```{r}
+has_two_levels <- function(vec){
+  
+  # input: vector of any type
+  # value: number of unique values (double)
+  
+  tmp <- length(unique(vec))
+  tmp == 2
+}
+```
+
+
+```{r}
+mtcars_hist <- function(col){
+  mtcars %>% 
+    ggplot(aes(x = col)) +
+    geom_histogram()
+}
+```
+
+
+```{r echo = TRUE, out.width = "50%", results='hold'}
+mtcars %>% 
+  select(where(is.numeric)) %>% 
+  select(where(negate(has_two_levels))) %>%   # `!` zum Negieren geht leider nicht
+  map(mtcars_hist)
+```
+
+
+Aufgabenname: `ggplot-prog`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: ggplot-prog
+expoints: 1

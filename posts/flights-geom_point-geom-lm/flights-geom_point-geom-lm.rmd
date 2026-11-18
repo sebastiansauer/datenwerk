@@ -1,0 +1,164 @@
+---
+title: flights-geom_point-geom-lm
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(testthat)
+library(glue)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold",
+                      warning = FALSE,
+                      cache = FALSE)
+```
+
+
+
+
+
+Question
+========
+
+Was ist der richtige R-Code, um das Diagramm zu erzeugen?
+
+
+
+```{r}
+data(flights, package = "nycflights13")
+
+flights %>%
+  select(dep_delay, hour) %>% 
+  ggplot(aes(x = hour, y = dep_delay)) + 
+  geom_boxplot(aes(group = hour)) + 
+  geom_smooth(method = 'lm') + 
+  coord_cartesian(ylim = c(-10, 60)) + 
+  scale_x_continuous(breaks = 1:24)
+```
+
+
+```{r snippets, eval = TRUE}
+snippet1 <-   # CORRECT
+"
+flights %>%
+  select(dep_delay, hour) %>% 
+  ggplot(aes(x = hour, y = dep_delay)) + 
+  geom_boxplot(aes(group = hour)) + 
+  geom_smooth(method = 'lm') + 
+  coord_cartesian(ylim = c(-10, 60)) + 
+  scale_x_continuous(breaks = 1:24)
+"
+
+snippet2 <-
+"
+flights %>%
+  select(dep_delay, hour) %>% 
+  ggplot(aes(y = hour, x = dep_delay)) + 
+  geom_boxplot(aes(group = dep_delay)) + 
+  geom_smooth(method = 'lm') + 
+  coord_cartesian(ylim = c(-10, 60)) + 
+  scale_x_continuous(breaks = 1:24)
+"
+
+
+snippet3 <-
+"
+flights %>%
+  select(dep_delay, hour) %>% 
+  ggplot(aes(x = hour, y = dep_delay)) + 
+  geom_boxplot(aes(group = hour)) + 
+  coord_cartesian(ylim = c(-10, 60)) + 
+  scale_x_continuous(breaks = 1:24)
+"
+
+
+
+snippet4 <-
+"
+flights %>%
+  select(arr_delay, hour) %>% 
+  ggplot(aes(x = hour, y = arr_delay)) + 
+  geom_boxplot(aes(group = hour)) + 
+  geom_smooth(method = 'lm') + 
+  coord_cartesian(ylim = c(-10, 60))
+"
+
+
+snippet5 <-
+"
+flights %>%
+  ggplot(aes(x = hour, y = dep_delay)) + 
+  geom_boxplot(aes(group = hour)) + 
+  geom_smooth() + 
+  coord_cartesian(ylim = c(-10, 60)) + 
+  scale_x_continuous(breaks = 1:24)
+"
+
+
+d <- 
+  tibble(
+    snippets = c(snippet1,
+              snippet2,
+              snippet3,
+              snippet4,
+              snippet5)) %>% 
+  mutate(is_correct = c(T, F, F, F, F)) %>% 
+  sample_n(size = nrow(.)) %>%  # shuffle it
+  mutate(id = LETTERS[1:nrow(.)]) %>% 
+  mutate(snippets_w_id = glue("\n**R-Code {id}** \n{snippets}\n\n"))
+```
+
+
+
+```{r comment = "", results = "hold"}
+d$snippets_w_id 
+```
+
+
+
+
+
+
+
+```{r answerlist, results = "asis"}
+answerlist(d$id, markup = "markdown")
+```
+
+
+
+Solution
+========
+
+Der Code-Auszug ``r d$id[d$is_correct==TRUE]`` ist korrekt.
+
+
+Aufgabenname: `flights-geom_point-geom-lm`
+
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(d$is_correct, "Wahr", "Falsch"), markup = "markdown")
+```
+
+
+Meta-information
+================
+exname: flights-geom_point-geom-lm
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(d$is_correct, single = TRUE)`
+exshuffle: false

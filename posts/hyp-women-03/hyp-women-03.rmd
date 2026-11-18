@@ -1,0 +1,204 @@
+---
+title: hyp-women-03
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+library(rstanarm)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Der Datensatz `wo_men` Untersucht Geschlechtsunterschiede u.a. in Körpergröße.
+
+Sie können ihn hier herunterladen:
+
+
+```{r echo = TRUE}
+wo_men_path <- "https://raw.github.com/sebastiansauer/modar/master/datasets/wo_men.csv"
+d <- read_csv(wo_men_path)
+```
+
+Testen Sie anhand dieses Datensatzes folgende Hypothese $H$:
+
+"Männer sind im Schnitt größer als Frauen!"
+
+Präziser formuliert:
+
+$X_M > X_F$, wobei $X$ die Größe *einer zufällige gezogenen Person* angibt (in der Population,
+auch Erwartungswert genannt). $M$ steht für Männer, $F$ für Frauen.
+
+Über die Hypothese soll anhand folgender Entscheidungsregel $R$ entschieden werden:
+
+- $Pr(p|D,H) > .95 \rightarrow H $ annehmen
+- $Pr(p|D,H) < .05 \rightarrow H $ verwerfen
+- ansonsten: *keine Entscheidung* bzgl. $H$ aufgrund uneindeutiger Evidenz
+
+Dabei benennt $Pr(p|D,H)$ die Wahrscheinlichkeit auf Basis der PPV, dass ein beliebiger Mann ein höheres Gewicht hat als eine beliebige Frau (d.h. zufällig gezogen).
+
+
+Geben Sie die gesuchte Wahrscheinlichkeit als Lösung an!
+
+Solution
+========
+
+Betrachten wir zunächst die Daten:
+
+
+```{r}
+d %>% 
+  ggplot(aes(x = height, fill = sex)) +
+  geom_density()
+```
+
+Wie man sieht, scheint es einige "komische" Werte zu geben. 
+Besser wir entfernen diese vorab.
+
+```{r}
+d2 <- 
+  d %>% 
+  filter(between(height, 150, 210))
+```
+
+
+
+
+```{r}
+lm2 <- stan_glm(height ~ sex, data = d2, refresh = 0)
+```
+
+
+
+Berechnen wir dann die PPV. Dabei interessieren uns zwei Ausprängungen, 
+nämlich `woman` und `man`. 
+Wir brauchen also nur diese zwei Beobachtungen:
+
+
+
+```{r}
+lm2_ppv <-
+  posterior_predict(lm2, newdata = tibble(sex = c("woman", "man"))) %>%  
+  as_tibble()
+```
+
+
+
+Schauen wir uns die PPV an:
+
+```{r}
+lm2_ppv %>%  
+  head()
+```
+
+
+Die Tabelle `lm1_ppv` hat 4000 Zeilen, das ist jeweils eine Stichprobe aus der PPV.
+Die Tabelle hat 2 Spalten, das sind die zwei Beobachtungen `woman` und `man`, 
+Personen also.
+
+Jetzt schauen wir für jede der 4000 Stichproben, wie oft der Mann größer war:
+
+
+
+```{r}
+lm2_ppv <- 
+  lm2_ppv %>% 
+  mutate(mann_ist_groesser = `1` < `2`)
+
+lm2_ppv %>% 
+  head()
+```
+
+Und dann zählen wir aus, wie oft in den 4000 Stichproben der Mann größer war,
+also wie oft `mann_ist_groesser == TRUE` gilt. 
+
+
+```{r}
+lm2_ppv %>% 
+  summarise(prop_mann_ist_groesser = mean(mann_ist_groesser))
+```
+
+
+Vielleicht wundern Sie sich, dass wir hier den Befehl `mean` verwendet haben.
+Praktischerweise kann `mean()` auch logische Variablen verarbeiten. 
+`mann_ist_groesser` ist eine logische Variable (Typ `lgl`, logical);
+die Variable hat nur die Werte `TRUE` und `FALSE`.
+Dabei zählt `mean()` für jedes `TRUE` eine 1 und für jedes `FALSE` eine 0.
+Diese Summe wird durch die Anzahl der Zeilen, also $n$, geteilt: Voilà, der Mittelwert.
+
+
+
+Wie man sieht ist die Verteilung des Mittelwertsunterschieds in der PPV ziemlich eindeutig:
+Nur mit geringer Wahrscheinlichkeit geht das Modell davon aus,
+dass eine *beliebige* (zufällig gezogene) Frau einen höheren Mittelwert (in der Population) aufweisen als ein beliebiger Mann.
+Anders gesagt:
+Mit hoher Gewissheit geht das Modell davon aus, dass ein zufällig gezogener Mann einen höheren Mittelwert aufweist (als eine zufällig gezogene Frau).
+
+
+Lassen wir uns den genauen Anteil ausgeben:
+
+
+```{r}
+anteil_beliebiger_mann_ist_groesser <- 
+  lm2_ppv %>% 
+  summarise(prop_mann_ist_groesser = mean(mann_ist_groesser)) %>% 
+  as.numeric()
+
+anteil_beliebiger_mann_ist_groesser
+```
+
+
+Da die Tabelle nur aus einer Zelle besteht,
+wandeln wir sie mit `as.numeric()` in einen numerischen Wert um, also eine einfache Zahl 
+in diesem Fall.
+
+Mann kann den Anteil natürlich einfach aus der Tabelle ablesen,
+aber man kann ihn sich auch von R ausgeben lassen; 
+das tut hier nicht wirklich Not.
+Es würde reichen, wenn Sie den Wert einfach hinschreiben.
+
+
+
+Die Antwort (solution, `sol`) lautet also, laut diesem Modell (mit gegebener Simulationsvarianz):
+
+```{r}
+sol <- anteil_beliebiger_mann_ist_groesser
+round(sol, 2)
+```
+
+
+Aufgabenname: `hyp-women-03`
+
+
+
+
+
+
+
+Meta-information
+================
+exname: hyp-women-03
+extype: num
+exsolution: `r sol`
+extol: .05
+expoints: 1
+

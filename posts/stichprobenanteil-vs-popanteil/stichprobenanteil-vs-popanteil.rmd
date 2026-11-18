@@ -1,0 +1,128 @@
+---
+title: stichprobenanteil-vs-popanteil
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(testthat)
+library(glue)
+library(printr)
+library(knitr)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Ein randomisiertes Experiment zur Überprüfung der Wirksamkeit von Stents bei Herzinfarkten hat folgende Datenlage erzeugt:
+
+
+```{r}
+n_treat <- sample(30:100, size = 1)
+n_control <- sample(30:100, size = 1)
+
+prop_healed_exp <- sample(c(0.3, .4, .5, .6), size = 1)
+prop_healed_control <- prop_healed_exp + 0.15
+
+d <-
+  tibble(group = c(rep.int("exp", times = n_treat), rep.int("control", times = n_control)),
+         result = c(sample(c("dead", "alive"), 
+                           size = n_treat, 
+                           prob = c(1 - prop_healed_exp, prop_healed_exp), 
+                           replace = TRUE),
+                    sample(c("dead", "alive"), 
+                           size = n_control, 
+                           prob = c(1 - prop_healed_control, prop_healed_control),
+                           replace = TRUE))
+         )
+
+
+d %>% 
+  count(group, result) %>% 
+  pivot_wider(names_from = result, values_from = n) %>% 
+  kable()
+```
+
+
+Dabei steht `control` für Kontrollgruppe, `exp` für Experimentalgruppe, `alive` für einen günstigen Behandlungserfolg (lebendig) und `dead` für ein ungünstiges Behandlungsergebnis (verstorben).
+
+Die Erfolgsquote (`prop_alive`) pro Gruppe ist damit:
+
+
+```{r}
+d %>% 
+  mutate(group = factor(group),
+         result = factor(result)) %>% 
+  count(group, result) %>% 
+  group_by(group) %>% 
+  mutate(prop_alive = cumsum(n)/sum(n)) %>% 
+  slice(1) %>% 
+  kable()
+```
+
+
+
+
+Welche Aussage ist in diesem Zusammenhang richtig?
+
+
+
+
+
+Answerlist
+----------
+
+* Wenn die Behandlung in Wirklichkeit eine bessere Erfolgsquote hat als die Kontrollbehandlung, dann kann es *nicht* sein, dass die Erfolgsquote der Behandlung in der Stichprobe der Experimentalgruppe schlechter ausfällt als in der Stichprobe der Kontrollgruppe.
+* Wenn die Behandlung in Wirklichkeit eine bessere Erfolgsquote hat als die Kontrollbehandlung, dann ist zu erwarten, dass die Erfolgsquote der Behandlung in der Stichprobe der Experimentalgruppe schlechter ausfällt als in der Stichprobe der Kontrollgruppe.
+* Je größer die Stichprobe, desto eher ist zu erwarten, dass sich der wahre Effekt *nicht* auswirkt, da bei vielen Personen in der Stichprobe auch viele unerwartete Effekt auftreten können.
+* Wenn die Behandlung in Wirklichkeit eine bessere Erfolgsquote hat als die Kontrollbehandlung, dann kann es trotzdem sein, dass die Erfolgsquote der Behandlung in der Stichprobe der Experimentalgruppe schlechter ausfällt als in der Stichprobe der Kontrollgruppe.
+* Die Größe der Stichprobe spielt keine Rolle hinsichtlich der Frage, ob der wahre Effekt der Behandlung in der Stichprobe erkenntlich ist.
+
+Solution
+========
+
+* Wenn die Behandlung in Wirklichkeit eine bessere Erfolgsquote hat als die Kontrollbehandlung, dann kann es trotzdem sein, dass die Erfolgsquote der Behandlung in der Stichprobe der Experimentalgruppe schlechter ausfällt als in der Stichprobe der Kontrollgruppe.
+
+
+Aufgabenname: `stichprobenanteil-vs-popanteil`
+
+
+
+Answerlist
+----------
+
+
+
+* Falsch
+* Falsch
+* Falsch
+* Wahr
+* Falsch
+
+
+
+Meta-information
+================
+exname: stichprobenanteil-vs-popanteil
+extype: schoice
+expoints: 1
+exsolution: 00010
+exshuffle: true

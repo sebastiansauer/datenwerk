@@ -1,12 +1,9 @@
 ---
-exname: tidy1
-extype: schoice
-exsolution: r mchoice2string(tibbles_chosen$is_correct, single = TRUE)
-exshuffle: no
 categories:
 - tidy
 - datawrangling
 - schoice
+- paper
 date: '2023-02-02'
 slug: tidy1
 title: tidy1
@@ -16,7 +13,6 @@ title: tidy1
 
 ```{r libs, include = FALSE}
 library(tidyverse)
-library(gt)
 library(exams)
 ```
 
@@ -39,7 +35,8 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-# Aufgabe
+Question
+========
 
 Das Konzept von "tidy" Daten ("Tidyformat") spielt in der Datenanalyse eine wichtige Rolle.
 
@@ -50,7 +47,7 @@ Hinweise:
 
 - Alle Variablen sollen nicht konstant sein, also mehr als einen uniquen Wert aufweisen.
 - Alle Variablen sollen keine fehlenden Werte aufweisen, also komplett sein.
-- Alle Variablen sollen numerisch sein.
+- Alle Variablen sollen numerisch sein. Numerische Werte werden mit einem Punkt als Dezimaltrennzeichen gekennzeichnet.
 
 
 ```{r some-constants}
@@ -129,7 +126,7 @@ col_chosen <- sample(cols_n, 1)
 
 empty_col_df <- 
   tidy_df %>% 
-  select(all_of(col_chosen))
+  dplyr::select(all_of(col_chosen))
 
 empty_col_df[1] <- NA
 
@@ -140,7 +137,7 @@ empty_col_df[1] <- NA
 empty_col_noname_df <-
   tidy_df %>% 
   mutate(` ` = NA ) %>% 
-  select(last_col())
+  dplyr::select(last_col())
 ```
 
 
@@ -295,9 +292,9 @@ tibbles_listdf %>%
 ```{r}
 untidy_df10 <-
   tidy_df %>% 
-  mutate(!!col_names_random := as.character(!!col_names_random))
+  mutate(across(all_of(col_names_random), as.character))
 
-untidy_df10[row_random, col_names_random_position] <- "1,2"
+untidy_df10[row_random, col_names_random_position] <- "a"
 
 untidy_tibbles <- 
 untidy_tibbles %>% 
@@ -308,7 +305,7 @@ tibbles_listdf <-
 tibbles_listdf %>% 
   bind_rows(tibble(type = "untidy", data = list(untidy_df10),
                    explanation = paste0("Die Spalte ", col_names_random, 
-                                        "weißt einen nicht erlaubten Wert auf.")))
+                                        " weist einen nicht erlaubten Wert auf.")))
 ```
 
 
@@ -327,31 +324,36 @@ tibbles_chosen <-
 
 
 Tabelle A:
+
 ```{r}
-gt(tibbles_chosen$data[[1]]) %>% tab_header(title = tibbles_chosen$id2[[1]])
+knitr::kable(tibbles_chosen$data[[1]], format = "pipe")
 ```
 
 Tabelle B:
+
 ```{r}
-gt(tibbles_chosen$data[[2]]) %>% tab_header(title = tibbles_chosen$id2[[2]])
+knitr::kable(tibbles_chosen$data[[2]], format = "pipe")
 ```
 
 Tabelle C:
+
 ```{r}
-gt(tibbles_chosen$data[[3]]) %>% tab_header(title = tibbles_chosen$id2[[3]])
+knitr::kable(tibbles_chosen$data[[3]], format = "pipe")
 ```
 
 
 Tabelle D:
+
 ```{r}
-gt(tibbles_chosen$data[[4]]) %>% tab_header(title = tibbles_chosen$id2[[4]])
+knitr::kable(tibbles_chosen$data[[4]], format = "pipe")
 ```
 
 
 
 Tabelle E:
+
 ```{r}
-gt(tibbles_chosen$data[[5]]) %>% tab_header(title = tibbles_chosen$id2[[5]])
+knitr::kable(tibbles_chosen$data[[5]], format = "pipe")
 ```
 
 
@@ -360,20 +362,12 @@ answerlist(tibbles_chosen$id2, markup = "markdown")
 ```
 
 
+Solution
+========
 
 
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
+Aufgabenname: `tidy1`
 
-# Lösung
 
 
 ```{r solutionlist, echo = FALSE, results = "asis"}
@@ -387,6 +381,15 @@ answerlist(
 
 
 
+
+
+Meta-information
+================
+exname: tidy1
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(tibbles_chosen$is_correct, single = TRUE)`
+exshuffle: FALSE
 
 
 ---

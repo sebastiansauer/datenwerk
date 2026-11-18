@@ -1,0 +1,117 @@
+---
+title: datenvis-moderndive-scatterplot1
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "")
+```
+
+
+
+
+
+
+
+
+Question
+========
+
+Laden Sie das Paket `gapminder` (ggf. vorab installieren) und laden Sie daraus den Datensatz `gapminder`. [Hier](https://www.gapminder.org/) finden Sie weitere Informationen zum Projekt *Gapminder*.
+
+A) Erstellen Sie ein Streudiagramm, das den Zusammenhang von Bruttosozialprodukt und Lebenserwartung widerspiegelt.
+
+*Tipp*: Mit `help(gapminder)` bekommen Sie mehr Informationen zum Datensatz.
+
+
+B) Logarithmieren Sie die Variable zum Bruttosozialprodukt und erstellen Sie auf dieser Basis das Diagramm erneut.
+
+C) Interpretieren Sie dieses (zweite) Diagramm.
+
+
+D) Die Punkte im Streudiagramm sind stark überlagert. Wie kann man diese "Overplotting" verringern?
+
+
+
+*Hinweis*: Beziehen Sie sich auf den Stoff dieses Buches: Ismay, C., & Kim, A. (2019). *ModernDive—An Introduction to Statistical and Data Sciences via R*. http://moderndive.com/.
+
+
+Solution
+========
+
+
+A) 
+```{r echo = TRUE, message = FALSE}
+library(gapminder)
+library(tidyverse)
+data("gapminder")
+
+gapminder %>% 
+  ggplot() +
+  aes(x = gdpPercap, y = lifeExp) + 
+  geom_point()
+```
+
+
+
+B)
+
+```{r}
+gapminder %>% 
+  mutate(gdpPercap_log = log(gdpPercap, base = 10)) %>% 
+  ggplot() +
+  aes(x = gdpPercap_log, y = lifeExp) + 
+  geom_point()
+```
+
+
+
+C)
+
+Es findet sich ein linearer, positiver, substanzieller Zusammenhang. Die logarithmierte Variable zeigt die "Nuller" hinter der führenden Eins, also die Größenordnung des Bruttosozialprodukts. 
+
+
+
+D)
+
+Eine Möglichkeit besteht darin, die Punkte nicht stark zu färben; das "Alpha" der Füllung also zu verringern.
+
+
+
+```{r}
+gapminder %>% 
+  mutate(gdpPercap_log = log(gdpPercap, base = 10)) %>% 
+  ggplot() +
+  aes(x = gdpPercap_log, y = lifeExp) + 
+  geom_point(alpha = .3)
+```
+
+
+```{r echo = FALSE}
+sol <- "Siehe Antworten. Es erfolgt keine automatische Bewertung dieser Aufgabe."
+```
+
+
+
+``r sol``
+
+
+Aufgabenname: `datenvis-moderndive-scatterplot1`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: `r sol`
+exname: datenvis-moderndive-scatterplot1
+expoints: 1

@@ -1,0 +1,151 @@
+---
+title: ungewiss-arten-regr_var1
+categories:
+- inference
+- lm
+- qm2
+- paper
+---
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+
+Question
+========
+
+
+Eine statistische Analyse, wie eine Regression, 
+ist mit mehreren Arten an Ungewissheit konfrontiert. 
+Zum einen gibt es die *Ungewissheit in den Modellparametern*. 
+Für die Regression bedeutet das: "Liegt die Regressionsgerade in "Wahrheit" (in der Population) 
+genauso wie in der Stichprobe, 
+sind Achsenabschnitt und Steigung in der Stichprobe also identisch zur Population?". 
+Zum anderen die *Ungewissheit innerhalb des Modells*. 
+Auch wenn wir die "wahre" Regressionsgleichung kennen würden, 
+wären (in aller Regel) die Vorhersagen trotzdem nicht perfekt. 
+Auch wenn wir etwa wüssten, wieviel Klausurpunkte 
+"in Wahrheit" pro Stunde Lernen herausspringen 
+(und wenn wir den wahren Achsenabschnitt kennen würden, was nicht der Fall ist), 
+so würde das Modell trotzdem keine perfekten Vorhersagen zum Klausurerfolg liefern. 
+Vermutlich fehlen dem Modell wichtige Informationen etwa zur Motivation der Studentis.
+
+Vor diesem Hintergrund, betrachten Sie folgendes statistisches Regressionsmodell, 
+das mit Methoden der Bayes-Statistik berechnet ist:
+
+```{r}
+data(mtcars) 
+library(rstanarm) 
+```
+
+```{r}
+# specifications of how to model,
+# coming from somewhere else
+outcome <- "mpg"
+variables <- c("cyl", "disp", "hp", "carb", "wt", "qsec", "vs", "am", "gear")
+var_selected <- sample(variables, size = 1)
+
+# our modeling effort, 
+# fully parameterized!
+regr_formula <- as.formula(
+  paste(outcome, 
+        paste(var_selected), 
+        sep = " ~ "))
+
+print(regr_formula)
+```
+
+
+
+
+
+
+```{r}
+model <- stan_glm(regr_formula, data = mtcars, refresh = 0, chains = 1)  # um nicht zu viel R-Ausgabe zu erhalten
+print(model)
+```
+
+Für den Prädiktor `carb` ist das Regressionsgewicht angegeben unter der Spalte `median`.
+Dieser Wert entspricht der Punktschätzung in der Population und ist identisch zum Regressiongewicht der Stichprobe.
+
+Die Spalte `MAD_SD` gibt den Standardfehler zur Schätzung des Koeffizienten (der entsprechenden Zeile) wieder.  
+
+
+
+```{r}
+fragen <- c(
+  "Welche Zahl in der Ausgabe kennzeichnet die Ungewissheit des Modells zum Achsenabschnitt?",
+  "Welche Zahl in der Ausgabe kennzeichnet die Ungewissheit des Modells zum Regressionsgewicht?",
+  "Welche Zahl(en) kennzeichnet die Ungewissheit des Modells des Modells gegeben der Modellparameter (die Ungewissheit innerhalb des Modells)? (Gesucht ist nicht die Ungewissheit für die Ungewissheit des Modells)."
+)
+
+lsg_model <-
+  c(coef(model)[1],
+    coef(model)[2],
+    sigma(model))
+
+
+sol_df <-
+  tibble(
+    question = fragen,
+    solution = lsg_model
+  )
+
+question_selected <- sample(1:length(fragen), size = 1)
+```
+
+
+Beantworten Sie vor diesem Hintergrund folgende Frage:
+
+`r sol_df$question[question_selected]`
+
+
+Hinweise:
+
+- Geben Sie nur Zahlen ein.
+- Runden Sie auf 1 Dezimale.
+
+
+
+Solution
+========
+
+Die Antwort lautet: `r sol_df$solution[question_selected]`.
+
+
+Aufgabenname: `ungewiss-arten-regr_var1`
+
+
+
+
+Meta-information
+================
+extype: num
+exsolution: `r sol_df$solution[question_selected]`
+exname: ungewiss-arten-regr_var1
+expoints: 1
+extol: 0.2
+categories:
+- inference
+- lm
+- qm2

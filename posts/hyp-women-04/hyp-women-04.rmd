@@ -1,0 +1,160 @@
+---
+title: hyp-women-04
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+library(rstanarm)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Der Datensatz `wo_men` Untersucht Geschlechtsunterschiede u.a. in Körpergröße.
+
+Sie können ihn hier herunterladen:
+
+
+```{r echo = TRUE}
+wo_men_path <- "https://raw.github.com/sebastiansauer/modar/master/datasets/wo_men.csv"
+d <- read_csv(wo_men_path)
+```
+Testen Sie anhand dieses Datensatzes folgende Hypothese $H$:
+
+
+"Männer sind im Schnitt größer als Frauen!"
+
+Präziser formuliert:
+
+$d = \mu_M > \mu_F + c$, wobei $\mu$ den Mittelwert angibt (in der Population,
+auch Erwartungswert genannt) und $c$ einen *minimalen Unterschied praktischer Relevanz* benennt.
+
+Nehmen Sie an: $c=5$. Das heißt: Wir gehen davon aus, 
+dass Männer mehr als 5cm größer sind als Frauen im Durchschnitt.
+
+Über die Hypothese soll anhand folgender Entscheidungsregel $R$ entschieden werden:
+
+- Liegt die Verteilung von $d$ mit mind. 95% im ROPE, verwerfen wir $H$.
+- Liegt die Verteilung von $d$ mit mind. 95% außerhalb des ROPE, verwerfen wir $H$.
+- Andernfalls behalten wir uns eine Entscheidung vor, aufgrund uneindeutiger Evidenz.
+
+
+In Worten sagt $R$ etwa: "Wenn von der Post-Verteilung der 
+Großteil (sagen wir 95%) außerhalb des ROPE liegt,
+dann ist der Unterschied bedeutsam. 
+Wenn der größte Teil der Post-Verteilung innerhalb des ROPE liegt, 
+ist der Unterschied vernachlässigbar.
+Ansonsten ist die Datenlage unklar".
+
+Geben Sie den Anteil der Post-Verteilung an, der außerhalb des Rope liegt!
+
+
+
+Solution
+========
+
+Betrachten wir zunächst die Daten:
+
+
+```{r}
+d %>% 
+  ggplot(aes(x = height, fill = sex)) +
+  geom_density()
+```
+
+Wie man sieht, scheint es einige "komische" Werte zu geben. 
+Besser wir entfernen diese vorab.
+
+```{r}
+d2 <- 
+  d %>% 
+  filter(between(height, 150, 210))
+```
+
+
+Hat's was gebracht:
+
+
+
+
+```{r}
+d2 %>% 
+  ggplot(aes(x = height, fill = sex)) +
+  geom_density()
+```
+
+Einigermaßen ok.
+
+
+```{r}
+lm2 <- stan_glm(height ~ sex, data = d2, refresh = 0)
+```
+
+
+Berechnen wir dann das ROPE:
+
+
+```{r}
+library(bayestestR)
+lm2_rope <- rope(lm2, range = c(-5, 5))
+
+lm2_rope
+```
+
+
+```{r}
+plot(lm2_rope)
+```
+
+Wie man sieht, kann man die Hypothese $H_0$,
+dass der Unterschied zwischen den mittleren Größen 
+von Frauen und Männer vernachlässigbar klein ist,
+*verwerfen*.
+
+Wir nehmen also die $H$ an,
+dass Männer im Mittel mehr als 5cm größer sind als Frauen.
+
+
+
+Die Antwort (solution, `sol`) lautet also, laut diesem Modell (mit gegebener Simulationsvarianz):
+
+```{r}
+sol <- 1
+```
+
+
+Aufgabenname: `hyp-women-04`
+
+
+
+
+
+
+
+Meta-information
+================
+exname: hyp-women-04
+extype: num
+exsolution: `r sol`
+extol: .05
+expoints: 1
+

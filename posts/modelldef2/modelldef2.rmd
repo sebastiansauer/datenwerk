@@ -1,0 +1,299 @@
+---
+title: modelldef2
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(assertthat)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+
+
+
+Question
+========
+
+Betrachten Sie die folgenden Modelldefinitionen.
+Nur *eine* davon ist korrekt bzw. sinnvoll.
+Wählen Sie diese aus!
+
+
+
+Hinweise:
+
+- Es ist *ein* Prädiktor im Modell.
+- Der Achsenabschnitt ist Null.
+- Die Prädiktoren sind z-standardisiert.
+- Gehen Sie davon aus, dass Daten und notwendige R-Pakete und sonstige technischen Voraussetzungen erfüllt sind.
+- $N()$ meint die Normalverteilung und $E()$ die Exponentialverteilung.
+
+
+```{r}
+beta_mean <- rnorm(n = 1, mean = sample(c(-2, 0, 2)), sd = sample(c(1,2,3))) %>% round(1)
+beta1 <- rnorm(n = 2, mean = sample(c(-2, 0, 2)), sd = sample(c(1,2,3))) %>% round(1)
+beta_s <- rexp(1) %>% round(1)
+if (beta_s < 0.1) beta_s <- 1
+s <- rexp(1, rate = sample(c(1, 2, 3))) %>% round(1) 
+if (s < 0.1) s <- 1
+```
+
+
+```{r results = "hide"}
+def_correct <- c(
+  "y_i ",     " \\sim N(\\mu_i, \\sigma)",
+  "\\mu_i ",     " = 0 + \\beta_1 x_i",
+  "\\beta_1  ", paste0(" \\sim N(", beta_mean,",", beta_s,")"),
+  "\\sigma ",  paste0("\\sim E(", s, ")")
+)
+# the model defintion is a string of length 8, ie., 4 equations with two sides each
+
+assert_that(length(def_correct) == 8, msg = "model definition is not proper")
+```
+
+
+
+```{r}
+print_model_def <- function(mod_def) {
+  # mod_def is expected to be a 8 element string where to adjacent elements are LHS and RHS of one equation
+  
+  eq1 <- paste0(mod_def[1], mod_def[2])  # eq. 1, lhs + rhs
+  eq2 <- paste0(mod_def[3], mod_def[4])  # eq. 2, lhs + rhs
+  eq3 <- paste0(mod_def[5], mod_def[6])  # eq. 3, lhs + rhs
+  eq4 <- paste0(mod_def[7], mod_def[8])  # eq. 4, lhs + rhs
+  
+  output_string1 <- 
+    glue::glue("${eq1}$  ")
+   output_string2 <- 
+    glue::glue("${eq2}$  ")
+    output_string3 <- 
+    glue::glue("${eq3}$  ")
+       output_string4 <- 
+    glue::glue("${eq4}$  ")
+  
+  cat(output_string1)
+  cat("  \n")
+  cat(output_string2)
+  cat("  \n")
+  cat(output_string3)
+  cat("  \n")
+  cat(output_string4)
+  cat("  \n")
+}
+```
+
+
+
+
+
+
+```{r}
+permutate_lhs <- function(mod_def) {
+  
+  lhs_vec <- c(mod_def[1], mod_def[3], mod_def[5], mod_def[7])
+  lhs_incorrect<- lhs_vec
+  while(str_c(lhs_incorrect, collapse = "\n") == str_c(lhs_vec, collapse = "\n")) {
+    lhs_incorrect <- sample(lhs_vec)
+  }
+  
+  mod_def_output <- c(lhs_incorrect[1], mod_def[2],
+                      lhs_incorrect[2], mod_def[4],
+                      lhs_incorrect[3], mod_def[6],
+                      lhs_incorrect[4], mod_def[8])
+  
+  return(mod_def_output)
+}
+
+mod_def2 <- permutate_lhs(def_correct)
+```
+
+
+
+
+
+
+```{r}
+make_sign_neg <- function(mod_def) {
+  
+  beta_s <- -beta_s
+  if (abs(beta_s) < 0.1) beta_s <- -1
+  s <- -s
+  if (abs(s) < 0.1) s <- -1
+  
+ out <- c(
+  "y_i ",     " \\sim N(\\mu_i, \\sigma)",
+  "\\mu_i ",     " = 0 + \\beta_1 x_i",
+  "\\beta_1  ", paste0(" \\sim N(", beta_mean,",", beta_s,")"),
+  "\\sigma ",  paste0("\\sim E(", s, ")")
+)
+
+assert_that(length(out) == 8, msg = "model definition is not proper")
+  return(out)
+}
+
+mod_def3 <- make_sign_neg(def_correct)
+```
+
+
+
+
+
+```{r}
+drop_suffix <- function(mod_def){
+  out <- str_remove_all(mod_def, "_i")
+  return(out)
+}
+
+mod_def4 <- drop_suffix(def_correct)
+```
+
+
+
+
+```{r}
+replace_tilde <- function(mod_def) {
+  
+  out <- str_replace_all(mod_def, Hmisc::escapeRegex("\\sim"), "=")
+}
+
+mod_def5 <- replace_tilde(def_correct)
+```
+
+
+```{r}
+change_intercept <- function(mod_def) {
+  out <- str_replace_all(mod_def, pattern = "0", "1")
+}
+
+mod_def6 <- change_intercept(def_correct)
+```
+
+
+
+
+```{r}
+sol_df <-
+  tibble(
+    id = 1:6,
+    correct_answer = c(T, F, F, F, F, F),
+    mod_def = list(def_correct, mod_def2, mod_def3, mod_def4, mod_def5, mod_def6),
+    explanations = c(
+      "korrekt",
+      "Die linken Seiten der Gleichungen passen nicht zu den rechten Seiten",
+      "Streuungen dürfen kein negatives Vorzeichen haben",
+      "Die Indizes i fehlen (bei mu)",
+      "Die Tilde-Zeichen sind fälschlich durch Gleichheitszeichen ersetzt",
+      "Der Achsenabschnitt ist per Angabe Null"
+    )
+  ) %>% 
+  slice_sample(n = nrow(.)) %>% 
+  mutate(id2 = LETTERS[1:nrow(.)])
+```
+
+
+*Modelldefinition A:*
+
+```{r results = 'asis'}
+print_model_def(sol_df$mod_def[[1]])
+```
+
+
+*Modelldefinition B:*
+
+```{r results = 'asis'}
+print_model_def(sol_df$mod_def[[2]])
+```
+
+
+*Modelldefinition C:*
+
+```{r results = 'asis'}
+print_model_def(sol_df$mod_def[[3]])
+```
+
+
+*Modelldefinition D:*
+
+```{r results = 'asis'}
+print_model_def(sol_df$mod_def[[4]])
+```
+
+
+*Modelldefinition E:*
+
+```{r results = 'asis'}
+print_model_def(sol_df$mod_def[[5]])
+```
+
+
+*Modelldefinition F:*
+
+```{r results = 'asis'}
+print_model_def(sol_df$mod_def[[6]])
+```
+
+```{r questionlist, echo = FALSE, results = "asis"}
+exams::answerlist(sol_df$id2, markup = "markdown")
+```
+
+
+
+Solution
+========
+
+---
+
+Aufgaben-ID: Modelldef2
+
+
+---
+
+
+Aufgabenname: `modelldef2`
+
+
+
+
+```{r sollist, echo = FALSE, results = "asis"}
+answerlist(ifelse(sol_df$correct_answer, "Richtig", "Falsch"), sol_df$explanations, markup = "markdown")
+```
+
+
+
+
+```{r}
+sol <- exams::mchoice2string(sol_df$correct_answer, single = TRUE)
+```
+
+
+
+
+
+
+Meta-information
+================
+exname: modelldef2
+extype: schoice
+exsolution: `r sol`
+exshuffle: false
+expoints: 1
+

@@ -1,0 +1,149 @@
+---
+title: skalenniveau2
+categories:
+- variable-levels
+- paper
+---
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+library(mosaic)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "")
+```
+
+
+```{r prepare-data, include=FALSE}
+
+# get list of data setrs:
+
+d_available <- read.csv("https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/datasets.csv")
+
+d_drawn <- 
+  d_available %>% 
+  filter(Cols > 4) %>% 
+  sample_n(size = 1)
+
+
+d <- read.csv(d_drawn$CSV[1])
+
+
+```
+
+
+
+Question
+========
+Betrachten Sie den Auszug aus dem Datensatz ``r d_drawn$Item[1]``. Der Datensatz hat folgenden Titel: ``r d_drawn$Title[1]``.
+
+
+```{r echo = FALSE}
+d %>% 
+  head() %>% 
+  gt()
+```
+
+
+Hier folgt eine Beschreibung des Datensatzes:
+
+
+---
+
+## BEGINN BESCHREIBUNG DES DATENSATZES
+
+```{r echo = FALSE, results = "asis"}
+
+d_doc <- d_drawn$Doc[1]
+
+cat(htmltools::includeText(d_doc))
+```
+
+## ENDE BESCHREIBUNG DES DATENSATZES
+
+
+---
+
+
+
+```{r echo = FALSE}
+
+cols_to_keep <- sample(2:ncol(d), size = 1)
+
+names_of_cols_to_keep <- names(d)[cols_to_keep]
+
+
+selected_cols_scale_level <- 
+  d %>% 
+  select(all_of(cols_to_keep)) %>% 
+  summarise_all(class) %>% 
+  pivot_longer(everything()) %>% 
+  pull(value)
+```
+
+
+Welches Skalenniveau hat die Variable ``r names_of_cols_to_keep[1]``?
+
+
+
+```{r echo = FALSE}
+
+# get scale levels of all variables in the data set:
+
+all_cols_scale_level <- 
+  d %>% 
+  summarise_all(class) %>% 
+  pivot_longer(everything()) %>% 
+  distinct(value) %>% pull(value)
+
+
+# define all possible scale levels
+
+all_levels <- c("binary", "integer", "numeric", 
+                "ordered factor", "factor", "character", 
+                "date", "logical", "character")
+
+union_all_cols_all_levels <- union(all_cols_scale_level, all_levels)
+```
+
+
+Wählen Sie aus dieser Liste das Skalenniveau aus, das am besten passt: 
+
+``r union_all_cols_all_levels``
+
+
+*Hinweis*: Geben Sie den Namen des Skalenniveaus *exakt* so ein, wie in der Liste ersichtlich, da ansonsten die Eingabe u.U. nicht als korrekt gewertet werden kann.
+
+
+
+
+
+Solution
+========
+
+Das Skalenviveau der Variablen ``r names_of_cols_to_keep[1]`` lautet ``r selected_cols_scale_level[1]``.
+
+
+Aufgabenname: `skalenniveau2`
+
+
+
+
+
+Meta-information
+================
+exname: skalenniveau2
+extype: string
+expoints: 1
+exsolution: `r selected_cols_scale_level`
+exshuffle: true
+categories:
+- variable-levels

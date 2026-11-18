@@ -1,0 +1,164 @@
+---
+date: 2026-10-18
+draft: FALSE
+title: fallstudie-excel-r
+execute:
+  eval: true
+highlight-style: arrow
+cache: true
+toc: true
+number-sections: true
+extype: string
+expoints: 1
+exname: fallstudie-excel-r
+exsolution: ""
+exshuffle: no
+categories:
+- eda
+- datawrangling
+- string
+
+knitr:
+  opts_chunk:
+    out.width: "75%"
+
+---
+
+## Aufgabe
+
+Ein Forschungsteam hat untersucht, ob hohe Staatsschulden das Wirtschaftswachstum bremsen. Die Kernaussage der Studie: Liegt die Schuldenquote eines Landes über 90 % des BIP, schrumpft die Wirtschaft im Mittel. Diese Aussage wurde in der Politik oft zitiert, etwa in Debatten über Sparprogramme.
+
+Sie sind das Prüfteam. Ihre Frage: Stimmt die Kernaussage -- zumindest rechnerisch?
+
+Die Länder und Zahlen in dieser Übung sind fiktiv. Der Fall dahinter ist real (siehe Lösung).
+
+### Material
+
+- `schulden_wachstum.xlsx` mit den Blättern *Bericht*, *Daten* und *Hinweis*
+- `schulden_wachstum.csv` mit denselben Daten für R
+
+Beide Dateien finden Sie auch hier: <https://github.com/sebastiansauer/aufgabensammlung/tree/main/posts/fallstudie-excel-r>
+
+Die Daten umfassen 20 Länder. Für jedes Land steht dort das mittlere reale Wirtschaftswachstum (in % pro Jahr), getrennt nach der Höhe der Schuldenquote. Eine leere Zelle bedeutet: Das Land hatte nie eine Schuldenquote in diesem Bereich.
+
+### Teil A: Prüfung in Excel
+
+1. Öffnen Sie die Excel-Datei und lesen Sie das Blatt *Bericht*. Notieren Sie die Kernaussage und den Wert für "über 90 %".
+2. Wechseln Sie zum Blatt *Daten*. Finden Sie heraus, wie die Werte im Bericht zustande kommen.
+3. Prüfen Sie die Berechnung. Stimmt sie? Falls nicht: Was ist falsch, und wie lautet der richtige Wert?
+
+### Teil B: Dieselbe Analyse in R
+
+Legen Sie die CSV-Datei in Ihren Projektordner und führen Sie diesen Code aus:
+
+```r
+daten <- read.csv("schulden_wachstum.csv")
+head(daten)
+mean(daten$ueber_90, na.rm = TRUE)
+```
+
+`na.rm = TRUE` bedeutet: Fehlende Werte (leere Zellen) werden ignoriert.
+
+1. Vergleichen Sie das Ergebnis mit Teil A.
+2. Bei einer Spalte meldet R ein Problem. Finden Sie die Ursache. Tipp: `str(daten)`.
+3. Gehen Sie zurück in die Excel-Datei. Warum hat Excel bei dieser Spalte nichts gemeldet?
+
+### Teil C: Schriftliche Antwort
+
+Schreiben Sie eine kurze Notiz an das Forschungsteam (höchstens 5 Sätze): Was haben Sie gefunden, und was empfehlen Sie? Gehen Sie dabei auch darauf ein, wie sehr Sie der korrigierten Kernaussage vertrauen würden.
+
+Hinweise:
+
+- Beachten Sie die üblichen [Hinweise](https://sebastiansauer.github.io/datenwerk/Hinweise.html) des Datenwerks.
+- Diese Aufgabe wird nicht automatisch ausgewertet, sondern als Freitext beantwortet.
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+</br>
+</br>
+</br>
+
+## Lösung
+
+### Der Hauptfehler: ein zu kurzer Zellbereich
+
+In der Excel-Datei fehlt der Mittelwert der Spalte "über 90 %" fünf Länder, weil der Zellbereich der Formel erst in Zeile 7 statt in Zeile 2 beginnt. Vier der fünf fehlenden Länder haben einen Wert in dieser Spalte -- und zwar ein relativ hohes Wachstum. Excel gibt dabei keine Warnung, denn die Formel ist gültig; sie rechnet nur mit den falschen Zellen.
+
+In R lautet dieselbe Rechnung:
+
+```{r}
+#| message: false
+daten <- read.csv("schulden_wachstum.csv")
+mean(daten$ueber_90, na.rm = TRUE)
+```
+
+Hier gibt es keinen Zellbereich, den man falsch eingeben könnte. Der Code sagt: "Mittelwert der Spalte `ueber_90`", also aller Werte.
+
+### Der Bonusfehler: eine Zahl als Text
+
+Bei Jarland steht in der Spalte "60 bis 90 %" der Eintrag `2,1` -- aber als Text, nicht als Zahl (Komma statt Punkt als Dezimaltrennzeichen). Excel übergeht diesen Wert beim Mittelwert ohne jede Meldung.
+
+R reagiert anders:
+
+```{r}
+str(daten$von_60_bis_90)
+mean(daten$von_60_bis_90, na.rm = TRUE)
+```
+
+Weil die Spalte ein Zeichen (`chr`) enthält, meldet R `NA` statt eines Ergebnisses -- und macht das Problem damit sichtbar:
+
+```{r}
+x <- as.numeric(sub(",", ".", daten$von_60_bis_90))
+mean(x, na.rm = TRUE)
+```
+
+### Was bedeutet das für die Kernaussage?
+
+Nach Korrektur beider Fehler wächst die Wirtschaft bei Schuldenquoten über 90 % im Mittel leicht, statt zu schrumpfen -- die ursprüngliche Kernaussage ist damit falsch. Vorsicht ist dennoch geboten: Ein einzelner Ausreißer (Norvik, -6,9 %) zieht den Mittelwert stark nach unten, jedes Land zählt unabhängig von der Anzahl der betroffenen Jahre gleich, und selbst ein korrekter Zusammenhang sagt nichts über die Ursache-Wirkung-Richtung aus.
+
+```{r}
+mean(daten$ueber_90[daten$land != "Norvik"], na.rm = TRUE)
+```
+
+### Der echte Fall: Reinhart und Rogoff
+
+Die Übung ist einem realen Fall nachgebaut. Carmen Reinhart und Kenneth Rogoff veröffentlichten 2010 die vielzitierte Studie *Growth in a Time of Debt*. Ihr zentrales Ergebnis: Länder mit einer Staatsschuldenquote über 90 % hatten im Mittel ein Wachstum von -0,1 %.
+
+2013 versuchte der Doktorand Thomas Herndon, die Ergebnisse nachzurechnen. Mit seinen Professoren Michael Ash und Robert Pollin fand er drei Probleme: einen Bereichsfehler in Excel (fünf fehlende Länder, genau wie in dieser Übung), ausgeschlossene verfügbare Daten und eine fragwürdige Gewichtung (jedes Land zählte gleich, unabhängig von der Anzahl der Jahre). Nach allen drei Korrekturen lag das mittlere Wachstum bei 2,2 % statt -0,1 %.
+
+Reinhart und Rogoff haben den Excel-Fehler eingeräumt, hielten aber an ihrer Grundaussage fest, dass hohe Schulden mit geringerem Wachstum einhergehen. Ob und ab welcher Schwelle das gilt, wird bis heute diskutiert.
+
+### Was Sie mitnehmen sollten
+
+1. Fehler passieren -- auch Profis unterlaufen sie. Entscheidend ist, sie findbar zu machen.
+2. Sichtbare Rechenwege (Skripte) sind prüfbare Rechenwege; in Zellen verstecktes Rechnen ist es nicht.
+3. Stille Fehler sind die gefährlichsten: Excel rechnet oft klaglos mit falschen oder fehlenden Daten weiter, R meldet Probleme eher.
+4. Ergebnisse plausibilisieren: Passt der Mittelwert zu den Einzelwerten? Wie viele Werte gehen ein? Was ändert sich ohne Ausreißer?
+5. Ein Mittelwert ist keine Wahrheit -- er hängt von den eingehenden Daten, der Gewichtung und etwaigen Ausreißern ab, und ein Zusammenhang sagt noch nichts über Ursache und Wirkung.
+
+### Quellen
+
+- Reinhart, C. M., & Rogoff, K. S. (2010). Growth in a time of debt. *American Economic Review, 100*(2), 573--578.
+- Herndon, T., Ash, M., & Pollin, R. (2014). Does high public debt consistently stifle economic growth? A critique of Reinhart and Rogoff. *Cambridge Journal of Economics, 38*(2), 257--279.
+
+
+Aufgabenname: `fallstudie-excel-r`
+
+
+---
+
+Categories:
+
+- eda
+- datawrangling
+- string

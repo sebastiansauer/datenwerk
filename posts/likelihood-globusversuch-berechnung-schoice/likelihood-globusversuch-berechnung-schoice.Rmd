@@ -1,0 +1,50 @@
+---
+title: likelihood-globusversuch-berechnung-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Bei einem Globusversuch werden $n=10$ Würfe durchgeführt, davon zeigt $W=7$ Mal der Zeigefinger auf Wasser. Wie groß ist die Likelihood für die Hypothese $\pi=0{,}6$, also $Pr(W=7, n=10\mid \pi=0{,}6)$?
+
+Answerlist
+----------
+* $Pr(W=7,n=10\mid \pi=0{,}6) = \binom{10}{7}\cdot 0{,}6^7\cdot 0{,}4^3 \approx 0{,}215$
+* $Pr(W=7,n=10\mid \pi=0{,}6) = \binom{10}{7}\cdot 0{,}4^7\cdot 0{,}6^3 \approx 0{,}042$
+* $Pr(W\le 7,n=10\mid \pi=0{,}6) \approx 0{,}833$
+* $Pr(W=6,n=10\mid \pi=0{,}6) \approx 0{,}251$
+* $Pr(W=7,n=10\mid \pi=0{,}6) = \binom{10}{7}\cdot 0{,}6^7 \approx 3{,}359$
+
+Solution
+========
+Unter der Annahme einer Binomialverteilung (unabhängige, identisch verteilte Würfe) ist die Likelihood für die Hypothese $\pi=0{,}6$ gegeben die Daten $W=7$, $n=10$: $Pr(W=7,n=10\mid \pi=0{,}6) = \binom{10}{7}\cdot 0{,}6^7 \cdot 0{,}4^3 \approx 0{,}215$ (in R: `dbinom(x = 7, size = 10, prob = 0.6)`).
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option vertauscht $\pi$ und $1-\pi$ ($0{,}4^7\cdot 0{,}6^3$ statt $0{,}6^7\cdot 0{,}4^3$) -- das entspricht der Likelihood für 7 "Land"-Treffer statt 7 "Wasser"-Treffer.
+* Die dritte Option berechnet die *kumulierte* Wahrscheinlichkeit $Pr(W\le 7)$ (mit `pbinom`) statt der Likelihood für *genau* dieses eine beobachtete Ergebnis $W=7$ (mit `dbinom`) -- für die Likelihood ist aber genau das beobachtete Datum relevant.
+* Die vierte Option verwendet den falschen Datenwert ($W=6$ statt der tatsächlich beobachteten $W=7$ Treffer) -- die Likelihood muss sich immer auf die *tatsächlich beobachteten* Daten beziehen.
+* Die fünfte Option vergisst den Faktor $(1-\pi)^{n-x}=0{,}4^3$ für die 3 "Land"-Ergebnisse; das Resultat ist folgerichtig größer als 1 und kann daher keine gültige Wahrscheinlichkeit sein.
+
+
+Aufgabenname: `likelihood-globusversuch-berechnung-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: likelihood-globusversuch-berechnung-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

@@ -44,7 +44,7 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-# Aufgabe
+## Aufgabe
 
 Wir bearbeiten hier die Fallstudie [TMDB Box Office Prediction - 
 Can you predict a movie's worldwide box office revenue?](https://www.kaggle.com/competitions/tmdb-box-office-prediction/overview),
@@ -62,7 +62,7 @@ d_test_path <- "https://raw.githubusercontent.com/sebastiansauer/Lehre/main/data
 ```
 
 
-# Aufgabe
+## Aufgabe
 
 Reichen Sie bei Kaggle eine Submission für die Fallstudie ein! Berichten Sie den Score!
 
@@ -90,10 +90,10 @@ wenn Sie `revenue` logarithmiert haben, bevor Sie Ihre Prognose einreichen.
 </br>
 </br>
 
-# Lösung
+## Lösung
 
 
-# Vorbereitung
+## Vorbereitung
 
 ```{r}
 library(tidyverse)
@@ -127,7 +127,7 @@ glimpse(d_train_raw)
 ```
 
 
-## Train-Set verschlanken
+### Train-Set verschlanken
 
 ```{r}
 d_train_raw_reduced <-
@@ -136,7 +136,7 @@ d_train_raw_reduced <-
 ```
 
 
-## Test-Set verschlanken
+### Test-Set verschlanken
 
 ```{r}
 d_test <-
@@ -147,7 +147,7 @@ d_test <-
 
 
 
-## Outcome logarithmieren
+### Outcome logarithmieren
 
 Der Outcome [sollte *nicht* im Rezept transformiert werden (vgl. Part 3, S. 30, in dieser Unterlage)](https://github.com/topepo/nyr-2020).
 
@@ -170,7 +170,7 @@ d_train$revenue %>% is.infinite() %>% any()
 Keine unendlichen Werte mehr, auf dieser Basis können wir weitermachen.
 
 
-# Fehlende Werte prüfen
+## Fehlende Werte prüfen
 
 Welche Spalten haben viele fehlende Werte?
 
@@ -193,9 +193,9 @@ d_train %>%
 
 
 
-# Rezept
+## Rezept
 
-## Rezept definieren
+### Rezept definieren
 
 
 ```{r}
@@ -227,7 +227,7 @@ tidy(rec2)
 
 
 
-## Check das Rezept 
+### Check das Rezept 
 
 Wir berechnen das Rezept:
 
@@ -276,7 +276,7 @@ datawizard::describe_distribution(d_train_baked2)
 
 So bekommt man gleich noch ein paar Infos über die Verteilung der Variablen. Praktische Sache.
 
-## Check Test-Sample
+### Check Test-Sample
 
 Das Test-Sample backen wir auch mal, um zu prüfen, das alles läuft:
 
@@ -292,7 +292,7 @@ d_test_baked2 %>%
 Sieht soweit gut aus.
 
 
-# Kreuzvalidierung / Resampling
+## Kreuzvalidierung / Resampling
 
 
 Hier ist *nur* aus Gründen der Rechenzeit auf kleine Werte von $v$ und $r$ ausgewichen worden.
@@ -305,11 +305,11 @@ cv_scheme <- vfold_cv(d_train,
 ```
 
 
-# Modelle
+## Modelle
 
 
 
-## LM
+### LM
 
 
 ```{r}
@@ -319,7 +319,7 @@ mod_lm <-
 
 
 
-# Workflow-Set
+## Workflow-Set
 
 Hier nur ein sehr kleiner Workflow-Set.
 
@@ -336,7 +336,7 @@ all_workflows2 <- workflow_set(preproc2, models2)
 ```
 
 
-# Fitten und tunen
+## Fitten und tunen
 
 
 ```{r tune}
@@ -351,7 +351,7 @@ tmdb_model_set2 <-
 
 
 
-# Finalisieren
+## Finalisieren
 
 
 ```{r}
@@ -372,7 +372,7 @@ best_model_params2
 
 
 
-## Finalisieren
+### Finalisieren
 
 Finalisieren bedeutet:
 
@@ -398,7 +398,7 @@ best_wf_finalized2 <-
 best_wf_finalized2
 ```
 
-## Final Fit
+### Final Fit
 
 
 ```{r}
@@ -433,7 +433,7 @@ Grund ist [hier](https://github.com/tidymodels/workflows/issues/63) beschrieben:
 
 >   The better approach is, for simple transformations like yours, to log the outcome outside of the recipe (before data analysis and the initial split).
 
-## Submission df
+### Submission df
 
 
 ```{r}
@@ -448,7 +448,7 @@ head(submission_df)
 
 
 
-## Zurücktransformieren
+### Zurücktransformieren
 
 
 ```{r}
@@ -470,13 +470,17 @@ write_csv(submission_df, file = "submission.csv")
 ```
 
 
-# Kaggle Score
+## Kaggle Score
 
 Diese Submission erzielte einen Score von **Score: 2.46249** (RMSLE).
 
 ```{r}
 sol <- 2.5
 ```
+
+
+Aufgabenname: `tmdb04`
+
 
 
 

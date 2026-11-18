@@ -1,0 +1,154 @@
+---
+title: stipro-bayesbox01
+categories:
+- R
+- bayes
+- bayes-grid
+- probability
+---
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,  # ECHO IS TRUE!!!
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+Question
+========
+
+
+
+Erstellen Sie die Stichproben-Bayesbox wie im Skript (Anfang von Kap. "Post-Verteilung", d.h. Kap. 6.2.1, Globusversuch) dargestellt.
+
+Beantworten Sie dann folgende Frage:
+
+*Wie groß ist die Wahrscheinlichkeit (auf Basis der Stichproben-Bayesbox), dass der Wasseranteil *mind.* 60% beträgt?* 🤔
+
+
+>    🤖 Ich weiß es!
+
+>    💆 Mir doch egal.
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://sebastiansauer.github.io/datenwerk/Hinweise.html).
+
+
+
+Solution
+========
+
+Setup:
+
+```{r}
+library(tidyverse)
+```
+
+"Normale" Bayes-Box erstellen, auf Basis des Globus-Versuchs:
+
+```{r}
+# Globusversuch wie in Kap. 6.2.1:
+n <- 11
+n_success <- 6          
+n_trials  <- 9
+p_grid <- seq(from = 0, to = 1, length.out = n)
+L <- dbinom(n_success, size = n_trials, prob = p_grid)
+
+d <-  # Bayesbox!
+  tibble(p_grid = p_grid,prior  = 1) %>% 
+  mutate(likelihood = L) %>% 
+  mutate(unstand_post = (likelihood * prior),
+         post = unstand_post / sum(unstand_post))
+```
+
+Mal schauen:
+
+```{r}
+d
+```
+
+Stichproben-Bayes-Box (`samples`) erstellen:
+
+```{r}
+set.seed(42)
+samples <-
+  d %>%  # nimmt die Tabelle mit Posteriori-Daten,
+  slice_sample(  # Ziehe daraus eine Stichprobe,
+    n = 1e4,  # mit insgesamt n=10000 Zeilen,
+    weight_by = post,  # Gewichte nach Post-Wskt.,
+    replace = T)  %>%  # Ziehe mit Zurücklegen
+  select(p_grid)
+```
+
+Mit `set.seed` fixieren wir die Zufallszahlen. Dann kommt immer und bei allen die gleichen Zufallszahlen raus. 🤷
+
+Mal rein schauen:
+
+```{r}
+samples
+```
+
+Jetzt kann man die Stipro-Bayes-Box befragen:
+
+"Wskt für Wasseranteil von mind. 60%?"
+
+```{r}
+samples |> 
+  count(p_grid >= .6)
+```
+
+Die Tabelle kann man einfach auslesen.
+Oder man lässt sich den Anteil noch von R berechnen:
+
+```{r}
+loesung <- 
+  samples |> 
+  count(p_grid >= .6) |> 
+  mutate(wkst = n/sum(n))
+
+loesung
+```
+
+
+```{r}
+#| echo: false
+sol <- loesung$wkst[2] |> round(2)
+```
+
+
+*Lösung*: `r sol`.
+
+
+Aufgabenname: `stipro-bayesbox01`
+
+
+Meta-information
+================
+
+exname: stipro-bayesbox01
+extype: num
+exsolution: `r exams::fmt(sol)`
+exshuffle: false
+extol: .02
+expoints: 1
+categories:
+- R
+- bayes
+- bayes-grid
+- probability
+
+
+
+
+

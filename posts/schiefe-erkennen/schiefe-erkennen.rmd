@@ -1,12 +1,9 @@
 ---
-exname: schiefe-erkennen
-extype: schoice
-exsolution: r mchoice2string(d$is_correct, single = TRUE)
-exshuffle: no
 categories:
 - eda
 - distributions
 - schoice
+- paper
 date: '2023-04-19'
 slug: Schiefe-erkennen
 title: Schiefe-erkennen
@@ -41,7 +38,8 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-# Aufgabe
+Question
+========
 
 
 
@@ -84,7 +82,7 @@ d <- tibble(
 
 d <-
   d %>% 
-  mutate(skew = map(data, ~ skewness(.x[[1]]))) %>%  # as .x is a tibble, we need to access its first column
+  mutate(skew = map(data, ~ e1071::skewness(.x[[1]]))) %>%  # as .x is a tibble, we need to access its first column
   mutate(skew = unlist(skew)) %>% 
   sample_n(size = nrow(.)) %>%   # shuffle it
   mutate(plot_id = LETTERS[1:nrow(.)])
@@ -110,22 +108,19 @@ d <-
 
 
 
-```{r generate-histograms, echo = FALSE, message = FALSE, fig.show='hold', comment="", results="hide"}
+```{r generate-histograms, echo = FALSE, message = FALSE, comment="", fig.width = 6, fig.asp = 0.7}
 
-gg_hist <- function(data, title) {
-  ggplot(data = data) +
-    aes(x = value) +
-    geom_histogram() +
-    ggtitle(glue("Diagramm {title}"))
-}
+# all histograms in one figure, so that the PDF output stays within the page width
+d_hist <-
+  d %>%
+  select(plot_id, data) %>%
+  unnest(data) %>%
+  mutate(plot_id = glue("Diagramm {plot_id}"))
 
-
-
-
-
-map2(.x = d$data,
-     .y = d$plot_id,
-     .f = ~ gg_hist(.x, .y))
+ggplot(d_hist) +
+  aes(x = value) +
+  geom_histogram(bins = 30) +
+  facet_wrap(~ plot_id, scales = "free", ncol = 3)
 
 ```
 
@@ -136,24 +131,15 @@ exams::answerlist(d$plot_id, markup = "markdown")
 ```
 
 
-
-
-
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-
-# Lösung
+Solution
+========
 
 Das Histogramm ``r d$plot_id[d$is_correct == TRUE]`` zeigt die Eigenschaft ``r sol`
 ` am deutlichsten.
+
+
+Aufgabenname: `schiefe-erkennen`
+
 
 
 ```{r solutionlist, echo = FALSE, results = "asis"}
@@ -162,6 +148,15 @@ exams::answerlist(ifelse(d$is_correct, "Wahr", "Falsch"), markup = "markdown")
 
 
 
+
+
+Meta-information
+================
+exname: schiefe-erkennen
+extype: schoice
+expoints: 1
+exsolution: `r exams::mchoice2string(d$is_correct, single = TRUE)`
+exshuffle: FALSE
 
 
 ---

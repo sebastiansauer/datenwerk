@@ -1,0 +1,237 @@
+---
+title: scatterplot-art-korrelation
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(testthat)
+library(glue)
+library(knitr)
+library(kableExtra)
+library(exams)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 6,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+
+Streudiagramme (scatterplots) zeigen den Zusammenhang zweier numerischer Variablen auf; die Stärke des Zusammenhangs lässt sich per Augenschein abschätzen.
+
+Das folgende Diagramm zeigt lineare Zusammenhänge der Stärke Null, schwach, mittel, stark und perfekt. Außerdem sind gleichsinnige (positive) und gegensinnige (negative) Zusammenhänge dargestellt sowie der Null-Zusammenhang.
+
+
+```{r}
+kv_pair <- tibble::tribble(
+  ~key, ~value,
+   "A",     -1,
+   "B",   -0.9,
+   "C",  -0.75,
+   "D",   -0.3,
+   "E",      0,
+   "F",    0.3,
+   "G",   0.75,
+   "H",    0.9,
+   "I",      1
+  )
+
+
+```
+
+
+
+
+
+
+```{r}
+#### Quelle http://moderndive.com/scripts/06-regression.R
+## Leichte Anpassungen durch N. Markgraf
+# library(mosaic)
+library(mvtnorm) 
+set.seed(2009)
+
+correlation <- c(-0.999999, -0.90, -0.75, -0.30, 0.00, 0.30, 0.75, 0.90, 0.999999)
+eps <- 0.00001
+n_sim <- 100
+
+values <- NULL
+for (i in 1:length(correlation)) {
+    rho <- correlation[i]
+    rs <- rho * sqrt(50)
+    sigma <- matrix(c(5, rs, rs, 10), 2, 2) 
+    sim <- rmvnorm(
+        n = n_sim,
+        mean = c(20,40),
+        sigma = sigma
+    )
+    r <- cor(sim[,1],sim[,2])
+    new_err <- NULL
+    new_r <- NULL
+    err <- abs(rho - r)
+    for (j in 1:1000) {
+        sim_t <- rmvnorm(
+            n = n_sim,
+            mean = c(20,40),
+            sigma = sigma
+        )
+        new_r <- cor(sim_t[,1], sim_t[,2])
+        new_err <- abs(rho - new_r)
+        if (new_err < err) {
+            # cat(paste("want:",rho,"- got:",r,"- err:",err,"- new:",new_r,"new-err:",new_err,"\n"))
+            sim <- sim_t
+            r <- new_r
+            err <- new_err
+        }
+        if (new_err < eps) {
+            break
+        }
+    }
+    sim %>%   
+        as.data.frame() %>% 
+        mutate(correlation = round(rho,2)) %>%
+        mutate(reel_correlation = round(cor(V1,V2),2)) %>%
+        mutate(reel_correlation_2 = round(r,2)) %>%
+        mutate(cor_err = err) -> sim
+    
+    values <- bind_rows(values, sim)
+}
+
+
+detach("package:mvtnorm", unload=TRUE)
+```
+
+
+
+```{r join-corr-id}
+
+values2 <-
+  values %>% 
+  full_join(kv_pair, by = c("correlation" = "value"))
+```
+
+
+```{r join-corr-types}
+corr_types <- 
+  tibble::tribble(
+     ~Staerke,      ~Richtung, ~correlation,
+    "schwach", "gleichsinnig",          0.3,
+    "schwach",  "gegensinnig",         -0.3,
+     "mittel", "gleichsinnig",         0.75,
+     "mittel",  "gegensinnig",        -0.75,
+      "stark", "gleichsinnig",          0.9,
+      "stark",  "gegensinnig",         -0.9,
+    "perfekt", "gleichsinnig",            1,
+    "perfekt",  "gegensinnig",           -1,
+       "null",         "null",            0
+    )
+
+
+
+corr_types_id <-
+  kv_pair %>% 
+  full_join(corr_types, by = c("value" = "correlation"))
+
+```
+
+
+
+
+
+```{r plot-diagram}
+
+ggplot(data = values2, mapping = aes(V1, V2)) +
+    geom_point() + 
+    # stat_ellipse(level=0.999, type="norm", color="darkgreen", linetype="dotted", alpha=0.25) +
+    # geom_lm(level=0.999) +
+    facet_wrap(~ key, 
+               ncol = 3)  +
+    labs(x = "", y = "") + 
+    # coord_fixed(ratio=25/40) + # (30-5)/(60-20)
+    theme(
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank()
+    ) 
+#unique(values$correlation)
+#unique(values$reel_correlation)
+#unique(values$reel_correlation_2)
+#unique(values$cor_err)
+
+```
+
+
+Gesucht ist das Diagramm, das folgende Art von Zusammenhang zeigt:
+
+```{r create-item-list}
+selected_id <- sample(c(T, rep(F, times = 8)), size = 9)
+
+corr_types_id2 <-
+  corr_types_id %>% 
+  mutate(selected_id = selected_id)
+
+
+items <- 
+  corr_types_id2 %>% 
+  sample_n(size = nrow(.)) %>% 
+  filter(selected_id != TRUE) %>% 
+  slice(1:4) %>% 
+  bind_rows(corr_types_id2 %>% filter(selected_id == TRUE))
+
+items %>% 
+  filter(selected_id == TRUE) %>% 
+  select(Staerke, Richtung) %>% 
+  kbl() %>% 
+  kable_classic(full_width = F, html_font = "Cambria")
+
+```
+
+
+
+
+```{r questionlist, results="asis"}
+exams::answerlist(items$key, 
+           markup = "markdown")
+```
+
+
+
+Solution
+========
+
+
+Aufgabenname: `scatterplot-art-korrelation`
+
+
+```{r, echo = FALSE, results = "asis"}
+exams::answerlist(ifelse(items$selected_id, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+
+Meta-information
+================
+exname: scatterplot-art-korrelation
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(items$selected_id, single = TRUE)`
+exshuffle: false

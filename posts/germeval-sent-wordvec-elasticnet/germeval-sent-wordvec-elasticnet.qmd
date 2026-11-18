@@ -1,6 +1,7 @@
 ---
 expoints: 1
 extype: string
+exname: germeval-sent-wordvec-elasticnet
 exsolution: NA
 categories:
 - textmining
@@ -41,7 +42,7 @@ options(rstudio.help.showDataPreview = FALSE)
 
 
 
-# Aufgabe
+## Aufgabe
 
 Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
 Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
@@ -50,7 +51,7 @@ Als Lernalgorithmus verwenden Sie ein Elasticnet. Tunen Sie alle Parameter mit i
 
 
 
-## Daten
+### Daten
 
 Verwenden Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -65,12 +66,12 @@ data("germeval_train", package = "pradadata")
 data("germeval_test", package = "pradadata")
 ```
 
-## AV und UV
+### AV und UV
 
 Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 
 
-## Hinweise
+### Hinweise
 
 - Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://sebastiansauer.github.io/datenwerk/Hinweise.html).
 - Nutzen Sie Tidymodels.
@@ -92,10 +93,10 @@ Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 </br>
 </br>
 
-# Lösung
+## Lösung
 
 
-## Setup
+### Setup
 
 Train-Datensatz:
 
@@ -119,7 +120,7 @@ Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://sebastiansa
 
 
 
-## Learner/Modell
+### Learner/Modell
 
 ```{r}
 mod <-
@@ -132,7 +133,7 @@ mod <-
 
 
 
-## Gebackenen Datensatz als neue Grundlage
+### Gebackenen Datensatz als neue Grundlage
 
 Wir importieren den schon an anderer Stelle aufbereiteten Datensatz.
 Das hat den Vorteil (hoffentlich), das die Datenvolumina viel kleiner sind.
@@ -151,7 +152,7 @@ d_test_baked_raw <- read_csv("https://raw.githubusercontent.com/sebastiansauer/D
 ```
 
 
-## Keine Dummysierung der AV
+### Keine Dummysierung der AV
 
 Lineare Modelle müssen dummysiert sein. Rezepte wollen das nicht so gerne für die AV besorgen. 
 
@@ -180,7 +181,7 @@ levels(d_test_baked$c1)
 
 
 
-## Dummy-Rezept
+### Dummy-Rezept
 
 Plain, aber mit Dummyisierung:
 
@@ -192,7 +193,7 @@ rec <-
 
 
 
-##  Workflow
+###  Workflow
 
 ```{r wf-new}
 wf <-
@@ -205,7 +206,7 @@ wf <-
 
 
 
-## Parallelisierung über mehrere Kerne
+### Parallelisierung über mehrere Kerne
 
 ```{r}
 library(parallel)
@@ -220,7 +221,7 @@ plan(cluster, workers = cl)
 
 Achtung: Viele Kerne brauchen auch viel Speicher.
 
-## Tune/Resample/Fit
+### Tune/Resample/Fit
 
 
 
@@ -240,7 +241,7 @@ beep()
 
 
 
-## Beste Performance
+### Beste Performance
 
 ```{r}
 autoplot(fit_wordvec_senti_elasticnet)
@@ -254,7 +255,7 @@ best_params <- select_best(fit_wordvec_senti_elasticnet)
 ```
 
 
-## Finalisieren
+### Finalisieren
 
 
 ```{r finalize-wf}
@@ -265,7 +266,7 @@ toc()
 ```
 
 
-## Test-Set-Güte
+### Test-Set-Güte
 
 ```{r predict}
 tic()
@@ -289,6 +290,10 @@ my_metrics(d_test,
            truth = c1,
            estimate = .pred_class)
 ```
+
+
+Aufgabenname: `germeval-sent-wordvec-elasticnet`
+
 
 
 

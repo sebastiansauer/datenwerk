@@ -1,0 +1,108 @@
+---
+title: odds1
+categories:
+- qm2
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(assertthat)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+```{r results = "hide"}
+profs_names <- c("Wörzig", "Süß", "Salzig", "Bitter")
+profs <- c(0:3)
+names(profs) <- profs_names
+prof_chosen <- sample(profs, 1)
+n_studis <- runif(1, min = 50, max = 100) %>% trunc()
+fail_prop = runif(1, 10*prof_chosen, 10 + prof_chosen*10) / 100
+n_fail <- trunc(n_studis * fail_prop)
+if (n_fail == 0) n_fail <- 1
+if (n_fail == n_studis) n_fail <- n_studis - 1
+n_pass <- n_studis - n_fail
+
+assert_that(n_fail + n_pass == n_studis, msg = "Anteile der Studis stimmen nicht")
+```
+
+
+
+Prof `r names(prof_chosen)` bereitet eine Klausur vor, weil Profs das halt so machen.
+An der Klausur nehmen `r n_studis` teil.
+Davon fallen `r n_fail` durch und entsprechen bestehen `r n_pass` die Klausur.
+
+Berechnen Sie den Logit für Bestehen vs. Durchfallen!
+
+
+Hinweise:
+
+- Runden Sie auf 1 Dezimalstelle.
+- Verwenden Sie den natürlichen Logarithmus.
+
+
+Solution
+========
+
+Hier noch einmal die Angaben:
+
+```{r echo = TRUE}
+n_studis  # Anzahl Studis an der Klausur
+n_pass  # wie viele bestehen?
+n_fail  # wie viele fallen druch?
+```
+
+
+Odds berechnen (für Bestehen):
+
+```{r echo = TRUE}
+odds_bestehen <- n_pass / n_fail
+odds_bestehen
+```
+
+
+Logit berechnen (für Bestehen):
+
+```{r echo = TRUE}
+solution <- log(odds_bestehen) %>% round(1)
+solution
+```
+
+
+Aufgabenname: `odds1`
+
+
+
+
+Meta-information
+================
+exname: odds1
+extype: num
+exsolution: `r solution`
+exshuffle: false
+extol: .5
+expoints: 1
+tags:
+- log
+categories:
+- qm2
+
+
+

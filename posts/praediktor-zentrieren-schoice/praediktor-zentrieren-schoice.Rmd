@@ -1,0 +1,50 @@
+---
+title: praediktor-zentrieren-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Warum wird der Prädiktor *Gewicht* im Kung-Regressionsmodell zentriert (d. h. `weight_c = weight - mean(weight)` gebildet), bevor das Modell berechnet wird?
+
+Answerlist
+----------
+* Durch die Zentrierung entspricht der Achsenabschnitt $\beta_0$ der (mittleren) Körpergröße bei *durchschnittlichem* Gewicht -- ohne Zentrierung würde $\beta_0$ die (unrealistische) Körpergröße bei einem Gewicht von 0 kg angeben.
+* Zentrieren ist nötig, damit das Regressionsgewicht $\beta_1$ überhaupt berechnet werden kann.
+* Durch das Zentrieren ändert sich die Steigung der Regressionsgeraden ($\beta_1$), wodurch der Zusammenhang zwischen Gewicht und Größe stärker erscheint.
+* Zentrieren dient dazu, negative Gewichtswerte aus dem Datensatz zu entfernen.
+* Ohne Zentrierung könnte man mit `stan_glm()` gar kein Regressionsmodell mit dieser Variablen berechnen.
+
+Solution
+========
+Ohne Zentrierung gibt der Achsenabschnitt $\beta_0$ die vorhergesagte Körpergröße bei einem Gewicht von *0 kg* an -- ein biologisch unsinniger, nicht interpretierbarer Wert. Zieht man hingegen von jedem Gewichtswert den Stichprobenmittelwert ab (Zentrieren), entspricht $\beta_0$ der Körpergröße einer Person mit *durchschnittlichem* Gewicht, was inhaltlich sinnvoll interpretierbar ist. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist falsch: $\beta_1$ (die Steigung, also der Zusammenhang zwischen Gewicht und Größe) lässt sich auch ohne Zentrierung berechnen -- die Zentrierung ändert lediglich die *Interpretierbarkeit des Achsenabschnitts*, nicht die grundsätzliche Berechenbarkeit des Modells.
+* Die dritte Option ist falsch: Zentrieren ist eine reine Verschiebung (Subtraktion einer Konstanten) und ändert die *Steigung* der Regressionsgeraden nicht -- nur die Lage der Gerade entlang der X-Achse (bzw. die Interpretation des Achsenabschnitts) verändert sich.
+* Die vierte Option ist falsch: Zentrieren erzeugt zwar rechnerisch negative Werte für `weight_c` (bei unterdurchschnittlichem Gewicht), das ist aber gerade beabsichtigt (Abweichung vom Mittelwert) und hat nichts mit dem "Entfernen" negativer Werte aus dem Originaldatensatz `weight` zu tun.
+* Die fünfte Option ist falsch: `stan_glm()` kann Regressionsmodelle grundsätzlich auch mit unzentrierten Prädiktoren berechnen -- Zentrieren ist eine Frage der Interpretierbarkeit, keine technische Notwendigkeit für die Berechnung.
+
+
+Aufgabenname: `praediktor-zentrieren-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: praediktor-zentrieren-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

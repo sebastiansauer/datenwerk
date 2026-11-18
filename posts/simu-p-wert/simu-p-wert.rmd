@@ -1,0 +1,187 @@
+---
+title: simu-p-wert
+categories:
+- inference
+- simulation
+- frequentist
+- pvalue
+- paper
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 5,
+                      #out.width = 6,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      echo = TRUE,
+                      #out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+Question
+========
+
+In der klassischen Statistik (Frequentismus) spielt der *p-Wert* eine zentrale Rolle. Der p-Wert ist (oft) das Entscheidungskriterium, um zu entscheiden, ob man eine Aussage (d.h. Hypothese) beibehält oder zurückweist, sozusagen ob man auf "ja, stimmt" wettet oder auf "nein, stimmt nicht".
+
+Der p-Wert ist etwas unintuitiv und muss daher aufmerksam betrachtet werden.
+
+Ein Beispiel zur Verdeutlichung des p-Werts: Sagen wir, wir möchten wissen, ob eine Münze fair ist, also ob die Hypothese $H_0$ gilt: $H_0: Pr(K) = Pr(Z) = 1/2$ gilt. Dazu führen wir folgenden Versuch (einmal aus): Wir werfen die Münze $n=10$ mal und zählen den Anteil von "Kopf". Wie gesagt: Wir wissen nicht, ob die Münze fair ist!
+
+Wir bekommen 8 Treffer (von 10 Würfen), also einen Anteil von 80% ($p=0.8$). Das sind unsere Daten (unsere Stichprobe) bzw. unsere Statistik. Was meinen Sie, geht das mit rechten Dingen zu? Sind 8 von 10 Treffern "erwartbar", "plausibel", "wahrscheinlich" bzw. "häufig" wenn man faire Münzen wirft? Hm!
+
+Ok, probieren wir es aus! Wir nehmen jetzt eine *unserer* Münzen. Eine Münze, vor der wir (sicher) wissen, dass sie fair ist, dass also die zu überprüfende Hypothese $H_0: Pr(K) = Pr(Z) = 1/2$ gilt.
+
+Wir führen also den Versuch sozusagen unter "kontrollierten" Bedingungen mit unserer fairen Münze durch. Ergebnis: 7 Treffer (von 10), nennen wir es den "empirischen Anteil" (`prop_emp`).
+
+Dann denken wir uns, hm, eine einzige Durchführung des Versuchs ist zu sehr vom Zufall abhängig. Besser wir wiederholen den Versuch oft, sagen wir 1000 Mal. Nach 1000 Würfen mit einer fairen Münze werden wir ja sehr genau wissen, ob 8 von 10 Treffern ein häufiges oder seltenes Ereignis ist. 
+
+Wir vereinbaren folgende Entscheidungsregel: Wenn unser kontrolliertes Experiment zeigen wird, dass 8 von 10 Treffern ein *seltenes* Ereignis ist, dann glauben wir nicht mehr die Hypothese der fairen Münze. Wenn unser Experiment aber zeigen wird, hey, 8 von 10 Treffern kommt gar nicht so selten vor (ist also ein häufiges Ereignis), dann haben wir keinen Grund, die Hypothese der fairen Münze zu verwerfen, bleiben also bei der Annahme, dass die Münze wohl fair ist -- oder, etwas spitzfindiger formuliert, schließen nicht aus, dass die Münze fair ist.
+
+
+Wenn man Zeit hat, kann man das Experiment mit den 1000 Versuchen ausprobieren ... Aber um eine Sehnenscheidenentzündung zu vermeiden, lohnt es sich, diese Aufgabe an einen Golem (bzw. eine Maschine) zu delegieren (meckert nicht). Hey R, komm mal her!
+
+
+
+
+So können wir $n=1$ Versuch mit 10 (`size=10`) zufälligen (*r*andom) Münzwürfen (fair, d.h. `prob = 0.5`) mit R simulieren:
+
+
+```{r}
+rbinom(n = 1, size = 10, prob = 0.5)
+```
+
+
+
+Jetzt wiederholen wir den Versuch 1000 Mal. Hey R, *tue 1000 Mal den 10-fachen Münzwurf*:
+
+
+```{r echo = FALSE}
+set.seed(42)
+```
+
+```{r}
+library(tidyverse)  # für "tibble"
+muenzversuch <- 
+  tibble(
+    id = 1:1000,
+    anzahl_kopf = rbinom(1000, size = 10, prob = 1/2))
+```
+
+
+
+```{r}
+head(muenzversuch) %>% 
+  gt()
+```
+
+
+OK, jetzt visualisieren wir die 1000 Versuche bzw. die Tabelle `muenzversuch`:
+
+
+```{r results = "show"}
+muenzversuch %>% 
+  ggplot() +
+  aes(x = anzahl_kopf) +
+  geom_histogram() +
+  scale_x_continuous(breaks = 1:10) +
+  labs(x = "Anzahl Kopf bei 10 fairen Münzwürfen",
+       y = "Häufigkeit",
+       title = "1000 Wiederholungen des 10-fachen fairen Münzwurfs",
+       caption = "Die rote vertikale Linie zeigt das empirische Ergebnis, 8 Treffer") +
+  geom_vline(xintercept = 8,  # prop_emp ist 8
+             color = "red")  # vertikale Linie, um unser emp. Ergebnis anzuzeigen
+```
+
+
+Lange Rede, kurze Fragen: 
+
+a) Sind (mind.) 8 von 10 Treffer (unser empirisches Ergebnis) ein häufiges oder ein seltenes Ereignis? Genauer gefragt: Wie häufig kommt dieses Ergebnis in unseren (Ihren) Daten vor?
+
+b) Finden Sie (ja, Sie persönlich!), dass das Ereignis *zu* selten ist, als dass Sie der Hypothese $H_0$ ("faire Münze") glauben würden? Wo ziehen *Sie* Ihre "rote Linie". Die Grenze, wo Sie sagen, dieses Ereignis tritt so selten auf (wenn man faire Münzen wirft), dass Sie *nicht* glauben, dass eine faire Münze geworfen worden ist. Sie also sagen: "Wäre eine faire Münze geworfen, so wäre das Ereignis *mindestens 8 von 10 Treffern* sehr selten, daher glaube ich nicht an die Hypothese der fairen Münze".
+
+
+*Hinweis*: Wenn Sie selber (oder Ihr Golem, R) die Münzen wirft, kann Ihr Ergebnis etwas von dem hier gezeigten abweichen, schließlich ist ein Münzwurf ein Zufallsexperiment.
+
+Solution
+========
+
+a) Wie häufig kamen jetzt 8 Treffer in den Daten vor? Im Diagramm kann man es grob sehen. Zählen wir in der Tabelle nach:
+
+```{r}
+muenzversuch %>% 
+   count(anzahl_kopf)
+```
+
+```{r echo = FALSE}
+prop_emp <- 8
+
+p_value_8 <- 
+muenzversuch %>% 
+  filter(anzahl_kopf == prop_emp) %>% 
+  count(anzahl_kopf) %>% 
+  pull(n) %>% 
+  sum()
+
+
+p_value <- 
+muenzversuch %>% 
+  filter(anzahl_kopf >= prop_emp) %>% 
+  count(anzahl_kopf) %>% 
+  pull(n) %>% 
+  sum()
+```
+
+
+Das ist ein Anteil von `r p_value_8` von 1000, also `r p_value_8/1000`.
+
+Und zählen wir noch, wie oft 8 *oder mehr* Treffer:
+
+```{r}
+muenzversuch %>% 
+  filter(anzahl_kopf >= 8) %>% 
+  count(anzahl_kopf)
+```
+
+Das ist ein Anteil von `r p_value` von 1000, also `r p_value/1000`. Diesen Anteil nennt man den *p-Wert*. [Ja, ist so](http://www.memecreator.com/static/images/memes/343264.jpg).
+
+
+
+
+b) Ob dieser Anteil "selten" oder "häufig" ist, ist eine subjektive Frage! Darauf gibt es keine objektive Antwort. Allerdings ist die Konvention, 5% als Grenze zu nehmen. Ein Ergebnis (ein p-Wert) kleiner als 5% ist nach dieser Konvention "selten". Man nennt es auch *statistisch signifikant*. Als Konsequenz glaubt man dann nicht mehr an die getestete Hypothese, man *verwirft die $H_0$*. Ansonsten schätzt man es als nicht selten ein, verwirft die $H_0$ nicht und nennt es *nicht statistisch signifikant*. Das ist das Vorgehen der klassischen Statistik. 
+
+
+Achtung, jetzt kommt eine Definition:
+
+*Den Anteil von 8 oder mehr Treffern (also ein Ergebnis, das mindestens so extrem ist wie unsere Daten) nennt man den p-Wert.*
+
+
+Aufgabenname: `simu-p-wert`
+
+
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: simu-p-wert
+expoints: 1
+categories:
+- inference
+- simulation
+- frequentist
+- pvalue

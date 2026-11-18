@@ -1,0 +1,50 @@
+---
+title: ppv-post-verwechslung-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Das Kapitel nennt das Verwechseln von Post-Verteilung und Posterior-Prädiktiv-Verteilung (PPV) als einen "Lieblingsfehler". Für das Modell `m1: mpg ~ hp` liefert `m1 %>% as_tibble()` eine Tabelle mit Spalten wie `(Intercept)`, `hp` und `sigma`; `posterior_predict(m1)` liefert hingegen eine Tabelle mit vorhergesagten `mpg`-Werten. Welche Aussage zum Unterschied ist korrekt?
+
+Answerlist
+----------
+* `as_tibble(m1)` liefert Stichproben der *Post-Verteilung* (Werte der Modell*parameter* wie Achsenabschnitt, Steigung, Sigma); `posterior_predict(m1)` liefert Stichproben der *PPV* (vorhergesagte *Beobachtungswerte* der AV `mpg`) -- beide Tabellen enthalten unterschiedliche Größen und dürfen nicht gleichgesetzt werden.
+* Beide Befehle liefern exakt dieselbe Information, nur mit unterschiedlichen Spaltennamen.
+* `as_tibble(m1)` liefert vorhergesagte `mpg`-Werte, `posterior_predict(m1)` liefert die Parameterwerte.
+* Die PPV enthält ausschließlich Parameterwerte, niemals Beobachtungswerte.
+* Der Unterschied zwischen beiden Tabellen ist rein kosmetisch und für die Interpretation der Ergebnisse folgenlos.
+
+Solution
+========
+`as_tibble(m1)` gibt die Stichproben der *Post-Verteilung* zurück -- also Werte für die *Modellparameter* ($\beta_0$, $\beta_1$, $\sigma$). `posterior_predict(m1)` (bzw. die PPV allgemein) gibt hingegen vorhergesagte *Beobachtungswerte* der AV zurück, unter Berücksichtigung sowohl der Parameterungewissheit als auch der intrinsischen Streuung ($\sigma$). Diese beiden Konzepte -- Wahrscheinlichkeit von Parameterwerten vs. Wahrscheinlichkeit von Beobachtungen -- zu verwechseln, ist laut Kapitel ein häufiger Fehler. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ignoriert den inhaltlichen Unterschied: Parameterwerte (z. B. eine Steigung in "mpg pro PS") und vorhergesagte Beobachtungen (konkrete `mpg`-Werte für Autos) sind unterschiedliche Größen, keine bloß unterschiedlich benannten Spalten derselben Information.
+* Die dritte Option vertauscht die beiden Funktionen genau umgekehrt zur richtigen Zuordnung.
+* Die vierte Option ist falsch: Die PPV enthält gerade *keine* Parameterwerte, sondern vorhergesagte *Beobachtungswerte* der AV -- das ist ja genau der definierende Unterschied zur Post-Verteilung.
+* Die fünfte Option widerspricht der zentralen Warnung des Kapitels: Die Verwechslung beider Konzepte wird explizit als "Lieblingsfehler" bezeichnet, der zu falschen Interpretationen führen kann (z. B. Verwechslung von Parameterungewissheit und Vorhersageungewissheit für Einzelbeobachtungen).
+
+
+Aufgabenname: `ppv-post-verwechslung-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: ppv-post-verwechslung-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

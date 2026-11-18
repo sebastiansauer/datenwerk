@@ -1,0 +1,197 @@
+---
+title: zitieren3
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Betrachten Sie die folgende Zitationsvarianten. Wählen Sie die laut APA V7 korrekte Variante!
+
+```{r defs}
+
+n_variants <- 11
+
+term1_set <- c("Accommodation",
+               "Acetylcholine",
+               "Achievement motive",
+               "Adaptation",
+               "Adrenal cortex",
+               "Adrenal cortex",
+               "Alpha waves",
+               "Amygdala",
+               "Animism",
+               "Availability heuristic",
+               "Basilar membrane",
+               "Benzodiazepines",
+               "Centration",
+               "Closure",
+               "Closure",
+               "Congruence",
+               "Conflict",
+               "Consolidation",
+               "Decentration")
+term1 <- sample(term1_set, 1)
+
+
+term2_set <- c("Delusion",
+           "Extravibulatin",
+           "Enrichment",
+           "Detachment",
+           "Vasculation",
+           "Durenchment",
+           "Corroboration",
+           "Dissolution",
+           "Descend",
+           "Enhancement",
+           "Trial Procedure",
+           "Diminuishment",
+           "Shock Parlance") %>% str_to_lower()
+term2 <- sample(term2_set, 1)
+
+
+term3_set <- c("Priming",
+           "Closure",
+           "Responsibility",
+           "Continuity",
+           "Prxomity",
+           "Simplicity",
+           "Problem solving",
+           "Projection",
+           "Assigment",
+           "Range",
+           "Orthogonalization",
+           "Recall",
+           "Reception",
+           "Reciprocal determinism",
+           "Reinforcement",
+           "Relearning"
+           ) %>% str_to_lower()
+term3 <- sample(term3_set, 1)
+
+
+name1_set <-  c("Smith", "Wesson", "Lyderfield", "Gresco", "Wiener", "ODonney", "Shingerfield", "McDunnald", "Shilder", "Weyner", "Ohara")
+name1 <- sample(name1_set, 1)
+
+name2_set <- c("Adams", "Jefferson", "Madison", "Monroe", "Adams", "Van Buren", "Tyler", "Harrison", "Polk", "Fillmore", "Pierce")
+name2 <- sample(name2_set, 1)
+
+initial1 <- paste0(sample(LETTERS, 1), ".")
+initial2 <- paste0(sample(LETTERS, 1), ".")
+
+rnum1 <- runif(1, min = 1, max = 99) %>% floor() %>% as.character()
+
+page1 <- runif(1, min = 1, max = 499) %>% floor() 
+page2 <-  {page1 + runif(1, min = 1, max = 20)} %>% floor() %>% as.character()
+page1 <- page1 %>% as.character()
+
+
+
+```
+
+
+
+
+
+```{r build-data}
+d <- 
+  tibble( citation = c("{name1}, {initial1}, & {name2}, {initial2} (1968). {term1} {term2} in emergencies: Diffusion of {term3}. *Journal of Personality and Social Psychology*, *{rnum1}*,  {page1}–{page2}.",
+                       "{name1}, {initial1} &  {name2}, {initial2} (1968). {term1} {term2} in emergencies: diffusion of {term3}. *Journal of Personality and Social Psychology*, *{rnum1}*,  {page1}–{page2}.",
+                       "{name1}, {initial1}, & {name2}, {initial2} (1968). {term1} {term2} in emergencies: Diffusion of {term3}. Journal of personality and social psychology, {rnum1},  {page1}–{page2}.",
+                       "{name1}, {initial1}, & {name2}, {initial2} (1968).{term1} {term2} in Emergencies: Diffusion of {term3}. *Journal of Personality and Social Psychology*, {rnum1}.  {page1}–{page2}.",
+                       "{name1}, {initial1}, & {name2}, {initial2} (1968).{term1} {term2} in emergencies: Diffusion of {term3}. Journal of Personality and Social Psychology, *{rnum1}*.  {page1}–{page2}.",
+                       "{name1}, {initial1} &  {name2}, {initial2} (1968).{term1} {term2} in emergencies: Diffusion of {term3}. Journal of Personality and Social Psychology, {rnum1}.  {page1}–{page2}.",
+                       "{name1}, {initial1}, and {name2}, {initial2} (1968).{term1} {term2} in emergencies: Diffusion of {term3}. Journal of Personality and Social Psychology, {rnum1},  {page1}–{page2}.",
+                       "{name1}, {initial1}, & {name2}, {initial2}, 1968. {term1} {term2} in emergencies: Diffusion of {term3}. *Journal of Personality and Social Psychology*, *{rnum1}*,  {page1}–{page2}.",
+                       "{name1}, {initial1}, & {name2}, {initial2} (1968). {term1} {term2} in emergencies: Diffusion of {term3}. Journal of Personality and Social Psychology, *{rnum1}*,  {page1}–{page2}.",
+                       "{name1}, {initial1} &  {name2}, {initial2} (1968). {term1} {term2} in emergencies: Diffusion of {term3}. Journal of Personality and Social Psychology, {rnum1},  {page1}–{page2}.",
+                       "{name1}, {initial1}, & {name2}, {initial2}, 1968, {term1} {term2} in emergencies: Diffusion of {term3}. Journal of Personality and Social Psychology, *{rnum1}*,  {page1}–{page2}.")) %>% 
+  mutate(
+        is_correct = c(TRUE,FALSE,FALSE,FALSE,
+                       FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)) 
+
+
+citation2 <-
+  str_replace(d$citation, pattern = "\\{name1\\}",
+              replacement = name1) %>% 
+  str_replace("\\{initial1\\}", initial1) %>% 
+  str_replace( "\\{name2\\}", name2) %>% 
+  str_replace( "\\{initial2\\}", initial2) %>%   
+  str_replace( "\\{term1\\}", term1) %>% 
+  str_replace( "\\{term2\\}", term2) %>% 
+  str_replace( "\\{term3\\}", term3) %>% 
+  str_replace( "\\{rnum1\\}", rnum1) %>% 
+  str_replace( "\\{page1\\}", page1) %>% 
+  str_replace("\\{page2\\}", page2)
+
+
+
+d <-
+  d %>% 
+  mutate(citation_parsed = citation2) %>% 
+  group_by(is_correct) %>% 
+  mutate(id = row_number()) %>% 
+  ungroup() %>% 
+  filter(is_correct==TRUE | (is_correct==FALSE & between(id, 1, 4))) 
+```
+
+
+
+```{r itemlist, results='asis'}
+answerlist(d$citation_parsed, markup = "markdown")
+```
+
+
+
+
+
+
+Solution
+========
+
+
+Die richtige Zitation ist "`r d$citation_parsed[d$is_correct == TRUE]`".
+
+
+Aufgabenname: `zitieren3`
+
+
+
+
+
+```{r answerlist, results='asis'}
+answerlist(ifelse(d$is_correct, "Wahr", "Falsch"), markup = "markdown")
+```
+
+
+
+Meta-information
+================
+exname: zitieren3
+extype: schoice
+expoints: 1
+exsolution: `r  mchoice2string(d$is_correct, single=TRUE)`
+exshuffle: true

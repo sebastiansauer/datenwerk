@@ -1,0 +1,50 @@
+---
+title: stan-glm-chains-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+`stan_glm()` zieht standardmäßig die Post-Stichproben in 4 unabhängigen "Ketten" (`chains`). Welche Aussage zum Zweck dieser mehrfachen Ketten ist korrekt?
+
+Answerlist
+----------
+* Mehrere unabhängige Ketten dienen als Kontrolle: Kommen alle Ketten zu einem etwa gleichen Ergebnis, spricht das dafür, dass die Berechnung zuverlässig funktioniert hat; weichen die Ketten stark voneinander ab, deutet das auf ein Problem bei der Berechnung hin.
+* Jede zusätzliche Kette berechnet ein anderes, inhaltlich verschiedenes Modell mit unterschiedlichen Priori-Werten.
+* Die Anzahl der Ketten bestimmt direkt die Anzahl der Beobachtungen im verwendeten Datensatz.
+* Mehr Ketten führen automatisch zu einer anderen (systematisch verzerrten) Post-Verteilung als eine einzelne Kette.
+* Ketten sind nur bei der Bayesbox-Methode relevant, nicht bei der MCMC-Berechnung mit Stan.
+
+Solution
+========
+Mehrere unabhängige Ketten liefern jeweils eine eigene Stichproben-Post-Verteilung für dasselbe Modell. Kommen alle Ketten zu einem sehr ähnlichen Ergebnis, ist das ein gutes Zeichen dafür, dass die Berechnung (der MCMC-Algorithmus) korrekt konvergiert ist. Weichen die Ketten deutlich voneinander ab, deutet das auf ein Problem hin ("irgendetwas ist dumm gelaufen"). Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist falsch: Alle Ketten berechnen dasselbe Modell mit denselben Priori-Werten und denselben Daten -- sie unterscheiden sich lediglich in ihren (zufälligen) Startpunkten und Zufallszahlenfolgen, nicht in den Modellannahmen.
+* Die dritte Option verwechselt die Anzahl der MCMC-Ketten mit dem Stichprobenumfang des Datensatzes -- beide Größen sind vollkommen unabhängig voneinander.
+* Die vierte Option ist falsch: Bei korrekt konvergierender Berechnung liefern mehrere Ketten im Wesentlichen dieselbe (nicht eine systematisch andere) Post-Verteilung wie eine einzelne Kette -- der Vorteil mehrerer Ketten liegt in der *Prüfbarkeit* der Konvergenz, nicht in einem anderen Ergebnis.
+* Die fünfte Option ist falsch: Das Konzept der "Ketten" ist spezifisch für MCMC-Verfahren (wie Stan sie verwendet) relevant -- die (hier nicht mehr verwendete) Bayesbox-Methode kennt dieses Konzept gar nicht, da sie nicht auf zufälligem Stichprobenziehen mittels Markov-Ketten beruht.
+
+
+Aufgabenname: `stan-glm-chains-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: stan-glm-chains-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

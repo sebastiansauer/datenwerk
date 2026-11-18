@@ -1,0 +1,186 @@
+---
+title: rechtschreibung1
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(glue)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+
+```{r eval = FALSE}
+korrekt_falsch_set <- c("korrekt", "falsch")
+korrekt_falsch <- sample(korrekt_falsch_set, 1)
+```
+
+
+Betrachten Sie die Wortliste. Welches der folgenden Nomen ist richtig geschrieben? Wählen Sie es aus!
+
+
+*Hinweis*: Beziehen Sie sich auf die Regeln der deutschen Rechtschreibung (also *nicht* als Zitat aus einer Fremdsprache).
+
+
+
+
+```{r words}
+words1 <- c("Status quo", 
+            "Duty-free-Shop", 
+            "Multiple-Choice-Aufgabe", 
+            "Small-N-large-p-Problem", 
+            "Browser", "Download", "Mindmap", 
+            "Meeting", "Fastfood", "Mountainbike", 
+            "Deadline")
+
+words2 <- c("Desktop-Publishing",
+           "Business-Case",
+           "Turnaround",
+           "E-Mail",
+           "Assessment-Center",
+           "Human-Resources-Manager",
+           "Burn-out-Syndrom",
+           "Chill-out-Room",
+           "Changemanagement")
+
+words3 <- c("Hot Spot",
+            "Top Ten",
+            "Electronic Banking",
+            "Digital Rights",
+            "Human Resources",
+            "Private Equity",
+            "New Economy",
+            "Happy Hour",
+            "Open Air",
+            "Social Media",
+            "Open Source")
+
+
+words4 <- c("Black-out",
+            "Count-Down",
+            "Kick-off",
+            "Check-in",
+            "Make-up")
+
+
+
+words5 <- c("R-Syntax",
+            "Knew-it-all-along-Effekt",
+            "Due-Dilligence-Prüfung")
+
+
+words <- c(words1,
+           words2,
+           words3,
+           words4,
+           words5)
+
+
+```
+
+
+
+```{r build-data}
+d <- 
+  tibble(words = words) %>% 
+  mutate(words_wrong = case_when(
+    str_detect(words, "-") ~  str_replace_all(words, "-", " "),
+    TRUE ~ str_replace(words, "([aeiou])", "\\1h"))) %>% 
+  mutate(words_wrong2 = str_replace(words, "([aeiou])", "\\1\\1")) %>% 
+  mutate(words_wrong3 = str_to_lower(words)) 
+
+
+
+d_long <-
+  d %>% 
+  pivot_longer(everything(), 
+               names_to = "correct",
+               values_to = "word_instance") %>% 
+  mutate(is_correct_num = ifelse(correct == "words", 1, 2)) %>% 
+  select(-correct) %>% 
+  group_by(word_instance, is_correct_num) %>% 
+  arrange(desc(is_correct_num)) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  distinct(word_instance, .keep_all = TRUE) %>% 
+  mutate(is_correct = ifelse(is_correct_num == 1, TRUE, FALSE)) %>%   
+  sample_n(size = nrow(.))  %>%   # shuffle it
+  group_by(is_correct) %>% 
+  mutate(id = row_number()) %>% 
+  filter( (is_correct == TRUE & row_number() == 1) | (is_correct == FALSE & between(row_number(), 1, 4))) %>% 
+  ungroup() 
+```
+
+
+```{r itemlist, results = "asis"}
+answerlist(d_long$word_instance, markup  = "markdown")
+```
+
+
+
+
+
+Solution
+========
+
+Das richtig geschriebene Wort lautet *`r d_long$word_instance[d_long$is_correct == TRUE]`*.
+
+
+Vgl. [Duden](https://www.duden.de/sprachwissen/rechtschreibregeln/fremdwoerter) zur Schreibweise von Fremdwörtern im Deutschen.
+
+- D39: "Wörter und Wortgruppen, die als Zitate aus einer fremden Sprache angesehen werden, bleiben in der Schreibung meist völlig unverändert."
+- D41: "Ist der erste Bestandteil ein Adjektiv, kann zusammengeschrieben werden, wenn die gemeinsame Hauptbetonung auf dem ersten Bestandteil liegt. Andernfalls gilt in Anlehnung an die Herkunftssprache nur Getrenntschreibung."
+- D41: "Zusammengesetzte Fremdwörter werden zusammengeschrieben. Besteht die Zusammensetzung aus Substantiven, kann zur besseren Lesbarkeit ein Bindestrich gesetzt werden."
+- D41: "Bei Substantivierungen aus dem Englischen, die auf eine Verbindung aus Verb und Partikel (Adverb) zurückgehen, setzt man gewöhnlich einen Bindestrich; daneben ist auch Zusammenschreibung möglich."
+- D42: "Aneinanderreihungen und Zusammensetzungen mit Wortgruppen schreibt man mit Bindestrich."
+
+
+Weiter ist [hier im Dudden](https://www.duden.de/sprachwissen/sprachratgeber/Die-Gro%C3%9F-oder-Kleinschreibung-von-Fremdw%C3%B6rtern) eine Zusammenfassung zur Schreibweise substantivischer Fremdwörter nachzulesen.
+
+
+
+
+Außerdem findet sich [hier im Duden](https://www.duden.de/sprachwissen/sprachratgeber/Schreibung-von-Fremdwortern-aus-dem-Englischen) eine Zusammmenfassung zur Schreibweise englischsprachiger Fremdwörter im Deutschen.
+
+
+Aufgabenname: `rechtschreibung1`
+
+
+
+
+
+
+```{r answerlist, results = "asis"}
+answerlist(ifelse(d_long$is_correct, "Wahr", "Falsch"), markup  = "markdown")
+```
+
+
+
+Meta-information
+================
+exname: rechtschreibung1
+extype: schoice
+expoints: 1
+exsolution:  `r mchoice2string(d_long$is_correct, single = TRUE)`
+exshuffle: true

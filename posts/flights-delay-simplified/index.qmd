@@ -11,6 +11,7 @@ cache: true
 toc: true
 number-sections: true
 extype: string
+expoints: 1
 exsolution: ""
 exshuffle: no
 categories:
@@ -24,7 +25,7 @@ categories:
 
 
 
-# Hintergrund und Forschungsfrage
+## Hintergrund und Forschungsfrage
 
 
 Wir untersuchen die Forschungsfrage *Was sind Prädiktoren von Flugverspätungen*. 
@@ -33,16 +34,16 @@ Wir nutzen `dep_delay` als AV (Zielvariable), also als die Variable, die wir vor
 Dazu verwenden wir lineare Modelle als Modellierungsmethoden.
 
 
-# Ressourcen und Vertiefung
+## Ressourcen und Vertiefung
 
 Dieser Post knüpft an [den Post zur explorativen Datenanalyse der Flugverspätungen](https://sebastiansauer.github.io/data_se/2021/03/08/eda-zu-flugversp%C3%A4tungen/) an (es gibt auch [hier, Teil 1](https://www.youtube.com/watch?v=t8i_qTonuLM) und [hier, Teil 2](https://youtu.be/AeBqwr2U7MA) ein Video zu diesem EDA-Post).
 [Dieser Post](https://sebastiansauer.github.io/datenwerk/posts/flights-delay/) ist eine längere (nicht-verkürzte) Version der vorliegenden Fallstudie.
 
 
 
-# Setup
+## Setup
 
-## Pakete laden
+### Pakete laden
 
 Wirklich wichtig sind nur `tidymodels` und `tidyverse`. Die restlichen Pakete werden nur am Rande benötigt. 
 Man sollte auch nur die Pakete laden,
@@ -58,7 +59,7 @@ library("DataExplorer")  # Data Vis
 
 
 
-## Daten laden: Flights 2023
+### Daten laden: Flights 2023
 
 Aus Gründen der Datenökonomie nutzen wir eine kleinere Version des Datensatz `flights`. 
 Wir nutzen nicht mehr die Daten aus dem 2013, sondern die neueren Daten aus dem Jahr 2023.
@@ -82,7 +83,7 @@ Man beachte, dass die Präzision der Ergebnisse höher ist, wenn man nicht mit e
 
 
 
-# flights2: Nicht benötigte Variablen entfernen und ID hinzufügen
+## flights2: Nicht benötigte Variablen entfernen und ID hinzufügen
 
 ```{r flights2}
 flights2 <-
@@ -99,7 +100,7 @@ Die ID hilft uns, einzelne Flüge (Beobachtungen) zu identifizieren, z.B. wenn w
 
 Achtung: Die ID-Variable sollte man nicht als Prädiktor verwenden, da sie keine Information birgt.
 
-# Heimliche AVs entfernen
+## Heimliche AVs entfernen
 
 `dep_delay` ist unsere AV (Zielvariable), die Variable also, die wir vorhersagen.
 
@@ -131,7 +132,7 @@ names(flights2_ohne_heimliche_avs)
 Eine vielleicht gute Nachricht ist, dass Sie sich in der Prüfung nicht um diese Frage kümmern müssen.
 
 
-# Aufteilung in Train- und Testsample
+## Aufteilung in Train- und Testsample
 
 
 Der Hintergrund zur Idee der Aufteilung in Train- und Test-Stichprobe kann z.b. [hier](https://www.tmwr.org/splitting.html) oder [hier](https://www.springer.com/de/book/9783658215866), Kapitel 15, nachgelesen werden.
@@ -145,7 +146,7 @@ flights_split <- initial_split(flights2_ohne_heimliche_avs,
 
 
 
-# flights_train2, flights_test2
+## flights_train2, flights_test2
 
 ```{r train-test}
 set.seed(42)  # Reproduzierbarkeit
@@ -171,7 +172,7 @@ names(flights_train2)
 
 
 
-# lm0: Nullmodell
+## lm0: Nullmodell
 
 Eigentlich nicht nötig, das Nullmodell, primär aus didaktischen Gründen berechnet, um zu zeigen, dass in diesem Fall $R^2$ wirklich gleich Null ist.
 
@@ -187,7 +188,7 @@ Wir könnten anstatt `model_parameters` auch `parameters` nutzen; das ist der gl
 Allerdings gibt es den Befehl `parameters` in *zwei* Paketen, es käme also zu einem "Name Clash".
 Das umgehen wir, indem wir `model_parameter` nutzen, und nicht `parameters`. 
 
-# lm1: origin
+## lm1: origin
 
 
 ```{r lm1}
@@ -225,7 +226,7 @@ rm(lm1)
 
 
 
-# lm2: All in
+## lm2: All in
 
 ```{r eval = FALSE}
 # NICHT AUSFÜHREN
@@ -238,14 +239,14 @@ Bei kleineren Datensätzen (weniger Variablen, weniger Fälle) lohnt es sich abe
 
 
 
-# lm3: Verlorenes Modell
+## lm3: Verlorenes Modell
 
 Dieses Modell ging verloren. Wo ist es hin? Wie geht es ihm? Leider gibt es keine Antwort in dieser Fallstudie; aber vielleicht in einer anderen...
 
 Einigen Datensätzen ging es leider ebenso.^[Hintergrund ist, dass diese Fallstudie eine vereinfachte und verkürzte Version einer ähnlichen Fallstudie ist.]
 
 
-# lm4: Alle metrischen Variablen
+## lm4: Alle metrischen Variablen
 
 
 Was sind noch mal unsere metrischen Variablen:
@@ -285,7 +286,7 @@ model_parameters(lm4)
 Die Distanz zum Ziel ist offenbar der interessanteste Prädiktor.
 
 
-# flights_train5: Fehlenden Werte ersetzen
+## flights_train5: Fehlenden Werte ersetzen
 
 
 ```{r}
@@ -308,7 +309,7 @@ flights_train5 <-
 
 
 
-# lm6: Wie lm5, aber ohne fehlende Werte
+## lm6: Wie lm5, aber ohne fehlende Werte
 
 
 
@@ -327,7 +328,7 @@ model_parameters(lm6)
 ```
 
 
-# flights_train6: Extremwerte entfernen
+## flights_train6: Extremwerte entfernen
 
 
 ```{r plot-densities}
@@ -406,7 +407,7 @@ Grob auf Deutsch übersetzt:
 
 
 
-# lm7: Wie lm5, aber ohne Extremwerte für `distance`
+## lm7: Wie lm5, aber ohne Extremwerte für `distance`
 
 ```{r lm7}
 lm7 <-lm(dep_delay ~ ., data = flights_train6)
@@ -416,7 +417,7 @@ r2(lm7)
 
 Tja....
 
-# R2 im Testsample 
+## R2 im Testsample 
 
 
 
@@ -475,7 +476,7 @@ Am schwierigsten ist es, bei den ganzen Nummerierungen nicht durcheinander zu ko
 
 
 
-# Einreichen
+## Einreichen
 
 
 Das beste Modell im *Train-Sample* reichen wir ein; in diesem Fall `lm7`.
@@ -503,7 +504,7 @@ write_csv(submission_df, file = "Sauer_Sebastian_0123456_Prognose.csv")
 
 
 
-# Was noch?
+## Was noch?
 
 
 

@@ -1,0 +1,50 @@
+---
+title: mediator-vs-confounder-schoice
+categories:
+- kausalinferenz
+- paper
+---
+
+Question
+========
+Im Kausalmodell zu Studie B (Blutdruck) hat das Medikament (`drug`) keinen direkten Effekt auf die Heilung (`recovery`), sondern zwei indirekte Effekte: einen heilsamen Effekt über die Blutdrucksenkung (`pressure`) und einen schädlichen, toxischen Effekt (`toxic`). Warum liefert die Betrachtung der nach Blutdruck stratifizierten Teildaten hier ein irreführendes Bild -- anders als das Stratifizieren nach Geschlecht in Studie A?
+
+Answerlist
+----------
+* Weil Blutdruck hier ein *Mediator* auf einem Wirkungspfad des Medikaments ist: Konditioniert man auf den Blutdruck, wird der darüber laufende heilsame Effekt des Medikaments "weggerechnet", sodass nur noch der toxische Pfad sichtbar bleibt.
+* Weil Blutdruck in dieser Studie ein reiner *Confounder* ist, der sowohl das Medikament als auch die Heilung unabhängig voneinander beeinflusst -- genau wie das Geschlecht in Studie A.
+* Weil die Stichprobengröße in Studie B mit $n=700$ zu klein ist, um stratifizierte Analysen sinnvoll durchzuführen.
+* Weil das Medikament in Wirklichkeit gar keinen Effekt auf die Heilung hat und alle beobachteten Unterschiede rein zufällig zustande kommen.
+* Weil man beim Stratifizieren nach Blutdruck automatisch auch nach Geschlecht kontrolliert, was die Ergebnisse zusätzlich verzerrt.
+
+Solution
+========
+Im DAG zu Studie B gilt: `drug -> pressure -> recovery` (heilsamer, indirekter Pfad) und `drug -> toxic -> recovery` (schädlicher, indirekter Pfad); es gibt keinen direkten Pfeil von `drug` zu `recovery`. Blutdruck (`pressure`) liegt hier also *auf dem Kausalpfad* zwischen Medikament und Heilung -- er ist ein *Mediator*, keine Drittvariable, die unabhängig vom Medikament wirkt. Stratifiziert (konditioniert) man auf den Blutdruck, "blockiert" man damit den heilsamen Pfad über die Blutdrucksenkung: Innerhalb einer Blutdruck-Schicht kann sich das Medikament nur noch über den toxischen Pfad bemerkbar machen, weshalb in den Teildaten ausschließlich der schädliche Effekt sichtbar wird. Das entspricht der ersten Antwortoption.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option verwechselt genau die beiden Rollen, die im Kapitel gegenübergestellt werden: In Studie A ist Geschlecht ein *Confounder* (eine gemeinsame Ursache von Medikamenteneinnahme und Heilung, die *nicht* auf dem Wirkungspfad des Medikaments liegt) -- dort ist Stratifizieren richtig. In Studie B ist Blutdruck dagegen ein *Mediator* auf dem Wirkungspfad selbst -- dort verzerrt Stratifizieren das Bild. Beide als gleichartig ("wie in Studie A") zu behandeln, ist genau der Fehler, den das Kapitel vermeiden will.
+* Die Stichprobengröße ($n=700$ in beiden fiktiven Studien) wird im Kapitel nicht als Grund für die Irreführung genannt; das Problem ist struktureller (kausaler), nicht statistischer Natur im Sinne der Fallzahl.
+* Das Kapitel zeigt gerade, dass das Medikament *zwei* reale, aber gegenläufige Effekte hat (toxisch und heilsam) -- nicht, dass gar kein Effekt vorliegt und alles Zufall wäre.
+* Das Kausalmodell zu Studie B enthält keine Geschlechtsvariable; die Aussage, man kontrolliere "automatisch" auch nach Geschlecht, ist im Modell nicht angelegt und frei erfunden.
+
+
+Aufgabenname: `mediator-vs-confounder-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: mediator-vs-confounder-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: kausalinferenz

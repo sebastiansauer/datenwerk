@@ -1,6 +1,7 @@
 ---
 expoints: 1
 extype: string
+exname: germeval-sent-wordvec-xgb-parallel
 exsolution: NA
 categories:
 - textmining
@@ -38,7 +39,7 @@ options(rstudio.help.showDataPreview = FALSE)
 
 
 
-# Aufgabe
+## Aufgabe
 
 Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
 Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
@@ -85,7 +86,7 @@ Hinweise:
 </br>
 </br>
 
-# Lösung
+## Lösung
 
 
 ```{r}
@@ -108,7 +109,7 @@ data("sentiws", package = "pradadata")
 Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://sebastiansauer.github.io/datenwerk/posts/tidymodels-vorlage2/tidymodels-vorlage2.html).
 
 
-## Mehrere Kerne
+### Mehrere Kerne
 
 ```{r}
 doParallel::registerDoParallel(cores=3)
@@ -116,7 +117,7 @@ doParallel::registerDoParallel(cores=3)
 
 
 
-## Learner/Modell
+### Learner/Modell
 
 ```{r}
 mod <-
@@ -126,7 +127,7 @@ mod <-
              )
 ```
 
-## Rezept
+### Rezept
 
 Pfad zu den Wordvecktoren:
 
@@ -145,7 +146,7 @@ rec <- def_recipe_wordvec_senti(data_train = d_train,
 
 
 
-## Workflow
+### Workflow
 
 ```{r source-def-wf}
 source("https://raw.githubusercontent.com/sebastiansauer/Datenwerk2/main/funs/def_df.R")
@@ -153,7 +154,7 @@ wf <- def_wf()
 ```
 
 
-## Check
+### Check
 
 ```{r prep-rec}
 tic()
@@ -182,7 +183,7 @@ sum(is.na(d_rec_baked))
 
 
 
-## Fit
+### Fit
 
 ```{r fit}
 tic()
@@ -218,7 +219,7 @@ lobstr::obj_size(out)
 
 
 
-## Test-Set-Güte
+### Test-Set-Güte
 
 
 Vorhersagen im Test-Set:
@@ -247,6 +248,10 @@ my_metrics(d_test,
            truth = c1,
            estimate = .pred_class)
 ```
+
+
+Aufgabenname: `germeval-sent-wordvec-xgb-parallel`
+
 
 
 

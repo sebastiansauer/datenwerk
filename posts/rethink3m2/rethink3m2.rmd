@@ -1,0 +1,162 @@
+---
+title: rethink3m2
+categories:
+- bayes
+- post
+- probability
+- bayes-box
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      echo = TRUE,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      out.width = "50%",
+                      cache = FALSE)
+
+```
+
+
+
+
+
+
+
+Question
+========
+
+
+
+
+Nehmen wir an, wir haben 8 (Wasser-)"Treffer" ($W=8$) bei 15 Würfen ($N=15$) erhalten (wieder im Globusversuch).
+
+a) Ziehen Sie $10^4$ Stichproben aus der Posteriori-Verteilung basierend auf der Gittermethode. Gehen Sie von einer gleichverteilung Priori-Wahrscheinlichkeit aus.
+
+b) Visualisieren Sie die Verteilung der Stichproben.
+
+b) Berechnen Sie ds 90%-HDI.
+
+
+Hinweise:
+
+- Berechnen Sie eine Bayes-Box (Gittermethode).
+- Verwenden Sie 1000 Gitterwerte.
+- Fixieren Sie die Zufallszahlen mit dem Startwert 42, d.h. `set.seed(42)`.
+- Gehen Sie von einem gleichverteilten Prior aus.
+
+
+
+*Quelle*: McElreath, R. (2020). *Statistical rethinking: A Bayesian course with examples in R and Stan* (2. Aufl.). Taylor and Francis, CRC Press.
+
+
+
+Solution
+========
+
+```{r}
+library(tidyverse)
+```
+
+
+a) 
+
+Post-Verteilung berechnen (Bayes-Box):
+
+```{r}
+p_grid <- seq(from = 0, to = 1, length.out = 1000)
+prior <- rep(1, 1000)
+likelihood <- dbinom(8, size = 15, prob = p_grid)
+post_unstand <- likelihood * prior
+posterior <- post_unstand / sum(post_unstand)
+```
+
+Stichproben-Postverteilung erstellen:
+
+```{r}
+bayesbox <-
+  tibble(
+    p_grid = p_grid,
+    prior = prior,
+    lik = likelihood,
+    post_unstand = post_unstand,
+    post_std = posterior)
+
+samples <-
+  bayesbox |> 
+  slice_sample(n = 1e4,
+               weight_by = post_std,
+               replace = TRUE)
+```
+
+
+Oder so:
+
+```{r}
+samples <- 
+  tibble(anteil_wasser = sample(p_grid, prob = posterior, size = 1e4, replace = TRUE))
+
+head(samples)
+```
+
+
+
+
+b)
+
+```{r samples-p}
+samples %>% 
+  ggplot() +
+  aes(x = anteil_wasser) +
+  geom_histogram() + 
+  labs(title = "Stichproben aus der Posteriori-Verteilung")
+```
+
+
+Oder mit `ggpubr`:
+
+```{r}
+library(ggpubr)
+gghistogram(samples, x = "anteil_wasser")
+```
+
+
+c)
+
+
+```{r}
+library(easystats)
+hdi(samples, ci = 0.9)
+```
+
+
+Aufgabenname: `rethink3m2`
+
+
+
+
+
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: rethink3m2
+expoints: 1
+categories:
+- bayes
+- post
+- probability
+- bayes-box
+

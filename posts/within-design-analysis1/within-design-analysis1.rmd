@@ -18,7 +18,7 @@ title: within-design-analysis1
 
 
 
-# Aufgabe
+## Aufgabe
 
 Analysieren Sie die Veränderung in einem längsschnittlichen Experiment (Within-Design).
 
@@ -78,10 +78,10 @@ Hinweise:
 </br>
 </br>
 
-# Lösung
+## Lösung
 
 
-## Pakete starten
+### Pakete starten
 
 ```{r message=FALSE}
 library(tidyverse)
@@ -89,7 +89,7 @@ library(rstanarm)
 library(easystats)
 ```
 
-## Daten aufbereiten
+### Daten aufbereiten
 
 Um die Daten (besser) analysieren zu können, formen wir sie ins "lange Format" um.
 
@@ -100,7 +100,7 @@ d_long <-
 ```
 
 
-## Daten zusammenfassen
+### Daten zusammenfassen
 
 ```{r}
 d_long %>% 
@@ -110,7 +110,7 @@ d_long %>%
   mutate(delta = y_mean - lag(y_mean))
 ```
 
-## Daten visualisieren
+### Daten visualisieren
 
 ```{r}
 d_long %>% 
@@ -122,7 +122,7 @@ d_long %>%
 
 Man sieht, dass der Wert von Y steigt von t1 zu t2 und genauso von t2 zu t3.
 
-## Daten transformieren
+### Daten transformieren
 
 Man kann auch die Veränderung (das "delta") zwischen den Messzeitpunkten berechnen,
 um dann zu prüfen, ob dieses delta dann positiv ist.
@@ -143,7 +143,7 @@ d2_long <-
   pivot_longer(cols = c(t2mt1, t3mt2, t3mt1), names_to = "time", values_to = "delta")
 ```
 
-## Daten zusammenfassen
+### Daten zusammenfassen
 
 
 ```{r}
@@ -170,7 +170,7 @@ d2_long %>%
 Die Veränderungen von t1 zu t2 (t2mt1) sind ähnlich zu denen von t2 zu t3 (t3mt2).
 
 
-## Modell t2mt1
+### Modell t2mt1
 
 Das entsprechende Regressionsmodell für t2mt2 liefert einfach den Mittelwert des Deltas.
 
@@ -194,7 +194,7 @@ Mit einer Wahrscheinlichkeit von 100% ist das Delta positiv (laut `m1_bayes`).
 Das kann man aus dem Koeffizienten `pd` ablesen (probability of direction).
 
 
-## m_t3mt2
+### m_t3mt2
 
 
 
@@ -206,6 +206,10 @@ parameters(m_t3mt2_bayes)
 
 Auch hier ist das Modell sehr meinungsstark: 
 Mit einer Wahrscheinlichkeit von 100% ist der Koeffizient (Veränderung von t2 zu t3) positiv.
+
+
+Aufgabenname: `within-design-analysis1`
+
 
 
 

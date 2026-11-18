@@ -1,0 +1,50 @@
+---
+title: priori-washed-out-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Im Kapitel werden zwei Kung-Modelle verglichen: `m_kung` (mit selbst gewählten, informativen Priori-Werten $\mu\sim\mathcal{N}(178,20)$) und `m_kung_neue_prioris` (mit den schwach-informativen Standard-Priori-Werten von `rstanarm`). Beide liefern nahezu identische Ergebnisse für $\mu$ und $\sigma$. Welche Erklärung dafür ist im Kapitel korrekt?
+
+Answerlist
+----------
+* Bei einer ausreichend großen Stichprobe dominiert die Likelihood (die Daten) die Post-Verteilung so stark, dass unterschiedliche (moderate) Priori-Werte kaum noch ins Gewicht fallen.
+* Beide Modelle verwenden tatsächlich exakt dieselben Priori-Werte, nur mit unterschiedlichen Namen.
+* Die Wahl der Priori-Verteilung hat grundsätzlich, unabhängig von der Stichprobengröße, niemals einen Einfluss auf die Post-Verteilung.
+* Die Ähnlichkeit der Ergebnisse ist ein Zufall und lässt sich nicht systematisch erklären.
+* `stan_glm()` ignoriert per Voreinstellung immer die vom Nutzer angegebenen Priori-Werte und verwendet stattdessen automatisch die Standardwerte.
+
+Solution
+========
+Wie im Kapitel festgehalten: "Trotz des eher vagen Priors ist die Streuung Posteriori-Werte für $\mu$ und $\sigma$ klein: Die große Stichprobe hat die Priori-Werte überstimmt." Bei ausreichend vielen Datenpunkten dominiert die Likelihood die (unstandardisierte) Post-Verteilung, sodass moderat unterschiedliche Priori-Annahmen kaum noch einen merklichen Unterschied im Ergebnis machen. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist falsch: `m_kung` verwendet explizit die selbst gewählten Werte $\mu\sim\mathcal{N}(178,20)$ und $\sigma\sim\mathcal{E}(1/8)$, während `m_kung_neue_prioris` die datenbasierten Standardwerte von `rstanarm` verwendet -- das sind unterschiedliche Priori-Spezifikationen, auch wenn die Endergebnisse ähnlich ausfallen.
+* Die dritte Option widerspricht der zentralen Aussage des Kapitels: Priori-Werte *können* die Post-Verteilung durchaus beeinflussen, insbesondere bei *kleinen* Stichproben oder bei sehr extremen (stark informativen) Priori-Annahmen.
+* Die vierte Option ignoriert die im Kapitel gegebene systematische Erklärung (großer Stichprobenumfang überstimmt moderate Priori-Unterschiede) und tut die Beobachtung fälschlich als bloßen Zufall ab.
+* Die fünfte Option ist falsch: `stan_glm()` verwendet sehr wohl die vom Nutzer über `prior_intercept` und `prior_aux` angegebenen Werte, wenn diese explizit gesetzt werden -- nur wenn keine Priori-Werte angegeben werden, greifen die Standardwerte.
+
+
+Aufgabenname: `priori-washed-out-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: priori-washed-out-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

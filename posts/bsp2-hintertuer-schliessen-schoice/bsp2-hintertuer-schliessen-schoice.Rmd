@@ -1,0 +1,50 @@
+---
+title: bsp2-hintertuer-schliessen-schoice
+categories:
+- kausalinferenz
+- paper
+---
+
+Question
+========
+Im DAG-Beispiel `bsp2` (UV: $W$, AV: $D$) gelten folgende Kausalpfeile: $S\rightarrow A$, $S\rightarrow M$, $S\rightarrow W$, $A\rightarrow D$, $A\rightarrow M$, $M\rightarrow D$, $W\rightarrow D$. Welche Variable(n) muss man mindestens kontrollieren, um alle offenen Hintertüren zwischen $W$ und $D$ zu schließen?
+
+Answerlist
+----------
+* Entweder kontrolliert man $S$ allein, oder alternativ $A$ und $M$ gemeinsam -- beide Mengen blockieren alle Hintertürpfade von $W$ nach $D$, da jeder dieser Pfade bei $S$ beginnt ($W\leftarrow S\rightarrow \ldots \rightarrow D$) und über $A$ und/oder $M$ zu $D$ weiterläuft.
+* Es genügt, nur $A$ zu kontrollieren, da alle Hintertürpfade zwangsläufig über $A$ verlaufen.
+* Man muss zwingend alle vier Variablen $A$, $M$, $S$ und $D$ gleichzeitig kontrollieren, sonst bleibt immer mindestens eine Hintertür offen.
+* Man darf hier gar keine Variable kontrollieren, da jede Kontrolle automatisch eine neue Scheinkorrelation zwischen $W$ und $D$ erzeugt.
+* Es genügt, $D$ zu kontrollieren, da $D$ die AV ist und dadurch alle Pfade zu ihr automatisch geschlossen werden.
+
+Solution
+========
+Von $W$ nach $D$ führt der direkte Kausalpfad $W\rightarrow D$ sowie drei Hintertürpfade, die alle bei $S$ beginnen: $W\leftarrow S\rightarrow A\rightarrow D$, $W\leftarrow S\rightarrow A\rightarrow M\rightarrow D$ und $W\leftarrow S\rightarrow M\rightarrow D$. Kontrolliert man $S$, wird der Ursprung aller drei Pfade blockiert, alle Hintertüren schließen sich gleichzeitig. Alternativ kann man $S$ selbst unkontrolliert lassen und stattdessen $A$ *und* $M$ kontrollieren: Der erste Pfad wird durch $A$ blockiert, der zweite durch $A$ oder $M$, der dritte durch $M$ -- zusammen schließen $A$ und $M$ also ebenfalls alle drei Hintertüren. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option übersieht den dritten Pfad $W\leftarrow S\rightarrow M\rightarrow D$, der *nicht* über $A$ verläuft -- dieser bliebe bei alleiniger Kontrolle von $A$ offen.
+* Die dritte Option ist unnötig streng: Wie gezeigt reicht bereits $S$ allein (eine einzige Variable), um alle Hintertüren zu schließen; die Kontrolle aller vier Variablen ist nicht erforderlich.
+* Die vierte Option widerspricht der zentralen Lehre des Kapitels zur Hintertür: Konfundierende (Hintertür-)Pfade müssen gerade *geschlossen* werden, um den kausalen Effekt unverzerrt zu schätzen -- das Kontrollieren von Nicht-Kollisionsvariablen auf einem Hintertürpfad erzeugt keine neue Scheinkorrelation, sondern beseitigt eine bestehende Verzerrung.
+* Die fünfte Option beruht auf einem Missverständnis: Man kontrolliert Drittvariablen auf den *Pfaden zwischen* UV und AV, nicht die AV selbst -- die AV zu kontrollieren ergibt im Rahmen der Hintertür-Analyse keinen Sinn.
+
+
+Aufgabenname: `bsp2-hintertuer-schliessen-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: bsp2-hintertuer-schliessen-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: kausalinferenz

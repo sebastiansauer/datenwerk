@@ -1,0 +1,81 @@
+---
+title: exp-tab-schoice
+categories:
+- paper
+- todo
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+lambda <- 1
+q <- 95
+```
+
+
+
+Question
+========
+Gegeben sei
+
+$x \sim \text{Exp}(`r lambda`)$.
+
+Gesucht ist folgendes Quantil: `r q` %.
+
+Nutzen Sie die Tabelle der Exponentialverteilung, um das Quantil zu bestimmen.
+
+```{r, echo=FALSE}
+probs <- c(0.025, 0.05, 0.5, 0.95, 0.975)
+rates <- c(1, 2, 4, 8, 1/2, 1/4, 1/8)
+quantiles <- matrix(nrow = length(rates), ncol = length(probs))
+rownames(quantiles) <- paste("rate =", rates)
+colnames(quantiles) <- paste(probs * 100, "%")
+for (i in 1:length(rates)) {
+  quantiles[i, ] <- qexp(probs, rate = rates[i])
+}
+quantiles_df <-
+  as.data.frame(quantiles) |>
+  rownames_to_column(var = "rate")  |>
+  mutate(rate = rates)
+quantiles_df_rounded <-
+  quantiles_df |>
+  round(2)
+quantiles_df_rounded |> knitr::kable()
+```
+
+
+Answerlist
+----------
+* 3.00
+* 3.69
+* 1.50
+* 5.99
+* 0.69
+
+
+Solution
+========
+Das `r q` % Quantil der Exponentialverteilung mit $\lambda = `r lambda`$ beträgt `r round(qexp(q/100, rate = lambda), 2)`.
+
+Die Distraktoren entstehen durch typische Ablesefehler in der Tabelle: 3.69 (falsche Spalte, 97.5 % statt 95 %), 1.50 (falsche Zeile, rate = 2 statt rate = 1), 5.99 (falsche Zeile, rate = 0.5 statt rate = 1), 0.69 (falsche Spalte, 50 % statt 95 %).
+
+
+Aufgabenname: `exp-tab-schoice`
+
+
+
+Answerlist
+----------
+* True
+* False
+* False
+* False
+* False
+
+
+Meta-information
+================
+exname: exp-tab-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5

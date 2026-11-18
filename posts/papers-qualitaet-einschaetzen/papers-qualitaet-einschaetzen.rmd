@@ -1,0 +1,158 @@
+---
+title: papers-qualitaet-einschaetzen
+categories:
+- paper
+- todo
+---
+
+<!-- Checken, ob die richtige Lösung nicht immer auf Platz 5/5 steht! -->
+
+
+
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(printr)
+library(exams)
+library(gt)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold",
+                      cache = FALSE)
+```
+
+
+
+
+
+Question
+========
+
+
+
+```{r results = "hide"}
+news_file <- "newsanchor1.rds"
+papers_file <- "papers_query_crossref.rds"
+include_supplement(file = c(news_file, papers_file),
+           recursive = TRUE)
+```
+
+```{r}
+news <- read_rds(news_file)
+
+news_df <-
+  news$results_df %>% 
+  select(author, title, url, name) %>% 
+  sample_n(nrow(.)) %>% 
+  mutate(type = "news",
+         id = row_number()) 
+
+```
+
+
+
+```{r read-news}
+papers <- read_rds(papers_file)
+
+papers_df <-
+  papers %>% 
+  sample_n(nrow(.)) %>% 
+  select(author = family_names, title, url, name = short.container.title) %>% 
+  mutate(type = "journal-article",
+         id = row_number()) 
+```
+
+
+```{r read-journal-articles}
+pubs <-
+  news_df %>% 
+  bind_rows(papers_df)
+```
+
+
+```{r draw-sample}
+items_df <- 
+  pubs %>% 
+  filter(((type == "journal-article") & id == 1) | # one journal article
+          (type == "news") & id %in% c(1:4)) %>%  # 4 news articles
+  mutate(id_sample = row_number()) %>% 
+  select(id_sample, author, title, url, name, type) %>% 
+  mutate(selected = ifelse(type == "journal-article", TRUE, FALSE))
+```
+
+
+```{r testthat}
+stopifnot(sum(items_df$selected) == 1)
+stopifnot(nrow(items_df) == 5)
+```
+
+
+
+Im Folgenden sind einige Publikationen dargestellt. 
+Welche Publikationen ist am ehesten ein Fachartikel?
+
+Wählen Sie diese Publikation aus (d.h. die entsprechende Nummer)!
+
+
+```{r}
+items_df %>% 
+  select(id_sample, author, title, url) %>% 
+  gt()
+```
+
+
+
+```{r}
+items <- items_df %>% 
+  pull(id_sample)
+```
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(items, markup = "markdown")
+```
+
+
+Solution
+========
+
+Dieser Artikel ist am ehesten ein Fachartikel:
+
+```{r}
+items_df %>% 
+  filter(type == "journal-article") %>% 
+  select(id_sample, author, title, url) %>% 
+  gt()
+```
+
+
+
+
+Richtige Lösung:
+
+
+Aufgabenname: `papers-qualitaet-einschaetzen`
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(items_df$selected, "Wahr", "Falsch"), markup = "markdown")
+```
+
+
+Meta-information
+================
+exname: papers-qualitaet-einschaetzen
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(items_df$selected, single = TRUE)`
+exshuffle: false

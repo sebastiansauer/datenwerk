@@ -1,0 +1,72 @@
+---
+title: bayes-theorem1-schoice
+categories:
+- bayes
+- probability
+- schoice
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+
+Pr_Tpos_geg_Kpos <- (sample(85:99, size = 1) / 100) |> round(2)
+Pr_Tpos_geg_Kneg <- (sample(1:10,  size = 1) / 100) |> round(2)
+Pr_Kpos          <- (sample(1:10,  size = 1) / 1000) |> round(3)
+
+zaehler  <- Pr_Tpos_geg_Kpos * Pr_Kpos
+Pr_Tpos  <- zaehler + (1 - Pr_Kpos) * Pr_Tpos_geg_Kneg
+sol      <- round(zaehler / Pr_Tpos, 2)
+
+# Distraktoren (typische Rechenfehler)
+w1 <- round(Pr_Tpos_geg_Kpos * Pr_Kpos, 2)           # Nenner vergessen
+w2 <- round(Pr_Kpos / Pr_Tpos, 2)                     # Zähler falsch
+w3 <- round(1 - sol, 2)                               # Komplement-Fehler
+w4 <- round(zaehler / (Pr_Tpos_geg_Kneg * (1 - Pr_Kpos)), 2)  # falscher Nenner
+```
+
+Question
+========
+
+Ein Krebstest ($T$) hat die Wahrscheinlichkeit `r Pr_Tpos_geg_Kpos`, einen vorhandenen
+Krebs ($K$) zu erkennen: $Pr(T+|K+)$.
+Die Falsch-Positiv-Rate beträgt `r Pr_Tpos_geg_Kneg`: $Pr(T+|K-)$.
+Die Grundrate dieser Krebsart liegt bei `r Pr_Kpos`: $Pr(K+)$.
+
+Berechnen Sie die Wahrscheinlichkeit, dass ein Patient tatsächlich Krebs hat,
+wenn der Test positiv ist: $Pr(K+|T+)$.
+
+Answerlist
+----------
+* `r sol`
+* `r w1`
+* `r w2`
+* `r w3`
+* `r w4`
+
+Solution
+========
+
+$$Pr(K+|T+) = \frac{Pr(T+|K+) \cdot Pr(K+)}{Pr(T+|K+) \cdot Pr(K+) + Pr(T+|K-) \cdot Pr(K-)} = `r sol`$$
+
+
+Aufgabenname: `bayes-theorem1-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+extype: schoice
+expoints: 1
+exsolution: 10000
+exname: bayes-theorem1-schoice
+exshuffle: true
+excategory: bayes
+excategory: probability
+excategory: schoice

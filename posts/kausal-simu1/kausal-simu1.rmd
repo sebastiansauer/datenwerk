@@ -1,0 +1,132 @@
+---
+title: kausal-simu1
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(ggdag)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 7,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      #out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+Question
+========
+
+Denken wir uns ein kausales System mit einer Ursache und einer Wirkung, 
+etwa der Einfluss der Naturbelassenheit ($N$) eines Landkreises 
+auf die Anzahl der Störche ($S$) dort (ein positiver Einfluss).
+Nehmen wir weiter an, die Naturbelassenenheit eines Landkreises 
+hat einen (positiven) Einfluss auf die Anzahl Neugeborener (Babies, $B$).
+
+Weitere kausale Einflüsse existieren in diesem kausalen System nicht 
+(es handelt sich ja hier umn ein Gedankenexperiment, 
+wir können frei bestimmen!).
+
+Die Frage ist nun, ob wir erwarten müssen, dass Störche und Babies zusammenhängen 
+in diesem System, dass es also dort, 
+wo es viele Störche gibt auch viele Babies gibt. 
+Das wäre deswegen beachtlich, 
+weil wir in unserem System explizit keinen (kausalen) Zusammenhang 
+zwischen diesen beiden Größen definiert haben.
+
+Um die Sache etwas greifbarer zu machen, erstellen wir uns Daten, 
+die zu diesem System passen. Sagen wir, wir haben 100 Landkreise, 
+die in der Zahl der Störche und Babies und Naturbelassenheit variieren. 
+Der Einfachheit halber seien alle Werte in $z$-Werten ausgedrückt. 
+Gehen wir weiter (der Einfachheit halber) davon aus, 
+alle Größen sind normalverteilt. 
+Solche Werte kann man mit der R-Funktion `rnorm()` erzeugen.
+
+Schließlich gehen wir noch davon aus, dass die Einflüsse linear sind und nicht perfekt. 
+Der Zufall (zufälliger "Fehler", $e$) soll also auch einen Einfluss auf die Größen haben.
+
+
+
+```{r}
+N <- rnorm(100, mean = 0, sd = 1)  # 100 normalverteilte z-Werte
+e1 <- rnorm(100)  # das gleiche wie oben: normalverteilte z-Werte
+e2 <- rnorm(100)  # das gleiche wie oben: normalverteilte z-Werte
+S <- N + e1  # S wird determiniert durch N und e
+B <- N + e2  # B wird determiniert druch N und e
+```
+
+Testen wir unsere simulierten Daten mit einer einfachen Regression, 
+der Frage, 
+ob die Anzahl der Störche (S) von der Natürlichkeit (N) abhängt:
+
+```{r}
+lm1 <- lm(S ~ N)
+summary(lm1)
+```
+
+Unser Modell `lm1` bringt unsere Annahmen deutlich zum Vorschein.
+
+
+
+
+a) Bestimmen Sie den Zusammenhang ($\beta$ oder $\rho$) zwischen Störchen und Babies!
+b) Erklären Sie den Befund!
+
+
+
+Solution
+========
+
+a) Es findet sich ein nicht-kausaler, 
+also ein *Scheinzusammenhang* zwischen Störchen und Babies:
+
+```{r}
+lm(B ~ S)
+```
+
+
+```{r}
+cor(S, B)
+```
+
+
+b) Haben zwei Variablen eine gemeinsame Ursache, 
+so sind sie durch eine Scheinkorrelation verbunden.
+
+
+```{r echo = FALSE}
+confounder_triangle(x = "Störche", y = "Babies", z = "Natur") %>% 
+  ggdag_dconnected(text = FALSE, use_labels = "label") +
+  theme_dag_blank()
+```
+
+`dconnected` bedeutet, dass zwei Variablen *verbunden* (connected) sind, 
+sie also voneinander (statistisch) abhängig (assoziiert) sind, z.B. korreliert.
+Das `d` steht für `directed` also über gerichtete Kanten, die Kausalpfeile, verbunden.
+Dabei ist zu beachten, dass die Assoziation in beide Richtungen des Kausalpfeils "fließen" kann;
+auch gegen "den Strom" (also von der Pfeilstütze anfangend rückwärts).
+
+
+Aufgabenname: `kausal-simu1`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: kausal-simu1
+expoints: 1
+tags:
+- causal
+- dag
+

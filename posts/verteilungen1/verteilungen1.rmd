@@ -1,0 +1,97 @@
+---
+title: verteilungen1
+categories:
+- paper
+- todo
+---
+
+<!-- This exercise is authored by Karsten Lübke. -->
+
+
+
+
+
+```{r libs, include = FALSE}
+library(mosaic)
+library(tidyr)
+library(exams)
+```
+
+
+```{r data generation, echo = FALSE, results = "hide"}
+questions <- c("A", "B", "C", "D")
+# Random Data
+mw <- sample(2*1:5,1)
+
+mwa <- mw
+sda <- mw * 1/2
+
+mwb <- sda
+sdb <- mw
+
+mwc <- mw
+sdc <- mw * 3/2
+
+mwd <- sdc
+sdd <- mwc
+
+minx <- min(c(mwa-3*sda, mwb-3*sdb, mwc-3*sdc,mwd-3*mwd))
+maxx <- max(c(mwa+3*sda, mwb+3*sdb, mwc+3*sdc,mwd+3*mwd))
+x <- seq(minx,maxx, length = 1000)
+
+verteilungen <- data.frame(x = x) %>%
+  mutate(A = dnorm(x, mean = mwa, sd =sda)) %>%
+  mutate(B = dnorm(x, mean = mwb, sd =sdb)) %>%
+  mutate(C = dnorm(x, mean = mwc, sd =sdc)) %>%
+  mutate(D = dnorm(x, mean = mwd, sd =sdd)) %>% 
+  pivot_longer(cols=c(A,B,C,D), values_to = "Dichte")
+
+
+richtig <- sample(1:4,1)
+
+if (richtig == 1) {mwt <- mwa;sdt <- sda}
+if (richtig == 2) {mwt <- mwb;sdt <- sdb}
+if (richtig == 3) {mwt <- mwc;sdt <- sdc}
+if (richtig == 4) {mwt <- mwd;sdt <- sdd}
+
+solutions <- rep(FALSE, 4)
+solutions[richtig] <- TRUE
+```
+
+
+Question
+========
+
+```{r show-plot, echo = FALSE, results="hide", fig.height = 4, fig.width = 6, fig.cap = ""}
+gf_line(Dichte ~ x | name, data = verteilungen)
+```
+
+
+Welche der Abbildungen zeigt eine Normalverteilung mit $$\mu=`r mwt`$$ und $$\sigma=`r sdt`?$$
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+
+
+Solution
+========
+
+
+Aufgabenname: `verteilungen1`
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(solutions, "Richtig", "Falsch"), markup = "markdown")
+```
+
+Meta-information
+================
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: verteilungen1

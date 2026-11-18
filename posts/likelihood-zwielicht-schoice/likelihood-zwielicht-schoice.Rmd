@@ -1,0 +1,50 @@
+---
+title: likelihood-zwielicht-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Ein Spieler wirft eine Münze 12 Mal und wettet jedes Mal auf "Kopf"; er erzielt 10 Treffer. Wie hoch ist die Likelihood für die Hypothese, dass die Münze fair ist ($\pi=0{,}5$), also $Pr(X=10, N=12\mid \pi=0{,}5)$?
+
+Answerlist
+----------
+* $Pr(X=10, N=12\mid \pi=0{,}5) = \binom{12}{10}\cdot 0{,}5^{10}\cdot 0{,}5^{2} \approx 0{,}0161$
+* $Pr(X=10, N=12\mid \pi=0{,}5) = \binom{12}{10}\cdot 0{,}5^{10} \approx 0{,}0645$
+* $Pr(X\le 10, N=12\mid \pi=0{,}5) \approx 0{,}9968$
+* $Pr(X=10, N=12\mid \pi=0{,}8) \approx 0{,}2835$
+* $Pr(X=10, N=10\mid \pi=0{,}5) \approx 0{,}00098$
+
+Solution
+========
+Unter Annahme einer Binomialverteilung ist die Likelihood für die Hypothese $\pi=0{,}5$ gegeben 10 Treffer bei 12 Würfen: $Pr(X=10,N=12\mid \pi=0{,}5) = \binom{12}{10}\cdot 0{,}5^{10}\cdot 0{,}5^{2} \approx 0{,}0161$ (in R: `dbinom(x = 10, size = 12, prob = 0.5)`). Diese geringe Likelihood ist ein Hinweis darauf, dass die Hypothese "faire Münze" die beobachteten Daten nur schlecht erklärt -- ähnlich wie beim zwielichten Dozenten im Kapitel.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option vergisst den Faktor $(1-\pi)^{N-x}=0{,}5^{2}$ für die 2 "Nieten" (Nicht-Treffer) -- ohne diesen Faktor ist das Ergebnis zu groß und keine korrekte Anwendung der Binomialformel.
+* Die dritte Option berechnet die *kumulierte* Wahrscheinlichkeit $Pr(X\le 10)$ (mit `pbinom`) statt der Likelihood für *genau* dieses eine beobachtete Ergebnis $X=10$ (mit `dbinom`).
+* Die vierte Option verwendet einen anderen Parameterwert ($\pi=0{,}8$ statt der hier gefragten Hypothese $\pi=0{,}5$) und beantwortet damit eine andere Frage.
+* Die fünfte Option verwendet den falschen Stichprobenumfang ($N=10$ statt der tatsächlichen $N=12$ Würfe) -- die Likelihood muss sich immer auf die tatsächlich durchgeführte Anzahl an Versuchen beziehen.
+
+
+Aufgabenname: `likelihood-zwielicht-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: likelihood-zwielicht-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

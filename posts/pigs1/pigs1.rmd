@@ -1,0 +1,115 @@
+---
+title: pigs1
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+
+
+
+Question
+========
+
+```{r}
+library(tidyverse)  # Datenjudo
+library(rstanarm)  # Bayes-Inferenz
+```
+
+
+Laden Sie den Datensatz `toothgrowth`, z.B. von [dieser Quelle](https://vincentarelbundock.github.io/Rdatasets/csv/datasets/ToothGrowth.csv).
+In dem Datensatz sind die Daten eines einfaches Experiments berichtet.
+
+
+
+
+
+```{r echo = FALSE}
+d_path <- "https://vincentarelbundock.github.io/Rdatasets/csv/datasets/ToothGrowth.csv"
+d <- read_csv(d_path)
+```
+
+
+
+
+Forschungsfrage:
+
+Hat die Darreichungsform (`supp`, OJ vs. VC) einen (kausalen) Effekt auf die AV?
+
+
+
+
+Berechnen Sie ein 95%-HDI für den Effekt!
+
+
+[Beachten Sie die Bearbeitungshinweise.](https://hinweisbuch.netlify.app/030-hinweise-pruefung-klausur-frame)
+
+
+
+Solution
+========
+
+1. Schritt: Modell berechnen
+
+```{r}
+lm1 <- stan_glm(len ~ supp, data = d,
+                refresh = 0)
+```
+
+Zur Erinnerung: Bei der Regressionsformel gilt immer `av ~  uv`.
+
+
+2. Schritt: Posteriori-Verteilung betrachten
+
+Mit `summary()` kriegt man einen guten Überblick:
+
+```{r}
+summary(lm1)
+```
+
+Aber man kann z.B. auch mit `posterior_interval()` sich sein Wunsch-Intervall ausgeben lassen:
+
+```{r}
+posterior_interval(lm1, prob = .95)
+```
+
+
+Schauen wir uns mal zum Vergleich die Stichproben-Daten an:
+
+```{r}
+d %>% 
+  ggplot(aes(x = supp, y = len)) +
+  geom_boxplot()
+```
+
+
+Aufgabenname: `pigs1`
+
+
+
+
+Meta-information
+================
+exname: pigs1
+extype: string
+expoints: 1
+exsolution: NA
+exshuffle: false

@@ -1,0 +1,129 @@
+---
+title: datenvis-moderndive-boxplot1
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "")
+```
+
+
+
+
+
+
+
+
+Question
+========
+
+Laden Sie das Paket `gapminder` (ggf. vorab installieren) und laden Sie daraus den Datensatz `gapminder`. [Hier](https://www.gapminder.org/) finden Sie weitere Informationen zum Projekt *Gapminder*.
+
+*Tipp*: Mit `help(gapminder)` bekommen Sie mehr Informationen zum Datensatz.
+
+
+A) Erstellen Sie einen Boxplort für jedes *Land* im Datensatz, um die Verteilung der Lebenserwartung zu visualisieren.
+
+B) Erstellen Sie einen Boxplort für jedes *Kontinent* im Datensatz, um die Verteilung der Lebenserwartung zu visualisieren. 
+
+C) Erstellen Sie einen Boxplort für jedes *Kontinent* im Datensatz, um die Verteilung der Lebenserwartung zu visualisieren. Dieses Mal sollen Sie aber vorab den Datensatz zusammenfassen, so dass ein (zeilen-)reduzierter Datensatz entsteht, der für jeden Kontinent eine Zeile umfasst. Wie sinnvoll ist dieses Vorgehen?
+
+D) Erstellen Sie einen Boxplot pro Kontinent und weisen Sie der Füllfarbe die Variable zum Kontinent zu.
+
+E) Erläutern Sie einige Aspekte, die wir aus der letzten Visualisierung lernen zu den Verteilungen.
+
+
+
+*Hinweis*: Beziehen Sie sich auf den Stoff dieses Buches: Ismay, C., & Kim, A. (2019). *ModernDive—An Introduction to Statistical and Data Sciences via R*. http://moderndive.com/.
+
+
+Solution
+========
+
+
+A)
+
+```{r echo = TRUE, message = FALSE}
+library(gapminder)  # falls noch nicht geladen
+library(tidyverse)  # falls noch nicht geladen
+data("gapminder")  # falls noch nicht geladen
+
+gapminder %>% 
+  ggplot() +
+  aes(x = country, y = lifeExp) +
+  geom_boxplot()
+```
+
+
+B)
+
+```{r}
+gapminder %>% 
+  ggplot() +
+  aes(x = continent, y = lifeExp) +
+  geom_boxplot()
+```
+
+
+```{r echo = FALSE}
+sol <- "Siehe Antworten. Es erfolgt keine automatische Bewertung dieser Aufgabe."
+```
+
+
+
+C)
+
+```{r}
+gapminder %>% 
+  group_by(continent) %>% 
+  summarise(lifeExp_continent = median(lifeExp)) %>% 
+  ggplot() +
+  aes(x = continent, y = lifeExp_continent) +
+  geom_boxplot()
+```
+
+
+
+
+D)
+
+```{r}
+gapminder %>% 
+  ggplot() +
+  aes(x = continent, y = lifeExp, fill = continent) +
+  geom_boxplot()
+```
+
+
+
+E)
+
+- Die Verteilungen unterscheiden sich in zentraler Tendenz und Variabilität.
+- Die Verteilungen sind schief.
+- Asien weist die größte Variabilität (in der Lebenswertung) auf.
+- In Europa gibt es eine Reihe Extremwerte (gemessen an den übrigen Werten in Europa).
+- Ozeanien hat den höchsten medianen Wert in der Lebenserwartung.
+- Ozeanien weist die geringste Streuung auf.
+
+
+Aufgabenname: `datenvis-moderndive-boxplot1`
+
+
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: datenvis-moderndive-boxplot1
+expoints: 1

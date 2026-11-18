@@ -1,0 +1,50 @@
+---
+title: z-standardisierung-vergleich-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Warum werden im Kapitel die Prädiktoren `mom_iq` und `mom_age` z-standardisiert, bevor ihre "Relevanz" für die Vorhersage von `kid_score` verglichen wird?
+
+Answerlist
+----------
+* Der Vergleich der unstandardisierten Regressionskoeffizienten kann irreführend sein, wenn die Prädiktoren unterschiedliche Streuungen haben; die z-Standardisierung macht die Effekte in Einheiten der jeweiligen Streuung vergleichbar.
+* Unstandardisierte Prädiktoren können von `stan_glm()` technisch gar nicht verarbeitet werden.
+* Z-standardisierte Variablen erlauben automatisch eine kausale Interpretation der Effekte, unstandardisierte hingegen nicht.
+* Durch die z-Standardisierung verschwindet ein etwaiger Interaktionseffekt zwangsläufig aus dem Modell.
+* Z-Standardisierung verändert, ob ein Nulleffekt anhand des 95 %-Schätzbereichs ausgeschlossen werden kann oder nicht.
+
+Solution
+========
+Das Kapitel stellt fest: "`mom_iq` hat den größeren Koeffizienten und viel Streuung; `mom_age` hat weniger Streuung." Ein Vergleich der rohen (unstandardisierten) Koeffizienten wäre daher irreführend, da unterschiedliche Skalen/Streuungen die Größe der Koeffizienten mitbestimmen. Die z-Standardisierung bringt beide Prädiktoren auf eine gemeinsame Skala (Mittelwert 0, SD 1), sodass ihre Koeffizienten direkt in "SD-Einheiten" vergleichbar werden. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist falsch: `stan_glm()` verarbeitet unstandardisierte Prädiktoren problemlos, wie an den zahlreichen Beispielen mit unstandardisierten Variablen im Kapitel gezeigt wird -- die Standardisierung ist eine Frage der *Interpretierbarkeit*, keine technische Notwendigkeit.
+* Die dritte Option widerspricht der wiederholten Warnung des Kapitels: Auch standardisierte Regressionskoeffizienten sind zunächst nur statistische (assoziative), keine automatisch kausalen Effekte -- die Standardisierung selbst rechtfertigt keine Kausalaussage.
+* Die vierte Option ist falsch: Die Standardisierung der Prädiktoren ändert nichts an der grundsätzlichen Existenz eines Interaktionseffekts im Modell, sofern dieser weiterhin spezifiziert wird.
+* Die fünfte Option ist falsch: Die z-Standardisierung ist eine reine (lineare) Reskalierung der Variablen und ändert daher nicht, ob ein Effekt statistisch von Null unterscheidbar ist -- nur die *Einheit*, in der der Koeffizient ausgedrückt wird, ändert sich.
+
+
+Aufgabenname: `z-standardisierung-vergleich-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: z-standardisierung-vergleich-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

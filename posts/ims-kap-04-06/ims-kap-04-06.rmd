@@ -1,0 +1,140 @@
+---
+title: ims-kap-04-06
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(testthat)
+library(glue)
+library(printr)
+library(moderndive)
+library(knitr)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Wir betrachten einen Datensatz, der Kredite analysiert:
+
+```{r echo = TRUE}
+library(openintro)
+data("loans_full_schema")
+```
+
+
+
+[Quelle](http://openintrostat.github.io/openintro/reference/loans_full_schema.html)
+
+
+
+
+
+Eine Analystin möchte den Zinssatz (`interest_rate`) auf Basis dieses Datensatzes vorhersagen.
+
+Sie berechnet folgendes Regressionsmodell (auf einem Teil des Datensatzes):
+
+```{r echo = TRUE, results = "hide"}
+lm1 <- lm(interest_rate ~ annual_income + application_type, data = loans_full_schema)
+```
+
+Grafisch aufbereitet, sieht ihr Ergebnis so aus:
+
+
+
+```{r}
+set.seed(42)
+loans_full_schema %>% 
+    sample_n(1000) %>% 
+    filter(annual_income > 10) %>% 
+    mutate(income_log = log(annual_income)) %>% 
+    ggplot() +
+    aes(x = income_log, y = interest_rate, 
+        color = application_type) +
+    geom_point(alpha = .3) +
+    geom_parallel_slopes()
+```
+
+
+Welche Aussage ist korrekt?
+
+Answerlist
+----------
+
+* Für beide Gruppen von `application_type` (`individual` und `joint`) ist die Steigung der Regressionsgerade (annähernd) gleich.
+* Einkommen wurde logarithmiert; das ist keine sinnvolle Transformation im Allgemeinen.
+* In diesem Modell gibt es zwei Variablen: Zinssatz und logarithmiertes Einkommen.
+* In diesem Modell gibt es drei Variablen: Zinssatz, Einkommen und logarithmiertes Einkommen.
+* In diesem Modell gibt es vier Variablen: Zinssatz, Einkommen, `application_type individual`  und `application_type joint`.
+
+Solution
+========
+
+
+Für beide Gruppen von `application_type` (`individual` und `joint`) ist die Steigung der Regressionsgerade (annähernd) gleich.
+
+
+Das Diagramm wurde mit dieser Syntax erzeugt:
+
+
+
+```{r echo = TRUE, eval = FALSE}
+library(tidyverse)
+library(moderndive)
+library(mosaic)
+data("loans_full_schema")
+
+set.seed(42)
+loans_full_schema %>% 
+    sample_n(1000) %>% 
+    filter(annual_income > 10) %>% 
+    mutate(income_log = log(annual_income)) %>% 
+    ggplot() +
+    aes(x = income_log, y = interest_rate, 
+        color = application_type) +
+    geom_point(alpha = .3) +
+    geom_parallel_slopes()
+```
+
+
+Aufgabenname: `ims-kap-04-06`
+
+
+
+Answerlist
+----------
+
+
+
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+Meta-information
+================
+exname: ims-kap-04-06
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: false

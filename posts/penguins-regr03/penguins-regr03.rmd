@@ -1,0 +1,79 @@
+---
+title: penguins-regr03
+categories:
+- lm
+- bayes
+- rope
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+Question
+========
+
+Beantworten Sie folgende Forschungsfrage:
+
+*Wie groß ist die Wahrscheinlichkeit für einen positiven Zusammenhang von Schnabellänge und Gewicht (AV) bei Pinguinen?*
+
+Hinweise:
+
+- Nutzen Sie den Datensatz aus dem R-Paket `palmerpenguins`.
+- Fixieren Sie die Zufallszahlen auf den Startwert 42.
+- Nutzen Sie den Stan-Golem.
+
+
+
+
+Solution
+========
+
+Wir rufen Stan: Hey, Stan, komm mal rüber.
+Berechne uns das folgende Modell: `gewicht ~ schnabellänge`.
+
+```{r}
+library(rstanarm)
+library(easystats)
+library(tidyverse)
+library(palmerpenguins)
+data(penguins)
+m1 <- stan_glm(body_mass_g ~ bill_length_mm, 
+               seed = 42,
+               refresh = 0,
+               data = penguins)
+```
+
+```{r}
+plot(parameters(m1))
+```
+So sieht man es auch auch gut,
+wenn man bedenkt, dass es hier um (exakt) Null geht:
+
+```{r}
+plot(rope(m1))
+```
+
+```{r}
+parameters(m1)
+```
+
+Mit einer Wahrscheinlichkeit von 100% (gerundet auf 2 Dezimalstellen) ist der Effekt positiv,
+laut unserem Modell.
+
+
+Aufgabenname: `penguins-regr03`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: penguins-regr03
+expoints: 1
+categories:
+- lm
+- bayes
+- rope

@@ -1,0 +1,91 @@
+---
+title: likelihood1
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold",
+                     # out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+```{r}
+p <- 1/2
+n <- sample(5:50, size = 1)
+```
+
+
+
+
+Question
+========
+
+Eine Münze werde ``r n`` Mal geworfen.
+Die Münze hat die Wahrscheinlichkeit ``r p`` für "Kopf".
+
+Welche Trefferzahl maximiert die Likelihood?
+
+*Hinweise*:
+
+- Geben Sie nur eine ganze Zahl ein.
+- Es können mehrere Lösungen möglich sein, geben Sie aber nur eine an.
+
+
+
+Solution
+========
+
+```{r echo = TRUE}
+d <-
+  tibble(
+    trefferzahl = 0:n,
+    L = dbinom(x = trefferzahl, size = n, prob = p)
+  )
+
+d %>% 
+  arrange(-L) %>% 
+  slice_head(n=1)
+```
+
+
+```{r echo = FALSE}
+sol <- 
+d %>% 
+  arrange(-L) %>% 
+  slice_head(n=1) %>% 
+  pull(trefferzahl)
+```
+
+Der gesuchte Werte beträgt: `r sol`.
+
+
+Aufgabenname: `likelihood1`
+
+
+
+Meta-information
+================
+extype: num
+exsolution: `r sol`
+exname: likelihood1
+expoints: 1
+extol: 2

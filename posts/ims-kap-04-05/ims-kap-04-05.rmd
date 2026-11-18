@@ -1,0 +1,127 @@
+---
+title: ims-kap-04-05
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(moderndive)
+library(gt)
+library(forcats)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Wir betrachten einen Datensatz, der Kredite analysiert:
+
+```{r echo = TRUE}
+library(openintro)
+data("loans_full_schema")
+```
+
+
+
+[Quelle](http://openintrostat.github.io/openintro/reference/loans_full_schema.html)
+
+
+Hier ist ein Überblick über den Datensatz:
+
+```{r}
+loans_full_schema <- 
+  loans_full_schema %>% 
+  select(interest_rate, annual_income, application_type) %>% 
+  drop_na() %>% 
+  mutate(application_type = droplevels(application_type)) 
+
+loans_full_schema %>% 
+  str()
+```
+
+
+
+Eine Analystin möchte den Zinssatz (`interest_rate`) auf Basis dieses Datensatzes vorhersagen.
+
+Sie berechnet folgendes Regressionsmodell:
+
+```{r echo = TRUE, results = "hide"}
+lm1 <- lm(interest_rate ~ annual_income + application_type, data = loans_full_schema)
+```
+
+Folgende Ergebnisse bekommt Sie zurück geliefert:
+
+
+```{r}
+get_regression_table(lm1) %>% 
+    select(1:3) %>% 
+    gt()
+```
+
+\
+Welche Aussage ist korrekt?
+
+
+
+Answerlist
+----------
+
+* `Estimate` liefert eine Schätzung zur Modellgüte.
+* Das Verhältnis von Signal zu Rauschen für `application_typejoint` ist kleiner als 1.
+* Es liegt ein Fehler vor, denn `application_typejoint` hat neben `joint` noch eine weitere Stufe (`individual`), diese ist aber nicht aufgeführt.
+* Der Wert bei `Intercept` gibt den Wert der abhängigen Variable an, bei Fällen mit dem Wert `individual` bei `application_type` und ohne Jahreseinkommen.
+* Der Wert bei `Intercept` gibt den Wert der abhängigen Variable an, bei Fällen mit dem Wert `joint` bei `application_type` und ohne Jahreseinkommen.
+
+Solution
+========
+
+Der Wert bei `Intercept` gibt den Wert der abhängigen Variable an, 
+bei Fällen mit dem Wert `individual` bei `application_type` und ohne Jahreseinkommen.
+
+```{r echo = TRUE}
+predict(lm1, newdata = data.frame(annual_income = 0,
+                                  application_type = "individual"))
+```
+
+
+Aufgabenname: `ims-kap-04-05`
+
+
+
+
+Answerlist
+----------
+
+
+
+* Falsch
+* Falsch
+* Falsch
+* Wahr
+* Falsch
+
+
+Meta-information
+================
+exname: ims-kap-04-05
+extype: schoice
+expoints: 1
+exsolution: 00010 
+exshuffle: false

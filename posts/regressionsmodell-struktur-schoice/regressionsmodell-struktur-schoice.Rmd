@@ -1,0 +1,60 @@
+---
+title: regressionsmodell-struktur-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Das Modell `m_kung_gewicht_c` ist wie folgt spezifiziert:
+
+$$\begin{aligned}
+\text{height}_i &\sim \operatorname{Normal}(\mu_i, \sigma) && \text{Likelihood} \\
+\mu_i &= \beta_0 + \beta_1\cdot \text{weightcentered}_i && \text{Lineares Modell} \\
+\beta_0 &\sim \operatorname{Normal}(178, 20) && \text{Prior} \\
+\beta_1 &\sim \operatorname{Normal}(0, 10) && \text{Prior} \\
+\sigma &\sim \operatorname{Exp}(0{,}1) && \text{Prior}
+\end{aligned}$$
+
+Welche Aussage zu diesem Modell ist korrekt?
+
+Answerlist
+----------
+* $\mu_i$ wird *deterministisch* aus $\beta_0$, $\beta_1$ und dem Gewicht der $i$-ten Person berechnet -- es hat also (gegeben $\beta_0$ und $\beta_1$) selbst keine eigene Apriori-Verteilung, im Unterschied zum reinen Modell `m_kung` ohne Prädiktor.
+* $\mu_i$ hat, genau wie $\beta_0$ und $\beta_1$, eine eigene, separat geschätzte Apriori-Verteilung.
+* Das Modell hat insgesamt nur zwei zu schätzende Parameter: $\beta_0$ und $\beta_1$.
+* $\beta_1$ gibt an, wie groß die mittlere Körpergröße bei einem Gewicht von exakt 0 kg (zentriert) ist.
+* Die Likelihood-Zeile besagt, dass jede Person exakt die Körpergröße $\mu_i$ hat, ohne jede Streuung.
+
+Solution
+========
+Anders als im reinen Modell `m_kung` (ohne Prädiktor), wo $\mu$ ein selbst zu schätzender Parameter mit eigener Apriori-Verteilung war, wird $\mu_i$ hier *deterministisch* aus den Parametern $\beta_0$, $\beta_1$ und dem (bekannten) Gewichtswert der jeweiligen Person berechnet. Gegeben $\beta_0$ und $\beta_1$ ist $\mu_i$ also ohne zusätzliche Ungewissheit festgelegt. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option widerspricht der Modellgleichung direkt: $\mu_i$ wird durch die *lineare Formel* berechnet, nicht durch eine eigene, separat zu schätzende Priori-Verteilung -- nur $\beta_0$, $\beta_1$ und $\sigma$ haben eigene Priori-Verteilungen.
+* Die dritte Option vergisst $\sigma$: Das Modell hat insgesamt *drei* zu schätzende Parameter ($\beta_0$, $\beta_1$, $\sigma$), nicht nur zwei.
+* Die vierte Option verwechselt $\beta_0$ (Achsenabschnitt, gibt die mittlere Größe bei Gewicht $=0$ bzw. bei zentriertem Gewicht $\text{weightcentered}=0$ an) mit $\beta_1$ (der Steigung, die den Unterschied in der Größe pro Kilogramm Gewichtsunterschied angibt).
+* Die fünfte Option ignoriert den Streuungsparameter $\sigma$ in der Likelihood-Zeile: Die Körpergrößen $h_i$ streuen laut Modell *normalverteilt* um $\mu_i$ mit Streuung $\sigma$, sie entsprechen also gerade *nicht* exakt (ohne jede Streuung) dem vorhergesagten Mittelwert.
+
+
+Aufgabenname: `regressionsmodell-struktur-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: regressionsmodell-struktur-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

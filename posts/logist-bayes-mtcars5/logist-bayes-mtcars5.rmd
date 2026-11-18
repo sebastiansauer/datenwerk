@@ -1,0 +1,119 @@
+---
+title: logist-bayes-mtcars5
+categories: null
+---
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+options(mc.cores = parallel::detectCores())
+```
+
+
+
+Question
+========
+
+Betrachten Sie den Datensatz `mtcars`.
+Die Forschungsfrage betreffe den (statistischen) Einfluss von der Zahl der Zylinder, $x_2$, UV, 
+auf die Wahrscheinlichkeit, dass es sich um ein Auto mit Automatik-Schaltung, 
+$y$, AV, handelt.
+Modellieren Sie keinen Interaktionseffekt.
+
+
+
+Hinweise:
+
+- Runden Sie auf zwei Dezimalstellen.
+- Berechnen Sie ein lineares Modell auf Basis der Bayes-Statistik.
+- Orientieren Sie sich am Vorgehen aus dem Unterricht.
+- Geben Sie `1` ein für "ja" und `0` für nein.
+- Gleichen sich Koeffizienten bis einschließlich der 1. Dezimale, so gelten sie als "gleich".
+- Nutzen Sie Standardwerte von `stan_glm()` für Ihr Modell.
+- Entfernen Sie fehlende Werte wo nötig.
+
+Aufgaben:
+
+Questionlist
+-----------
+* Ist die Wahrscheinlichkeit für ein Automatik-Getriebe höher bei `cyl=4` im Vergleich zu `cyl=6`, laut dem Modell? Beziehen Sie sich auf die den Punktschätzer der Post-Verteilung.
+* Um welchen Wert unterscheidet sich die Wahrscheinlichkeit?
+
+
+
+
+
+  
+  
+Solution
+========
+
+
+a)
+
+```{r echo = TRUE}
+data(mtcars)
+
+m1 <- 
+  stan_glm(am ~ cyl, 
+          data = mtcars,
+           refresh = 0,
+           family = binomial(link = "logit"))
+
+coef(m1)
+```
+
+Der Punktschätzer der Post-Verteilung zeigt uns: Je höher die Zylinderzahl, desto geringer der Logit (und damit die Wahrscheinlichkeit) für ein manuelles Getriebe bzw. umso höher für ein Automatik-Getriebe.
+
+Also lautet die Antwort: nein.
+
+```{r echo = TRUE}
+sol_a <- 0
+```
+
+
+b)
+
+Ziehen wir Stichproben aus der Post-Verteilung:
+
+```{r echo = TRUE}
+pred_pr <-
+  posterior_epred(m1, newdata = tibble(cyl = c(4,6))) %>% 
+  as_tibble() %>% 
+  mutate(cyl4_rather_manuell = `1` > `2`)
+
+pred_pr %>% 
+  slice_head(n=5)
+```
+
+Wir haben hier geprüft, wie oft `1` < `2` gilt.
+Also: wie oft die Wahrscheinlichkeit für Manuell-Getriebe (`am=1`) bei `cyl=4` höher ist als bei `cyl=6`.
+
+```{r echo = TRUE}
+pred_pr %>% 
+  summarise(cyl4_rather_manuell = mean(cyl4_rather_manuell))
+```
+Diese Wahrscheinlichkeit ist (praktisch) 1, laut dem Modell.
+
+```{r echo  = TRUE}
+sol_b <- 1
+```
+
+
+Aufgabenname: `logist-bayes-mtcars5`
+
+
+Solutionlist
+------------
+* Nein, je höher die Zylinderzahl, desto geringer der Logit (und damit die Wahrscheinlichkeit) für ein manuelles Getriebe bzw. umso höher für ein Automatik-Getriebe.
+* `r sol_b`
+
+
+Meta-information
+================
+extype: cloze
+expoints: 1
+exclozetype: num|num
+exsolution: `r sol_a`|`r sol_b`
+exname: logist-bayes-mtcars5
+extol: 0.02

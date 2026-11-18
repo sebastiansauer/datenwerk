@@ -1,0 +1,50 @@
+---
+title: prior-wahl-beta1-vergleich-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Das Kapitel vergleicht zwei Modelle: `m_kung_gewicht_c` mit einer eher schwach informativen Priori für $\beta_1$ ($\beta_1\sim\mathcal{N}(0,10)$) und `m_kung_starkes_beta1` mit einer meinungsstärkeren Priori ($\beta_1\sim\mathcal{N}(5,3)$). Welche Aussage zum Effekt dieser unterschiedlichen Priori-Wahl ist am ehesten zutreffend?
+
+Answerlist
+----------
+* Die schwach informative Priori für $\beta_1$ lässt vorab auch negative Zusammenhänge (also einen negativen Effekt von Gewicht auf Größe) als plausibel zu, während die meinungsstärkere Priori vorab bereits einen klar positiven Zusammenhang um 5 herum favorisiert.
+* Beide Prioris führen zwangsläufig zu exakt identischen Post-Verteilungen für $\beta_1$, unabhängig von der Datenmenge.
+* Die schwach informative Priori bedeutet, dass das Modell $\beta_1$ überhaupt nicht schätzen kann.
+* Eine meinungsstärkere Priori für $\beta_1$ macht die Berechnung mit `stan_glm()` unmöglich.
+* Der Unterschied zwischen den beiden Prioris betrifft nur $\beta_0$, nicht $\beta_1$.
+
+Solution
+========
+Die Priori $\beta_1\sim\mathcal{N}(0,10)$ ist recht breit um 0 zentriert und lässt damit vorab sowohl positive als auch negative Werte für den Zusammenhang als plausibel erscheinen (der Bereich reicht laut Kapitel von ca. $-20$ bis $+20$). Die Priori $\beta_1\sim\mathcal{N}(5,3)$ hingegen ist deutlich enger um den Wert 5 zentriert und geht damit von vornherein von einem klar positiven Zusammenhang aus. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist eine unzulässige Verallgemeinerung: Ob unterschiedliche Prioris zu ähnlichen oder unterschiedlichen Post-Ergebnissen führen, hängt von der Stichprobengröße und der Stärke der Priori-Information ab -- eine *zwangsläufige* Identität der Ergebnisse ist damit nicht garantiert, insbesondere bei kleineren Stichproben oder sehr informativen Prioris.
+* Die dritte Option ist falsch: Eine schwach informative (aber nicht flache) Priori erlaubt weiterhin die Schätzung von $\beta_1$ -- sie lässt lediglich einen breiteren Bereich plausibler Werte zu als eine informativere Priori.
+* Die vierte Option ist falsch: `stan_glm()` kann problemlos mit informativeren (engeren) Priori-Verteilungen umgehen, wie im Kapitel am Modell `m_kung_starkes_beta1` explizit demonstriert wird.
+* Die fünfte Option ist falsch: Der beschriebene Unterschied zwischen beiden Modellen betrifft explizit die Priori-Verteilung von $\beta_1$ (nicht $\beta_0$, dessen Priori in beiden Modellen identisch bei $\mathcal{N}(178,20)$ bleibt).
+
+
+Aufgabenname: `prior-wahl-beta1-vergleich-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: prior-wahl-beta1-vergleich-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

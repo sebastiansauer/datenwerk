@@ -1,0 +1,50 @@
+---
+title: sampling-weight-by-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Um aus einer Bayesbox eine Stichproben-Post-Verteilung zu erzeugen, verwendet man in R den Befehl `slice_sample(n = 1e4, weight_by = post, replace = TRUE)`. Welche Aussage zur Rolle der Argumente `weight_by` und `replace` ist korrekt?
+
+Answerlist
+----------
+* `weight_by = post` sorgt dafür, dass Parameterwerte mit höherer Post-Wahrscheinlichkeit häufiger gezogen werden; `replace = TRUE` erlaubt, denselben Parameterwert mehrfach zu ziehen, sodass die Ziehungswahrscheinlichkeiten während des gesamten Ziehungsprozesses konstant bleiben.
+* `weight_by = post` sorgt dafür, dass jeder Parameterwert exakt gleich oft gezogen wird, unabhängig von seiner Post-Wahrscheinlichkeit.
+* `replace = TRUE` bedeutet, dass jeder Parameterwert höchstens einmal gezogen werden darf.
+* `weight_by` legt fest, wie viele Stichproben insgesamt gezogen werden.
+* Ohne `replace = TRUE` könnte man aus einer Bayesbox mit 11 Gitterwerten gar keine 10.000 Stichproben ziehen -- mit `replace = TRUE` wird dieses Problem behoben, hat aber sonst keinen Einfluss auf die resultierende Verteilung.
+
+Solution
+========
+`weight_by = post` gewichtet jede Zeile (jeden Parameterwert) der Bayesbox mit ihrer Post-Wahrscheinlichkeit, sodass plausiblere Parameterwerte häufiger gezogen werden. `replace = TRUE` (Ziehen mit Zurücklegen) sorgt dafür, dass jeder Parameterwert beliebig oft gezogen werden kann und die Ziehungswahrscheinlichkeiten dabei über den gesamten Ziehungsprozess hinweg konstant bleiben -- die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option kehrt die Funktion von `weight_by` ins Gegenteil um: Gerade *weil* gewichtet wird, werden plausiblere (Post-wahrscheinlichere) Parameterwerte *häufiger*, nicht gleich häufig gezogen -- eine Gleichverteilung der Ziehungen entspräche gerade *keiner* Gewichtung.
+* Die dritte Option beschreibt das Gegenteil von `replace = TRUE`: Ziehen *ohne* Zurücklegen (`replace = FALSE`) würde bedeuten, dass jeder Wert höchstens einmal gezogen werden darf -- bei `replace = TRUE` ist mehrfaches Ziehen desselben Werts hingegen ausdrücklich erlaubt (und bei $n=10.000$ Stichproben aus nur 11 Gitterwerten auch notwendig).
+* Die vierte Option verwechselt `weight_by` mit dem Argument `n`: Die Anzahl der gezogenen Stichproben wird über `n = 1e4` festgelegt, nicht über `weight_by`.
+* Die fünfte Option erkennt zwar richtig, dass `replace = TRUE` mehr als 11 Ziehungen aus 11 Gitterwerten ermöglicht, unterschätzt aber dessen eigentliche inhaltliche Bedeutung: Ohne Zurücklegen würden sich die Ziehungswahrscheinlichkeiten der verbleibenden Werte mit jeder Ziehung verändern, was die Gewichtung nach `post` verzerren würde -- `replace = TRUE` ist also nicht nur eine technische Notwendigkeit, sondern inhaltlich wichtig für eine korrekte Annäherung an die Post-Verteilung.
+
+
+Aufgabenname: `sampling-weight-by-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: sampling-weight-by-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

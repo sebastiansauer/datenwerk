@@ -1,0 +1,50 @@
+---
+title: binomialverteilung-serverfarm-schoice
+categories:
+- verteilungen
+- paper
+---
+
+Question
+========
+Eine Server-Farm besteht aus 6 (baugleichen) Servern. Jeder Server fällt unabhängig von den anderen mit einer Wahrscheinlichkeit von 10 % an einem gegebenen Tag aus. Der Betrieb kann nur aufrechterhalten werden, solange mindestens 4 Server laufen. Wie groß ist die Wahrscheinlichkeit, dass die Server-Farm an einem gegebenen Tag aus dem Betrieb fällt (d. h. weniger als 4 Server laufen)?
+
+Answerlist
+----------
+* $Pr(X\le 3) = \text{pbinom}(3,\, 6,\, 0{,}9) \approx 0{,}016$
+* $Pr(X\ge 4) = 1 - \text{pbinom}(3,\, 6,\, 0{,}9) \approx 0{,}984$
+* $Pr(X=3) = \text{dbinom}(3,\, 6,\, 0{,}9) \approx 0{,}015$
+* $Pr(X\le 4) = \text{pbinom}(4,\, 6,\, 0{,}9) \approx 0{,}114$
+* $\dfrac{4}{6} \approx 0{,}667$
+
+Solution
+========
+Sei $X$ die Anzahl der an einem Tag laufenden Server, $X\sim\text{Bin}(6,\, 0{,}9)$ (Erfolgswahrscheinlichkeit "läuft" $=1-0{,}1=0{,}9$). Der Betrieb fällt aus, wenn *weniger als 4* Server laufen, also gesucht ist die kumulierte Wahrscheinlichkeit $Pr(X\le 3) = \text{pbinom}(3, 6, 0{,}9) \approx 0{,}016$.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option berechnet das *Gegenereignis* $Pr(X\ge 4)$ -- also die Wahrscheinlichkeit, dass der Betrieb *aufrechterhalten* werden kann, nicht die gefragte Ausfallwahrscheinlichkeit.
+* Die dritte Option berechnet mit `dbinom` nur die Wahrscheinlichkeit für *genau* 3 laufende Server, nicht die kumulierte Wahrscheinlichkeit für "3 oder weniger", die für das Ausfallereignis nötig ist.
+* Die vierte Option verwendet den falschen Schwellenwert ($q=4$ statt $q=3$) und schließt damit den Fall "genau 4 Server laufen" fälschlich in die Ausfallwahrscheinlichkeit mit ein, obwohl bei 4 laufenden Servern der Betrieb laut Aufgabenstellung gerade noch aufrechterhalten werden kann.
+* Die fünfte Option berechnet naiv einen einfachen Bruch ($4/6$) ohne jeden Bezug zur Binomialverteilung oder zur gegebenen Ausfallwahrscheinlichkeit pro Server.
+
+
+Aufgabenname: `binomialverteilung-serverfarm-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: binomialverteilung-serverfarm-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: verteilungen

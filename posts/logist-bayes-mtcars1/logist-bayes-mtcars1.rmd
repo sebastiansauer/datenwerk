@@ -1,0 +1,97 @@
+---
+title: logist-bayes-mtcars1
+categories: null
+---
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+options(mc.cores = parallel::detectCores())
+```
+
+
+
+Question
+========
+
+Betrachten Sie den Datensatz `mtcars`.
+Die Forschungsfrage betreffe den Einfluss vom Spritverbrauch, $x$, UV, 
+auf die Wahrscheinlichkeit, dass es sich um ein Auto mit Automatik-Schaltung, 
+$y$, AV, handelt.
+
+
+
+
+
+Hinweise:
+
+- Runden Sie auf zwei Dezimalstellen.
+- Berechnen Sie ein lineares Modell auf Basis der Bayes-Statistik.
+- Orientieren Sie sich am Vorgehen aus dem Unterricht.
+
+Questionlist
+------------
+* Was ist der Punktschätzer (Median) in Logits für den Prädiktor?
+* Was ist der Standardfehler (standard error, se, MAD_SD) in Inv-Logits für den Prädiktor?
+* Was ist die Wahrscheinlichkeit für `am=1` bei einem Auto mit mittlerem Spritverbrauch, $\bar{mpg}$? Berichten Sie den Punktschätzer!
+  
+  
+Solution
+========
+
+a) 
+
+Berechnen wir den Koeffizienten (Punktschätzer) für $\beta$:
+
+```{r echo = TRUE}
+m1 <- 
+  stan_glm(am ~ mpg, data = mtcars,
+           refresh = 0,
+           family = binomial(link = "logit"))
+
+coef(m1)
+
+sol_a <- coef(m1)[2] %>% round(2)
+sol_a
+```
+
+
+
+
+b)
+
+```{r echo = TRUE}
+sol_b <- se(m1)[2]%>% invlogit() %>% round(2)
+sol_b
+```
+
+c)
+
+```{r echo = TRUE}
+sol_c <- 
+  predict(m1, newdata = tibble(mpg = mean(mtcars$mpg))) %>% 
+  invlogit() %>% 
+  round(2)
+
+sol_c
+```
+
+
+Aufgabenname: `logist-bayes-mtcars1`
+
+
+Solutionlist
+------------
+* `r sol_a`
+* `r sol_b`
+* `r sol_c`
+
+
+Meta-information
+================
+extype: cloze
+expoints: 1
+exsolution: `r sol_a`|`r sol_b`|`r sol_c`
+exclozetype: num|num|num
+exname: logist-bayes-mtcars1
+extol: 0.02

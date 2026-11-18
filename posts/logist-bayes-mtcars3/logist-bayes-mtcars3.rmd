@@ -1,0 +1,209 @@
+---
+title: logist-bayes-mtcars3
+categories: null
+---
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+  knitr::opts_chunk$set(
+  fig.pos = 'H',
+  fig.asp = 0.618,
+  fig.align='center',
+  fig.width = 5,
+  out.width = "70%",
+  fig.cap = "", 
+#  fig.path = "chunk-img/",
+  dpi = 300,
+  # tidy = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  fig.show = "hold")
+```
+
+
+Question
+========
+
+Betrachten Sie den Datensatz `mtcars`.
+Die Forschungsfrage betreffe den Einfluss vom Spritverbrauch, $x$, UV, 
+auf die Wahrscheinlichkeit, dass es sich um ein Auto mit Automatik-Schaltung, 
+$y$, AV, handelt.
+
+
+
+
+
+Hinweise:
+
+- Runden Sie auf zwei Dezimalstellen.
+- Berechnen Sie ein lineares Modell auf Basis der Bayes-Statistik.
+- Orientieren Sie sich am Vorgehen aus dem Unterricht.
+
+
+*Was ist der größte (statistische) Effekt des Prädiktors (in Wahrscheinlichkeit)?*
+
+Mit anderen Worten: Bei welchem Wert $X=x$ des Prädiktors $X$ ist die Veränderung an Wahrscheinlichkeit für $y=1$ am höchsten? 
+Vergleichen Sie dazu die Wertepaare des Prädiktors,
+etwas die Veränderung in Wahrscheinlichkeit von $x=4$ zu $x=5$!
+
+  
+  
+Solution
+========
+
+a) 
+
+
+```{r echo = TRUE}
+data(mtcars)
+m1 <- 
+  stan_glm(am ~ mpg, data = mtcars,
+           refresh = 0,
+           family = binomial(link = "logit"),
+           chains = 1)
+
+coef(m1)
+```
+
+Wir ziehen hier nur ein mal die Stichproben (`chains=1`),
+um Rechenzeit zu sparen.
+Bei diesem einfachen Modell ist nicht zu erwarten,
+dass es irgendwo Schwierigkeiten gibt.
+
+Plotten wir das Modell zur Orientierung.
+Eine einfache Methode zum Plotten geht so:
+
+```{r echo = TRUE}
+mtcars %>% 
+  ggplot(aes(x = mpg, y = am)) +
+  geom_jitter(width = 0.1, alpha = .7) +
+  geom_smooth(method = "glm", method.args=list(family="binomial"))
+```
+
+Im Gegensatz zu einer Geraden ist die Steigung bei einer Kurve wie unserer Ogive
+unterschiedlich in Abhängigkeit vom X-Wert.
+
+`geom_smooth()` geht hier von einem Logit-Modell mit uniformen Prioris aus,
+was nicht den Standard von `rstan_glm` gleicht.
+Der Hintergrund ist, dass `geom_smooth()` auf Basis der Frequentistischen Statistik arbeitet,
+`rstanarm` hingegen Bayesianisch.
+Bei Frequentistischen Modellen wird - übersetzt man sie in Bayes-Modelle - 
+immer eine uniforme Priori-Verteilung verwendet.
+
+
+Wir könnten diese Aufgabe durch einfaches Abschätzen oder Ausprobieren lösen,
+indem wir die vorhergesagten Änderungen in Y für verschiedene Punktepaare $(x_1,x_2)$ berechnen, wobei bei jedem Punktepaar der X-Abstand 1 beträgt.
+Anders gesagt könnten wir die Steigung der Ogive an verschiedenen Stellen berechnen.
+
+```{r echo = TRUE}
+preds_df <- 
+  tibble(
+    mpg = 10:30,
+    y_logits = predict(m1, newdata = tibble(mpg = mpg)),
+    y_pr = invlogit(y_logits),
+    y_lag = lag(y_pr),
+    y_diff = y_pr - y_lag
+  )
+
+preds_df %>% 
+  select(mpg, y_diff)
+```
+
+
+Das visualisieren wir mal:
+
+```{r echo = TRUE}
+preds_df %>% 
+  ggplot(aes(x = mpg, y = y_diff)) +
+  geom_line() +
+  geom_point(size = 2, alpha = .5)
+  
+```
+
+Wir sehen also, dass der maximale Zuwachs an Prozentpunkten bei ca. 0.08 liegt,
+was bei ca `mpg=22` der Fall ist.
+
+Diesen Wert nehmen wir als Lösung:
+
+```{r echo = TRUE}
+sol <- 
+  max(preds_df$y_diff, na.rm = TRUE) %>% 
+  round(2)
+
+sol
+```
+
+
+Alternativ könnten wir uns auch folgenden Sachverhalt vor Augen führen:
+
+Die Kurve ist am steilsten in ihrem Zentrum (Wendepunkt); vgl. [diese Animnation](https://de.wikipedia.org/wiki/Datei:Animated_illustration_of_inflection_point.gif).
+
+Der Wendepunkt liegt bei $Pr(y=1)=1/2$, also 50%.
+Damit gilt auch $\alpha + \beta x = 0$, denn $\mathcal{L}^{-1}(0)=1/2$.
+
+An dieser Stelle ist die Steigung der Ogive maximal und beträgt $\beta_{\mathcal{L}}/4$ Prozentpunkte, vgl. ROS S. 220 (Kap. 13.2),
+also ein Viertel der Steigung in Logits.
+
+Die obere Grenze der Steigung in Prozentpunkten liegt also bei $\beta/4$, 
+wobei $\beta$ in Logits gemessen ist.
+
+
+```{r}
+mtcars %>% 
+  ggplot(aes(x = mpg, y = am)) +
+  geom_jitter(width = 0.1, alpha = .7) +
+  geom_smooth(method = "glm", method.args=list(family="binomial")) +
+  geom_hline(yintercept = 1/2, linetype = "dashed") +
+  geom_vline(xintercept = -coef(m1)[1] / coef(m1)[2], linetype = "dashed") +
+  geom_point(x = -coef(m1)[1] / coef(m1)[2],
+             y = 1/2,
+             color = "red",
+             size = 3,
+             alpha = .3)
+```
+
+
+In unserem Fall:
+
+```{r echo = TRUE}
+max_steigung_in_pr <- 
+  coef(m1)[2] / 4
+
+max_steigung_in_pr
+```
+
+
+
+
+Wir hätten den steilsten Punkt auch so bestimmen können:
+
+$$\begin{align}
+-6.8 + 0.32x &=0 \\
+0.32x &= 6.8 \\
+x &= 6.8 / 0.32 \approx 21
+\end{align}
+$$
+
+
+Aufgabenname: `logist-bayes-mtcars3`
+
+
+
+
+Meta-information
+================
+extype: num
+expoints: 1
+exsolution: `r sol`
+exclozetype: num
+exname: logist-bayes-mtcars3
+extol: 0.02

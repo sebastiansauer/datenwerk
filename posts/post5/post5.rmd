@@ -1,0 +1,200 @@
+---
+title: post5
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(testthat)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+```
+
+
+
+```{r load-libs, message = FALSE}
+data(mtcars)
+library(tidyverse)
+library(rstanarm)
+library(bayesplot)  # Histogramm-Plots für Post-Vert.
+library(easystats)  # rope
+```
+
+
+
+
+Question
+========
+
+
+
+
+
+```{r init-data-frame-used}
+d_name <- "mtcars"
+data(list = d_name)
+av <- "mpg"
+vars <- names(eval(parse(text = d_name))) 
+preds <- setdiff(vars, av)
+
+# d is the abstracted name of the dataset:
+d <- eval(parse(text = d_name))
+```
+
+
+Wie groß ist die Wahrscheinlichkeit für ein manuelles Getriebe, 
+bei einem Auto mit 100 PS 4 Zylindern? (Datensatz `mtcars`)
+
+Berechnen Sie das einfachste logistische Modell!
+
+Geben Sie einen Punktschätzer (Median) an!
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hinweise:
+
+- Verwenden Sie Standardwerte der R-Funktionen, soweit nicht anders angegeben.
+- Runden Sie auf eine Dezimalstelle.
+- Verwenden Sie Methoden der Bayes-Statistik für inferenzstatistische Analysen.
+- Geben Sie keine Prozentzahlen an, sondern Anteile (also nicht "50%", sondern "0.5" etc.)
+- Findet sich in einer Auswahlliste möglicher Antworten nicht die exakte Lösung, wählen Sie die am besten passende.
+- Beziehen Sie sich im Zweifel auf den Stoff, so wie im Unterricht behandelt.
+
+
+
+```{r load-data}
+data(mtcars)
+```
+
+
+
+```{r compute-mod1}
+m1 <- 
+   stan_glm(am ~ hp + cyl,
+           data = mtcars,
+           refresh = 0,
+           chains = 1,  # spart Zeit
+           family = binomial("logit"))
+```
+
+
+
+```{r init-result-objects}
+questions <- solutions <- explanations <- answer_options <- item_stems <- rep(list(""), 1)
+type <- rep(list("numeric"), 1)
+```
+
+
+
+```{r ex-a}
+pred1 <- predict(m1,
+                 newdata = tibble(cyl = 4,
+                                  hp = 100))
+
+pred1_wskt <- pred1 %>% invlogit()
+pred1_wskt
+```
+
+
+
+```{r}
+#  a)
+item_stems[[1]] <- "Geben Sie den Anteil der Post-Verteilung an, die außerhalb des Rope liegt. "
+questions[[1]] <- paste0(item_stems[[1]])
+solutions[[1]] <- explanations[[1]] <- pred1_wskt
+```
+
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(format(unlist(questions)), markup = "markdown")
+```
+
+
+
+Solution
+========
+
+
+
+
+**MUSTERLÖSUNG**
+
+
+Setup:
+
+```{r ref.label = "load-libs"}
+
+```
+
+
+Daten laden:
+
+```{r ref.label = "load-data"}
+
+```
+
+
+Modell berechnen:
+
+
+```{r ref.label="compute-mod1"}
+
+```
+
+
+
+```{r ref.label = "ex-a"}
+
+```
+
+
+Aufgabenname: `post5`
+
+
+
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(paste(unlist(explanations), ".", sep = ""), markup = "markdown")
+```
+
+
+
+
+
+Meta-information
+================
+exname: post5
+extype: num
+exsolution: `r paste(solutions, collapse = "|")`
+exshuffle: false
+expoints: 1
+

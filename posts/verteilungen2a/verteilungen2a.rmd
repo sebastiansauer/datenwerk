@@ -1,0 +1,74 @@
+---
+title: verteilungen2a
+categories:
+- paper
+- todo
+---
+
+```{r libs, include = FALSE}
+library(mosaic)
+library(tidyr)
+library(exams)
+```
+
+
+```{r data generation, echo = FALSE, results = "hide"}
+# Random Data
+mw <- sample(2*1:5,1)
+sa <- sample(c(1/2,3/2),1) * mw
+mw <- sample(c(-1,1),1) * mw
+x <- seq(mw-3*sa, mw+3*sa, length = 1000)
+Dichte <- dnorm(x, mean = mw, sd = sa)
+
+questions <- character(7)
+questions[1] <- paste("$\\mu=$", mw, ", $\\sigma=$", sa)
+questions[2] <- paste("$\\mu=$", -mw, ", $\\sigma=$", sa)
+questions[3] <- paste("$\\mu=$", sa, ", $\\sigma=$", mw)
+questions[4] <- paste("$\\mu=$", 0, ", $\\sigma=$", 1)
+questions[5] <- paste("$\\mu=$", sa, ", $\\sigma=$", sa)
+questions[6] <- paste("$\\mu=$", mw, ", $\\sigma=$", -sa)
+questions[7] <- paste("$\\mu=$", mw, ", $\\sigma=$", mw)
+
+
+solutions <- rep(FALSE, 7)
+solutions[1] <- TRUE
+```
+
+
+Question
+========
+
+```{r show-plot, echo = FALSE, results="hide", fig.height = 4, fig.width = 6, fig.cap = ""}
+gf_line(Dichte ~ x) +
+  scale_y_continuous(breaks = NULL)
+```
+
+
+Welche Parameterwerte hat die Normalverteilung?
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+
+
+Solution
+========
+
+
+Aufgabenname: `verteilungen2a`
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(solutions, "Wahr", "Falsch"), markup = "markdown")
+```
+
+Meta-information
+================
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: verteilungen2a
+exshuffle: 4

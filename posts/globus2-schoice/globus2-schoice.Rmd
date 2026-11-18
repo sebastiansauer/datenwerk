@@ -1,0 +1,93 @@
+---
+title: globus2-schoice
+categories:
+- paper
+- todo
+---
+
+```{r, include=FALSE}
+W <- 9
+n <- 9
+pi <- .7
+loesung <- dbinom(x = W, size = n, prob = pi)
+falsch <- 1 - loesung
+```
+
+
+
+Question
+========
+Wir werfen einen Globus $n=9$ Mal und erzielen $W=9$ mal das Ereignis "Wasser".
+
+Was ist die Wahrscheinlichkeit dieses Ereignisses, wenn wir von einer Wasseranteil, d.h. Wahrscheinlichkeit, von $\pi=.7$ ausgehen?
+
+
+Answerlist
+----------
+* `r round(loesung, 3)`
+* `r pi`
+* `r round(1 - loesung, 3)`
+* `r round((1-pi)^W, 3)`
+* .14
+
+
+Solution
+========
+Gegeben sind die Werte $W=`r W`$, $n=`r n`$, $\pi=`r pi`$. Wir suchen also diese Größe:
+
+$$Pr(W=`r W` | \pi=`r pi`, n=`r n`) = ?$$
+
+Wir können R die Arbeit machen lassen:
+
+```{r}
+dbinom(x = W, size = n, prob = pi)
+```
+
+Oder den Taschenrechner nutzen:
+
+```{r}
+choose(n,W) * pi^W * (1-pi)^(n-W)
+```
+
+Die Harten unter uns rechnen es per Hand aus. Dafür kann man zunächst die Anzahl der Pfade mit dem Binomialkoeffizienten berechnen:
+
+```{r}
+anzahl_pfade <- factorial(n) / (factorial(W) * factorial(n-W))
+anzahl_pfade
+```
+
+`factorial(W)` liefert die Fakultät von $W$ zurück.
+
+Dann berechnet man die Wahrscheinlichkeit eines einzelnen Pfades:
+
+```{r}
+pfad_wskt <-  pi^W * (1-pi)^(n-W)
+pfad_wskt
+```
+
+Multipliziert man die beiden vorherigen Zwischenergebnisse, so erhält man die Lösung: `r round(loesung, 4)`.
+
+Die Distraktoren entstehen durch typische Fehler: $\pi$ direkt als Antwort verwendet (ohne Potenzieren), das Komplement $1 - Pr(W=9)$, sowie die falsche Basis $(1-\pi)^W$ (Wasseranteil und Gegenanteil vertauscht).
+
+Die ".14" ist ein willkürlicher Distraktor. 
+
+
+Aufgabenname: `globus2-schoice`
+
+
+
+Answerlist
+----------
+* True
+* False
+* False
+* False
+* False
+
+Meta-information
+================
+exname: globus2-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5

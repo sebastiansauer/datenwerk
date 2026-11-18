@@ -1,0 +1,83 @@
+---
+title: stipro-beschreiben
+categories: null
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+
+Question
+========
+
+
+Beschreiben Sie den Datensatz `mtcars`!
+
+Nehmen Sie Bezug auf die Forschungsfrage "PS-Zahl hat einen Einfluss auf den Spritverbrauch".
+
+
+Solution
+========
+
+```{r}
+library(datawizard)
+tab1 <- describe_distribution(mtcars)
+tab1
+```
+
+Wenn Sie es in Word exportieren wollen:
+
+```{r}
+library(flextable)
+flextable(tab1)
+```
+
+
+Aber wie wird man die nervigen Dezimalstellen los? Zwei reichen völlig.
+
+```{r}
+library(janitor)
+
+tab1 <- 
+  tab1 %>% 
+  adorn_rounding(digits = 2)
+```
+
+
+```{r}
+flextable(tab1)
+```
+
+
+S. [hier](https://sebastiansauer.github.io/data_se/2022/05/02/kontigenztabellen-in-r/#exportieren) zum Export in eine Word-Tabelle.
+
+Könnte also so aussehen:
+
+```{r}
+save_as_docx(tab1, path = "tab1.docx")
+```
+
+
+
+Die Verteilung der AV:
+
+
+```{r}
+ggplot(mtcars) +
+  aes(x = mpg) +
+  geom_histogram()
+```
+
+
+Aufgabenname: `stipro-beschreiben`
+
+
+
+Meta-information
+================
+extype: string
+exsolution: NA
+exname: stipro-beschreiben
+expoints: 1

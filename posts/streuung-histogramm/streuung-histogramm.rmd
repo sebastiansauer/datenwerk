@@ -1,13 +1,10 @@
 ---
-exname: Streuung-Histogramm
-extype: schoice
-exsolution: r mchoice2string(sol_df$is_correct, single = TRUE)
-exshuffle: no
 categories:
 - eda
 - variability
 - dyn
 - schoice
+- paper
 date: '2023-04-28'
 slug: Streuung-Histogramm
 title: Streuung-Histogramm
@@ -43,7 +40,8 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-# Aufgabe
+Question
+========
 
 
 
@@ -109,7 +107,7 @@ d_raw <- tibble(
 d <-
   d_raw %>% 
   mutate(quantiles = map(data, ~ quantile(.x[[1]]))) %>% 
-  mutate(skew = map_dbl(data, ~ skewness(.x[[1]]))) %>% 
+  mutate(skew = map_dbl(data, ~ e1071::skewness(.x[[1]]))) %>% 
   mutate(avg = map_dbl(data, ~ mean(.x[[1]]))) %>% 
   mutate(iqr = map_dbl(data, ~ IQR(.x[[1]]))) %>% 
   unnest_wider(quantiles) %>% 
@@ -134,21 +132,28 @@ d_selected_long <-
 
 
 
-```{r generate-histograms, echo = FALSE, message = FALSE, fig.show='hold', comment="", results="hide", warning=FALSE}
+```{r generate-histograms, echo = FALSE, message = FALSE, comment="", warning=FALSE, fig.width = 6, fig.asp = 0.7}
 
-gg_hist <- function(data, plot_id, value, iqr) {
-  ggplot(data = data) +
-    aes(x = value) +
-    geom_density() +
-    ggtitle(glue("Diagramm {plot_id}")) +
-    annotate("rect", xmin = value - iqr/2, xmax = value + iqr/2, ymin = 0, max = Inf, fill = "red", alpha = .5) +
-    geom_vline(xintercept = value, linetype = "dashed", color = "red") 
-}
+# all diagrams in one figure, so that the PDF output stays within the page width
+d_marks <- 
+  d_selected_long %>% 
+  select(plot_id, value, iqr) %>% 
+  mutate(plot_id = paste("Diagramm", plot_id))
 
+d_dens <- 
+  d_selected_long %>% 
+  select(plot_id, data) %>% 
+  unnest(data) %>% 
+  mutate(plot_id = paste("Diagramm", plot_id))
 
-d_selected_long %>% 
-  select(-name) %>% 
-  pmap(gg_hist)
+ggplot(d_dens) +
+  aes(x = value) +
+  geom_rect(data = d_marks, 
+            aes(xmin = value - iqr/2, xmax = value + iqr/2, ymin = 0, ymax = Inf),
+            inherit.aes = FALSE, fill = "red", alpha = .5) +
+  geom_density() +
+  geom_vline(data = d_marks, aes(xintercept = value), linetype = "dashed", color = "red") +
+  facet_wrap(~ plot_id, ncol = 2)
 
 ```
 
@@ -168,23 +173,14 @@ exams::answerlist(sol_df$plot_id, markup = "markdown")
 ```
 
 
-
-
-
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-
-# Lösung
+Solution
+========
 
 Das Diagramm ``r sol_df$plot_id[sol_df$is_correct == TRUE]`` zeigt den Median am genauesten.
+
+
+Aufgabenname: `streuung-histogramm`
+
 
 
 ```{r solutionlist, echo = FALSE, results = "asis"}
@@ -193,6 +189,15 @@ exams::answerlist(ifelse(sol_df$is_correct, "Wahr", "Falsch"), markup = "markdow
 
 
 
+
+
+Meta-information
+================
+exname: streuung-histogramm
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(sol_df$is_correct, single = TRUE)`
+exshuffle: FALSE
 
 
 ---
@@ -204,4 +209,3 @@ Categories:
 - variability
 - dyn
 - schoice
-

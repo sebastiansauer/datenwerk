@@ -1,0 +1,132 @@
+---
+title: stan_glm_priors_null
+categories:
+- bayes
+- regression
+- paper
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      message = FALSE,
+                      warning = FALSE,
+                      # out.width = "100%",
+                      cache = TRUE)
+```
+
+
+
+
+
+
+
+Question
+========
+
+Eine Bayes-Analyse setzt voraus, dass Priori-Verteilungen definiert sind. 
+Man kann aber die Prioris so setzen, 
+dass die Modellparameter numerisch identisch zur frequentistischen Analyse sind.
+
+A) Nennen Sie den Namen des Befehls (R-Funktion) einer Bayes-Regression aus dem R-Package `rstanarm`!
+B) Nennen Sie den Namen eines Befehls (R-Funktion) einer frequentistischen Regression!
+C) Auf welchen Wert muss man die die Argumente von A) setzen, um numerisch äquivalente Ergebnisse zu B) zu erhalten? Geben Sie das passende "R-Wort" dafür ein.
+D) Wie viele Parameter sind in einem Modell zu spezifizieren, dass den Spritverbrauch als lineare Funktion der PS-Zahl modelliert? Geben Sie die Zahl ein.
+
+
+Hinweise:
+
+- Geben Sie bei R-Funktionen nur den Namen ein, keine Namen oder Argumente.
+- Verwenden Sie nur Kleinbuchstaben (z.b. mean, heute, klein, befehl).
+- Zahlen sind mit Ziffern, nicht in Wörtern einzugeben (richtig: 42, falsch: zweiundvierzig).
+
+
+
+Solution
+========
+
+```{r echo = FALSE}
+sol_vec <- c("stan_glm", "lm", "null", "3")
+sol <- paste(sol_vec, collapse = "|")
+```
+
+
+Bayesmodell spezifizieren:
+
+```{r}
+library(rstanarm)
+m1 <- stan_glm(
+  mpg ~ hp, 
+  prior = NULL,
+  prior_aux = NULL,
+  prior_intercept = NULL,
+  data = mtcars,
+  refresh = 0 
+)
+```
+
+Überblick zu den im Modell verwendeteten Prioris ausgeben lassen:
+
+```{r}
+prior_summary(m1)
+```
+
+
+Modellkoeffizienten ausgeben lassen:
+
+```{r}
+coef(m1)
+```
+
+
+Lineares Modell nach der Maximum Likelihood-Methode spezifizieren:
+
+```{r}
+m2 <- lm(mpg ~ hp, data = mtcars)
+```
+
+Modellkoeffizienten ausgeben lassen:
+
+```{r}
+m2
+```
+
+
+Auf Gleichheit prüfen:
+
+```{r}
+all.equal(coef(m1), coef(m2))
+```
+
+Fast gleich!
+
+
+
+Mehr Erläuterung zu flachen Prioris bei `stan_glm()` findet sich [hier](http://mc-stan.org/rstanarm/articles/priors.html#how-to-specify-flat-priors-and-why-you-typically-shouldn-t-).
+
+
+Aufgabenname: `stan_glm_priors_null`
+
+
+
+
+
+Meta-information
+================
+extype: cloze
+exsolution: `r sol`
+exclozetype: string|string|string|string
+exname: stan_glm_priors_null
+expoints: 1
+categories:
+- bayes
+- regression
+

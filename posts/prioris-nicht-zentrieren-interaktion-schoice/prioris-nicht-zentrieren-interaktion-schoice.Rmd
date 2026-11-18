@@ -1,0 +1,50 @@
+---
+title: prioris-nicht-zentrieren-interaktion-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Einer der "Lieblingsfehler" im Kapitel lautet: "Prädiktoren nicht zentrieren, wenn es einen Interaktionsterm gibt". Warum ist das Fehlen der Zentrierung bei einem Interaktionsmodell besonders problematisch?
+
+Answerlist
+----------
+* Ohne Zentrierung beziehen sich die Haupteffekt-Koeffizienten der beteiligten Prädiktoren jeweils auf den (oft unrealistischen) Fall, dass der jeweils andere Prädiktor den Wert 0 annimmt -- das erschwert die Interpretation erheblich und lädt zu Fehlinterpretationen ein (wie bei `mpg ~ hp*vs`).
+* Ohne Zentrierung lässt sich ein Interaktionsmodell technisch überhaupt nicht mit `stan_glm()` berechnen.
+* Zentrieren ist bei Interaktionsmodellen zwar üblich, hat aber überhaupt keinen Effekt auf die Interpretierbarkeit der Koeffizienten.
+* Nicht-zentrierte Prädiktoren führen bei Interaktionsmodellen automatisch zu falschen Vorhersagen des Modells.
+* Zentrieren ist nur bei Interaktionsmodellen mit ausschließlich nominalen Prädiktoren notwendig.
+
+Solution
+========
+Wie am Beispiel `mpg ~ hp*vs` gezeigt: Ohne Zentrierung bezieht sich der Koeffizient von `vs` auf den (unrealistischen) Fall `hp=0`, was leicht zu Fehlinterpretationen führt (siehe "Lieblingsfehler" Interaktion falsch interpretieren). Zentriert man hingegen die metrischen Prädiktoren, beziehen sich die Haupteffekte auf den *durchschnittlichen* Wert des jeweils anderen Prädiktors -- eine deutlich sinnvollere Referenzgröße. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist falsch: `stan_glm()` berechnet Interaktionsmodelle problemlos auch mit unzentrierten Prädiktoren (wie im Kapitel explizit am Modell `m2` gezeigt) -- das Problem betrifft die *Interpretierbarkeit*, nicht die technische Berechenbarkeit.
+* Die dritte Option widerspricht der zentralen Botschaft dieses und früherer Kapitel: Zentrieren ändert zwar nicht die Vorhersagen des Modells, wohl aber ganz erheblich, worauf sich die Haupteffekt-Koeffizienten beziehen und wie leicht (oder schwer) sie zu interpretieren sind.
+* Die vierte Option ist falsch: Zentrieren ändert -- wie in einem früheren Kapitel gezeigt -- nichts an den vorhergesagten Werten des Modells, nur an der Interpretierbarkeit der Koeffizienten.
+* Die fünfte Option ist eine unzutreffende Einschränkung: Der im Kapitel gezeigte Problemfall (`hp`) betrifft gerade einen *metrischen* Prädiktor -- die Zentrierungsempfehlung gilt in erster Linie für metrische, nicht für rein nominale Prädiktoren.
+
+
+Aufgabenname: `prioris-nicht-zentrieren-interaktion-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: prioris-nicht-zentrieren-interaktion-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

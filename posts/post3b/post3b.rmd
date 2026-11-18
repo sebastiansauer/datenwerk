@@ -1,0 +1,253 @@
+---
+title: post3b
+categories: null
+---
+
+<!-- Besser als numerische Frage umstellen, das verhindert Raten: Es gibt hier eine Option "teils, teils", die a-priori am wahrscheinlcihsten ist und damit zum Raten einlädt. -->
+
+<!-- VGL POST3c.RMD -->
+
+
+
+
+```{r load-libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(easystats)
+```
+
+
+```{r}
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+chains <- 1  # set to one for debugging, set to 4 for production
+```
+
+
+
+
+
+Question
+========
+
+
+
+
+
+
+```{r prep-data, message=FALSE}
+d_df <-
+  tibble(datasets_names = c("penguins", "mtcars", "tips"),
+         av = c("bill_length_mm", "mpg", "tip"),
+         source = c(
+           "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv",
+           "https://vincentarelbundock.github.io/Rdatasets/csv/datasets/mtcars.csv",
+           "https://vincentarelbundock.github.io/Rdatasets/csv/reshape2/tips.csv"
+         ))
+
+d_selected <-
+  d_df %>% 
+  slice_sample(n = 1)
+
+d_name <- d_selected$datasets_names
+
+d <- read_csv(d_selected$source)
+
+
+if ("...1" %in% names(d)) d <- d %>% select(-"...1")
+
+
+d <-
+  d %>% 
+  select(where(is.numeric))
+
+vars <- names(d)
+
+av <- d_selected$av
+preds <- setdiff(vars, av)
+
+question <- "Ist der Effekt des Prädiktors vernachlässigbar klein (also im ROPE)?"
+
+k <- 2  # number of predictors to be chosen
+
+preds_chosen <- sample(preds, k)
+pred_focus <- sample(preds_chosen, 1)
+```
+
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren,
+genauer gesagt geht es um Prädiktoren der AV, ``r av``. 
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+
+Berechnen Sie das folgende lineare Modell:
+
+
+
+AV: `r av`.
+
+UVs: `r preds_chosen`.
+
+Im Folgenden wird *ein* Prädiktor aus der Menge der UV näher betrachtet.
+Der gewählte Prädiktor im Fokus ist: ``r pred_focus``.
+
+
+*Aufgabe*: **`r question`**
+
+
+*Hinweise*:
+
+- Verwenden Sie Standardwerte der R-Funktionen, soweit nicht anders angegeben.
+- Runden Sie auf eine Dezimalstelle (R-Funktion `round(x, 1)`).
+- Verwenden Sie Methoden der Bayes-Statistik für inferenzstatistische Analysen.
+- Geben Sie keine Prozentzahlen an, sondern Anteile (also nicht "50%", sondern "0.5" etc.)
+- Findet sich in einer Auswahlliste möglicher Antworten nicht die exakte Lösung, wählen Sie die am besten passende.
+- Beziehen Sie sich im Zweifel auf den Stoff, so wie im Unterricht behandelt.
+- Gehen Sie von einem 89%-HDI aus, was der Standard in der R-Funktion `rope()` ist.
+
+
+
+
+
+```{r results = "hide", echo = FALSE}
+preds_formula <- paste(preds_chosen, collapse = " + ")
+mod_formula <- as.formula(paste0(av, " ~", preds_formula))
+m1 <- stan_glm(mod_formula, data = d, refresh = 0, chains = chains)
+
+mod_formula_string <- paste0(av, " ~ ", preds_formula)
+```
+
+
+
+```{r}
+
+m1_rope <- rope(m1)
+m1_rope_chosen <-
+  m1_rope %>% 
+  filter(Parameter == pred_focus)
+
+anteil_ausserhalb_rope <- round(1 - m1_rope_chosen$ROPE_Percentage, 1)
+```
+
+```{r}
+if (anteil_ausserhalb_rope > 0.99) sol <- "zu 100% außerhalb des ROPE"
+if (anteil_ausserhalb_rope < 0.01) sol <- "zu 100% innerhalb des ROPE"
+if (between(anteil_ausserhalb_rope, 0.01, 0.99)) sol <- "teilweise innerhalb, teilweiße außerhalb"
+```
+
+
+
+```{r}
+sol_df <-
+  tibble(
+    id = 1:5,
+    answer_options = c("zu 100% innerhalb des ROPE", "zu 100% außerhalb des ROPE", "teilweise innerhalb, teilweiße außerhalb",  "keine Aussage möglich", "Mehr als 100% außerhalb des ROPE"),
+    correct_answer = answer_options == sol
+  ) %>% 
+  sample_n(size = nrow(.))
+```
+
+Wählen Sie die am besten passende Antwortoption!
+
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(sol_df$answer_options, markup = "markdown")
+```
+
+
+Solution
+========
+
+
+
+
+
+
+
+*MUSTERLÖSUNG*
+
+Der Datensatz heißt: `r d_selected$datasets_names`.
+Er ist unter [dieser Quelle](`r d_selected$source`) zu beziehen.
+
+Die Prädiktoren (UVs) des Modells lauten: `r preds_chosen`.
+
+
+Dann berechnet man das Modell, etwa so `r glue::glue("m1 <- stan_glm({mod_formula_string}, data = d)")`.
+
+
+Ausgabe der Ergebnisse:
+
+```{r echo = TRUE}
+print(m1)
+```
+
+Gefragt war nach dem Prädiktor ``r pred_focus``.
+
+
+
+So kann man sich den Wert für jeden Koeffizienten (d.h. das Regressionsgewicht) ausgeben lassen:
+
+```{r eval=FALSE, echo = TRUE}
+coef(m1)
+```
+
+
+Dann bestimmen wir den ROPE-Wert:
+
+```{r}
+library(easystats)
+rope(m1)
+```
+
+
+Wie man in der Ausgabe sieht, beträgt der Anteil *außerhalb* des ROPE für den gesuchten Koeffizienten `r anteil_ausserhalb_rope`.
+
+Daher lautet die richtige Antwort *`r sol_df$answer_options[sol_df$correct_answer == TRUE]`*.
+
+```{r}
+sol <- mchoice2string(sol_df$correct_answer, single = TRUE)
+```
+
+
+Aufgabenname: `post3b`
+
+
+
+
+```{r sollist, echo = FALSE, results = "asis"}
+answerlist(sol_df$correct_answer, markup = "markdown")
+```
+
+
+
+Meta-information
+================
+exname: post3b
+extype: schoice
+exsolution: `r sol`
+exshuffle: false
+expoints: 1
+

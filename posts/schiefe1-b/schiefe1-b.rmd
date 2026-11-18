@@ -1,0 +1,98 @@
+---
+title: schiefe1-b
+categories:
+- dyn
+- eda
+- lagemaße
+- distribution
+- paper
+---
+
+<!-- Based on Karsten Luebke et al. -->
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+library(mosaic)
+
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "")
+```
+
+
+w
+
+
+
+Question
+========
+
+```{r generate-data, include = FALSE}
+
+Verteilungsform <- c("linksschief", "rechtsschief", "gleichverteilt", "normalverteilt")
+
+d <- 
+  tibble(
+variable_set = c("Anzahl Piercings", "Anzahl Tattoos", "Geburten je Tag im Monat", "Vermögen", "Körpergröße deutscher Männer")) %>% 
+  mutate(selected_item = sample(c(TRUE, rep.int(FALSE, times = nrow(.)-1)))) %>% 
+  mutate(Verteilungsform =  c("rechtsschief", "rechtsschief", "gleichverteilt", "rechtsschief", "normalverteilt"))
+
+
+d_selected_item <-
+  d %>% 
+  filter(selected_item == TRUE)
+
+
+items <-
+  tibble(answer_option = Verteilungsform) %>% 
+  mutate(is_correct = answer_option == d_selected_item$Verteilungsform[1])
+```
+
+Welche Form der Verteilung liegt wohl (am ehesten) für die Variable ``r d_selected_item$variable_set[1]`` vor? 
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+exams::answerlist(items$answer_option, markup = "markdown")
+```
+
+
+
+Solution
+========
+
+
+Die Variable ``r d_selected_item$variable_set[1]`` lässt sich am ehesten beschreiben mit der Verteilungsform ``r d_selected_item$Verteilungsform[1]``.
+
+
+Aufgabenname: `schiefe1-b`
+
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+exams::answerlist(ifelse(items$is_correct, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+Meta-information
+================
+exname: schiefe1-b
+extype: schoice
+exsolution: `r exams::mchoice2string(items$is_correct, single = TRUE)`
+exshuffle: true
+expoints: 1
+categories:
+- dyn
+- eda
+- lagemaße
+- distribution
+
+

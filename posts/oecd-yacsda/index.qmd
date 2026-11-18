@@ -10,6 +10,7 @@ cache: true
 toc: true
 number-sections: true
 extype: string
+expoints: 1
 exsolution: ""
 exshuffle: no
 categories:
@@ -53,7 +54,7 @@ knitr::opts_chunk$set(
 
 
 
-# Grundlagen
+## Grundlagen
 
 :::{.callout-tip}
 Wenn Sie nicht mehr weiter wissen, googeln Sie nach dem Problem. Oder fragen Sie einen ChatBot, z.B. ChatGPT. $\square$
@@ -64,7 +65,7 @@ Wenn Sie nicht mehr weiter wissen, googeln Sie nach dem Problem. Oder fragen Sie
 Im Folgenden werden mitunter mehrere Lösungswege präsentiert. Sie können sich den Weg aussuchen, der Ihnen am besten gefällt. Sie müssen *nicht* alle Wege verstehen oder gar beherrschen. Einer reicht. $\square$
 :::
 
-## Hintergrund
+### Hintergrund
 
 
 
@@ -76,7 +77,7 @@ In diesem Post untersuchen wir einige Aspekte der explorativen Datenanalyse für
 
 
 
-## Benötigte Pakete
+### Benötigte Pakete
 
 Ein Standard-Paket zur grundlegenden Datenanalyse bzw. des Datenjudos ist `tidyverse`. Darüber hinaus verwenden wir noch zwei Pakete zur Visualisierung und eines für den Komfort.
 
@@ -89,7 +90,7 @@ library(ggpubr)  # Data vis
 
 
 
-## Datensatz laden
+### Datensatz laden
 
 Der Datensatz kann [hier](https://stats.oecd.org/Index.aspx?DataSetCode=RWB) bezogen werden.
 
@@ -119,7 +120,7 @@ oecd <- read.csv("https://raw.githubusercontent.com/sebastiansauer/2021-sose/mas
 
 
 
-## Erster Blick
+### Erster Blick
 
 
 ```{r}
@@ -133,7 +134,7 @@ Die qualitativen Variablen sind für eine direkte Analyse weniger interessant; v
 Betrachten wir aber zu Beginn die metrischen Variablen einzeln (univariat).
 
 
-## Deskriptive Statistiken zu den metrischen Variablen, einzeln (univariat)
+### Deskriptive Statistiken zu den metrischen Variablen, einzeln (univariat)
 
 Zentrale Statistiken zu den metrischen Variablen lassen sich auf mehreren Wegen mit R berechnen. Hier ist ein Weg:
 
@@ -155,14 +156,14 @@ Auch hier gibt es wieder viele Lösungen.
 
 Es reicht, wenn Sie mit *einer* Lösung vertraut sind.
 
-### Mit ggpubr
+#### Mit ggpubr
 
 ```{r}
 oecd |> 
 gghistogram(x = "Life_satisfaction")
 ```
 
-### Mit DataExplorer
+#### Mit DataExplorer
 
 ```{r}
 oecd |> 
@@ -170,7 +171,7 @@ oecd |>
   plot_histogram()
 ```
 
-### Mit ggplot
+#### Mit ggplot
 
 Das R-Paket `ggplot` wird durch das "Meta-Paket" `tidyverse` gestartet. Sie müssen es also nicht extra starten.
 
@@ -192,7 +193,7 @@ oecd %>%
 Die *Dichte*  gibt an, welcher Anteil der Beobachtungen an der jeweiligen Stelle der X-Achse lägen, wenn man eine Einheit betrachtet (z.B. die Lebenszufriedenheit von 5-6).
 
 
-## Histogramm nach Gruppen: Lebenszufriedenheit in De und Fr
+### Histogramm nach Gruppen: Lebenszufriedenheit in De und Fr
 
 Angenommen, man möchte Deutschland mit Frankreich vergleichen im Hinblick auf die Lebenszufriedenheit.
 
@@ -208,14 +209,14 @@ oecd %>%
 
 Dann visualisieren wir wieder.
 
-### Mit ggpubr
+#### Mit ggpubr
 
 ```{r}
 oecd_de_fr |> 
   gghistogram(x = "Life_satisfaction", facet.by = "Country")
 ```
 
-### Mit DataExplorer
+#### Mit DataExplorer
 
 Leider unterstützt DataExplorer nicht direkt den Vergleich von Grupen mit einem Histogramm. Man könnte aber einen Boxplot verwenden stattdessen.
 
@@ -225,7 +226,7 @@ oecd_de_fr |>
   plot_boxplot(by = "Country")
 ```
 
-### Mit ggplot
+#### Mit ggplot
 
 ```{r}
 oecd_de_fr %>% 
@@ -235,7 +236,7 @@ oecd_de_fr %>%
 ```
 
 
-## Histogramm für alle metrischen Variablen auf einmal
+### Histogramm für alle metrischen Variablen auf einmal
 
 Um einen Überblick über die Verteilungen zu bekommen, bietet es sich an, sich alle Verteilungen anzuschauen. 
 Malen wir einmal alle Histogramme auf einmal. Das geht wiederum mit `DataExplorer` sehr einfach:
@@ -247,7 +248,7 @@ oecd |>
 
 
 
-## VERTIEFUNG: Histogramm für alle Variablen auf kompliziert
+### VERTIEFUNG: Histogramm für alle Variablen auf kompliziert
 
 
 
@@ -294,16 +295,16 @@ oecd_de_fr_long %>%
 
 
 
-# Forschungsfrage: Lebenszufriedenheit in De im internationalen Vergleich
+## Forschungsfrage: Lebenszufriedenheit in De im internationalen Vergleich
 
-## Hintergrund
+### Hintergrund
 
 Hat Deutschland in Vergleich zu anderen Ländern eine hohe Lebenszufriedenheit?
 
 Die Frage ist noch recht unpräzise formuliert, aber dafür gibt sie Raum für eine Menge von Untersuchungsansätzen.
 
 
-### Datensatz filtern - nur Länder, keine Landesteile
+#### Datensatz filtern - nur Länder, keine Landesteile
 
 Der Datensatz in seiner aktuellen Form verstößt gegen die Regel der "Normalform", dass in jeder Zeile (genau) eine Beobachtungseinheit steht und in jeder Zeile (genau) eine Variable. In einigen Zeilen stehen *Länder*, in den meisten anderen aber *Landesteile* (wie Bayern, Baden-Württemberg etc.). Filtern wir uns nur die Länder, und exkdluieren die Landesteile:
 
@@ -316,10 +317,10 @@ oecd_short <-
 Die Anzahl der Zeilen dieses Datensatz `oecd_short` gibt uns Aufschluss über die Anzahl der untersuchten Länder.
 
 
-### Visualisierung der Lebenszufriedenheit der Länder
+#### Visualisierung der Lebenszufriedenheit der Länder
 
 
-#### Mit DataExplorer
+##### Mit DataExplorer
 
 ```{r}
 oecd_short |> 
@@ -328,7 +329,7 @@ oecd_short |>
 ```
 
 
-#### Mit ggplot
+##### Mit ggplot
 
 ```{r}
 oecd_short %>% 
@@ -337,7 +338,7 @@ oecd_short %>%
 ```
 
 
-#### Sieht nicht so schön aus
+##### Sieht nicht so schön aus
 
 Hm, unser Punktediagramm sieht nicht übersichtlich aus. Besser wäre es, die Punkte absteigend zu sortieren.
 
@@ -352,7 +353,7 @@ Eine Variable des Typs `character` steht für Text, z.B. `"Germany"`.
 Offensichtlich sind diese alphabetisch geordnet -- nach dieser Ordnung richtet sich die Ordnung im Diagramm.
 
 
-### Umwandling in eine Faktor-Variable
+#### Umwandling in eine Faktor-Variable
 
 In solchen Fällen bietet es sich an, die Character-Variable in eine *Factor-Variable* umzuwandeln; dann geht das Weitere einfacher.
 
@@ -373,9 +374,9 @@ oecd_short %>%
 
 
 
-## Ranking und Top-10-Prozent der Zufriedenheit
+### Ranking und Top-10-Prozent der Zufriedenheit
 
-### Top-10
+#### Top-10
 
 Schauen wir uns die "Happy-Top-10" an, die 10 Länder mit der höchsten Lebenszufriedenheit:
 
@@ -387,7 +388,7 @@ oecd_short %>%
   slice(1:10)
 ```
 
-### Die oberen 10% der Zufriedenheit
+#### Die oberen 10% der Zufriedenheit
 
 Mit welcher Lebenszufriedenheit gehört ein Land zu den Top-10-Prozent der zufriedenen Länder?
 
@@ -409,7 +410,7 @@ oecd_short %>%
 
 
 
-## Vertiefung
+### Vertiefung
 
 Ändern wir die Sortierung! Mit `reorder()` kann man die Sortierung ändern (re-ordnen, daher der Name):
 
@@ -432,7 +433,7 @@ Wie man sieht, ist `Country_sorted` jetzt anders sortiert.
 Visualisieren wir das Ergebnis:
 
 
-### Mit DataExplorer
+#### Mit DataExplorer
 
 ```{r}
 oecd_short_reordered |> 
@@ -442,7 +443,7 @@ oecd_short_reordered |>
 
 Oh, `DataExplorer` macht die Reihenfolge wieder kaputt.
 
-### Mit ggpubr
+#### Mit ggpubr
 
 ```{r}
 oecd_short_reordered |> 
@@ -452,7 +453,7 @@ oecd_short_reordered |>
 
 
 
-### Mit ggplot
+#### Mit ggplot
 
 ```{r}
 plot_sorted <- oecd_short_reordered %>% 
@@ -465,7 +466,7 @@ plot_sorted
 Schon besser. Man kann z.B. die Achsen nicht lesen `r emo::ji("sad")`. Was könnte man da bloß tun?
 
 
-### Achsenu um 90 Grad drehen
+#### Achsenu um 90 Grad drehen
 
 Mit `+ coord_flip()` lassen sich die Achsen um 90 Grad drehen:
 
@@ -489,7 +490,7 @@ oecd_short_reordered %>%
 Aber übersichtlicher ist es, die Dinge nacheinander zu tun.
 
 
-### Mittelwert ins Diagramm
+#### Mittelwert ins Diagramm
 
 Schön wäre es noch, im Bild den Mittelwert o.Ä. im Diagramm zu sehen:
 
@@ -525,13 +526,13 @@ oecd_short_reordered %>%
 
 
 
-## Zusammenhang zweier metrischer Variablen -- Punktediagramm
+### Zusammenhang zweier metrischer Variablen -- Punktediagramm
 
 Hängt die Lebenszufriedenheit mit `Civic_engagment` zusammen?
 
 Visualisieren wir diesen (möglichen) Zusammenhang.
 
-### Mit ggpubr
+#### Mit ggpubr
 
 ```{r}
 oecd_short_reordered |> 
@@ -540,7 +541,7 @@ oecd_short_reordered |>
 ```
 
 
-### Mit DataExplorer
+#### Mit DataExplorer
 
 ```{r}
 oecd_short_reordered |> 
@@ -557,7 +558,7 @@ oecd_short_reordered |>
 ```
 
 
-### Mit ggplot
+#### Mit ggplot
 
 
 ```{r}
@@ -566,7 +567,7 @@ oecd_short_reordered %>%
   geom_point()
 ```
 
-### Insgesamt wenig Zusammenhang
+#### Insgesamt wenig Zusammenhang
 
 Hm, es ist kein starker Trend zu erkennen.
 
@@ -580,12 +581,12 @@ oecd_short_reordered %>%
 Immerhin, kein ganz unwesentlicher Wert.
 
 
-### Und so weiter
+#### Und so weiter
 
 Dieses Prinzip mit dem Punktediagramm könnte man jetzt weiterführen ad nauseam.
 
 
-### Korrelationsdiagramm
+#### Korrelationsdiagramm
 
 
 ```{r}
@@ -595,7 +596,7 @@ oecd_short_reordered |>
 ```
 
 
-## Zusammenhang zweier Variablen unter Berücksichtigung von Drittvariablen
+### Zusammenhang zweier Variablen unter Berücksichtigung von Drittvariablen
 
 Oben haben wir gesehen, dass Lebenszufriedenheit und Civiv Engagement zusammenhängen (zumindest ein bisschen).
 
@@ -627,13 +628,13 @@ oecd_short_reordered <-
 ```
 
 
-### Visualisierung
+#### Visualisierung
 
 Jetzt plotten wir den Zusammenhang:
 
 
 
-#### Mit ggpubr
+##### Mit ggpubr
 
 ```{r}
 oecd_short_reordered |> 
@@ -644,7 +645,7 @@ oecd_short_reordered |>
 
 
 
-#### Mit ggplot
+##### Mit ggplot
 
 ```{r}
 income_labels <- c(`0` = "arm", 
@@ -663,7 +664,7 @@ oecd_short_reordered %>%
 ```
 
 
-### Vertiefung: Korrelation pro Gruppe
+#### Vertiefung: Korrelation pro Gruppe
 
 Um die Korrelation pro Gruppe zu erhalten, könnten wir jeweils einen Dataframe pro Gruppe erzeugen (mit `filter()`) und dann jeweils die Korrelation von Zufriedenheit und Engagement berechnen.
 
@@ -680,12 +681,12 @@ Interessanterweise ist die Korrelation durchaus verschieden in den beiden Gruppe
 Natürlich sind die beiden Gruppen nur Stichproben - es stellt sich die Frage, ob die Unterschiede nur durch Zufälligkeiten des Stichprobenziehens entstanden sind oder auch in der Grundgesatmtheit der "reichen" und "armen" Ländern existieren? Dazu später mehr!
 
 
-## Deskriptive Statistiken nach Ländern
+### Deskriptive Statistiken nach Ländern
  
  
-### Lebenszufriedenheit
+#### Lebenszufriedenheit
 
-#### Mit `easystats`
+##### Mit `easystats`
 
 Das ist relativ einfach:
 
@@ -696,7 +697,7 @@ oecd_short_reordered %>%
 ```
 
 
-#### Mit `tidyverse` 
+##### Mit `tidyverse` 
 
 ```{r}
 oecd_short_reordered %>% 
@@ -712,7 +713,7 @@ oecd_short_reordered %>%
 
 
 
-# Reproducibility
+## Reproducibility
 
 ```{r reproducibility, echo = FALSE}
 ## Reproducibility info

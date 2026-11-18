@@ -1,0 +1,185 @@
+---
+title: diamonds-histogram-rcode
+categories:
+- paper
+- todo
+---
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      dpi = 96,
+                      message = FALSE,
+                      echo = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+Question
+========
+
+In dieser Aufgaben analysieren wir den Datensatz `diamonds`, welcher Merkmale von Diamanten (wie Preis, Schliffart etc.) auflistet. Hier ist ein Blick in den Datensatz:
+
+```{r message = FALSE}
+library(tidyverse)
+data("diamonds")
+glimpse(diamonds)
+```
+
+`diamonds` ist Teil von Tidyverse (genauer gesagt dem Paket  `{{ggplot2}}`).
+
+
+Hier ist ein Überblick über die deskriptiven, univariaten Statistiken:
+
+```{r message = FALSE, echo = FALSE}
+library(skimr)
+
+skim(diamonds)
+```
+
+
+Betrachten Sie das Histogramm; welcher R-Code hat es erzeugt?
+
+
+```{r message = FALSE, echo = FALSE}
+library(tidyverse)
+data(diamonds)
+
+diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>% 
+  mutate(price = price/1000 %>% round) %>%
+  ggplot() +
+  aes(x = price) +
+  geom_histogram()  +
+  geom_vline(aes(xintercept = median(price))) +
+  theme_light() +
+  facet_wrap( ~ cut, scales = "free")
+```
+
+
+Für alle Diagramme gilt:
+
+
+```{r}
+library(tidyverse)
+data(diamonds)
+```
+
+
+**A**
+
+```
+diamonds %>% 
+  mutate(price = price/1000 %>% round) %>%
+  ggplot() +
+  aes(x = price) +
+  geom_histogram()  +
+  geom_vline(aes(xintercept = mean(price))) +
+  theme_light() +
+  facet_wrap( ~ cut, scales = "free")
+```
+
+
+
+**B**
+
+```
+diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>% 
+  mutate(price = price/1000 %>% round) %>% 
+  ggplot() +
+  aes(x = price) +
+  geom_histogram()  +
+  geom_vline(aes(xintercept = median(price))) +
+  theme_light() +
+  facet_wrap( ~ cut, scales = "free")
+```
+
+
+
+**C**
+
+
+```
+diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>%      
+  ggplot() +
+  aes(x = price) +
+  geom_histogram()  +
+  geom_vline(aes(xintercept = median(price))) 
+  facet_wrap(cut)
+```
+
+
+
+**D**
+
+
+```
+diamonds %>% 
+  drop_na(cut, price) %>% 
+  filter(cut %in% c("Fair", "Premium", "Ideal")) %>%      
+  ggplot() +
+  aes(x = price) +
+  geom_histogram()  +
+  geom_vline(aes(xintercept = median(price))) +
+  theme_light() +
+  facet_wrap( ~ cut, scales = "free")
+```
+
+
+
+Answerlist
+----------
+
+* Code-Beispiel A
+* Code-Beispiel B
+* Code-Beispiel C
+* Code-Beispiel D
+* Keine Antwort möglich
+
+
+Solution
+========
+Code B passt zum Diagramm.
+
+
+Aufgabenname: `diamonds-histogram-rcode`
+
+
+Answerlist
+----------
+
+* Falsch
+* Richtig
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+
+
+Meta-information
+================
+exname: diamonds-histogram-rcode
+extype: schoice
+exsolution: 01000
+exshuffle: TRUE
+expoints: 1
+
+

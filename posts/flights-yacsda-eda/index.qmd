@@ -9,6 +9,7 @@ cache: true
 toc: true
 number-sections: true
 extype: string
+expoints: 1
 exsolution: ""
 exshuffle: no
 categories:
@@ -18,13 +19,12 @@ categories:
 - association
 
 
-bibliography: "../../library-ses.bib"
 
 
 ---
 
 
-# Hintergrund und Ziel
+## Hintergrund und Ziel
 
 
 Diese Fallstudie zeigt einige mögliche/typische Schritte der explorativen Datenanalyse (EDA) im Hinblick auf die Forschungsfrage "*Welche Variablen steht in Zusammenhang mit Flugverspätungen?*".
@@ -32,7 +32,7 @@ Diese Fallstudie zeigt einige mögliche/typische Schritte der explorativen Daten
 
 
 
-# Pakete laden
+## Pakete laden
 
 ```{r load-libs, message = FALSE, warning = FALSE}
 library(tidyverse)  # data wrangling
@@ -49,7 +49,7 @@ library(printr)
 
 
 
-# Daten laden
+## Daten laden
 
 Der Datensatz kann z.B. hier bezogen werden:
 
@@ -76,7 +76,7 @@ dim(flights)
 Das sind 19 Variablen, über 300.000 Zeilen.
 
 
-# Was ist Verspätung?
+## Was ist Verspätung?
 
 Schauen wir uns den Datensatz mal näher an, um die Zielvariable "Verspätung" zu beleuchten.
 
@@ -116,7 +116,7 @@ Departure and arrival delays, in minutes.
 Negative times represent early departures/arrivals.
 ````
 
-## Wie ähnlich sind Ankunfts- und Abflugsverspätung?
+### Wie ähnlich sind Ankunfts- und Abflugsverspätung?
 
 Da der Datensatz so groß ist, ziehen wir eine Stichprobe (mit `sample_n`), dann geht alles schneller. Hier *nicht* wichtig, nur um etwas Zeit beim Plotten zu sparen. In der Praxis würde ich in an dieser Stelle keine Stichprobe ziehen, bzw. mit dem Gesamtdatensatz weiterarbeiten (was wir ja auch im Folgenden tun).
 
@@ -128,7 +128,7 @@ flights |>
 
 
 
-### Diagramm mit DataExplorer
+#### Diagramm mit DataExplorer
 
 ```{r}
 flights_sample |> 
@@ -138,7 +138,7 @@ flights_sample |>
 
 
 
-### Diagramm mit ggplot
+#### Diagramm mit ggplot
 
 ```{r}
 flights_sample |> 
@@ -148,7 +148,7 @@ flights_sample |>
 ```
 
 
-### Statistiken
+#### Statistiken
 
 
 ```{r}
@@ -172,7 +172,7 @@ Ja, sind sie. Dann ist es vielleicht egal, welche der beiden Variablen wir verwe
 
 
 
-### Vertiefung: z-Skalierung
+#### Vertiefung: z-Skalierung
 
 
 
@@ -194,13 +194,13 @@ flights %>%
 
 
 
-# Verteilung der Verspätung
+## Verteilung der Verspätung
 
-## Visualisierung
+### Visualisierung
 
 :::{.panel-tabset}
 
-### Mit DataExplorer
+#### Mit DataExplorer
 
 ```{r}
 flights |> 
@@ -210,7 +210,7 @@ flights |>
 
 
 
-### Mit ggplot
+#### Mit ggplot
 
 ```{r}
 flights %>% 
@@ -237,7 +237,7 @@ flights %>%
 ```
 
 
-### Vertiefung: Wiederholung mit `across`
+#### Vertiefung: Wiederholung mit `across`
 
 Oder man benutzt den Befehl `across`, der es erlaubt, eine oder mehrere Funktionen auf eine oder mehrere Spalten wiederholtanzuwenden (Man spricht von einer "Schleife"). In diesem Beispiel wenden wir mehrere Funktionen (adressiert mit `.fns`) auf eine Spalte (`dep_delay`), adressiert mit dem Argument `.cols` an. Außerdem kann man die Namen der resultierenden Spalten bestimmen mit dem Argument `.names`. In der geschweiften Klammer steht eine interne Variable, die den Namen der jeweils berechneten Funktion (`{fn}`) an den Namen der neu erstellten Spalte anfügt; in der Ausgabe sieht man das gut.
 
@@ -255,7 +255,7 @@ flights %>%
 ```
 
 
-## flights2: Extremwerte (der Verspätung) definieren
+### flights2: Extremwerte (der Verspätung) definieren
 
 Es gibt keinen sicheren Weg, mit Extremwerten umzugehen. Häufig macht es Sinn, die Ergebnisse mehrerer Analysen zu vergleichen mit, oder ohne Extremwerten. 
 
@@ -267,7 +267,7 @@ Es gibt keinen sicheren Weg, mit Extremwerten umzugehen. Häufig macht es Sinn, 
 "Wann ist ein Flug *sehr* verspätet?
 
 
-### Boxplot-Methode
+#### Boxplot-Methode
 
 Eine Möglichkeit ist die "Boxplot-Methode": Entferne alle Flüge, die mehr verspätet sind als als das 1.5-fache der IQR über dem 3. Quartil (75. Perzentil): $q75+1.5iqr$
 
@@ -321,7 +321,7 @@ flights2 <-
 
 
 
-## Fehlende Werte berechnen
+### Fehlende Werte berechnen
 
 Wie viele fehlende Werte gibt es eigentlich in `dep_delay`?
 
@@ -369,7 +369,7 @@ flights %>%
 Wir verlieren nicht viele Fälle mehr, wenn wir die fehlenden Werte aller Variablen (Spalten) entfernen. Also machen wir das mal.
 
 
-### Vertiefung: across
+#### Vertiefung: across
 
 So bekommt man die fehlenden Werte für alle Spalten auf einmal:
 
@@ -381,7 +381,7 @@ flights %>%
 
 Ehrlicherweise muss man sagen, dass man mit `describe_distribution` auch komfortabel die fehlenden Werte für alle Spalten bekommt.
 
-## flights3
+### flights3
 
 Achtung: dieses Vorgehen hier ist gefährlich. U.U. verliert man sehr viele Zeilen (Beobachtungen).
 
@@ -397,11 +397,11 @@ Die Spalte `year` ist kontant (immer der Wert "2013"); daher ist die Spalte nutz
 
 
 
-# Deskriptive Statistiken
+## Deskriptive Statistiken
 
 
 
-## Mit `summarise`
+### Mit `summarise`
 
 
 Das kann machen mit `summarise`. Einfach, kann aber viel Tipperei bedeuten:
@@ -416,7 +416,7 @@ flights2 %>%
 
 
 
-## Mit `describe_distribution` 
+### Mit `describe_distribution` 
 
 `describe_distribution` ist sehr praktisch; man bekommt viele Statistiken auf einmal gezeigt; das spart viel Tipperei.
 
@@ -431,15 +431,15 @@ flights %>%
 <!-- Das Paket `skimr` mit der Funktion `skim` ist sehr ähnlich zu `describe_distribution`. Allerdings gibt `skim` auch eine Beschreibung zu den  -->
 
 
-# Korrelate von Verspätung
+## Korrelate von Verspätung
 
 Schauen wir, welche Variablen mit `dep_delay`, der Verspätung der Flüge also, korrelieren.
 
 
-## Metrische Prädiktoren
+### Metrische Prädiktoren
 
 
-### Nur mit `cor` 
+#### Nur mit `cor` 
 
 Am einfachsten geht es so. Der Nachteil ist mehr (viel) Tipperei:
 
@@ -452,7 +452,7 @@ flights3 %>%
 ```
 
 
-### Mit `easystats`
+#### Mit `easystats`
 
 ```{r}
 flights |> 
@@ -462,7 +462,7 @@ flights |>
 
 
 
-### Vertiefung: Mit `across`
+#### Vertiefung: Mit `across`
 
 Berechnen wir die Korrelationen jetzt mit dem Befehl `across`. Der Punkt `.` spricht hier jeweils eine Spalte an, die von `across` ausgewählt wurde. Der Effekt ist, dass eine Korrelation von jeder Spalte mit `dep_delay` berechnet wird.
 
@@ -495,9 +495,9 @@ flights3 %>%
 <!-- ``` -->
 
 
-## Nominale Prädiktoren
+### Nominale Prädiktoren
 
-### Welche nominalen Prädiktoren gibt es?
+#### Welche nominalen Prädiktoren gibt es?
 
 Hey R, wähle alle nicht numerischen Spalten aus und sage mir deren Namen:
 
@@ -528,7 +528,7 @@ flights2 %>%
 
 <!-- Geht auch mit `skim`, s. oben, ist einfacher. -->
 
-### Carrier
+#### Carrier
 
 `carrier` meint die Fluggesellschaft, die den jeweiligen Flug durchgeführt hat.
 Da stellen sich eine Reihe interessanter Fragen:
@@ -554,9 +554,9 @@ flights2_count
 Wir brauchen eine Visualisierung dazu; das beantwortet vielleicht einen Teil der obigen Fragen.
 
 
-### Visualisierung von `carrier`
+#### Visualisierung von `carrier`
 
-### Mit `DataExplorer`
+#### Mit `DataExplorer`
 
 ```{r}
 flights2_count |> 
@@ -564,7 +564,7 @@ flights2_count |>
 ```
 
 
-### Mit `ggplot`
+#### Mit `ggplot`
 
 ```{r}
 plot1 <- 
@@ -579,7 +579,7 @@ plot1
 
 Wir müssen die Werte von `carrier` sortieren anhand der Anzahl der Flüge, sonst ist es zu unübersichtlich.
 
-### Vertiefung: Achsen-Labels anpassen
+#### Vertiefung: Achsen-Labels anpassen
 
 *Dieser Abschnitt ist zur Vertiefung, er ist  nicht inhaltlich wichtig*
 
@@ -600,7 +600,7 @@ Mehr zum Thema "Achsen aufhübschen" findet sich z.B. [hier](https://rkabacoff.g
 
 
 
-### "Lumpsensammler-Kategorie"
+#### "Lumpsensammler-Kategorie"
 
 
 ```{r lumpensammler}
@@ -630,7 +630,7 @@ flights2_lump_count
 ```
 
 
-### Visualisierung der Lumpensammler
+#### Visualisierung der Lumpensammler
 
 ```{r}
 flights2_count <-
@@ -646,7 +646,7 @@ Mit `fct_reorder` haben wir die Werte von `carrier` (UA, B6, AA, ...) sortiert u
 (Nur) Mit einer sortierten Faktorvariable lässt sich  entsprechendes Diagramm gut sortiert darstellen.
 
 
-#### Mit ggplot
+##### Mit ggplot
 
 Liniendiagramm:
 
@@ -696,7 +696,7 @@ Die Reihenfolge entspricht der dem obigen Diagramm.
 
 
 
-## Korrelation von `carrier` mit Verspätung
+### Korrelation von `carrier` mit Verspätung
 
 Hier mit "Dummysierung" aller nicht-numerischer Spalten. Ein Beispiel zur Verdeutlichung:
 
@@ -761,10 +761,10 @@ Keine Korrelation war (im Betrag) größer als 0.1. Also gab es nur vernachläss
 Zur Erinnerung: Es ist nicht unbedingt nötig, die "Dummyisierung" durchzuführen, ein einfaches Vergleichen der Mittelwerte (oder Mediane) mit ihrer Streuung führt zu einem ähnlichen Ergebnis.
 Die Regression mit `lm` führt für Sie automatisch die Dummyisierung durch. 
 
-### `Hour`
+#### `Hour`
 
 
-#### Mit ggplot
+##### Mit ggplot
 
 ```{r}
 flights2 %>% 
@@ -779,7 +779,7 @@ flights2 %>%
 ```
 
 
-#### Mit DataExplorer
+##### Mit DataExplorer
 
 ```{r}
 flights2 %>% 
@@ -790,9 +790,9 @@ flights2 %>%
 ```
 
 
-### `Origin`
+#### `Origin`
 
-#### Mit ggplot
+##### Mit ggplot
 
 ```{r}
 flights2 %>% 
@@ -804,7 +804,7 @@ flights2 %>%
 ```
 
 
-#### Mit DataExplorer
+##### Mit DataExplorer
 
 ```{r}
 flights2 %>% 
@@ -814,10 +814,10 @@ flights2 %>%
 ```
 
 
-## Drei Variablen: `Origin`, `hour`, `dep_delay`
+### Drei Variablen: `Origin`, `hour`, `dep_delay`
 
 
-#### Mit ggplot
+##### Mit ggplot
 
 ```{r}
 flights2 %>% 
@@ -831,7 +831,7 @@ flights2 %>%
 ```
 
 
-#### Mit ggpubr
+##### Mit ggpubr
 
 ```{r}
 flights2 %>% 
@@ -843,7 +843,7 @@ flights2 %>%
 ```
 
 
-## Vertiefung: Alle nominale Variablen
+### Vertiefung: Alle nominale Variablen
 
 Natürlich könnte man "händisch" alle nominalskalierten Variablen explizit benennen, etwa so:
 
@@ -862,7 +862,7 @@ flights3 %>%
 ```
 
 
-### flights4
+#### flights4
 
 ```{r}
 flights4 <-
@@ -879,7 +879,7 @@ flights4 %>%
   count(dest, sort = T)
 ```
 
-### Visualisierung im Grid
+#### Visualisierung im Grid
 
 ```{r}
 flights4 %>% 
@@ -913,10 +913,10 @@ Das Beispiel zeigt, dass die Datenvisualisierung bei einer größeren Zahl an Di
 
 
 
-## Anzahl von Flüge
+### Anzahl von Flüge
 
 
-### Vorbereitung
+#### Vorbereitung
 
 ```{r}
 flights4_sum <- 
@@ -933,7 +933,7 @@ flights4_sum <-
   
 ```
 
-### Visualisierung mit ggplot
+#### Visualisierung mit ggplot
 
 ```{r}
 flights4 %>% 
@@ -950,7 +950,7 @@ flights4 %>%
   facet_wrap( ~ origin)
 ```
 
-### Visualisierung mit ggpubr
+#### Visualisierung mit ggpubr
 
 ```{r}
 flights4 %>% 
@@ -965,7 +965,7 @@ flights4 %>%
 
 
 
-# Fazit
+## Fazit
 
 
 Keine heiße Spur bisher. Allerdings erlaubt explorative Datenanalyse nur die gleichzeitige Betrachtung von zwei bis drei, vielleicht vier Variablen. Sind die Zusammenhänge komplizierter in dem Sinne, dass mehrere Variablen für einen Effekt zusammenwirken, so ist es mit explorativen Methoden schwer zu finden. 
@@ -973,11 +973,11 @@ Keine heiße Spur bisher. Allerdings erlaubt explorative Datenanalyse nur die gl
 
 Der nächste logische Schritt: Wir müssen modellieren. Mit Modellierungsmethoden lassen sich auch hochdimensionale Zusammenhänge finden. 
 
-# Achtung
+## Achtung
 
 Diese Analyse ist rein explorativ in dem Sinne, dass keine Hypothesen getestet werden. Es ist damit zu rechnen, dass falsch-positive Befunde auftauchen. Alle Ergebnisse sollten anhand neuer Daten validiert werden.
 
-# Reproduzierbarkeit
+## Reproduzierbarkeit
 
 ```{r reproducibility, echo = FALSE}
 ## Reproducibility info

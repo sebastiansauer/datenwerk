@@ -1,0 +1,50 @@
+---
+title: fleiss-macht-bloed-berkson-schoice
+categories:
+- kausalinferenz
+- paper
+---
+
+Question
+========
+Im Kapitel wird ein simuliertes Beispiel gezeigt, in dem IQ und Fleiß in der Gesamtpopulation unabhängig voneinander sind (`eignung = 1/2*iq + 1/2*fleiss + glueck`, `studium = 1` falls `eignung > 0`). Betrachtet man aber nur die Studierenden (`studium == 1`), findet man einen *negativen* Zusammenhang zwischen IQ und Fleiß ("Fleiß macht blöd"). Wie erklärt das Kapitel diesen Befund?
+
+Answerlist
+----------
+* `studium` ist eine Kollisionsvariable (gemeinsame Wirkung von `iq` und `fleiss`); indem man die Stichprobe auf `studium == 1` beschränkt, kontrolliert (stratifiziert) man implizit nach dieser Kollisionsvariable, wodurch eine Scheinkorrelation zwischen `iq` und `fleiss` entsteht.
+* IQ und Fleiß sind in Wirklichkeit immer negativ korreliert, unabhängig von der betrachteten Teilgruppe.
+* Der negative Zusammenhang entsteht durch einen Fehler in der Simulation und hat keine inhaltliche Erklärung.
+* `studium` ist ein Konfundierer für den Zusammenhang von `iq` und `fleiss`, daher muss man unbedingt danach kontrollieren, um den wahren Zusammenhang zu sehen.
+* Der negative Zusammenhang zeigt, dass Fleiß tatsächlich kausal die Intelligenz verringert.
+
+Solution
+========
+Da `studium` von beiden Variablen (`iq` und `fleiss`) gemeinsam verursacht wird (über `eignung`), ist `studium` eine Kollisionsvariable. Beschränkt man die Analyse auf nur eine Ausprägung von `studium` (nämlich `studium == 1`), entspricht das einer Stratifizierung nach dieser Kollisionsvariable -- genau das erzeugt die (irreführende) negative Scheinkorrelation zwischen `iq` und `fleiss`, obwohl beide in der Gesamtpopulation unabhängig sind. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option widerspricht der Simulation direkt: `iq` und `fleiss` wurden dort explizit *unabhängig* voneinander generiert (`rnorm`); der negative Zusammenhang tritt nur in der *Teilgruppe* der Studierenden auf, nicht in der Gesamtpopulation.
+* Die dritte Option ist falsch: Der Effekt ist kein Simulationsfehler, sondern ein reproduzierbares, statistisch erklärbares Phänomen (Kollisionsverzerrung durch implizite Stratifizierung nach `studium`).
+* Die vierte Option verwechselt Kollision mit Konfundierung: Bei einer Kollisionsvariable ist die Handlungsempfehlung gerade *entgegengesetzt* -- man sollte sie *nicht* kontrollieren (bzw. die Stichprobe nicht danach einschränken), wenn man den wahren Zusammenhang sehen möchte.
+* Die fünfte Option zieht einen unzulässigen Kausalschluss aus einer reinen Scheinkorrelation -- gerade das Kapitel warnt davor, eine solche (durch Kollisionsverzerrung entstandene) Assoziation kausal zu interpretieren.
+
+
+Aufgabenname: `fleiss-macht-bloed-berkson-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: fleiss-macht-bloed-berkson-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: kausalinferenz

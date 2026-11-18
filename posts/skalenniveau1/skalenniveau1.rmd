@@ -1,0 +1,169 @@
+---
+title: skalenniveau1
+categories:
+- dyn
+- variable-level
+- basics
+- paper
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(mosaic)
+#library(testthat)
+library(glue)
+library(exams)
+library(assertthat)
+library(testthat)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+
+Question
+========
+Welche Aussage nennt ein richtiges Skalenniveau?
+
+
+```{r load-data}
+d <- 
+tibble::tribble(
+                                                                                ~Variable,     ~Skalenniveau, ~Nominalniveau, ~Ordinalniveau, ~Intervallniveau, ~Verhältnisniveau, ~stetig, ~diskret,
+                                                                  "Temperatur in Celcius",  "Intervallskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                   "Temperatur in Kelvin", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                               "Temperatur in Fahrenheit", "Verhältnisskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                                  "Alter", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                             "Schuhgröße", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht einer Person", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht eines Tieres", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                   "Gewicht eines Buches", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                 "Gewicht einer Maschine", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                    "Anzahl Geschwister in einer Familie", "Verhältnisskala",             0L,             0L,               0L,                1L,      0L,       1L,
+                                                         "Anzahl Kinder in einer Familie", "Verhältnisskala",             0L,             0L,               0L,                1L,      0L,       1L,
+                                "Ranking von Hochschulen (1. Platz XYZ, 2. Platz ABC, …)",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L,
+                                                                                     "IQ",  "Intervallskala",             0L,             0L,               1L,                0L,      1L,       0L,
+                                                                             "Augenfarbe",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                              "Haarfarbe",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                              "Präferenz für eine Partei",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                    "Beliebtester Politiker einer Person",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                     "Umsatz einer Firma", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                     "Gewinn einer Firma", "Verhältnisskala",             0L,             0L,               0L,                1L,      1L,       0L,
+                                                                             "Geschlecht",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                                                           "Nationalität",    "Nominalskala",             1L,             0L,               0L,                0L,      0L,       0L,
+                                            "Rangfolge der Lieblingsspeisen einer Person",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L,
+  "Ergebnis bei Talent-Show (1. Platz Mr. Cool, 2. Platz Mr. Bright, 3. Platz Mr. Right)",    "Ordinalskala",             0L,             1L,               0L,                0L,      0L,       0L
+  )
+
+
+```
+
+
+
+```{r echo = FALSE}
+all_levels <- unique(d$Skalenniveau)
+
+n_answeropts <- 5  # number of answer options
+
+# Draw sample of items:
+
+d_sample <- sample_n(d, size = n_answeropts)  %>%  # draw sample of items/questions
+  # mutate(Skalenniveau = factor(Skalenniveau)) %>% 
+  select(Variable, Skalenniveau) %>% 
+  sample_n(size = n_answeropts) %>% 
+  mutate(is_correct_item = 
+           sample(x = c(1, rep.int(0, times = n_answeropts-1)),
+                  size = n_answeropts))  # choose item that will be the correct one
+
+
+
+# conduct some tests:
+expect_equal(nrow(d_sample), 5)
+expect_equal(ncol(d_sample), 3)
+
+
+
+# Declare if item is correct or false:
+
+d_declared <- 
+  d_sample %>% 
+  rowwise() %>% 
+  mutate(wrong_scale_level = keep(all_levels, ~ .x != Skalenniveau) %>%
+           sample(size = 1)) %>% 
+  ungroup() %>% 
+  mutate(presented_scale_level = if_else(is_correct_item == 1, Skalenniveau, wrong_scale_level ))
+
+
+# Prepare items for presentation:
+
+d_prepared <-
+  d_declared %>% 
+  mutate(item = glue("Die Variable `{Variable}` ist vom Typ `{presented_scale_level}`.")) %>% 
+  mutate(is_true = is_correct_item == 1) %>% 
+  mutate(order_presented = 1:nrow(.))
+
+
+```
+
+
+```{r questionslist, echo = FALSE, results = "asis"}
+exams::answerlist(d_prepared$item, markup = "markdown")
+```
+
+
+
+
+Solution
+========
+
+
+Die Skalenniveaus der präsentierten Variablen lauten wie folgt:
+
+
+```{r echo = FALSE}
+d_prepared %>% 
+  arrange(order_presented) %>% 
+  select(Variable, Skalenniveau) %>% 
+gt::gt()
+```
+
+
+Dementsprechend lauten die Lösungen zu den Items:
+
+
+Aufgabenname: `skalenniveau1`
+
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+exams::answerlist(ifelse(d_prepared$is_correct_item, "Richtig", "Falsch"), markup = "markdown")
+```
+
+
+
+Meta-information
+================
+exname: skalenniveau1
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(d_prepared$is_correct_item, single = TRUE)`
+exshuffle: false
+categories:
+- dyn
+- variable-level
+- basics
+
+

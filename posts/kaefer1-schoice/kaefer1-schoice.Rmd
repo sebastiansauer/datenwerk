@@ -1,0 +1,105 @@
+---
+title: kaefer1-schoice
+categories:
+- paper
+- todo
+---
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "",
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+Question
+========
+
+Weltsensation?! Der Insektenforscher Prof. Mügge ist der Meinung, eine bislang unbekannte Käferart entdeckt zu haben. 
+Nach nur 18 Jahren Feldforschung im brasilianischen Regenwald gelang ihm dieser Durchbruch. 
+Wenn es denn nun wirklich eine neue Art ist.
+Gerade untersucht er ein Exemplar unter dem Mikroskop. Hm, was ist das für ein Tier? 
+
+Drei Arten kommen in Frage, $A_1, A_2, A_3$.
+
+Dabei ist die Art $A_1$ sehr verbreitet und schon längst bekannt, 
+$A_2$ ist die neue Art, Exemplare dieser Art sind selten und $A_3$ ist auch bekannt und eher häufig anzutreffen.
+Allerdings spricht das Aussehen am ehesten für $A_2$, der seltenen Art.
+
+
+
+Hier sind die genauen Vorkommenshäufigkeiten:
+
+```{r}
+Pr_A1 <- .6
+Pr_A2 <- .1
+Pr_A3 <- .3
+```
+
+Und hier die genauen Wahrscheinlichkeiten, wie typisch das beobachtete Objekt für einen Vertreter der jeweiligen Art ist:
+
+```{r}
+L_A1 <- .5
+L_A2 <- .9
+L_A3 <- .4
+```
+
+*Wie groß ist die Wahrscheinlichkeit, dass Prof. Mügge wirklich einen großen Fang gemacht hat und einen unbekannten Käfer entdeckt hat?*
+Berechnen Sie diese Wahrscheinlichkeit!
+
+
+Answerlist
+----------
+* 17,6 %
+* 90 %
+* 10 %
+* 23,1 %
+* 50 %
+
+
+Solution
+========
+
+```{r}
+library(tidyverse)
+library(prada)  # für Funktion `bayesbox`
+
+bb <- bayesbox(hyps = c("A", "B", "C"),
+               priors = c(Pr_A1, Pr_A2, Pr_A3),
+               liks = c(L_A1, L_A2, L_A3))
+
+bb
+```
+
+Die Wahrscheinlichkeit, dass der Käfer zur Art "B" (also $A_2$) gehört, ist relativ klein: 17,6 %. 
+Man erhält sie durch Anwendung des Satzes von Bayes: Prior × Likelihood, normiert durch die Summe aller Prior × Likelihood-Produkte: 
+$(.1 \times .9) / (.6\times.5 + .1\times.9 + .3\times.4) = .09/.51 = .176$.
+
+
+Aufgabenname: `kaefer1-schoice`
+
+
+
+Answerlist
+----------
+* True
+* False
+* False
+* False
+* False
+
+
+Meta-information
+================
+exname: kaefer1-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5

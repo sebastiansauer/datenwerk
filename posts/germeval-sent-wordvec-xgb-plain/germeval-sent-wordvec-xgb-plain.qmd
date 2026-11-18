@@ -1,6 +1,7 @@
 ---
 expoints: 1
 extype: string
+exname: germeval-sent-wordvec-xgb-plain
 exsolution: NA
 categories:
 - textmining
@@ -38,7 +39,7 @@ options(rstudio.help.showDataPreview = FALSE)
 
 
 
-# Aufgabe
+## Aufgabe
 
 Erstellen Sie ein prädiktives Modell für Textdaten. Nutzen Sie Sentiments und TextFeatures im Rahmen von Feature-Engineering.
 Nutzen Sie außerdem *deutsche Word-Vektoren* für das Feature-Engineering.
@@ -49,7 +50,7 @@ Preppen und Backen Sie das Rezept,
 aber führen Sie die Pipelien mit dem gebackenen Datensatz und einem "Plain-Rezept" durch.
 
 
-## Daten
+### Daten
 
 Verwenden Sie die [GermEval-2018-Daten](https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/data/0B5VML).
 
@@ -64,12 +65,12 @@ data("germeval_train", package = "pradadata")
 data("germeval_test", package = "pradadata")
 ```
 
-## AV und UV
+### AV und UV
 
 Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 
 
-## Hinweise
+### Hinweise
 
 - Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://sebastiansauer.github.io/datenwerk/Hinweise.html).
 - Nutzen Sie Tidymodels.
@@ -91,10 +92,10 @@ Die AV lautet `c1`. Die (einzige) UV lautet: `text`.
 </br>
 </br>
 
-# Lösung
+## Lösung
 
 
-## Setup
+### Setup
 
 ```{r d-train}
 d_train <-
@@ -118,7 +119,7 @@ Eine [Vorlage für ein Tidymodels-Pipeline findet sich hier](https://sebastiansa
 
 
 
-## Learner/Modell
+### Learner/Modell
 
 ```{r}
 mod <-
@@ -128,7 +129,7 @@ mod <-
              )
 ```
 
-## Rezept Workvektoren
+### Rezept Workvektoren
 
 Pfad zu den Wordvektoren:
 
@@ -148,7 +149,7 @@ rec <- def_recipe_wordvec_senti(data_train = d_train,
 
 
 
-## Prep/Bake Wordvektoren
+### Prep/Bake Wordvektoren
 
 ```{r prep-rec}
 #| eval: false
@@ -174,7 +175,7 @@ sum(is.na(d_rec_baked))
 ```
 
 
-## Test-Set auch baken
+### Test-Set auch baken
 
 ```{r}
 #| eval: false
@@ -195,7 +196,7 @@ d_test_baked <- read_csv("https://raw.githubusercontent.com/sebastiansauer/Daten
 ```
 
 
-## Gebackenen Datensatz als neue Grundlage
+### Gebackenen Datensatz als neue Grundlage
 
 Den gepreppten/gebackenen Datensatz speichern wir als Datensatz ab:
 
@@ -224,7 +225,7 @@ vis_dat(d_train_new) +
 
 
 
-## Plain-Rezept
+### Plain-Rezept
 
 ```{r}
 rec <- 
@@ -234,7 +235,7 @@ rec <-
 
 
 
-## Neuer Workflow mit plainem Rezept
+### Neuer Workflow mit plainem Rezept
 
 ```{r wf-new}
 wf <-
@@ -249,7 +250,7 @@ wf
 
 
 
-## Parallelisierung über mehrere Kerne
+### Parallelisierung über mehrere Kerne
 
 ```{r}
 library(parallel)
@@ -264,7 +265,7 @@ plan(cluster, workers = cl)
 
 Achtung: Viele Kerne brauchen auch viel Speicher.
 
-## Tune/Resample/Fit
+### Tune/Resample/Fit
 
 
 
@@ -292,7 +293,7 @@ Ah! Angenehm klein.
 
 
 
-## Get best performance
+### Get best performance
 
 ```{r}
 autoplot(fit_wordvec_senti_xgb)
@@ -309,7 +310,7 @@ best_params <- select_best(fit_wordvec_senti_xgb)
 ```
 
 
-## Finalisieren
+### Finalisieren
 
 
 ```{r finalize-wf}
@@ -321,7 +322,7 @@ toc()
 ```
 
 
-## Test-Set-Güte
+### Test-Set-Güte
 
 ```{r predict}
 tic()
@@ -347,10 +348,14 @@ my_metrics(d_test,
 ```
 
 
-## Fazit
+### Fazit
 
 Verzichtet man auf ein Rezept mit viel Datenvolument (Wordvektoren blähen das Rezept mächtig auf), so wird das Fitten schlanker und schneller.
 Schneller auch deshalb, weil ggf. kein Swapping zwischen Speicher und Festplatte mehr nötig ist.
+
+
+Aufgabenname: `germeval-sent-wordvec-xgb-plain`
+
 
 
 

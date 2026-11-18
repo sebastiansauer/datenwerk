@@ -1,0 +1,134 @@
+---
+title: hyp-women-01
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+#library(glue)
+options(mc.cores = parallel::detectCores())
+library(rstanarm)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+
+
+
+
+Question
+========
+
+Der Datensatz `wo_men` Untersucht Geschlechtsunterschiede u.a. in Körpergröße.
+
+Sie können ihn hier herunterladen:
+
+
+```{r echo = TRUE}
+wo_men_path <- "https://raw.github.com/sebastiansauer/modar/master/datasets/wo_men.csv"
+d <- read_csv(wo_men_path)
+```
+
+Testen Sie anhand dieses Datensatzes folgende Hypothese:
+
+"Männer sind im Schnitt größer als Frauen!"
+
+Präziser formuliert:
+
+$\mu_M > \mu_F$, wobei $\mu$ den Mittelwert angibt (in der Population,
+auch Erwartungswert genannt).
+
+Geben Sie als Lösung an, welcher Anteil der Postverteilung einen höheren Mittelwert 
+zugunsten der Männer aufweist!
+
+
+Solution
+========
+
+```{r}
+lm1 <- stan_glm(height ~ sex, data = d, refresh = 0)
+```
+
+
+Schauen wir uns die Post-Verteilung an:
+
+```{r}
+lm1_post <- 
+  lm1 %>% 
+  as_tibble()
+```
+
+
+```{r}
+library(bayesplot)
+
+mcmc_areas(lm1, pars = "sexwoman")
+```
+
+Wie man sieht ist die Verteilung des Mittelwertsunterschieds ziemlich eindeutig:
+Nur mit geringer Wahrscheinlichkeit geht das Modell davon aus,
+dass Frauen einen höheren Mittelwert (in der Population) aufweisen als Männer.
+Mit hoher Gewissheit geht das Modell davon aus, dass Männer einen höheren Mittelwert aufweisen (als Frauen).
+
+
+Lassen wir uns den genauen Anteil ausgeben:
+
+
+```{r}
+lm1_post %>% 
+  count(sexwoman < 0) 
+```
+
+Rechnen wir den Anteil noch aus:
+
+
+```{r}
+prop_maenner_schwerer_df <- 
+  lm1_post %>% 
+  count(sexwoman < 0) %>% 
+  mutate(prop = n/sum(n))
+
+prop_maenner_schwerer_df
+```
+
+
+Die Antwort lautet also, laut diesem Modell (mit gegebener Simulationsvarianz):
+
+```{r}
+prop_maenner_schwerer <- prop_maenner_schwerer_df %>% 
+  pull(prop)
+
+sol <- prop_maenner_schwerer[2]
+sol
+```
+
+Wir resümieren: 
+Die Wahrscheinlichkeit, dass $\mu_M > \mu_F$ liegt bei `r round(sol, 2)`, 
+laut unserem Modell.
+
+
+Aufgabenname: `hyp-women-01`
+
+
+
+
+
+Meta-information
+================
+exname: hyp-women-01
+extype: num
+exsolution: `r sol`
+exshuffle: false
+extol: .05
+expoints: 1
+

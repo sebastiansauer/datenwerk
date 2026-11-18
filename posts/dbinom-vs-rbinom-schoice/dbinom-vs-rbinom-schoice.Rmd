@@ -1,0 +1,50 @@
+---
+title: dbinom-vs-rbinom-schoice
+categories:
+- bayes
+- paper
+---
+
+Question
+========
+Welche der folgenden Aussagen zum Unterschied zwischen den R-Funktionen `dbinom()` und `rbinom()` ist korrekt?
+
+Answerlist
+----------
+* `dbinom()` berechnet die (theoretische) Wahrscheinlichkeit für eine bestimmte Trefferzahl bei festem Parameterwert; `rbinom()` erzeugt stattdessen zufällige, simulierte Trefferzahlen gemäß dieser Verteilung.
+* `dbinom()` und `rbinom()` liefern für dieselben Argumente stets exakt denselben Rückgabewert.
+* `rbinom()` gibt Wahrscheinlichkeiten zurück, `dbinom()` gibt zufällige simulierte Ganzzahlen zurück.
+* `dbinom()` benötigt kein Argument `prob`, da die Trefferwahrscheinlichkeit automatisch aus den Daten geschätzt wird.
+* Bei sehr vielen Wiederholungen (großem `n` in `rbinom()`) weicht die simulierte Häufigkeitsverteilung systematisch von der mit `dbinom()` berechneten theoretischen Verteilung ab.
+
+Solution
+========
+`dbinom(x, size, prob)` liefert die exakte theoretische Wahrscheinlichkeit für genau `x` Treffer bei `size` Versuchen und Trefferwahrscheinlichkeit `prob`. `rbinom(n, size, prob)` hingegen erzeugt `n` zufällige (simulierte) Trefferzahlen, die dieser Verteilung folgen -- ein Ergebnis kann bei jedem Aufruf anders ausfallen. Die erste Option ist korrekt.
+
+Warum die Distraktoren falsch sind:
+
+* Die zweite Option ist falsch: `dbinom()` liefert einen festen, deterministischen Wahrscheinlichkeitswert, während `rbinom()` bei jedem Aufruf (ohne festen `set.seed()`) unterschiedliche zufällige Ergebnisse liefert -- beide sind konzeptionell unterschiedliche Funktionen.
+* Die dritte Option vertauscht die beiden Funktionen genau umgekehrt zur richtigen Zuordnung.
+* Die vierte Option ist falsch: `dbinom()` benötigt zwingend das Argument `prob`, um überhaupt eine Wahrscheinlichkeit berechnen zu können -- die Funktion schätzt nichts automatisch, sondern rechnet mit dem vorgegebenen Wert.
+* Die fünfte Option widerspricht dem im Kapitel gezeigten Ergebnis: Bei großer Anzahl an Simulationen (z. B. $n=10^6$) nähert sich die simulierte Häufigkeitsverteilung von `rbinom()` gerade *sehr gut* an die theoretische Verteilung von `dbinom()` an, statt systematisch davon abzuweichen.
+
+
+Aufgabenname: `dbinom-vs-rbinom-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: dbinom-vs-rbinom-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes
