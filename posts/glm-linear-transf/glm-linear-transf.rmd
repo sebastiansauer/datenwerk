@@ -1,0 +1,164 @@
+---
+title: glm-linear-transf
+categories:
+- paper
+- todo
+---
+
+```{r setup-pakete, include=FALSE}
+library(rstanarm)
+```
+
+
+```{r message = FALSE}
+library(tidyverse)
+options(mc.cores = parallel::detectCores())
+
+```
+
+
+Question
+========
+
+*Forschungsfrage*: Ist der Zusammenhang von Körpergröße und 'Mann' positiv? 
+Gehen also höhere Werte in Körpergröße `height` 
+einher mit einer höheren Wahrscheinlichkeit, 
+dass es sich um einen Mann `m` handelt?
+
+Berechnen Sie ein Bayes-Modell und geben Sie die Punktschätzer der Modellkoeffizienten an -
+einmal für `height` in Inches und einmal in Zentimeter.
+
+
+Hinweise:
+
+- Geben Sie `1` ein für "ja" und `0` für nein.
+- Gleichen sich Koeffizienten bis einschließlich der 1. Dezimale, so gelten sie als "gleich".
+- Nutzen Sie Standardwerte von `stan_glm()` für Ihr Modell.
+- Entfernen Sie fehlende Werte wo nötig.
+- Gehen Sie von unzentrierten Daten aus, soweit nicht anders angegeben.
+
+Questionlist
+------------
+* Handelt es sich bei der Transformation (von Inches in Zentimeter) um eine lineare Transformation?
+* Ändert sich der Punktschätzer des Achsenabschnitts durch die Transformation?
+* Ändert sich der Punktschätzer des Regressionsgewichts durch die Transformation?
+* Bei zentrierten Daten: Ändert sich der Punktschätzer des Regressionsgewichts durch die Transformation?
+  
+Solution
+========
+
+
+```{r echo = TRUE}
+d <- read_csv(
+"https://vincentarelbundock.github.io/Rdatasets/csv/openintro/speed_gender_height.csv")
+```
+
+Bereiten wir die Daten vor:
+
+
+```{r echo = TRUE}
+d2 <- d %>% 
+  select(gender, height) %>% 
+  drop_na() %>% 
+  mutate(male = ifelse(gender == "male", 1, 0),
+         height_cm = height * 2.54,
+         height_c = height - mean(height),
+         height_cm_c = height_cm - mean(height_cm)) 
+
+
+```
+
+
+
+
+
+Modell in Inches:
+
+```{r echo = TRUE}
+m1 <- stan_glm(male ~ height, 
+                family = binomial(link="logit"),
+                data = d2, refresh = 0)
+coef(m1)
+```
+
+
+
+
+Modell in Zentimetern:
+
+```{r echo = TRUE}
+m2 <- stan_glm(male ~ height_cm, 
+                family = binomial(link="logit"),
+                data = d2, refresh = 0)
+coef(m2)
+
+```
+
+
+Der Achsenabschnitt ändert sich nicht, da `x=0` 
+vor und nach der Transformation gleich bleibt: 
+0 Inches sind 0 Zentimeter.
+
+Der Regressionskoeffizient ändert sich,
+da eine Einheit auf der X-Achse jetzt nicht mehr ein Inch,
+sondern ein Zentimeter ist, 
+entsprechend ändert sich auch der Wert in der Y-Achse.
+
+Zentriertes Modell in Inches:
+
+
+
+```{r echo = TRUE}
+m3 <- stan_glm(male ~ height_c, 
+                family = binomial(link="logit"),
+                data = d2, refresh = 0)
+coef(m3)
+
+```
+
+
+
+Zentriertes Modell in Zentimetern:
+
+
+
+```{r echo = TRUE}
+m4 <- stan_glm(male ~ height_cm_c, 
+                family = binomial(link="logit"),
+                data = d2, refresh = 0)
+coef(m4)
+
+```
+
+Hier (bei zentrierten Prädiktoren) ändert sich der Achsenabschnitt *nicht* durch die Transformation,
+da vor und nach der Transformation `x=0` weiterhin `x=0` ist.
+Das Regressiongewicht, $\beta$, ändert sich.
+
+
+
+```{r echo = TRUE}
+sol_a = 1
+sol_b <- 0
+sol_c <- 1
+sol_d <- 1
+```
+
+
+Aufgabenname: `glm-linear-transf`
+
+
+Solutionlist
+------------
+* Ja; Transformation der Art $y = a + bx$ nennt man *linear*.
+* Nein; der Punktschätzer des Achsenabschnitts ändert sich nicht durch die Transformation.
+* Ja; der der Punktschätzer des Regressionsgewichts ändert sich durch die Transformation.
+* Ja; Bei zentrierten Daten ändert sich der Punktschätzer des Regressionsgewichts durch die Transformation.
+
+
+Meta-information
+================
+extype: cloze
+exsolution: `r sol_a`|`r sol_b`|`r sol_c`|`r sol_d`
+exclozetype: num|num|num|num
+exname: glm-linear-transf
+expoints: 1

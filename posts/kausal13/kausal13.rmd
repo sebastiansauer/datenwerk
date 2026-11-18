@@ -1,0 +1,80 @@
+---
+title: kausal13
+categories:
+- paper
+- todo
+---
+
+```{r setup-pakete, include=FALSE}
+library(exams)
+```
+
+
+<!-- This exercise is based on Karsten Luebke. -->
+
+
+
+```{r data generation, echo = FALSE, results = "hide"}
+pfeil <- sample(c("A hängt ab von B", "B hängt ab von A"),1)
+uv <- sample(c("A", "B"),1)
+cv <- ifelse(uv=="A", "B", "A")
+
+## Questions
+questions <- character(7)
+questions[1] <- "`C ~ A`"
+questions[2] <- "`C ~ B`"
+questions[3] <- "`C ~ A + B`"
+questions[4] <- paste0("`", uv, " ~ C`")
+questions[5] <- paste0("`", uv, " ~ C + ",  cv, "`")
+questions[6] <- paste0("`", uv, " ~ ",  cv, "`")
+questions[7] <- "Der totale kausale Effekt kann nicht bestimmt werden."
+
+
+solutions <- rep(FALSE, 7)
+
+if (uv=="A") {
+  if (pfeil == "A hängt ab von B") solutions[3] <- TRUE
+  else solutions[1] <- TRUE
+}
+
+if (uv=="B") {
+  if (pfeil == "A hängt ab von B") solutions[2] <- TRUE
+  else solutions[3] <- TRUE
+}
+
+
+```
+
+Question
+========
+  
+Die kausale Abhängigkeit zwischen drei Variablen A, B, C sieht wie folgt aus:
+
+- `r pfeil`.
+- C hängt ab von A.
+- C hängt ab von B.
+
+Wie lautet die Regressionsformel, um den totalen kausalen Effekt von `r uv` auf C zu bestimmen?
+  
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+
+
+Aufgabenname: `kausal13`
+
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(ifelse(solutions, "Richtig", "Falsch"), markup = "markdown")
+```
+
+Meta-information
+================
+extype: schoice
+expoints: 1
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: kausal13
+exshuffle: 4

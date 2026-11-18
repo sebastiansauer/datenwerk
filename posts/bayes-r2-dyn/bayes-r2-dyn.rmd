@@ -1,0 +1,187 @@
+---
+title: bayes-r2-dyn
+categories:
+- bayes
+- regression
+- dyn
+---
+
+```{r libs, include = FALSE}
+library(rstanarm)
+library(tidyverse)
+library(easystats)
+library(teachertools)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+config <- config <- list(chains = 4, relative_tolerance = 0.1, tol_rel = 0.05, tol_abs = 0.05)  # Standardwerte aus rexams-entwicklung/config.yml
+```
+
+
+
+
+
+Question
+========
+
+
+
+
+
+
+```{r prep-data, message=FALSE, results = "hide"}
+
+all_dfs <- teachertools::teaching_df()
+
+d <- teachertools::teaching_df("random")
+
+d_name <- attr(d, "df_name")
+
+d_path <- all_dfs |> 
+  dplyr::filter(datasets_names == d_name) |> 
+  dplyr::pull(source)
+
+preds_chosen <- attr(d, "preds_chosen")
+focus_pred <- attr(d, "focus_pred")
+output_var <- attr(d, "output_var")
+```
+
+
+```{r}
+question <- "Geben Sie die erklärte Varianz (R-Quadrat) des Modells an (den Punktschätzer)!"
+```
+
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren. Er ist unter dieser [Quelle](`r d_path`) erhältlich: `r d_path`.
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+Zur Lösung dieser Aufgabe ist folgendes lineares Modell zu berechnen:
+
+
+
+AV: `r output_var`.
+
+UVs: `r preds_chosen`.
+
+
+*Aufgabe*: **`r question`**
+
+
+[Beachten Sie die Bearbeitungshinweise.](https://hinweisbuch.netlify.app/030-hinweise-pruefung-klausur-frame)
+
+
+
+
+
+
+
+
+
+
+Solution
+========
+
+
+
+
+*MUSTERLÖSUNG*
+
+Der Datensatz heißt:
+```{r}
+d_name
+```
+
+
+Quelle: `r paste0("<", d_path, ">")`.
+
+
+
+
+
+Zunächst berechnet man das Modell, etwa so:
+
+
+
+```{r mod, results = "hide", echo = TRUE}
+mod <- stan_glm(av ~ uv1 + uv2, 
+                data = d, 
+                refresh = 0,
+                seed = 42)
+```
+
+
+
+
+
+So kann man sich den gesuchten Wert ausgeben lassen:
+
+
+```{r print-r2, echo = TRUE}
+r2_bayes(mod)
+```
+
+
+
+Und dann liest man einfach den gesuchten Wert von der Ausgabe ab.
+
+
+```{r sol}
+sol_raw <- r2_bayes(mod)$R2_Bayes |> as.numeric() |> round(2)
+
+sol_tol <- config$tol_abs |> exams::fmt(3)
+sol <- exams::fmt(sol_raw, 2)
+```
+
+*Lösung*: ``r sol``.
+
+
+
+---
+
+Aufgaben-ID: bayes-r2-dyn, Toleranzbreite: `r sol_tol`
+
+
+Aufgabenname: `bayes-r2-dyn`
+
+
+
+
+
+
+
+
+Meta-information
+================
+exname: bayes-r2-dyn
+extype: num
+exsolution: `r sol`
+extol: `r sol_tol`
+exshuffle: false
+expoints: 1
+categories:
+- bayes
+- regression
+- dyn
+
+
+

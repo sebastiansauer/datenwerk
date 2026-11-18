@@ -1,0 +1,224 @@
+---
+title: modellinterpret-breite
+categories:
+- bayes
+- regression
+- dyn
+---
+
+```{r libs, include = FALSE}
+library(rstanarm)
+library(tidyverse)
+library(easystats)
+library(teachertools)
+library(glue)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+#options(mc.cores = parallel::detectCores())
+
+config <- list(chains = 4, relative_tolerance = 0.1, tol_rel = 0.05, tol_abs = 0.05)  # Standardwerte aus rexams-entwicklung/config.yml
+```
+
+
+
+
+
+Question
+========
+
+
+
+
+
+
+
+```{r prep-data, message=FALSE, results = "hide", cache=FALSE}
+library(teachertools)
+all_dfs <- teachertools::teaching_df()
+
+d <- teachertools::teaching_df("random")
+#d <- teachertools::teaching_df("gtcars")
+
+d_name <- attr(d, "df_name")
+
+d_path <- all_dfs |> 
+  dplyr::filter(datasets_names == d_name) |> 
+  dplyr::pull(source)
+
+preds_chosen <- attr(d, "preds_chosen")
+focus_pred <- attr(d, "focus_pred")
+output_var <- attr(d, "output_var")
+```
+
+
+
+```{r question}
+question <- "Was ist der Punktschätzer des gewählten Regressionskoeffizienten?"
+```
+
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren. Er ist unter dieser [Quelle](`r d_path`) erhältlich: `r d_path`.
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+
+Zur Lösung dieser Aufgabe ist folgendes lineares Modell zu berechnen:
+
+
+AV: `r output_var`.
+
+UVs: `r preds_chosen`.
+
+Im Folgenden wird *ein* Prädiktor aus der Menge der UV näher betrachtet.
+Der gewählte Prädiktor ist die erste oben genannte UV: ``r focus_pred`` (uv1).
+
+
+*Aufgabe*: **`r question`**
+
+
+[Beachten Sie die Bearbeitungshinweise.](https://start-bayes.netlify.app/pruefung#bearbeitungshinweise)
+
+
+
+Solution
+========
+
+
+*MUSTERLÖSUNG*
+
+Der Datensatz heißt: `r d_name`.
+
+Quelle: `r paste0("<", d_path, ">")`.
+
+
+<!-- TODO: Künftig sollten die Variablen in KLARNAMEN auftauchen, nicht "uv1" etc. -->
+
+Pakete starten:
+
+```{r eval = FALSE}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+```
+
+
+Daten importieren:
+
+```{r echo = FALSE}
+txt_import <- paste0("d <- read_csv('", d_path, "')")
+```
+
+``r txt_import``
+
+
+
+Modell berechnen:
+
+Allgemein:
+
+
+```{r mod, results = "hide", echo = TRUE}
+mod <- stan_glm(av ~ uv1 + uv2, 
+                data = d, 
+                refresh = 0,
+                # chains = config$chains,  # ignorieren Sie diese Zeile
+                seed = 42)
+```
+
+
+Konkret: 
+
+```{r echo = FALSE}
+mod_string <-
+  glue(
+    "mod <- stan_glm({output_var} ~ {preds_chosen[1]} + {preds_chosen[2]},
+                     data = d,
+                     seed = 42)"
+  )
+```
+
+``r mod_string``
+
+
+
+Mit `parameters()` können Sie einfach den Wert des Parameters nachschauen:
+
+```{r}
+parameters(mod)
+```
+
+Man liest also in der Zeile `uv1` in der Spalte `Median` den Wert ab.
+
+
+
+
+
+
+```{r echo = FALSE}
+sol_raw <- coef(mod)["uv1"] |> as.numeric()
+if (is.na(sol_raw)) stop("sol_raw is NA!")
+if (is.null(sol_raw)) stop("sol_raw is NULL!")
+sol <- exams::fmt(sol_raw, 2)
+```
+
+*Lösung*: Der Punktschätzer des Modellkoeffizienten liegt bei `r sol`.
+
+
+
+
+
+
+```{r echo=FALSE, results='hide'}
+# reltol: set relative tolerance to 10% of (absolute value of) solution
+# min: but define a lower threshold, an absolute minimum value: 
+# this is particularly important if `sol` is 0! Because 0*tol remains zero,
+# but we want a tolerence region
+# mind that `num2tol` chooses the larger of the two values (min vs reltol)
+min_tol <- config$tol_abs * sd(d[["av"]], na.rm = TRUE)
+sol_tol <- exams::num2tol(sol_raw, min = min_tol, reltol = config$tol_rel) %>% exams::fmt(3)
+```
+
+
+
+---
+
+Aufgaben-ID: post-md3, Toleranzbreite: `r sol_tol`
+
+
+Aufgabenname: `modellinterpret-breite`
+
+
+
+Meta-information
+================
+exname: modellinterpret-breite
+extype: num
+exsolution: `r sol`
+extol: `r sol_tol`
+exshuffle: false
+expoints: 1
+categories:
+- bayes
+- regression
+- dyn
+
+
+

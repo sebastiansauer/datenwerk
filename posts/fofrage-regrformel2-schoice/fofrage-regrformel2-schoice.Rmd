@@ -1,0 +1,125 @@
+---
+title: fofrage-regrformel2-schoice
+categories:
+- paper
+- todo
+---
+
+```{r setup-pakete, include=FALSE}
+library(knitr)
+```
+
+
+```{r, include=FALSE}
+library(palmerpenguins)
+library(tidyverse)
+library(easystats)
+
+library(rstanarm)
+set.seed(1)
+data(penguins)
+
+penguins <-
+  penguins |>
+  filter(sex == "female" | sex == "male") |>
+  drop_na()
+
+penguins_z <- standardize(penguins, select = bill_length_mm, append = TRUE)
+
+m1 <- stan_glm(body_mass_g ~ sex, data = penguins_z,
+               refresh = 0)
+m2 <- stan_glm(body_mass_g ~ sex + bill_length_mm_z, data = penguins_z,
+               refresh = 0)
+m3 <- stan_glm(body_mass_g ~ sex + bill_length_mm_z + sex:bill_length_mm_z, data = penguins_z,
+               refresh = 0)
+m4 <- stan_glm(body_mass_g ~ sex:bill_length_mm_z, data = penguins_z,
+               refresh = 0)
+m5 <- stan_glm(bill_length_mm ~ sex + body_mass_g + sex:body_mass_g, data = penguins_z)
+```
+
+
+
+Question
+========
+Betrachten Sie folgende Forschungsformel:
+
+> Gibt es einen Interaktionseffekt zwischen Geschlecht und Schnabellänge auf das Gewicht eines Pinguins? Liegen auch Haupteffekte vor?
+
+Auf Basis der folgenden Analyse ist folgende Frage zu untersuchen. Liegt ein Interaktionseffekt vor?
+
+Zur besseren Interpretierbarkeit sind die metrischen UV standardisiert:
+
+```{r standardize}
+#| eval: false
+penguins_z <- standardize(penguins, select = c(bill_length_mm), append = TRUE)
+```
+
+Es werden verschiedene Modelle berechnet, die sich in ihrer Regressionsformel unterscheiden:
+
+```{r compute-models}
+#| eval: false
+m1 <- stan_glm(body_mass_g ~ sex, data = penguins_z)
+m2 <- stan_glm(body_mass_g ~ sex + bill_length_mm_z, data = penguins_z)
+m3 <- stan_glm(body_mass_g ~ sex + bill_length_mm_z + sex:bill_length_mm_z,
+               data = penguins_z)
+m4 <- stan_glm(body_mass_g ~ sex:bill_length_mm_z, data = penguins_z)
+m5 <- stan_glm(bill_length_mm_z ~ sex + body_mass_g + sex:body_mass_g, data = penguins_z)
+```
+
+Hier sind die Modellparameter (Punktschätzer als Median sowie 95%-ETI):
+
+
+```{r echo=FALSE}
+coefs <- data.frame(
+  Modell = c("m1", "m2", "m3", "m4", "m5"),
+  Median = c(coef(m1)[1],coef(m2)[1],coef(m3)[1],coef(m4)[1], coef(m5)[1]),
+  CI_low = c(eti(m1)$CI_low[1],eti(m2)$CI_low[1],eti(m3)$CI_low[1],eti(m4)$CI_low[1], eti(m5)$CI_low[1]),
+  CI_high = c(eti(m1)$CI_high[1],eti(m2)$CI_high[1],eti(m3)$CI_high[1],eti(m4)$CI_high[1], eti(m5)$CI_high[1])
+  )
+
+coefs |> kable(digits = 2)
+```
+
+
+
+*Welches Modell ist korrekt spezifiziert, um die Forschungsfrage (Interaktionseffekt und Haupteffekte) zu beantworten?*
+
+
+Answerlist
+----------
+* `m3`: `body_mass_g ~ sex + bill_length_mm_z + sex:bill_length_mm_z`
+* `m1`: `body_mass_g ~ sex`
+* `m2`: `body_mass_g ~ sex + bill_length_mm_z`
+* `m4`: `body_mass_g ~ sex:bill_length_mm_z`
+* `m5`: `bill_length_mm_z ~ sex + body_mass_g + sex:body_mass_g`
+
+
+Solution
+========
+Die Regressionsformel lautet: `body_mass_g ~ sex + bill_length_mm_z + sex:bill_length_mm_z`. 
+Daher ist `m3` korrekt, da sie beide Haupteffekte (`sex`, `bill_length_mm`) sowie den Interaktionsterm enthält.
+
+Die Parameterwerte von `m3` zeigen, dass ein Interaktionseffekt nicht bestätigt werden kann, 
+bzw. dass die Null, also keine Interaktion, im Bereich plausibler Werte (d. h. innerhalb des Konfidenzintervalls) liegt.
+
+
+Aufgabenname: `fofrage-regrformel2-schoice`
+
+
+
+Answerlist
+----------
+* True
+* False
+* False
+* False
+* False
+
+
+Meta-information
+================
+exname: fofrage-regrformel2-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5

@@ -1,0 +1,241 @@
+---
+title: ppv3a-num
+categories:
+- qm2
+- bayes
+- ppv
+- inference
+- prediction
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(exams)
+library(assertthat)
+library(glue)
+library(teachertools)
+library(easystats)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+#options(mc.cores = parallel::detectCores())
+
+config <- config <- list(chains = 4, relative_tolerance = 0.1, tol_rel = 0.05, tol_abs = 0.05)  # Standardwerte aus rexams-entwicklung/config.yml
+```
+
+
+
+
+
+Question
+========
+
+
+
+
+
+```{r prep-data, message=FALSE, results = "hide", echo = FALSE}
+
+all_dfs <- teachertools::teaching_df()
+
+d <- teachertools::teaching_df("random")
+
+d_name <- attr(d, "df_name")
+
+d_path <- all_dfs |> 
+  dplyr::filter(datasets_names == d_name) |> 
+  dplyr::pull(source)
+
+preds_chosen <- attr(d, "preds_chosen")
+focus_pred <- attr(d, "focus_pred")
+output_var <- attr(d, "output_var")
+
+preds_k <- sample(c(-2, -1, 0, 1, 2), 1)
+```
+
+
+
+
+
+
+```{r echo = FALSE}
+question <- glue::glue("Geben Sie die Breite des 50%-PI der PPV an für eine Beobachtung, bei der alle Prädiktoren den Wert {preds_k} aufweisen! Gehen Sie für alle Variablen von z-Werten aus.")
+```
+
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren. Er ist unter dieser [Quelle](`r d_path`) erhältlich: `r d_path`.
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+
+Berechnen Sie das folgende lineare Modell:
+
+
+AV: `r output_var`.
+
+UVs: `r preds_chosen`.
+
+
+Denken Sie daran, auch beim Erstellen der PPV die Zufallszahlen zu fixieren.
+Sie können dazu den Parameter `seed` auf 42 setzen.
+
+
+*Aufgabe*: **`r question`**
+
+
+*Hinweise*:
+
+
+
+[Beachten Sie die Bearbeitungshinweise.](https://hinweisbuch.netlify.app/030-hinweise-pruefung-klausur-frame)
+
+
+
+
+
+
+
+Solution
+========
+
+
+
+*MUSTERLÖSUNG*
+
+
+
+Der Datensatz heißt:
+```{r}
+d_name
+```
+
+
+Quelle: `r paste0("<", d_path, ">")`.
+
+
+
+
+Prädiktor(en) und AV z-transformieren:
+
+```{r echo = TRUE}
+head(d)  # Rohdaten
+d <- standardize(d)
+head(d)  # z-standardisiert
+```
+
+
+Die Prädiktoren (UVs) des Modells lauten: `r preds_chosen`.
+
+Laut Angabe haben die Prädiktoren den Wert ``r preds_k``.
+
+
+
+Zunächst berechnet man das Modell, etwa so:
+
+
+
+```{r mod, results = "hide", echo = TRUE}
+mod <- stan_glm(av ~ uv1 + uv2, 
+                data = d, 
+                refresh = 0,
+                chains = 4,  # ignorieren Sie diese Zeile
+                seed = 42)
+```
+
+
+
+
+
+
+```{r pred-str, echo = FALSE}
+pred_str <- glue::glue("ppv <- estimate_prediction(mod, newdata = tibble({preds_chosen[1]} = {preds_k}, {preds_chosen[2]} = {preds_k}, seed = 42))")
+```
+
+
+Als nächstes berechnen Sie die PPV, z.B. so ``r pred_str``.
+
+
+
+
+```{r}
+estimate_prediction(mod, tibble(uv1 = preds_k, uv2 = preds_k), ci = .5, seed = 42)
+```
+
+
+
+```{r echo = FALSE}
+ppv <- estimate_prediction(mod, tibble(uv1 = preds_k, uv2 = preds_k), ci = .5, seed = 42)
+ppv 
+```
+
+
+Dann berechnet man die Breite, in dem man die Differenz der oberen und unteren Grenze des Intervalls bildet.
+
+
+```{r}
+sol_raw <- ppv$CI_high - ppv$CI_low
+sol <- exams::fmt(sol_raw, 2)
+```
+
+
+
+*Antwort*: Die Lösung lautet: `r sol`.
+
+
+```{r tol, echo = FALSE}
+min_tol <- config$tol_abs * sd(d[["av"]], na.rm = TRUE)
+sol_tol <- exams::num2tol(sol_raw, min = min_tol, reltol = config$tol_rel) %>% exams::fmt(3)
+```
+
+
+
+
+
+
+---
+
+Aufgaben-ID: PPV3a-num, Toleranzbreite: `r sol_tol`
+
+
+Aufgabenname: `ppv3a-num`
+
+
+
+
+
+Meta-information
+================
+exname: ppv3a-num
+extype: num
+exsolution: `r sol`
+exshuffle: false
+extol: `r sol_tol`
+expoints: 1
+categories
+- qm2
+- bayes
+- ppv
+- inference
+- prediction
+
+
+
+

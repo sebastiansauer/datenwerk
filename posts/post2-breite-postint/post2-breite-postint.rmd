@@ -1,0 +1,231 @@
+---
+title: post2-breite-postint
+categories:
+- bayes
+- dyn
+- regression
+---
+
+<!-- Achtung, es kann passieren, dass mehrere Antwortoptionen den Wert "0" anzeigen, -->
+<!-- was von Studis als "Fehler" gesehen werden kann. Muss noch korrigiert werden. -->
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(exams)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+options(mc.cores = parallel::detectCores())
+
+config <- config <- list(chains = 4, relative_tolerance = 0.1, tol_rel = 0.05, tol_abs = 0.05)  # Standardwerte aus rexams-entwicklung/config.yml
+chains <- config$chains
+```
+
+
+
+
+
+Question
+========
+
+
+
+
+
+
+```{r message=FALSE}
+d_df <-
+  tibble(datasets_names = c("penguins", "mtcars", "tips"),
+         av = c("bill_length_mm", "mpg", "tip"),
+         source = c(
+           "https://vincentarelbundock.github.io/Rdatasets/csv/palmerpenguins/penguins.csv",
+           "https://vincentarelbundock.github.io/Rdatasets/csv/datasets/mtcars.csv",
+           "https://vincentarelbundock.github.io/Rdatasets/csv/reshape2/tips.csv"
+         ))
+
+d_selected <-
+  d_df %>% 
+  slice_sample(n = 1)
+
+d_name <- d_selected$datasets_names
+
+d <- read_csv(d_selected$source)
+
+
+if ("...1" %in% names(d)) d <- d %>% select(-"...1")
+
+
+d <-
+  d %>% 
+  select(where(is.numeric))
+
+vars <- names(d)
+
+av <- d_selected$av
+preds <- setdiff(vars, av)
+
+question <- "Was ist die Breite des 89%-PI des Regressionskoeffizienten?"
+
+k <- 2  # number of predictors to be chosen
+```
+
+
+<!-- Hart verdrahtet für mtcars! -->
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren,
+genauer gesagt geht es um Prädiktoren der AV, `r av`. 
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+
+Zur Lösung dieser Aufgabe ist folgendes lineares Modell zu berechnen:
+
+
+```{r}
+preds_chosen_nr <- sample(1:length(preds), k)
+preds_chosen <- preds[preds_chosen_nr]
+```
+
+AV: `r av`.
+
+UVs: `r preds_chosen`.
+
+Im Folgenden wird *ein* Prädiktor aus der Menge der UV näher betrachtet.
+Der gewählte Prädiktor ist: ``r preds_chosen[1]``.
+
+
+*Aufgabe*: **`r question`**
+
+
+*Hinweise*:
+
+- Verwenden Sie Standardwerte der R-Funktionen, soweit nicht anders angegeben.
+- Runden Sie auf eine Dezimalstelle (R-Funktion `round(x, 1)`).
+- Verwenden Sie Methoden der Bayes-Statistik für inferenzstatistische Analysen.
+- Geben Sie keine Prozentzahlen an, sondern Anteile (also nicht "50%", sondern "0.5" etc.)
+- Findet sich in einer Auswahlliste möglicher Antworten nicht die exakte Lösung, wählen Sie die am besten passende.
+- Beziehen Sie sich im Zweifel auf den Stoff, so wie im Unterricht behandelt.
+- Geben Sie den Absolutwert an (also eine positive Zahl).
+
+
+
+```{r results = "hide", echo = FALSE}
+preds_formula <- paste(preds_chosen, collapse = " + ")
+mod_formula <- as.formula(paste0(av, " ~", preds_formula))
+mod <- stan_glm(mod_formula, data = d, refresh = 0, chains = chains)
+```
+
+
+
+
+
+```{r}
+post_pred_chosen <- posterior_interval(mod, 
+                                       pars = preds_chosen[1],
+                                       prob = .89)
+
+breite <- abs(post_pred_chosen[2] - post_pred_chosen[1])
+breite <- round(breite, 1)
+
+sol <- breite
+```
+
+
+
+
+
+Solution
+========
+
+
+
+
+
+*MUSTERLÖSUNG*
+
+Der Datensatz heißt: `r d_selected$datasets_names`.
+Er ist unter [dieser Quelle](`r d_selected$source`) zu beziehen.
+
+Die Prädiktoren (UVs) des Modells lauten (hat der Dozent oben im Verborgenen bestimmt):
+
+```{r echo = FALSE}
+preds_chosen
+```
+
+
+
+Daraus erstellt man eine "Modellformel" (`mod_formula`), von der Art `y ~ x1 + x2`. Damit kann man dann das Modell berechnen:
+
+
+
+```{r results = "hide", echo = TRUE, eval = FALSE}
+mod <- stan_glm(mod_formula, data = d)
+```
+
+Ausgabe der Ergebnisse:
+
+```{r echo = TRUE}
+print(mod)
+```
+
+
+
+
+
+Das Posterior-Intervall kann so bestimmt werden:
+
+```{r echo = TRUE}
+posterior_interval(mod,
+                   pars = preds_chosen[1],
+                   prob = .89)
+```
+
+Die Breite ergibt sich aus der Differenz der beiden Grenzen des Intervalls.
+Genauer gesagt zieht man die kleinere Zahl von der größeren ab.
+Die Breite des 89%-PI der Posterioriverteilung beträgt: `r breite`.
+
+
+
+```{r echo = FALSE}
+sol_tol <- exams::num2tol(sol, min = config$min_tol, reltol = config$relative_tolerance)
+```
+
+
+Aufgabenname: `post2-breite-postint`
+
+
+
+
+
+
+
+
+Meta-information
+================
+exname: post2-breite-postint
+extype: num
+exsolution: `r breite`
+expoints: 1
+extol: `r sol_tol`
+categories:
+- bayes
+- dyn
+- regression
+

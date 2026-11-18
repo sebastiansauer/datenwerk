@@ -1,0 +1,148 @@
+---
+title: abhaengige-es
+categories:
+- probability
+- paper
+---
+
+```{r global-knitr-options, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      echo = FALSE,
+                      message = FALSE,
+                      fig.show = "hold")
+```
+
+```{r setup-pakete, include=FALSE}
+library(exams)
+```
+
+
+
+
+
+
+Question
+========
+
+Betrachten Sie die folgenden Diagramme, die jeweils die Kovariation zweier nominaler Variablen darstellen. 
+
+Welches Diagramm lässt am ehesten auf stochastische Unabhängigkeit schließen?
+
+*Wählen Sie die passende Antwortoption!*
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://sebastiansauer.github.io/datenwerk/Hinweise.html).
+
+
+```{r setup}
+library(teachertools)
+library(tidyverse)
+data("teaching_data")
+```
+
+
+
+
+
+```{r prep-data}
+all_vars_teaching_data <- 
+  str_c(teaching_data$vars,collapse = ",") |> 
+  str_split(pattern = ",") |> 
+  unlist() |> 
+  unique()
+
+n_plots <- 4
+all_vars_teaching_data_sample <-
+  sample(all_vars_teaching_data, size = n_plots * 2)
+```
+
+
+```{r plot-association, out.width="70%", fig.width=15}
+p1 <- teachertools::plot_nominal_association(mtcars, 
+                         var1 = "mpg", 
+                         var2 = "disp",
+                         label1 = all_vars_teaching_data_sample[1],
+                         label2 =  all_vars_teaching_data_sample[2])  # very strong
+
+p2 <- teachertools::plot_nominal_association(
+  mtcars, "qsec", "mpg",
+  label1 =  all_vars_teaching_data_sample[3],
+  label2 =  all_vars_teaching_data_sample[4])  # medium
+
+data("Affairs", package = "AER")
+p3 <- teachertools::plot_nominal_association(
+  Affairs, "education", "rating",  #weak
+  label1 =  all_vars_teaching_data_sample[5],
+  label2 =  all_vars_teaching_data_sample[6]) 
+
+p4 <- plot_nominal_association(Affairs, "religiousness", "rating",
+                         label1 = all_vars_teaching_data_sample[7],
+                         label2 = all_vars_teaching_data_sample[8])  # zero!
+
+plots_list <- list(very_strong = p1, medium = p2, weak = p3, zero = p4)
+
+plots_list <- sample(plots_list)
+named_plots_list <- names(plots_list)
+
+see::plots(plots_list, tags = "A", n_rows = 2)
+```
+
+
+```{r build-answer}
+sol_df <-
+  tibble(association = named_plots_list,
+         correct_answer = ifelse(association == "zero", TRUE, FALSE),
+         id = c("A", "B", "C", "D"),
+         explanation = glue::glue("Strength of association: {association}"))
+```
+
+
+
+Wenn die Assoziation null ist, kann man von stochastischer Unabhängigkeit ausgehen.
+Die Assoziation ist dann null, wenn die bedingten Häufigkeiten einer Variablen in Bezug auf die zweite Variable (annähernd) gleich sind.
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(sol_df$id, markup = "markdown")
+```
+
+Solution
+========
+
+---
+
+Aufgaben-ID: Abhaengige-Es
+
+---
+
+
+Aufgabenname: `abhaengige-es`
+
+
+
+
+```{r sollist, echo = FALSE, results = "asis"}
+answerlist(ifelse(sol_df$correct_answer, "Richtig", "Falsch"), sol_df$explanations, markup = "markdown")
+```
+
+
+
+```{r sol}
+sol <- exams::mchoice2string(sol_df$correct_answer, single = TRUE)
+```
+
+Meta-information
+================
+exname: abhaengige-es
+extype: schoice
+expoints: 1
+exsolution: `r sol`
+exshuffle: false
+categories:
+- probability
+
+

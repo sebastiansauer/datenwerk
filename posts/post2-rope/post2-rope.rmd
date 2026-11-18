@@ -1,0 +1,241 @@
+---
+title: post2-rope
+categories: null
+---
+
+```{r libs, include = FALSE}
+library(tidyverse)
+library(rstanarm)
+library(exams)
+library(assertthat)
+library(glue)
+library(teachertools)
+library(easystats)
+```
+
+
+```{r global-knitr-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.asp = 0.618,
+                      fig.width = 4,
+                      fig.cap = "", 
+                      fig.path = "",
+                      cache = FALSE,
+                      echo = TRUE,
+                      message = FALSE,
+                      fig.show = "hold")
+
+#options(mc.cores = parallel::detectCores())
+
+config <- list(chains = 4, relative_tolerance = 0.1, tol_rel = 0.05, tol_abs = 0.05)  # Standardwerte aus rexams-entwicklung/config.yml
+```
+
+
+
+Question
+========
+
+
+```{r prep-data, message=FALSE, results = "hide", echo = FALSE}
+library(teachertools)
+all_dfs <- teachertools::teaching_df()
+
+d <- teachertools::teaching_df("random")
+
+d_name <- attr(d, "df_name")
+
+d_path <- all_dfs |> 
+  dplyr::filter(datasets_names == d_name) |> 
+  dplyr::pull(source)
+
+preds_chosen <- attr(d, "preds_chosen")
+preds_chosen <- preds_chosen[1]  # nur 1 UV hier
+
+focus_pred <- attr(d, "focus_pred")
+output_var <- attr(d, "output_var")
+av <- output_var
+```
+
+
+
+
+
+
+```{r echo = FALSE}
+question <- glue::glue("Was ist der Anteil der Posterior-Verteilung des Regressionskoeffizienten der Variable `{focus_pred}`, der außerhalb des ROPE liegt? Gehen Sie von z-standardisierten Variablen aus.")
+```
+
+
+
+Im Folgenden ist der Datensatz ``r d_name`` zu analysieren. Er ist unter dieser [Quelle](`r d_path`) erhältlich: `r d_path`.
+
+Eine Möglichkeit, den Datensatz zu beziehen, ist [diese Sammlung an Datensätzen](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Suchen Sie dort nach dem Namen des Datensatzes.
+Importieren Sie dann die Daten in R.
+
+Hilfe zum Datensatz ist [auf dieser Webseite](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) abrufbar.
+
+
+
+
+Berechnen Sie das folgende lineare Modell:
+
+
+AV: `r av`.
+
+UV: `r preds_chosen`.
+
+
+
+
+*Aufgabe*: **`r question`**
+
+
+*Hinweise*:
+
+
+
+
+[Beachten Sie die Bearbeitungshinweise.](https://hinweisbuch.netlify.app/030-hinweise-pruefung-klausur-frame)
+
+
+
+
+Solution
+========
+
+
+
+*MUSTERLÖSUNG*
+
+Pakete starten:
+
+```{r}
+library(tidyverse)
+library(easystats)
+library(rstanarm)
+```
+
+
+
+Der zu analysierende Datensatz heißt:
+```{r}
+d_name
+```
+
+
+Quelle: `r paste0("<", d_path, ">")`.
+
+
+So sehen die ersten Zeilen des Datensatzes aus:
+
+```{r}
+head(d)  # Rohdaten
+```
+
+
+
+
+Prädiktor(en) und AV z-transformieren:
+
+```{r echo = TRUE}
+d <- standardize(d)   # aus `easystats`
+head(d)  # z-standardisiert
+```
+
+
+
+
+
+Zunächst berechnet man das Modell, etwa so:
+
+
+
+```{r mod, results = "hide", echo = TRUE}
+mod <- stan_glm(av ~ uv1, 
+                data = d, 
+                refresh = 0,
+                seed = 42)  # Reproduzierbarkeit
+```
+
+
+
+Gefragt war nach diesem Prädiktor ``r focus_pred``:
+
+
+
+So kann man sich das ROPE berechnen lassen:
+
+```{r echo = TRUE}
+rope(mod)
+```
+
+Dann sucht man sich die richtige Zeile und liest den Prozentwert `p` ab.
+Dann rechnet man `1 - p` und reicht das Ergebnis (als Anteil, nicht als Prozentwert) als Lösung ein.
+
+
+
+
+
+
+```{r  eval = TRUE, echo = FALSE}
+rope_df <-
+  rope(mod) %>% 
+  as_tibble()
+
+inside_rope <- rope_df$ROPE_Percentage[rope_df$Parameter == "uv1"]
+outside_rope <- (1 - inside_rope ) %>% round(2)
+
+sol_raw <- outside_rope %>% round(2)
+sol <- exams::fmt(sol_raw, 2)
+```
+
+
+
+
+**Antwort**: `r sol`.
+
+Oft ist ein Diagramm zum Verstehen hilfreich, das kann man so erhalten:
+
+```{r echo = TRUE, cache = FALSE, eval = FALSE}
+plot(rope(mod))
+```
+
+```{r echo = FALSE, cache = FALSE, eval = FALSE}
+rope_mod <- rope(mod)
+plot(rope_mod, data = d)
+```
+
+
+Wie man sieht liegt also dieser Teil außerhalb des ROPE: `r outside_rope`.
+
+
+
+
+
+
+
+```{r tol, echo = FALSE}
+sol_tol <- exams::num2tol(sol_raw, min = config$tol_abs, reltol = config$tol_rel) %>% exams::fmt(3)
+```
+
+
+
+---
+
+Aufgaben-ID: Post2-rope, Toleranzbreite: `r sol_tol`
+
+
+Aufgabenname: `post2-rope`
+
+
+
+
+Meta-information
+================
+exname: post2-rope
+extype: num
+exsolution: `r sol`
+exshuffle: false
+expoints: 1
+extol: `r sol_tol`
+
