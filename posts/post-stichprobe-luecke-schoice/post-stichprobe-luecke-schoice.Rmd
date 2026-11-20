@@ -1,0 +1,66 @@
+---
+title: post-stichprobe-luecke-schoice
+date: '2026-11-19'
+categories:
+- bayes
+- R
+- paper
+---
+
+Question
+========
+Im Globusversuch (6 Treffer bei 9 Würfen) liegt die Bayesbox `bayesbox_6w_9v` vor, eine Tabelle mit 11 Zeilen und den Spalten `p_grid` (Gitterwerte des Wasseranteils von 0 bis 1), `prior` (überall 1), `likelihood`, `unstand_post` und `post` (standardisierte Posteriori-Wahrscheinlichkeit).
+
+Aus dieser Tabelle soll eine Stichprobe von 10000 Parameterwerten gezogen werden, deren Verteilung der Post-Verteilung entspricht. Im folgenden Code fehlen zwei Angaben, `___A___` und `___B___`:
+
+```r
+samples_6w_9v <-
+  bayesbox_6w_9v |>
+  slice_sample(
+    n = 1e4,
+    weight_by = ___A___,
+    replace = ___B___) |>
+  select(p_grid)
+```
+
+Welche Füllung der beiden Lücken ist korrekt?
+
+Answerlist
+----------
+* `A = post`, `B = TRUE`
+* `A = post`, `B = FALSE`
+* `A = p_grid`, `B = TRUE`
+* `A = prior`, `B = TRUE`
+* `A = p_grid`, `B = FALSE`
+
+Solution
+========
+Jede Zeile der Bayesbox soll mit einer Wahrscheinlichkeit gezogen werden, die proportional zu ihrer Posteriori-Wahrscheinlichkeit ist; daher `weight_by = post`. Da 10000 Werte aus nur 11 Zeilen gezogen werden, muss *mit Zurücklegen* gezogen werden (`replace = TRUE`); das hält außerdem die Ziehungswahrscheinlichkeiten während des Ziehens konstant. Die Häufigkeiten der gezogenen `p_grid`-Werte geben dann (bis auf Zufallsschwankung) die Post-Verteilung wieder.
+
+Warum die Distraktoren falsch sind:
+
+* `A = post`, `B = FALSE`: Gewichtung richtig, aber ohne Zurücklegen kann jede der 11 Zeilen höchstens einmal gezogen werden. `slice_sample()` liefert dann höchstens 11 statt 10000 Werte (hier bricht R sogar ab, weil die Gitterwerte 0 und 1 die Post-Wahrscheinlichkeit 0 haben). Eine Stichprobe aus der Post-Verteilung ist das nicht. Wer diese Option wählt, übersieht, dass die Bayesbox nur wenige Gitterwerte hat.
+* `A = p_grid`, `B = TRUE`: Hier wird nach dem Parameterwert selbst gewichtet statt nach seiner Wahrscheinlichkeit. Große Wasseranteile würden dann bevorzugt gezogen, unabhängig von den Daten (6 von 9). Verwechslung von *Wert* und *Wahrscheinlichkeit des Werts*.
+* `A = prior`, `B = TRUE`: Die Gewichtung nach der Priori liefert eine Stichprobe aus der Priori-Verteilung; da die Priori hier gleichverteilt ist, käme jeder Gitterwert gleich oft vor. Die Daten (Likelihood) gingen gar nicht ein.
+* `A = p_grid`, `B = FALSE`: kombiniert beide Fehler: falsche Gewichtung und Ziehen ohne Zurücklegen (das ebenfalls höchstens 11 Werte liefert).
+
+
+Aufgabenname: `post-stichprobe-luecke-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: post-stichprobe-luecke-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

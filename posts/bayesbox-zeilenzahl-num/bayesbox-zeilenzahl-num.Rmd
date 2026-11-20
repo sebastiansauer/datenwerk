@@ -1,0 +1,75 @@
+---
+title: bayesbox-zeilenzahl-num
+date: '2026-11-19'
+categories:
+- bayes
+- bayesbox
+- regression
+- num
+execute:
+  echo: false
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+Question
+========
+
+Ein lineares Modell mit normalverteiltem Fehler soll nach der Gittermethode (Bayesbox) geschätzt werden:
+
+$$y \sim x_1 + x_2$$
+
+Für *jeden* Parameter des Modells werden 101 Gitterwerte verwendet.
+
+Wie viele Zeilen hat die vollständige Bayesbox?
+
+Hinweise:
+
+- Geben Sie die Anzahl als ganze Zahl an (ohne Tausendertrennzeichen).
+- Beachten Sie die üblichen [Hinweise](https://sebastiansauer.github.io/datenwerk/Hinweise.html) des Datenwerks.
+
+Solution
+========
+
+Das Modell hat vier Parameter:
+
+- $\beta_0$ (Achsenabschnitt),
+- $\beta_1$ (Gewicht von $x_1$),
+- $\beta_2$ (Gewicht von $x_2$),
+- $\sigma$ (Streuung der Residuen bzw. des Fehlers) -- auch $\sigma$ wird geschätzt und braucht daher ein eigenes Gitter.
+
+Die Bayesbox braucht für *jede Kombination* von Gitterwerten eine Zeile. Die Anzahl der Zeilen ist daher das Produkt der Anzahl der Gitterwerte:
+
+$$101 \cdot 101 \cdot 101 \cdot 101 = 101^4 = 104\,060\,401$$
+
+```{r}
+101^4
+```
+
+Gut 100 Millionen Zeilen für ein Modell mit nur zwei Prädiktoren: Die Zeilenzahl wächst exponentiell mit der Zahl der Parameter ("Fluch der Dimensionalität"). Darum ist die Bayesbox für Regressionsmodelle unpraktikabel, und man nutzt stattdessen MCMC-Verfahren wie in `stan_glm()`.
+
+Typische Fehler:
+
+- $101^3 = 1\,030\,301$: $\sigma$ vergessen.
+- $101 \cdot 4 = 404$: Gitterwerte addiert statt kombiniert.
+
+Aufgabenname: `bayesbox-zeilenzahl-num`
+
+Meta-information
+================
+exname: bayesbox-zeilenzahl-num
+extype: num
+expoints: 1
+exsolution: 104060401
+extol: 0
+
+---
+
+Categories:
+
+- bayes
+- bayesbox
+- regression
+- num

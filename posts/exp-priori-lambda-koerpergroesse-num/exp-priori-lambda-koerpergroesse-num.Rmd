@@ -1,0 +1,53 @@
+---
+title: exp-priori-lambda-koerpergroesse-num
+date: '2026-11-19'
+categories:
+- bayes
+- distributions
+- num
+- paper
+---
+
+```{r, include=FALSE}
+streuung <- sample(6:12, size = 1)   # angenommene typische Streuung in cm
+mu_annahme <- sample(170:176, size = 1)
+lambda <- 1 / streuung
+sol <- round(lambda, 3)
+```
+
+Question
+========
+Sie modellieren die Körpergröße $h_i$ (in cm) von Studierenden mit einem Gauß-Modell:
+
+$$h_i \sim \mathcal{N}(\mu, \sigma), \qquad \mu \sim \mathcal{N}(`r mu_annahme`, 20), \qquad \sigma \sim \mathcal{E}(\lambda)$$
+
+Aus Erfahrung schätzen Sie, dass die Körpergrößen von Studierenden typischerweise um etwa `r streuung` cm um den Mittelwert streuen. Die Priori-Verteilung für $\sigma$ soll so gewählt werden, dass ihr Erwartungswert genau dieser Schätzung entspricht (so wie es auch `stan_glm()` mit $\lambda = 1/sd(Y)$ macht).
+
+Welchen Wert sollte $\lambda$ haben? Geben Sie das Ergebnis auf drei Dezimalstellen gerundet an.
+
+Solution
+========
+Für eine Exponentialverteilung $\mathcal{E}(\lambda)$ gilt: Erwartungswert (und Streuung) sind $\frac{1}{\lambda}$. Soll der Erwartungswert der Priori für $\sigma$ bei `r streuung` cm liegen, folgt:
+
+$$\frac{1}{\lambda} = `r streuung` \quad\Rightarrow\quad \lambda = \frac{1}{`r streuung`} \approx `r sprintf("%.3f", sol)`$$
+
+Ungerundet ist $\lambda = `r sprintf("%.4f", lambda)`$.
+
+Typische Fehler:
+
+* $\lambda = `r streuung`$: Rate und Erwartungswert verwechselt. Dann läge der Erwartungswert von $\sigma$ bei $\frac{1}{`r streuung`}$ cm, also einem Bruchteil eines Zentimeters, viel zu klein.
+* $\lambda = \frac{1}{20}$: Die Streuung der Priori für $\mu$ ist eine Aussage über die Unsicherheit der *mittleren* Körpergröße, nicht über die Streuung der einzelnen Körpergrößen.
+* $\lambda = \frac{1}{`r mu_annahme`}$: Der Mittelwert der Körpergröße ist keine Streuung.
+
+Eine größere Rate $\lambda$ bedeutet eine *kleinere* erwartete Streuung, und umgekehrt.
+
+Aufgabenname: `exp-priori-lambda-koerpergroesse-num`
+
+Meta-information
+================
+exname: exp-priori-lambda-koerpergroesse-num
+extype: num
+expoints: 1
+exsolution: `r sprintf("%.3f", sol)`
+extol: 0.003
+excategory: bayes

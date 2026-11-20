@@ -1,10 +1,4 @@
 ---
-exname: bus1
-extype: num
-exsolution: r y
-exshuffle: no
-extol: 1
-expoints: 1
 categories:
 - probability
 - bayes
@@ -17,15 +11,13 @@ draft: true
 
 
 
-
-
 ```{r global-knitr-options, include=FALSE}
 knitr::opts_chunk$set(fig.pos = 'H',
                       fig.asp = 0.618,
                       fig.width = 4,
                       fig.cap = "", 
                       fig.path = "",
-                      echo = FALSE,
+                      echo = TRUE,
                       message = FALSE,
                       fig.show = "hold")
 ```
@@ -33,9 +25,8 @@ knitr::opts_chunk$set(fig.pos = 'H',
 
 
 
-
-
-## Aufgabe
+Question
+========
 
 Die folgende Aufgabe basiert auf S. 110 von Bourier, G. (2018). Wahrscheinlichkeitsrechnung und schließende Statistik: Praxisorientierte Einführung — Mit Aufgaben und Lösungen. Springer Fachmedien. https://doi.org/10.1007/978-3-658-07481-4
 
@@ -55,18 +46,9 @@ Hinweise:
 - Runden Sie auf zwei Dezimalstellen.
 
 
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
 
-## Lösung
+Solution
+========
 
 
 Vergegenwärtigen wir uns die Ereignisse ("Bus A kommt" und "Bus B kommt") in den ersten 20 Minuten - danach wiederholt es sich.
@@ -159,59 +141,50 @@ d3_long %>%
 
 
 Jetzt fügen wir die Wartezeiten hinzu.
-Dazu ein Beispiel: Kommt man in Minute 1 oder in Minute 6 an, so muss man 4 Minuten warten auf Linie A. Kommt man in Minute 2 oder 7 an, so muss man 3 Minuten warten auf Linie A, etc. Kommt man in der 5. Minute, so ist der Bus gerade weg (man könnte auch vereinbaren, dass der Bus noch da ist; beides ist okay).
-Für Linie B gilt Ähnliches.
+Busse kommen in den ersten 20 Minuten in Minute 5 (Linie B) sowie in Minute 10 und 20 (Linie A).
+Kommt man z. B. in Minute 2 an, so muss man 3 Minuten warten (auf Linie B); kommt man in Minute 12 an, so muss man 8 Minuten warten (auf Linie A).
 
 Um das auszurechnen, braucht man den "Rest-Operator" in R, `%%`:
 
 ```{r}
-5 %% 5
-6 %% 5
-7 %% 5
+10 %% 10
+12 %% 10
+17 %% 10
 ```
 
-
+Wir ziehen 1e4 zufällige (stetige) Ankunftszeiten in den ersten 20 Minuten. 
+Die Wartezeit auf Linie A ist `10 - ankunft %% 10`, die auf Linie B ist `(5 - ankunft) %% 20`.
+Die Gesamt-Wartezeit ist die kleinere der beiden Wartezeiten:
 
 ```{r}
-d3 <-
-  d3 |> 
-  mutate(Wartezeit_Linie_A = 5 - Minute %% 5,
-         Wartezeit_Linie_B = 10 - Minute %% 10
-  )
-```
-
-
-Die Gesamt-Wartezeit ist die kleinere der beiden Wartezeiten (Warten auf Linie A bzw. auf Linie B):
-
-```{r}
-d3 <-
-  d3 |> 
-  mutate(Wartzeit = case_when(
-    Wartezeit_Linie_A <= Wartezeit_Linie_B ~ Wartezeit_Linie_A,
-    TRUE ~ Wartezeit_Linie_B
-  ))
-```
-
-
-Jetzt ziehen wir Stichproben, damit wir zählen können, wie häufig der Bus kommt bei einer bestimmten Ankunftszeit einer Person an der Haltestelle.
-
-
-```{r echo=TRUE}
+set.seed(42)
 stipros <-
-  d %>% 
-  slice_sample(n = 1e4, replace = TRUE)
+  tibble(ankunft = runif(1e4, min = 0, max = 20)) |> 
+  mutate(Wartezeit_Linie_A = 10 - ankunft %% 10,
+         Wartezeit_Linie_B = (5 - ankunft) %% 20,
+         Wartezeit = pmin(Wartezeit_Linie_A, Wartezeit_Linie_B))
 
 head(stipros)
 ```
 
+Jetzt zählen wir, wie oft die Wartezeit zwischen 3 und 6 Minuten liegt:
 
-
-Schauen wir uns mal die Stichproben als Histogramm an:
-
-```{r echo=TRUE}
-stipros %>% 
-  count(Minute, Bus)
+```{r}
+stipros |> 
+  count(Wartezeit_3_bis_6 = Wartezeit >= 3 & Wartezeit <= 6) |> 
+  mutate(prop = n / sum(n))
 ```
+
+```{r echo = FALSE}
+y <- round(mean(stipros$Wartezeit >= 3 & stipros$Wartezeit <= 6), 2)
+sol <- 7/20  # exakter Wert, s. u.
+```
+
+Die Simulation ergibt ca. `r y`.
+
+Zur Kontrolle analytisch: Eine Wartezeit zwischen 3 und 6 Minuten hat man bei Ankunft in Minute 0–2 (Bus B in Minute 5), 5–7 (Bus A in Minute 10) und 14–17 (Bus A in Minute 20), also in 2 + 2 + 3 = 7 von 20 Minuten: $7/20 = 0.35$.
+
+Die gesuchte Wahrscheinlichkeit beträgt also ca. **0.35**; Simulationsergebnisse im Bereich 0.34 bis 0.36 gelten als richtig.
 
 
 Aufgabenname: `bus1`
@@ -219,8 +192,14 @@ Aufgabenname: `bus1`
 
 
 
-
-
+Meta-information
+================
+exname: bus1
+extype: num
+expoints: 1
+exsolution: `r sol`
+extol: `r round(0.03 * sol, 4)`
+exshuffle: false
 
 
 ---

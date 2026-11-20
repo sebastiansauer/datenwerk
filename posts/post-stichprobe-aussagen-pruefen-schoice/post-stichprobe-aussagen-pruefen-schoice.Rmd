@@ -1,0 +1,112 @@
+---
+title: post-stichprobe-aussagen-pruefen-schoice
+date: '2026-11-19'
+categories:
+- bayes
+- probability
+- paper
+---
+
+```{r, include=FALSE}
+# Post-Verteilung per Gitter (101 Gitterwerte, gleichverteilte Priori),
+# daraus 50 Stichproben, sortiert ausgegeben.
+p_grid <- seq(from = 0, to = 1, by = 0.01)
+n_stipro <- 50
+
+fmt <- function(x) sprintf("%.2f", x)
+
+ok <- FALSE
+while (!ok) {
+  n_befragt <- sample(10:20, size = 1)
+  n_ja <- sample(round(0.3 * n_befragt):round(0.8 * n_befragt), size = 1)
+
+  post <- dbinom(n_ja, size = n_befragt, prob = p_grid)
+  post <- post / sum(post)
+
+  stipro <- sort(round(sample(p_grid, size = n_stipro, replace = TRUE, prob = post), 2))
+
+  anteil_groesser <- function(s) sum(stipro > s) / n_stipro
+  anteil_kleiner  <- function(s) sum(stipro < s) / n_stipro
+
+  # Schwellen auf 0.05-Raster, die nicht selbst in der Stichprobe vorkommen
+  # und im Bereich der Stichprobe liegen
+  kandidaten <- seq(0.05, 0.95, by = 0.05)
+  kandidaten <- kandidaten[!(round(kandidaten, 2) %in% stipro) &
+                             kandidaten > min(stipro) & kandidaten < max(stipro)]
+  if (length(kandidaten) < 6) next
+  s <- sample(kandidaten, size = 6)
+
+  # (1) richtig: Pr(pi > a)
+  a <- s[1]; wert_sol <- anteil_groesser(a)
+  # (2) Komplement verwechselt: Pr(pi > b) wird der Anteil unter b zugeschrieben
+  b <- s[2]; wert_w1 <- anteil_kleiner(b); wahr_w1 <- anteil_groesser(b)
+  # (3) Anzahl durch 100 statt durch 50 geteilt
+  c0 <- s[3]; wert_w2 <- sum(stipro < c0) / 100; wahr_w2 <- anteil_kleiner(c0)
+  # (4) Intervall: untere Grenze ignoriert
+  u <- min(s[4], s[5]); o <- max(s[4], s[5])
+  wert_w3 <- anteil_kleiner(o); wahr_w3 <- sum(stipro > u & stipro < o) / n_stipro
+  # (5) Parameterwert mit Wahrscheinlichkeit verwechselt: Pr(pi > d) = 1 - d
+  d <- s[6]; wert_w4 <- 1 - d; wahr_w4 <- anteil_groesser(d)
+
+  behauptet <- c(wert_sol, wert_w1, wert_w2, wert_w3, wert_w4)
+  wahr      <- c(wert_sol, wahr_w1, wahr_w2, wahr_w3, wahr_w4)
+
+  ok <- all(fmt(behauptet[-1]) != fmt(wahr[-1])) &&   # Distraktoren sind falsch
+    all(behauptet > 0 & behauptet < 1) &&
+    all(wahr > 0 & wahr < 1) &&
+    length(unique(fmt(behauptet))) == 5
+}
+
+stipro_text <- paste(
+  sapply(split(fmt(stipro), rep(1:5, each = 10)), paste, collapse = "  "),
+  collapse = "\n")
+```
+
+Question
+========
+Von `r n_befragt` befragten Studierenden geben `r n_ja` an, regelmäßig Sport zu treiben. Gesucht ist der Anteil $\pi$ der sportlichen Studierenden in der Population. Mit gleichverteilter Priori und einer Bayesbox (Gitterwerte 0, 0.01, …, 1) wurde die Post-Verteilung berechnet; daraus wurden `r n_stipro` Stichproben (mit Zurücklegen, gewichtet nach der Post-Wahrscheinlichkeit) gezogen. Hier die `r n_stipro` Werte von $\pi$, aufsteigend sortiert:
+
+```{r, echo=FALSE, results="asis"}
+cat("```\n", stipro_text, "\n```\n", sep = "")
+```
+
+Welche der folgenden Behauptungen über die Post-Verteilung trifft auf Basis dieser Stichprobe zu?
+
+Answerlist
+----------
+* $Pr(\pi > `r fmt(a)`) = `r fmt(wert_sol)`$
+* $Pr(\pi > `r fmt(b)`) = `r fmt(wert_w1)`$
+* $Pr(\pi < `r fmt(c0)`) = `r fmt(wert_w2)`$
+* $Pr(`r fmt(u)` < \pi < `r fmt(o)`) = `r fmt(wert_w3)`$
+* $Pr(\pi > `r fmt(d)`) = `r fmt(wert_w4)`$
+
+Solution
+========
+Eine Post-Wahrscheinlichkeit wird aus der Stichprobe als Anteil geschätzt: Man zählt die Werte, die die Bedingung erfüllen, und teilt durch `r n_stipro`. Da die Liste sortiert ist, muss man nur die Stelle finden, an der die Schwelle überschritten wird (keine Schwelle kommt selbst in der Liste vor).
+
+* $Pr(\pi > `r fmt(a)`)$: `r sum(stipro > a)` von `r n_stipro` Werten liegen über `r fmt(a)`, also $\frac{`r sum(stipro > a)`}{`r n_stipro`} = `r fmt(wert_sol)`$. **Richtig.**
+* $Pr(\pi > `r fmt(b)`)$: Es liegen `r sum(stipro > b)` Werte über `r fmt(b)`, also `r fmt(wahr_w1)`. Der behauptete Wert `r fmt(wert_w1)` ist der Anteil *unter* `r fmt(b)`: Komplement verwechselt. Falsch.
+* $Pr(\pi < `r fmt(c0)`)$: Es liegen `r sum(stipro < c0)` Werte unter `r fmt(c0)`, also $\frac{`r sum(stipro < c0)`}{`r n_stipro`} = `r fmt(wahr_w2)`$. Der behauptete Wert `r fmt(wert_w2)` entsteht, wenn man die Anzahl durch 100 statt durch `r n_stipro` teilt (Anzahl als Prozent gelesen). Falsch.
+* $Pr(`r fmt(u)` < \pi < `r fmt(o)`)$: Zwischen beiden Grenzen liegen `r sum(stipro > u & stipro < o)` Werte, also `r fmt(wahr_w3)`. Der behauptete Wert `r fmt(wert_w3)` ist $Pr(\pi < `r fmt(o)`)$: Die untere Grenze wurde ignoriert. Falsch.
+* $Pr(\pi > `r fmt(d)`)$: Es liegen `r sum(stipro > d)` Werte über `r fmt(d)`, also `r fmt(wahr_w4)`. Der behauptete Wert `r fmt(wert_w4)` ist einfach $1 - `r fmt(d)`$: Hier wurde der Parameterwert mit einer Wahrscheinlichkeit verwechselt (das wäre nur bei einer Gleichverteilung von $\pi$ richtig, nicht bei dieser Post-Verteilung). Falsch.
+
+
+Aufgabenname: `post-stichprobe-aussagen-pruefen-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: post-stichprobe-aussagen-pruefen-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

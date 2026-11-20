@@ -1,0 +1,135 @@
+---
+title: post-stichprobe-anteil-ablesen-schoice
+date: '2026-11-19'
+categories:
+- bayes
+- probability
+- paper
+---
+
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+
+# Bayesbox: 6 Treffer bei 9 Würfen, 11 Gitterwerte, gleichverteilte Priori
+k_grid <- 0:10                       # Gitterindex; p_grid = k_grid / 10
+bayesbox <- tibble(
+  k      = k_grid,
+  p_grid = k_grid / 10,
+  post   = dbinom(6, size = 9, prob = k_grid / 10)
+) |>
+  mutate(post = post / sum(post))
+
+n_samples <- 1e4
+
+ok <- FALSE
+while (!ok) {
+  # Stichproben aus der Post-Verteilung ziehen (wie im Lehrbuch)
+  samples <- bayesbox |>
+    slice_sample(n = n_samples, weight_by = post, replace = TRUE)
+
+  zaehlung <- samples |>
+    count(k, p_grid) |>
+    right_join(bayesbox |> select(k, p_grid), by = c("k", "p_grid")) |>
+    mutate(n = coalesce(n, 0L)) |>
+    arrange(k)
+
+  richtung <- sample(c("groesser", "kleiner"), size = 1)
+  schwelle_k <- if (richtung == "groesser") sample(2:9, size = 1) else sample(1:8, size = 1)
+  schwelle <- schwelle_k / 10
+
+  n_gleich   <- sum(zaehlung$n[zaehlung$k == schwelle_k])
+  n_groesser <- sum(zaehlung$n[zaehlung$k >  schwelle_k])
+  n_kleiner  <- sum(zaehlung$n[zaehlung$k <  schwelle_k])
+
+  if (richtung == "groesser") {
+    operator <- "\\geq"
+    sol <- (n_gleich + n_groesser) / n_samples   # Pr(p >= s)
+    w1  <- n_groesser / n_samples                # Pr(p > s): Balken bei s vergessen
+    w2  <- n_kleiner / n_samples                 # Pr(p < s): Komplement
+    w3  <- (n_kleiner + n_gleich) / n_samples    # Pr(p <= s): falsche Richtung
+    w4  <- n_gleich / n_samples                  # Pr(p = s): nur ein Balken
+  } else {
+    operator <- "\\leq"
+    sol <- (n_gleich + n_kleiner) / n_samples    # Pr(p <= s)
+    w1  <- n_kleiner / n_samples                 # Pr(p < s): Balken bei s vergessen
+    w2  <- n_groesser / n_samples                # Pr(p > s): Komplement
+    w3  <- (n_groesser + n_gleich) / n_samples   # Pr(p >= s): falsche Richtung
+    w4  <- n_gleich / n_samples                  # Pr(p = s): nur ein Balken
+  }
+
+  antworten <- sprintf("%.4f", c(sol, w1, w2, w3, w4))
+
+  ok <- length(unique(antworten)) == 5 &&
+    all(c(sol, w1, w2, w3, w4) > 0) &&
+    all(c(sol, w1, w2, w3, w4) < 1)
+}
+
+operator_text <- if (richtung == "groesser") "mindestens" else "höchstens"
+operator_strikt <- if (richtung == "groesser") ">" else "<"
+operator_komplement <- if (richtung == "groesser") "<" else ">"
+operator_falsch <- if (richtung == "groesser") "\\leq" else "\\geq"
+```
+
+Question
+========
+Im Globusversuch (6 Treffer bei 9 Würfen, gleichverteilte Priori, 11 Gitterwerte von 0 bis 1) wurden `r format(n_samples, big.mark = " ")` Stichproben aus der Post-Verteilung gezogen. Das Diagramm zeigt, wie oft jeder Parameterwert `p_grid` (Wasseranteil) gezogen wurde.
+
+```{r, echo=FALSE, fig.width=8, fig.height=4, fig.alt="Balkendiagramm der Häufigkeiten der gezogenen Parameterwerte"}
+ggplot(zaehlung, aes(x = factor(sprintf("%.1f", p_grid)), y = n)) +
+  geom_col(fill = "#999999") +
+  geom_text(aes(label = sprintf("%d", n)), vjust = -0.4, size = 4) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(x = "Wasseranteil (p_grid)", y = "Anzahl Stichproben") +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(color = "#D9D9D9", linewidth = 0.4),
+    axis.ticks = element_blank()
+  )
+```
+
+Wie groß ist laut dieser Stichprobe die Post-Wahrscheinlichkeit, dass der Wasseranteil `r operator_text` `r sprintf("%.1f", schwelle)` beträgt, also $Pr(p `r operator` `r sprintf("%.1f", schwelle)`)$?
+
+Answerlist
+----------
+* `r antworten[1]`
+* `r antworten[2]`
+* `r antworten[3]`
+* `r antworten[4]`
+* `r antworten[5]`
+
+Solution
+========
+Die Post-Wahrscheinlichkeit wird aus der Stichprobe als Anteil geschätzt: Man zählt alle Stichproben, deren Wert die Bedingung erfüllt, und teilt durch die Gesamtzahl `r format(n_samples, big.mark = " ")`. Gesucht ist $p `r operator` `r sprintf("%.1f", schwelle)`$; der Balken bei `r sprintf("%.1f", schwelle)` gehört also dazu. Insgesamt liegen `r round(sol * n_samples)` Stichproben in diesem Bereich (davon `r n_gleich` genau bei `r sprintf("%.1f", schwelle)`):
+
+$$Pr(p `r operator` `r sprintf("%.1f", schwelle)`) \approx \frac{`r round(sol * n_samples)`}{`r n_samples`} = `r antworten[1]`$$
+
+Woher die falschen Optionen kommen:
+
+* `r antworten[2]` ist $Pr(p `r operator_strikt` `r sprintf("%.1f", schwelle)`)$: Der Balken genau bei `r sprintf("%.1f", schwelle)` wurde vergessen, obwohl die Bedingung „`r operator_text`" ihn einschließt.
+* `r antworten[3]` ist $Pr(p `r operator_komplement` `r sprintf("%.1f", schwelle)`)$, also das Komplement (1 minus die richtige Antwort).
+* `r antworten[4]` ist $Pr(p `r operator_falsch` `r sprintf("%.1f", schwelle)`)$: Hier wurden die Balken auf der falschen Seite aufsummiert.
+* `r antworten[5]` ist $Pr(p = `r sprintf("%.1f", schwelle)`)$: Hier wurde nur der eine Balken bei `r sprintf("%.1f", schwelle)` gezählt.
+
+
+Aufgabenname: `post-stichprobe-anteil-ablesen-schoice`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+Meta-information
+================
+exname: post-stichprobe-anteil-ablesen-schoice
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: 5
+excategory: bayes

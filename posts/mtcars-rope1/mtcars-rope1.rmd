@@ -1,10 +1,4 @@
 ---
-extype: cloze
-expoints: 1
-exsolution: r sol[1]|r sol[2]|r sol[3]
-exclozetype: num|num|num
-exname: mtcars-rope1
-extol: 0.01
 date: '2022-12-15'
 slug: mtcars-rope1
 title: mtcars-rope1
@@ -17,7 +11,6 @@ categories:
 - mtcars
 - qm2-pruefung2023
 ---
-
 
 
 
@@ -40,8 +33,8 @@ options(mc.cores = parallel::detectCores())
 
 
 
-
-## Exercise
+Question
+========
 
 
 
@@ -53,6 +46,15 @@ a) Geben Sie die Breite des 95% PI an (im Bezug zur gesuchten Größe).
 b) Geben Sie das 95% HDI an (im Bezug zur gesuchten Größe).
 c) Im Hinblick auf die Rope-Methode: Ist der Unterschied vernachlässigbar klein? (ja/nein/unentschieden)
 
+Tragen Sie für a) und b) folgende Werte ein (Teil c wird nicht automatisch bewertet):
+
+Answerlist
+----------
+
+* a) Breite des 95%-PI
+* b) Untergrenze des 95%-HDI
+* b) Obergrenze des 95%-HDI
+
 
 Hinweise:
 
@@ -61,18 +63,9 @@ Hinweise:
 - Verwenden Sie Methoden der Bayes-Statistik.
 
 
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
 
-## Solution
+Solution
+========
 
 
 Setup:
@@ -136,6 +129,14 @@ Wir nutzen den Befehl `hdi()` aus `{bayestestR}`.
 hdi(m1)
 ```
 
+```{r echo = FALSE}
+hdi_vs <- as.data.frame(hdi(m1))
+hdi_vs <- hdi_vs[hdi_vs$Parameter == "vs", ]
+sol <- c(breite, round(hdi_vs$CI_low, 2), round(hdi_vs$CI_high, 2))
+```
+
+Die Antwort für b) lautet also [`r sol[2]`; `r sol[3]`].
+
 Mit dem Schalter `ci = .89` bekäme man bspw. ein 89%-Intervall (s. Hilfe für den Befehl).
 
 "hdi" und "hdpi" und "hpdi" sind synonym.
@@ -158,7 +159,7 @@ rope(m1,range = c(-1,1))
 ```
 
 ```{r}
-plot(rope(m1, range = c(-1,1)))
+plot(rope(m1, range = c(-1,1)), data = m1)
 ```
 
 Wir verwerfen also die H0-Rope.
@@ -167,6 +168,14 @@ Wir verwerfen also die H0-Rope.
 Aufgabenname: `mtcars-rope1`
 
 
+Answerlist
+----------
+
+* `r sol[1]`
+* `r sol[2]`
+* `r sol[3]`
+
+
 
   
   
@@ -176,7 +185,14 @@ Aufgabenname: `mtcars-rope1`
 
 
 
-
+Meta-information
+================
+exname: mtcars-rope1
+extype: cloze
+expoints: 1
+exsolution: `r sol[1]`|`r sol[2]`|`r sol[3]`
+exclozetype: num|num|num
+extol: 0.01
 
 
 ---

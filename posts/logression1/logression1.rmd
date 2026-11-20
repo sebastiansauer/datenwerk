@@ -1,0 +1,108 @@
+---
+title: logression1
+date: '2026-07-14'
+categories:
+- paper
+- todo
+execute:
+  echo: false
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+Question
+========
+
+
+```{r echo = FALSE, message= FALSE}
+data(stats_test, package = "pradadata")
+library(tidyverse)
+library(mosaic)
+
+
+stats_test <- 
+  stats_test %>% drop_na() %>% 
+  mutate(bestanden = factor(bestanden, 
+                            levels = c("nein", "ja")))
+
+```
+
+
+Prof. Süß untersucht den Zusammenhang von Lernzeit und Bestehen der Statistikklausur. Dazu hat er Daten gesammelt; das gefällt ihm. Zuerst visualisiert er den Zusammenhang von `bestanden` und Lernzeit (`study_time`; höhere Werte heißen längere Lernzeit); s. das Diagramm.
+
+
+```{r}
+gf_jitter(bestanden ~ study_time, data = stats_test)
+```
+
+
+Um es genauer zu haben, lässt er sich eine Kontingenztabelle ausgeben:
+
+
+```{r}
+tally(bestanden ~ study_time, 
+      data = stats_test)
+```
+
+Hm, vielleicht lieber als Anteile dargestellt?
+
+
+```{r}
+tally(bestanden ~ study_time, 
+      data = stats_test,
+      format = "proportion")
+```
+
+
+Dann untersucht er den Zusammenhang mit einer logististischen Regression:
+
+```{r}
+log_ress1 <- glm(bestanden ~ study_time, 
+                 data = stats_test, 
+                 family = "binomial")
+summary(log_ress1)
+```
+
+
+Wählen Sie die richtige Aussage!
+
+
+
+Answerlist
+----------
+* Der Logit des Bestehens steigt für jede Stufe von Lernzeit um ca. 0.72.
+* Die Odds des Bestehens steigen für jede Stufe von Lernzeit um ca. 0.72.
+* Der Wahrscheinlichkeit des Bestehens steigt für jede Stufe von Lernzeit um ca. 0.72.
+* Die Odds des Bestehens steigen für jede Stufe von Lernzeit um ca. 0.72-1.42.
+* Der Logit des Bestehens steigt für jede Stufe von Lernzeit um ca. 0.72-1.42.
+
+
+
+Solution
+========
+* Der Logit des Bestehens steigt für jede Stufe von Lernzeit um ca. 0.72.
+
+
+Aufgabenname: `logression1`
+
+
+Answerlist
+----------
+* Wahr
+* Falsch
+* Falsch
+* Falsch
+* Falsch
+
+
+
+
+Meta-information
+================
+exname: logression1
+extype: schoice
+expoints: 1
+exsolution: 10000
+exshuffle: true

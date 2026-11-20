@@ -1,9 +1,4 @@
 ---
-exname: mutate03
-extype: num
-exshuffle: no
-extol: 1
-expoints: 1
 categories:
 - datawrangling
 - eda
@@ -30,7 +25,8 @@ library(tidyverse)
 
 
 
-## Aufgabe
+Question
+========
 
 Im Datensatz `mariokart`: 
 
@@ -48,18 +44,9 @@ Hinweise:
 
 
 
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
 
-## Lösung
+Solution
+========
 
 Pakete starten:
 
@@ -82,21 +69,28 @@ mariokart <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/openin
 Wie ist die Verteilung von `wheels`?
 
 ```{r}
-
+mariokart |> count(wheels)
 ```
 
 
 ```{r}
+loesung <-
 mariokart |> 
   mutate(Anz_wheels_gruppe = 
            case_when(wheels <= 1 ~ "0-1",
-                     wheels >= 1 ~ "2 oder mehr")) |> 
+                     wheels >= 2 ~ "2 oder mehr")) |> 
   group_by(Anz_wheels_gruppe) |> 
   summarise(total_pr = mean(total_pr))
+
+loesung
+```
+
+```{r echo=FALSE}
+sol <- round(loesung$total_pr[loesung$Anz_wheels_gruppe == "0-1"])
 ```
 
 
-Die Antwort lautet: *43*.
+Die Antwort lautet: `r sol`.
 
 
 Aufgabenname: `mutate03`
@@ -106,6 +100,16 @@ Aufgabenname: `mutate03`
 
 
 
+
+
+Meta-information
+================
+exname: mutate03
+extype: num
+expoints: 1
+exsolution: `r sol`
+extol: 1
+exshuffle: false
 
 
 ---

@@ -1,0 +1,183 @@
+---
+title: within-design-analysis2
+date: '2026-07-14'
+categories:
+- regression
+- within-design
+- researchdesign
+- fopro
+---
+
+## Aufgabe
+
+Analysieren Sie die Veränderung in einem längsschnittlichen Experiment (Within-Design).
+
+Im Zuge des Experiments durchliefen alle $n$ Versuchspersonen insgesamt $k=4$ Bedingungen.
+Diese Bedingungen waren Teil von 2 UV, $A, B$.
+Jede UV hatte 2 Stufen ($S1, S2$)
+Es handelt sich also um 2*2-Within-Design.
+Die Reihenfolge der Bedingungen ist:
+
+A,S1 (y1) - A,S2 (y2) - B,S1 (y3) - B,S2 (y4)
+ 
+Entsprechend liegen für jede Versuchsperson $k$  Messungen vor, $y_1, y_2, ..., y_k$.
+Anders gesagt gab es $k$ Messzeitpunkte, $t_1, t_2, ..., t_k$,
+zu denen die abhängige Variable (y) jeweils gemessen wurde
+Die Messung bestand bei jeder Bedingung aus $i=10$ Items,
+wobei die Wahrscheinlichkeit $p$, ein Item zu lösen zwischen den Bedingungen unterschiedlich war.
+
+Prüfen Sie die folgende Hypothesen:
+
+1. Der Mittelwert von Bedingung 1 der UV 1 ist größer als der Mittelwert von Bedingung der UV 1: $\bar{y}_{X_1 = 1} - \bar{y}_{X_1 = 2}> 0$
+1. Der Mittelwert von Bedingung 1 der UV 2 ist größer als der Mittelwert von Bedingung der UV 2: $\bar{y}_{X_2 = 1} - \bar{y}_{X_2 = 2}> 0$
+
+
+Gehen Sie von folgenden (hier einfach simulierten) Daten aus:
+
+
+```{r}
+n <- 40  # Anzahl Versuchspersonen
+n_items <- 10  # i, d.h.Anzahl Items pro Messung von y
+prob <- c(.3, .5, .7, .9)  # p, d.h. Lösungswahrscheinlichkeit pro Messzeitpunkt
+```
+
+
+```{r}
+library(tidyverse)
+set.seed(42)
+d <-
+  tibble(id = 1:n,
+         y1 = rbinom(n = n, size = n_items, prob = prob[1]),
+         y2 = rbinom(n = n, size = n_items, prob = prob[2]),
+         y3 = rbinom(n = n, size = n_items, prob = prob[3]),
+         y4 = rbinom(n = n, size = n_items, prob = prob[4])
+         )
+
+head(d)
+```
+
+
+Hinweise:
+
+- Orientieren Sie sich im Übrigen an den [allgemeinen Hinweisen des Datenwerks](https://sebastiansauer.github.io/datenwerk/Hinweise.html).
+
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+## Lösung
+
+### Pakete starten
+
+```{r message=FALSE}
+library(tidyverse)
+library(rstanarm)
+library(easystats)
+```
+
+
+
+### Daten aufbereiten
+
+Berechnen wir für jede Versuchsperson ihren Wert pro UV.
+Das erreichen wir indem wir den Mittelwert bilden von y1 und y2 - UV A.
+Und entsprechend den Mittelwert von y3 und y3 - UV B.
+
+```{r}
+d2 <-
+d %>% 
+  mutate(A = (y1 + y2)/2,
+         B = (y3 + y4)/2
+  )
+
+head(d2)
+```
+
+
+
+Um die Daten (besser) analysieren zu können, formen wir sie ins "lange Format" um.
+
+```{r}
+d_long <-
+  d2 %>% 
+  pivot_longer(cols = c(y1, y2, y3, y4), names_to = "time", values_to = "y")
+```
+
+
+
+Dann ergänzen wir die Information, dass y1 und y2 zusammen A definieren (und analog für y3 und y4 = B).
+Außerdem fügen wir hinzu, zu welcher Stufe (1 oder 2) die Messung jeweils gehört.
+
+```{r}
+d2_long <-
+  d_long %>% 
+  mutate(UV = case_when(
+    time %in% c("y1", "y2") ~ "A",
+    time %in% c("y3", "y4") ~ "B"
+  )) %>% 
+  mutate(Stufe = case_when(
+    time %in% c("y1", "y3") ~ 1,
+    time %in% c("y2", "y4") ~ 2
+  ))
+```
+
+
+```{r}
+d2_long %>% 
+  ggplot(aes(x = 0, y = y)) +
+  geom_jitter(width = .1) +
+  geom_violin(alpha = .5) +
+  stat_summary(fun.y = "mean", color = "red", size = 2) +
+  facet_grid(UV ~ Stufe, labeller = label_both)
+```
+Oder vielleicht lieber zusammengefasst visualisieren:
+
+
+```{r}
+d2_long_summ <- 
+d2_long %>% 
+  group_by(UV, Stufe) %>% 
+  summarise(y_mean = mean(y))
+
+d2_long_summ
+```
+
+
+```{r}
+d2_long_summ %>% 
+  ggplot(aes(x = Stufe, y = y_mean, group = UV, color = UV)) +
+  geom_point() +
+  geom_line()
+```
+
+Man sieht, dass:
+
+- S2 einen höheren Mittelwert aufweist als S1, in beiden Variablen
+- Der Anstieg der beiden Regressionsgeraden (in etwa) parallel ist, ein Interaktionseffekt also nicht (oder kaum) vorliegt (in den Daten).
+
+
+
+### Hypothesen prüfen
+
+Für die Prüfung der Hypothesen gibt es keine Musterlösung.
+
+
+Aufgabenname: `within-design-analysis2`
+
+---
+
+Categories: 
+
+- regression
+- within-design
+- researchdesign
+- fopro

@@ -108,8 +108,8 @@ wobei $PS=0$ die Autos mit wenig PS meint.
 mtcars <-
   mtcars |> 
   mutate(PS = case_when(
-    mpg > median(mpg) ~ 1,
-    mpg <= median(mpg) ~ 0
+    hp > median(hp) ~ 1,
+    hp <= median(hp) ~ 0
   ))
 ```
 
@@ -140,7 +140,7 @@ m_post <-
 
 prop <- 
 m_post |> 
-  count(PS >= 0) |> 
+  count(PS < 0) |> 
   mutate(prop = n/sum(n))
 
 prop
@@ -149,7 +149,7 @@ prop
 
 ```{r}
 #| echo: false
-sol <- prop |> filter(`PS >= 0` == TRUE) |> pull(prop) |> round(2)
+sol <- prop |> filter(`PS < 0` == TRUE) |> pull(prop) |> round(2)
 ```
 
 
